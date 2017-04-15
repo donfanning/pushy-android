@@ -88,6 +88,7 @@ dependencies {
     compile "com.google.firebase:firebase-core:${rootProject.gmsVersion}"
     compile "com.google.firebase:firebase-messaging:${rootProject.gmsVersion}"
     compile "com.google.firebase:firebase-auth:${rootProject.gmsVersion}"
+    compile "com.google.firebase:firebase-crash:${rootProject.gmsVersion}"
     compile 'com.firebase:firebase-jobdispatcher:0.5.2'
 
     // Google API
