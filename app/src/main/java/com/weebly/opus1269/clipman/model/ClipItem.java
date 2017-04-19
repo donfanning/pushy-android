@@ -34,6 +34,7 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
@@ -44,6 +45,8 @@ import java.io.Serializable;
  * This class represents the data for a single clipboard entry
  */
 public class ClipItem implements Serializable {
+
+    private static final String TAG = "ClipItem";
 
     private static final String DESC_LABEL = "opus1269 was here";
     private static final String REMOTE_DESC_LABEL = "From Remote Copy";
@@ -117,7 +120,12 @@ public class ClipItem implements Serializable {
         if (clipText == null) {
             // If the Uri contains something, just coerce it to text
             if (item.getUri() != null) {
-                clipText = item.coerceToText(App.getContext());
+                try {
+                    clipText = item.coerceToText(App.getContext());
+                } catch (Exception ex) {
+                    Log.logEx(TAG, ex.getMessage(), ex);
+                    return null;
+                }
             }
         }
 
