@@ -30,6 +30,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -342,6 +343,10 @@ public enum User {
             final Collection<String> scopes =
                     new ArrayList<>(Collections.singletonList(Scopes.PROFILE));
             String urlName = "";
+
+            if (TextUtils.isEmpty(email)) {
+                return urlName;
+            }
 
             GoogleAccountCredential credential =
                     GoogleAccountCredential.usingOAuth2(context, scopes);
