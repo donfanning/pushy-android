@@ -80,7 +80,7 @@ public class MessagingClient extends Endpoint{
         }
 
         if (data != null) {
-            new MessagingAsyncTask().executeMe(data);;
+            new MessagingAsyncTask().executeMe(data);
         }
     }
 
@@ -178,13 +178,13 @@ public class MessagingClient extends Endpoint{
         try {
             data = new JSONObject();
             data.put(Msg.ACTION, action);
-            data.put(Msg.MESSAGE, Uri.encode(message));
+            data.put(Msg.MESSAGE, message);
             data.put(Msg.DEVICE_MODEL, Device.getMyDevice().getModel());
             data.put(Msg.DEVICE_SN, Device.getMyDevice().getSN());
             data.put(Msg.DEVICE_OS, Device.getMyDevice().getOS());
             data.put(Msg.DEVICE_NICKNAME, Device.getMyDevice().getNickname());
         } catch(JSONException ex) {
-            Log.logEx(TAG, "", ex);
+            Log.logEx(TAG, ex.getMessage(), ex);
             data = null;
         }
         return data;
