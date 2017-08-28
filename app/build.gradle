@@ -74,10 +74,7 @@ dependencies {
     compile "com.takisoft.fix:preference-v7:${rootProject.supportLibraryVersion}.0"
 
     // android support libraries
-//    compile "com.android.support:support-compat:${rootProject.supportLibraryVersion}"
-//    compile "com.android.support:support-core-utils:${rootProject.supportLibraryVersion}"
-//    compile "com.android.support:support-core-ui:${rootProject.supportLibraryVersion}"
-//    compile "com.android.support:support-v4:${rootProject.supportLibraryVersion}"
+    compile "com.android.support:support-v4:${rootProject.supportLibraryVersion}"
     compile "com.android.support:appcompat-v7:${rootProject.supportLibraryVersion}"
     compile "com.android.support:recyclerview-v7:${rootProject.supportLibraryVersion}"
     compile "com.android.support:design:${rootProject.supportLibraryVersion}"
