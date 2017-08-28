@@ -258,12 +258,8 @@ public class MenuTintHelper {
             if (reApplyOnChange) {
                 View view = item.getActionView();
                 if (view != null) {
-                    if (item instanceof MenuItemImpl) {
-                        ((MenuItemImpl) item).setSupportOnActionExpandListener(
-                                new SupportActionExpandListener(this));
-                    } else {
-                        item.setOnActionExpandListener(new NativeActionExpandListener(this));
-                    }
+                    item.setOnActionExpandListener(
+                        new NativeActionExpandListener(this));
                 }
             }
         }
