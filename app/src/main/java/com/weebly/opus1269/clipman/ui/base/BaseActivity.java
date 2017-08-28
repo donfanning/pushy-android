@@ -23,7 +23,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -88,7 +87,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
             setContentView(mLayoutID);
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -171,8 +170,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
     }
 
     protected void setFabVisibility(boolean show) {
-        final FloatingActionButton fab =
-                (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = findViewById(R.id.fab);
         if (fab != null) {
             if (show) {
                 fab.show();
@@ -241,8 +239,8 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
             // SearchView OnClose listener does not work
             // http://stackoverflow.com/a/12975254/4468645
-            MenuItemCompat.setOnActionExpandListener(searchItem,
-                    new MenuItemCompat.OnActionExpandListener() {
+            searchItem.setOnActionExpandListener(
+                    new MenuItem.OnActionExpandListener() {
                         @Override
                         public boolean onMenuItemActionExpand(MenuItem menuItem) {
                             // Return true to allow the action view to expand
@@ -266,7 +264,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
                 // http://stackoverflow.com/a/32397014/4468645
                 // moved expandActionView out of run.
                 // did not always work.
-                MenuItemCompat.expandActionView(searchItem);
+                searchItem.expandActionView();
                 searchView.post(new Runnable() {
                     @Override
                     public void run() {

@@ -20,7 +20,6 @@ package com.weebly.opus1269.clipman.ui.helpers;
 import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.widget.ActionMenuView;
 import android.util.Log;
@@ -395,34 +394,6 @@ public class MenuTintHelper {
 
     }
 
-    public static class SupportActionExpandListener implements
-            MenuItemCompat.OnActionExpandListener {
-
-        private final MenuTintHelper menuTintHelper;
-
-        public SupportActionExpandListener(MenuTintHelper menuTintHelper) {
-            this.menuTintHelper = menuTintHelper;
-        }
-
-        @Override
-        public boolean onMenuItemActionExpand(MenuItem item) {
-            int color = menuTintHelper.originalMenuItemIconColor == null ? menuTintHelper.menuItemIconColor :
-                    menuTintHelper.originalMenuItemIconColor;
-            menuTintHelper.setMenuItemIconColor(color);
-            menuTintHelper.reapply();
-            return true;
-        }
-
-        @Override
-        public boolean onMenuItemActionCollapse(MenuItem item) {
-            int color = menuTintHelper.originalMenuItemIconColor == null ? menuTintHelper.menuItemIconColor :
-                    menuTintHelper.originalMenuItemIconColor;
-            menuTintHelper.setMenuItemIconColor(color);
-            menuTintHelper.reapply();
-            return true;
-        }
-
-    }
 
     // --------------------------------------------------------------------------------------------
 
