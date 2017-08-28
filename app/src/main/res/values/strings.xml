@@ -226,6 +226,7 @@
     <string name="err_not_registered">Device is not registered</string>
     <string name="err_not_signed_in">Not signed in</string>
     <string name="err_credential">Unable to get user credential</string>
+    <string name="channel_01" translatable="false">channel_01</string>
 
 
     <!-- Related to account sign-in -->
