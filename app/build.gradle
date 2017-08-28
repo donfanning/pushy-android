@@ -89,7 +89,7 @@ dependencies {
     compile "com.google.firebase:firebase-messaging:${rootProject.gmsVersion}"
     compile "com.google.firebase:firebase-auth:${rootProject.gmsVersion}"
     compile "com.google.firebase:firebase-crash:${rootProject.gmsVersion}"
-    compile 'com.firebase:firebase-jobdispatcher:0.5.2'
+    compile 'com.firebase:firebase-jobdispatcher:0.7.0'
 
     // Google API
     compile "com.google.api-client:google-api-client:${rootProject.gapiVersion}"
