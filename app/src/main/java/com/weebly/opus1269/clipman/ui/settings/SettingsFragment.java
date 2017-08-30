@@ -50,7 +50,7 @@ import com.weebly.opus1269.clipman.ui.main.MainActivity;
  * Supports Material design through {@link PreferenceFragmentCompatDividers}
  */
 public class SettingsFragment extends PreferenceFragmentCompatDividers
-    implements SharedPreferences.OnSharedPreferenceChangeListener  {
+    implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int REQUEST_CODE_ALERT_RINGTONE = 5;
 
@@ -95,8 +95,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         } finally {
             setDividerPreferences(
                 DIVIDER_PADDING_CHILD |
-                DIVIDER_CATEGORY_AFTER_LAST |
-                DIVIDER_CATEGORY_BETWEEN);
+                    DIVIDER_CATEGORY_AFTER_LAST |
+                    DIVIDER_CATEGORY_BETWEEN);
         }
     }
 
@@ -144,6 +144,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == REQUEST_CODE_ALERT_RINGTONE) && (data != null)) {
+            // Save the Ringtone preference
             final Uri ringtone =
                 data.getParcelableExtra(
                     RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
@@ -167,15 +168,15 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     public void
     onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         final String keyNickname =
-            getResources().getString(R.string.key_pref_nickname);
+            getString(R.string.key_pref_nickname);
         final String keyMonitor =
-            getResources().getString(R.string.key_pref_monitor_clipboard);
+            getString(R.string.key_pref_monitor_clipboard);
         final String keyTheme =
-            getResources().getString(R.string.key_pref_theme);
+            getString(R.string.key_pref_theme);
         final String keyNotifications =
-            getResources().getString(R.string.key_pref_notifications);
+            getString(R.string.key_pref_notifications);
         final String keyReceive =
-            getResources().getString(R.string.key_pref_receive_msg);
+            getString(R.string.key_pref_receive_msg);
         final Activity activity = getActivity();
 
         if (key.equals(keyNickname)) {
@@ -202,7 +203,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
                 // remove any currently displayed Notifications
                 NotificationHelper.removeAll();
             }
-        }  else if (key.equals(keyReceive)) {
+        } else if (key.equals(keyReceive)) {
             if (User.INSTANCE.isLoggedIn()) {
                 if (Prefs.isAllowReceive()) {
                     // register
@@ -231,7 +232,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         final String value = Prefs.getRingtone();
         final String title;
         if (TextUtils.isEmpty(value)) {
-            title = "Silent";
+            title = getString(R.string.key_pref_ringtone_silent);
         } else {
             final Uri uri = Uri.parse(value);
             final Ringtone ringtone =
