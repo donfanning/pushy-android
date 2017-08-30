@@ -592,7 +592,6 @@ public class SignInActivity extends BaseActivity implements
     private void signInFailed(String error) {
         mErrorMessage = error;
         Log.logE(TAG, mErrorMessage);
-        Analytics.INSTANCE.error(error, "signIn");
         clearUser();
         dismissProgressDialog();
     }
@@ -604,7 +603,6 @@ public class SignInActivity extends BaseActivity implements
     private void signOutFailed(String error) {
         mErrorMessage = error;
         Log.logE(TAG, mErrorMessage);
-        Analytics.INSTANCE.error(error, "signOut");
         dismissProgressDialog();
     }
 

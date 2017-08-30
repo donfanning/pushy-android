@@ -57,8 +57,6 @@ public class RefreshTokenJobService extends JobService {
                         RegistrationClient.register(refreshedToken);
                     if (!ret.getSuccess()) {
                         Log.logE(TAG, ret.getReason());
-                        Analytics.INSTANCE.error(ret.getReason(),
-                            "refreshInstanceID.register");
                     }
                 }
             });

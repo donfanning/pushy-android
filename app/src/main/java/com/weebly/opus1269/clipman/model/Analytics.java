@@ -18,6 +18,9 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -69,7 +72,9 @@ public enum Analytics {
     }
 
     /**
-     * Message error event
+     * Error event
+     * @param label Event label
+     * @param action Event action
      */
     public void error(String label, String action) {
         getTracker().setScreenName(NO_SCREEN);
@@ -81,7 +86,26 @@ public enum Analytics {
     }
 
     /**
+     * Exception
+     * @param message Error message
+     * @param e Exception
+     */
+    public void exception(String message, Exception e) {
+        String msg = "Exception caught: ";
+        if(!TextUtils.isEmpty(message)) {
+            msg = message;
+        }
+        msg += Log.getStackTraceString(e);
+        getTracker().setScreenName(NO_SCREEN);
+        getTracker().send(new HitBuilders.ExceptionBuilder()
+            .setFatal(true)
+            .setDescription(msg)
+            .build());
+    }
+
+    /**
      * Message sent event
+     * @param label message type
      */
     public void sent(String label) {
         getTracker().setScreenName(NO_SCREEN);
@@ -94,6 +118,7 @@ public enum Analytics {
 
     /**
      * Message received event
+     * @param label message type
      */
     public void received(String label) {
         getTracker().setScreenName(NO_SCREEN);

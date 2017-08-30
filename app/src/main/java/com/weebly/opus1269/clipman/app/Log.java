@@ -21,6 +21,7 @@ package com.weebly.opus1269.clipman.app;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.BuildConfig;
+import com.weebly.opus1269.clipman.model.Analytics;
 
 /**
  * Message logger Class
@@ -48,6 +49,7 @@ public class Log {
      */
     public static String logE(String tag, String message) {
         android.util.Log.e(MY_APP + tag, message);
+        Analytics.INSTANCE.error(message, tag);
         return message;
     }
 
@@ -66,6 +68,7 @@ public class Log {
         msg+= e.getLocalizedMessage();
         android.util.Log.e(MY_APP + tag, msg);
         android.util.Log.e(MY_APP + tag, e.toString());
+        Analytics.INSTANCE.exception(message, e);
         return msg;
     }
 }
