@@ -231,7 +231,7 @@ public class MessagingClient extends Endpoint{
                     .send(regToken, jsonString, highPriority).execute();
                 if (ret.getSuccess()) {
                     Log.logD(TAG, "Message sent to server: " + mAction);
-                    Analytics.INSTANCE.sent();
+                    Analytics.INSTANCE.sent(mAction);
                 } else {
                     ret.setReason(
                         Log.logE(TAG, ERROR_SEND + ": " + ret.getReason()));
