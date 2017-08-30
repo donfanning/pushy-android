@@ -39,6 +39,7 @@ public enum Analytics {
     private static final String CAT_MSG = "message";
     private static final String CAT_REG = "register";
     private static final String CAT_TOKEN = "token";
+    private static final String CAT_ERROR = "error";
     private static final String SENT = "sent";
     private static final String RECEIVED = "received";
     private static final String REGISTERED = "registered";
@@ -65,6 +66,18 @@ public enum Analytics {
             mTracker.setAppVersion(Prefs.getVersionName());
         }
         return mTracker;
+    }
+
+    /**
+     * Message error event
+     */
+    public void error(String label, String action) {
+        getTracker().setScreenName(NO_SCREEN);
+        getTracker().send(new HitBuilders.EventBuilder()
+            .setCategory(CAT_ERROR)
+            .setAction(action)
+            .setLabel(label)
+            .build());
     }
 
     /**
