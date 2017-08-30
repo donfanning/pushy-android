@@ -146,8 +146,9 @@
     <string name="key_pref_not_audible_once">audible_once</string>
     <string name="pref_desc_not_audible_once">New notifications are silent if already visible</string>
 
-    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_title_ringtone">Tone</string>
     <string name="key_pref_ringtone">ringtone</string>
+    <string name="key_pref_ringtone_silent">None</string>
 
 
     <!-- Related to array.xml (other than prefs) -->
