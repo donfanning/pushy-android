@@ -18,6 +18,7 @@
 
 package com.weebly.opus1269.clipman.ui.signin;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -64,7 +65,6 @@ import com.weebly.opus1269.clipman.ui.helpers.ProgressDialogHelper;
  */
 public class SignInActivity extends BaseActivity implements
     GoogleApiClient.OnConnectionFailedListener,
-    FirebaseAuth.AuthStateListener,
     View.OnClickListener {
 
     /**
@@ -134,7 +134,6 @@ public class SignInActivity extends BaseActivity implements
     protected void onStart() {
         super.onStart();
 
-        mAuth.addAuthStateListener(this);
         LocalBroadcastManager
             .getInstance(this)
             .registerReceiver(mDevicesReceiver,
@@ -150,7 +149,6 @@ public class SignInActivity extends BaseActivity implements
     protected void onStop() {
         super.onStop();
 
-        mAuth.removeAuthStateListener(this);
         LocalBroadcastManager
             .getInstance(this)
             .unregisterReceiver(mDevicesReceiver);
@@ -222,37 +220,37 @@ public class SignInActivity extends BaseActivity implements
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Implement FirebaseAuth.AuthStateListener
-    ///////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        dismissProgressDialog();
-
-        final FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user != null) {
-            // User is signed in
-            if (mAccount != null) {
-                // set User
-                User.INSTANCE.set(mAccount);
-                updateView();
-
-                if (!Prefs.isDeviceRegistered()) {
-                    // register with server
-                    new RegistrationClient
-                        .RegisterAsyncTask(this, mAccount.getIdToken())
-                        .executeMe();
-                }
-            } else {
-                // something went wrong, shouldn't be here
-                signInFailed(getString(R.string.sign_in_err));
-            }
-        } else {
-            // User is signed out
-            clearUser();
-        }
-    }
+//    ///////////////////////////////////////////////////////////////////////////
+//    // Implement FirebaseAuth.AuthStateListener
+//    ///////////////////////////////////////////////////////////////////////////
+//
+//    @Override
+//    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//        dismissProgressDialog();
+//
+//        final FirebaseUser user = firebaseAuth.getCurrentUser();
+//        if (user != null) {
+//            // User is signed in
+//            if (mAccount != null) {
+//                // set User
+//                User.INSTANCE.set(mAccount);
+//                updateView();
+//
+//                if (!Prefs.isDeviceRegistered()) {
+//                    // register with server
+//                    new RegistrationClient
+//                        .RegisterAsyncTask(this, mAccount.getIdToken())
+//                        .executeMe();
+//                }
+//            } else {
+//                // something went wrong, shouldn't be here
+//                signInFailed(getString(R.string.sign_in_err));
+//            }
+//        } else {
+//            // User is signed out
+//            clearUser();
+//        }
+//    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Implement View.OnClickListener
@@ -304,8 +302,9 @@ public class SignInActivity extends BaseActivity implements
                     @Override
                     public void onResult(@NonNull Status status) {
                         if (status.isSuccess()) {
-                            // auth listener will handle rest of sign out
                             FirebaseAuth.getInstance().signOut();
+                            clearUser();
+                            dismissProgressDialog();
                         } else {
                             signOutFailed(getString(R.string.sign_out_err_fmt,
                                 status.getStatusMessage()));
@@ -396,6 +395,7 @@ public class SignInActivity extends BaseActivity implements
      * Authorize with Firebase
      */
     private void firebaseAuthWithGoogle() {
+        final Activity activity = this;
         AuthCredential credential =
             GoogleAuthProvider.getCredential(mAccount.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -412,8 +412,27 @@ public class SignInActivity extends BaseActivity implements
                         assert ex != null;
                         signInFailed(ex.getLocalizedMessage());
                     }
-                    // success, auth listener will handle rest
+                    // success
                     dismissProgressDialog();
+                    final FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        // User is signed in
+                        if (mAccount != null) {
+                            // set User
+                            User.INSTANCE.set(mAccount);
+                            updateView();
+
+                            if (!Prefs.isDeviceRegistered()) {
+                                // register with server
+                                new RegistrationClient
+                                    .RegisterAsyncTask(activity, mAccount.getIdToken())
+                                    .executeMe();
+                            }
+                        } else {
+                            // something went wrong, shouldn't be here
+                            signInFailed(getString(R.string.sign_in_err));
+                        }
+                    }
                 }
             });
     }
@@ -532,8 +551,9 @@ public class SignInActivity extends BaseActivity implements
                         @Override
                         public void onResult(@NonNull Status status) {
                             if (status.isSuccess()) {
-                                // auth listener will handle rest of sign out
                                 FirebaseAuth.getInstance().signOut();
+                                clearUser();
+                                dismissProgressDialog();
                             } else {
                                 signOutFailed(getString(R.string.revoke_err_fmt,
                                     status.getStatusMessage()));
