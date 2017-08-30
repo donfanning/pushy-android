@@ -18,7 +18,6 @@
 
 package com.weebly.opus1269.clipman.ui.signin;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -65,6 +64,7 @@ import com.weebly.opus1269.clipman.ui.helpers.ProgressDialogHelper;
  */
 public class SignInActivity extends BaseActivity implements
     GoogleApiClient.OnConnectionFailedListener,
+    OnCompleteListener<AuthResult>,
     View.OnClickListener {
 
     /**
@@ -220,37 +220,43 @@ public class SignInActivity extends BaseActivity implements
         }
     }
 
-//    ///////////////////////////////////////////////////////////////////////////
-//    // Implement FirebaseAuth.AuthStateListener
-//    ///////////////////////////////////////////////////////////////////////////
-//
-//    @Override
-//    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//        dismissProgressDialog();
-//
-//        final FirebaseUser user = firebaseAuth.getCurrentUser();
-//        if (user != null) {
-//            // User is signed in
-//            if (mAccount != null) {
-//                // set User
-//                User.INSTANCE.set(mAccount);
-//                updateView();
-//
-//                if (!Prefs.isDeviceRegistered()) {
-//                    // register with server
-//                    new RegistrationClient
-//                        .RegisterAsyncTask(this, mAccount.getIdToken())
-//                        .executeMe();
-//                }
-//            } else {
-//                // something went wrong, shouldn't be here
-//                signInFailed(getString(R.string.sign_in_err));
-//            }
-//        } else {
-//            // User is signed out
-//            clearUser();
-//        }
-//    }
+    ///////////////////////////////////////////////////////////////////////////
+    // Implement Firebase OnCompleteListener
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void onComplete(@NonNull Task<AuthResult> task) {
+        // Called after firebase sign in
+        dismissProgressDialog();
+        if (!task.isSuccessful()) {
+            // If sign in fails, display a message to the user.
+            final Exception ex = task.getException();
+            Log.logEx(TAG, "firebase signin error", ex);
+            assert ex != null;
+            signInFailed(ex.getLocalizedMessage());
+        } else {
+            // success
+            final FirebaseUser user = mAuth.getCurrentUser();
+            if (user != null) {
+                // User is signed in
+                if (mAccount != null) {
+                    // set User
+                    User.INSTANCE.set(mAccount);
+                    updateView();
+
+                    if (!Prefs.isDeviceRegistered()) {
+                        // register with server
+                        new RegistrationClient
+                            .RegisterAsyncTask(this, mAccount.getIdToken())
+                            .executeMe();
+                    }
+                } else {
+                    // something went wrong, shouldn't be here
+                    signInFailed(getString(R.string.sign_in_err));
+                }
+            }
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Implement View.OnClickListener
@@ -376,12 +382,15 @@ public class SignInActivity extends BaseActivity implements
      * @param result The {@link GoogleSignInResult} of any SignIn attempt
      */
     private void handleSignInResult(GoogleSignInResult result) {
-        showProgressDialog(getString(R.string.signing_in));
         mErrorMessage = "";
         if (result.isSuccess()) {
             mAccount = result.getSignInAccount();
-            // Authenticate with Firebase, also completes sign-in activities
-            firebaseAuthWithGoogle();
+            if (!User.INSTANCE.isLoggedIn()) {
+                // Authenticate with Firebase, also completes sign-in activities
+                firebaseAuthWithGoogle();
+            } else {
+                updateView();
+            }
         } else {
             // Google signIn failed
             final String error =
@@ -395,46 +404,11 @@ public class SignInActivity extends BaseActivity implements
      * Authorize with Firebase
      */
     private void firebaseAuthWithGoogle() {
-        final Activity activity = this;
+        showProgressDialog(getString(R.string.signing_in));
         AuthCredential credential =
             GoogleAuthProvider.getCredential(mAccount.getIdToken(), null);
         mAuth.signInWithCredential(credential)
-            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    // If sign in fails, display a message to the user.
-                    // If sign in succeeds the auth state listener will be
-                    // notified and logic to handle the
-                    // signed in user can be handled in the listener.
-                    if (!task.isSuccessful()) {
-                        final Exception ex = task.getException();
-                        Log.logEx(TAG, "firebase signin error", ex);
-                        assert ex != null;
-                        signInFailed(ex.getLocalizedMessage());
-                    }
-                    // success
-                    dismissProgressDialog();
-                    final FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        // User is signed in
-                        if (mAccount != null) {
-                            // set User
-                            User.INSTANCE.set(mAccount);
-                            updateView();
-
-                            if (!Prefs.isDeviceRegistered()) {
-                                // register with server
-                                new RegistrationClient
-                                    .RegisterAsyncTask(activity, mAccount.getIdToken())
-                                    .executeMe();
-                            }
-                        } else {
-                            // something went wrong, shouldn't be here
-                            signInFailed(getString(R.string.sign_in_err));
-                        }
-                    }
-                }
-            });
+            .addOnCompleteListener(this, this);
     }
 
     /**
