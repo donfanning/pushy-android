@@ -38,10 +38,12 @@ public enum Analytics {
 
     private static final String CAT_MSG = "message";
     private static final String CAT_REG = "register";
+    private static final String CAT_TOKEN = "token";
     private static final String SENT = "sent";
     private static final String RECEIVED = "received";
     private static final String REGISTERED = "registered";
     private static final String UNREGISTERED = "unregistered";
+    private static final String REFRESHED = "refeshed";
     private static final String NO_SCREEN = "none";
 
     /**
@@ -106,6 +108,17 @@ public enum Analytics {
         getTracker().send(new HitBuilders.EventBuilder()
             .setCategory(CAT_REG)
             .setAction(UNREGISTERED)
+            .build());
+    }
+
+    /**
+     * Firebase token refreshed.
+     */
+    public void instanceIdRefreshed() {
+        getTracker().setScreenName(NO_SCREEN);
+        getTracker().send(new HitBuilders.EventBuilder()
+            .setCategory(CAT_TOKEN)
+            .setAction(REFRESHED)
             .build());
     }
 }

@@ -27,6 +27,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backend.registration.model.EndpointRet;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.RegistrationClient;
 
@@ -51,6 +52,7 @@ public class RefreshTokenJobService extends JobService {
                     String refreshedToken =
                         FirebaseInstanceId.getInstance().getToken();
                     Log.logD(TAG, "Refreshed token: " + refreshedToken);
+                    Analytics.INSTANCE.instanceIdRefreshed();
                     final EndpointRet ret =
                         RegistrationClient.register(refreshedToken);
                     if (!ret.getSuccess()) {
