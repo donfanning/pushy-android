@@ -111,8 +111,8 @@ public class MyFcmListenerService extends FirebaseMessagingService {
             return;
         }
 
-        Analytics.INSTANCE.received();
         Log.logD(TAG, FCM_RECEIVED + action);
+        Analytics.INSTANCE.received(action);
 
         switch (action) {
             case Msg.ACTION_MESSAGE:
@@ -154,6 +154,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     public void onDeletedMessages() {
         super.onDeletedMessages();
         Log.logD(TAG, FCM_DELETED);
+        Analytics.INSTANCE.error("", "deleted");
     }
 
     @Override
@@ -166,6 +167,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     public void onSendError(String msgId, Exception ex) {
         super.onSendError(msgId, ex);
         Log.logEx(TAG, FCM_SEND_ERROR + msgId, ex);
+        Analytics.INSTANCE.error(ex.getMessage(), "send");
     }
 
     ///////////////////////////////////////////////////////////////////////////

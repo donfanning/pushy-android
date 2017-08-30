@@ -83,22 +83,24 @@ public enum Analytics {
     /**
      * Message sent event
      */
-    public void sent() {
+    public void sent(String label) {
         getTracker().setScreenName(NO_SCREEN);
         getTracker().send(new HitBuilders.EventBuilder()
             .setCategory(CAT_MSG)
             .setAction(SENT)
+            .setLabel(label)
             .build());
     }
 
     /**
      * Message received event
      */
-    public void received() {
+    public void received(String label) {
         getTracker().setScreenName(NO_SCREEN);
         getTracker().send(new HitBuilders.EventBuilder()
             .setCategory(CAT_MSG)
             .setAction(RECEIVED)
+            .setLabel(label)
             .build());
     }
 
