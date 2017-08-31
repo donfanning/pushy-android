@@ -237,7 +237,7 @@ public class NotificationHelper {
     getBuilder(PendingIntent pInt, int largeIcon, String titleText) {
         final Context context = App.getContext();
         final NotificationCompat.Builder builder =
-            new NotificationCompat.Builder(context, context.getString(R.string.channel_01));
+            new NotificationCompat.Builder(context);
 
         builder.setContentIntent(pInt)
             .setLargeIcon(getLargeIcon(largeIcon))

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -48,9 +49,9 @@ import java.text.Collator;
  */
 
 public abstract class BaseActivity extends AppCompatActivity implements
-        SearchView.OnQueryTextListener {
+    SearchView.OnQueryTextListener {
 
-     protected String TAG = this.getClass().getSimpleName();
+    protected String TAG = this.getClass().getSimpleName();
 
     // Required to support Vector Drawables on pre-marshmallow devices
     static {
@@ -87,7 +88,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
             setContentView(mLayoutID);
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
@@ -145,7 +146,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
     /**
      * Override to restore additional state
-     *
      * @param savedInstanceState our state
      */
     protected void restoreInstanceState(Bundle savedInstanceState) {
@@ -156,7 +156,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
     /**
      * Override to implement business logic
-     *
      * @param queryString String to search for
      * @return true if the new String differs from the current one
      */
@@ -170,7 +169,8 @@ public abstract class BaseActivity extends AppCompatActivity implements
     }
 
     protected void setFabVisibility(boolean show) {
-        final FloatingActionButton fab = findViewById(R.id.fab);
+        final FloatingActionButton fab =
+            (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) {
             if (show) {
                 fab.show();
@@ -203,7 +203,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
     /**
      * Apply the user selected theme
      */
-    private  void setTheme() {
+    private void setTheme() {
         if (Prefs.isDarkTheme()) {
             this.setTheme(R.style.AppThemeDark);
         } else {
@@ -218,53 +218,55 @@ public abstract class BaseActivity extends AppCompatActivity implements
         if (mOptionsMenu != null) {
             final int color = ContextCompat.getColor(this, R.color.icons);
             MenuTintHelper.on(mOptionsMenu)
-                    .setMenuItemIconColor(color)
-                    .apply(this);
+                .setMenuItemIconColor(color)
+                .apply(this);
         }
     }
 
     /**
-     * Initialize the {@link android.support.v7.view.menu.ActionMenuItemView} for search
+     * Initialize the {@link android.support.v7.view.menu.ActionMenuItemView}
+     * for search
      */
     private void setupSearch() {
         final MenuItem searchItem = mOptionsMenu.findItem(R.id.action_search);
         if (searchItem != null) {
             final SearchManager searchManager =
-                    (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            final SearchView searchView = (SearchView) searchItem.getActionView();
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            final SearchView searchView =
+                (SearchView) searchItem.getActionView();
             searchView.setSearchableInfo(
-                    searchManager.getSearchableInfo(getComponentName()));
+                searchManager.getSearchableInfo(getComponentName()));
             searchView.setOnQueryTextListener(this);
             final String localQueryString = mQueryString;
 
             // SearchView OnClose listener does not work
             // http://stackoverflow.com/a/12975254/4468645
-            searchItem.setOnActionExpandListener(
-                    new MenuItem.OnActionExpandListener() {
-                        @Override
-                        public boolean onMenuItemActionExpand(MenuItem menuItem) {
-                            // Return true to allow the action view to expand
-                            return true;
-                        }
+            MenuItemCompat.setOnActionExpandListener(searchItem,
+                new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                        // Return true to allow the action view to expand
+                        return true;
+                    }
 
-                        @Override
-                        public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-                            // Return true to allow the action view to collapse
-                            // When the action view is collapsed, reset the query
-                            setQueryString("");
-                            // refresh menu, SearchAction does something funky to it
-                            // after a rotate
-                            mOptionsMenu.clear();
-                            onCreateOptionsMenu(mOptionsMenu);
-                            return true;
-                        }
-                    });
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                        // Return true to allow the action view to collapse
+                        // When the action view is collapsed, reset the query
+                        setQueryString("");
+                        // refresh menu, SearchAction does something funky to it
+                        // after a rotate
+                        mOptionsMenu.clear();
+                        onCreateOptionsMenu(mOptionsMenu);
+                        return true;
+                    }
+                });
 
             if (!TextUtils.isEmpty(mQueryString)) {
                 // http://stackoverflow.com/a/32397014/4468645
                 // moved expandActionView out of run.
                 // did not always work.
-                searchItem.expandActionView();
+                MenuItemCompat.expandActionView(searchItem);
                 searchView.post(new Runnable() {
                     @Override
                     public void run() {

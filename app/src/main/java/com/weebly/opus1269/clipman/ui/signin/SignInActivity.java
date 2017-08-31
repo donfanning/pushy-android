@@ -452,7 +452,7 @@ public class SignInActivity extends BaseActivity implements
         findViewById(R.id.sign_out_button).setOnClickListener(this);
         findViewById(R.id.revoke_access_button).setOnClickListener(this);
 
-        final SignInButton signInButton = findViewById(R.id.sign_in_button);
+        final SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
         if (signInButton != null) {
             signInButton.setStyle(
                 SignInButton.SIZE_WIDE,
@@ -561,9 +561,9 @@ public class SignInActivity extends BaseActivity implements
     private void updateView() {
         final View signInView = findViewById(R.id.sign_in);
         final View signOutView = findViewById(R.id.sign_out_and_disconnect);
-        final TextView userNameView = findViewById(R.id.user_name);
-        final TextView emailView = findViewById(R.id.email);
-        final TextView errorView = findViewById(R.id.error_message);
+        final TextView userNameView = (TextView) findViewById(R.id.user_name);
+        final TextView emailView = (TextView) findViewById(R.id.email);
+        final TextView errorView = (TextView) findViewById(R.id.error_message);
         if (signInView == null || signOutView == null) {
             // hmm
             return;
