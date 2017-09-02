@@ -158,7 +158,10 @@ abstract class Endpoint {
      */
     static void setLocalServer(AbstractGoogleJsonClient.Builder builder) {
         if (USE_LOCAL_SERVER && BuildConfig.DEBUG) {
-            builder.setRootUrl("http://10.0.0.52:8080/_ah/api/")
+            // options for running against local devappserver
+            // - 10.0.2.2 is localhost's IP address in Android emulator
+            // - turn off compression when running against local devappserver
+            builder.setRootUrl("http://10.0.2.2:8080/_ah/api/")
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> request) {
