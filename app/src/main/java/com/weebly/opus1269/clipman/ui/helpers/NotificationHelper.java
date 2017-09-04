@@ -230,13 +230,13 @@ public class NotificationHelper {
 
   /**
    * Display the Notification settings for Android O
+   * @param context A context
    */
-  public static void showNotificationSettings() {
+  public static void showNotificationSettings(Context context) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
       return;
     }
 
-    final Context context = App.getContext();
     Intent intent =
       new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
     intent.putExtra(Settings.EXTRA_CHANNEL_ID,

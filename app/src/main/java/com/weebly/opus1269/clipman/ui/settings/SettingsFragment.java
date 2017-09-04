@@ -134,7 +134,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       return true;
     } else if (mMangageNotKey.equals(key)) {
       // Manage notifications for Android O and later
-      NotificationHelper.showNotificationSettings();
+      NotificationHelper.showNotificationSettings(getContext());
       return true;
     }
 
