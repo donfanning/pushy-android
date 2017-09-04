@@ -1,19 +1,8 @@
 /*
- *
- * Copyright 2017 Michael A Updike
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+ * Licensed under Apache 2.0
+ * https://opensource.org/licenses/Apache-2.0
+ * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
 package com.weebly.opus1269.clipman.ui.devices;
@@ -40,103 +29,103 @@ import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
  */
 public class DevicesActivity extends BaseActivity {
 
-    // Adapter being used to display the list's data
-    private DevicesAdapter mAdapter = null;
+  // Adapter being used to display the list's data
+  private DevicesAdapter mAdapter = null;
 
-    private BroadcastReceiver mDevicesReceiver = null;
+  private BroadcastReceiver mDevicesReceiver = null;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
 
-        mLayoutID = R.layout.activity_devices;
+    mLayoutID = R.layout.activity_devices;
 
-        super.onCreate(savedInstanceState);
+    super.onCreate(savedInstanceState);
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (fab != null) {
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    doRefresh();
-                }
-            });
+    final FloatingActionButton fab = findViewById(R.id.fab);
+    if (fab != null) {
+      fab.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          doRefresh();
+        }
+      });
+    }
+
+    setupRecyclerView();
+
+    setupDevicesBroadcastReceiver();
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    // Unregister since the activity is not visible
+    LocalBroadcastManager.getInstance(this)
+      .unregisterReceiver(mDevicesReceiver);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+
+    // Register mDevicesReceiver to receive Device notifications.
+    LocalBroadcastManager.getInstance(this)
+      .registerReceiver(mDevicesReceiver,
+        new IntentFilter(Devices.INTENT_FILTER));
+
+    NotificationHelper.removeDevices();
+
+    // ping devices
+    MessagingClient.sendPing();
+
+    // so relative dates get updated
+    mAdapter.notifyDataSetChanged();
+  }
+
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Private methods
+  ///////////////////////////////////////////////////////////////////////////
+
+  private void setupRecyclerView() {
+    final RecyclerView recyclerView =
+      findViewById(R.id.deviceList);
+    if (recyclerView != null) {
+      mAdapter = new DevicesAdapter();
+      recyclerView.setAdapter(mAdapter);
+      recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+  }
+
+  private void setupDevicesBroadcastReceiver() {
+    // handler for received Intents for the "devices" event
+    mDevicesReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        notifyAdapter(intent);
+      }
+
+      private void notifyAdapter(Intent intent) {
+        final Bundle bundle = intent.getBundleExtra(Devices.BUNDLE);
+        final String action = bundle.getString(Devices.ACTION);
+        if (action == null) {
+          return;
         }
 
-        setupRecyclerView();
-
-        setupDevicesBroadcastReceiver();
-     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Unregister since the activity is not visible
-        LocalBroadcastManager.getInstance(this)
-            .unregisterReceiver(mDevicesReceiver);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Register mDevicesReceiver to receive Device notifications.
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(mDevicesReceiver,
-                new IntentFilter(Devices.INTENT_FILTER));
-
-        NotificationHelper.removeDevices();
-
-        // ping devices
-        MessagingClient.sendPing();
-
-        // so relative dates get updated
-        mAdapter.notifyDataSetChanged();
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Private methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    private void setupRecyclerView() {
-        final RecyclerView recyclerView =
-            (RecyclerView) findViewById(R.id.deviceList);
-        if (recyclerView != null) {
-            mAdapter = new DevicesAdapter();
-            recyclerView.setAdapter(mAdapter);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        switch (action) {
+          case Devices.ACTION_UPDATE:
+            mAdapter.notifyDataSetChanged();
+            break;
+          default:
+            break;
         }
-    }
+      }
+    };
+  }
 
-    private void setupDevicesBroadcastReceiver() {
-        // handler for received Intents for the "devices" event
-        mDevicesReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                notifyAdapter(intent);
-            }
-
-            private void notifyAdapter(Intent intent) {
-                final Bundle bundle = intent.getBundleExtra(Devices.BUNDLE);
-                final String action = bundle.getString(Devices.ACTION);
-                if (action == null) {
-                    return;
-                }
-
-                switch (action) {
-                     case Devices.ACTION_UPDATE:
-                        mAdapter.notifyDataSetChanged();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-    }
-
-    private void doRefresh() {
-        mAdapter.notifyDataSetChanged();
-        MessagingClient.sendPing();
-    }
+  private void doRefresh() {
+    mAdapter.notifyDataSetChanged();
+    MessagingClient.sendPing();
+  }
 }

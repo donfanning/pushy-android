@@ -1,19 +1,8 @@
 <!--
-  ~
-  ~ Copyright 2017 Michael A Updike
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  ~
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
 <resources>
@@ -22,7 +11,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle</item>
+        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle
+        </item>
         <item name="autoCompleteTextViewStyle">@style/SearchViewStyle</item>
     </style>
 
@@ -30,7 +20,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle</item>
+        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle
+        </item>
         <item name="autoCompleteTextViewStyle">@style/SearchViewStyle</item>
     </style>
 
@@ -45,8 +36,10 @@
         <item name="android:textColorTertiary">@color/accent</item>
 
         <!-- for the overflow menu -->
-        <item name="android:itemBackground">@android:color/background_light</item>
-        <item name="android:itemTextAppearance">@style/LightTextAppearance</item>
+        <item name="android:itemBackground">@android:color/background_light
+        </item>
+        <item name="android:itemTextAppearance">@style/LightTextAppearance
+        </item>
 
         <item name="signInButtonsBackground">@color/grey_800</item>
 
@@ -101,16 +94,17 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle</item>
+        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle
+        </item>
         <item name="autoCompleteTextViewStyle">@style/SearchViewStyle</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat">
-    </style>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat" />
 
-    <style name="AppThemeLight.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppThemeLight.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="AppThemeLight.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
     <style name="SearchViewStyle" parent="@android:style/Widget.AutoCompleteTextView">
         <item name="android:longClickable">false</item>
     </style>
@@ -120,20 +114,25 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">@dimen/help_vertical_padding</item>
         <item name="android:paddingBottom">@dimen/help_vertical_padding</item>
-        <item name="android:paddingLeft">@dimen/activity_horizontal_margin</item>
-        <item name="android:paddingRight">@dimen/activity_horizontal_margin</item>
-        <item name="android:textAppearance">?attr/textAppearanceListItemSmall</item>
+        <item name="android:paddingLeft">@dimen/activity_horizontal_margin
+        </item>
+        <item name="android:paddingRight">@dimen/activity_horizontal_margin
+        </item>
+        <item name="android:textAppearance">?attr/textAppearanceListItemSmall
+        </item>
         <item name="android:textColor">?android:textColorTertiary</item>
         <item name="android:maxLines">1</item>
-     </style>
+    </style>
 
     <style name="HelpItemView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">@dimen/help_vertical_padding</item>
         <item name="android:paddingBottom">@dimen/help_vertical_padding</item>
-        <item name="android:paddingLeft">@dimen/activity_horizontal_margin</item>
-        <item name="android:paddingRight">@dimen/activity_horizontal_margin</item>
+        <item name="android:paddingLeft">@dimen/activity_horizontal_margin
+        </item>
+        <item name="android:paddingRight">@dimen/activity_horizontal_margin
+        </item>
         <item name="android:drawablePadding">32dp</item>
         <item name="android:textAppearance">?attr/textAppearanceListItem</item>
         <item name="android:maxLines">1</item>

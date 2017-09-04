@@ -1,19 +1,8 @@
 /*
- *
- * Copyright 2017 Michael A Updike
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+ * Licensed under Apache 2.0
+ * https://opensource.org/licenses/Apache-2.0
+ * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
 package com.weebly.opus1269.clipman.ui.settings;
@@ -30,7 +19,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -53,219 +41,219 @@ import com.weebly.opus1269.clipman.ui.main.MainActivity;
  * Supports Material design through {@link PreferenceFragmentCompatDividers}
  */
 public class SettingsFragment extends PreferenceFragmentCompatDividers
-    implements SharedPreferences.OnSharedPreferenceChangeListener {
+  implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final int REQUEST_CODE_ALERT_RINGTONE = 5;
+  private static final int REQUEST_CODE_ALERT_RINGTONE = 5;
 
-    private String mRingtoneKey;
-    private String mNicknameKey;
-    private String mMangageNotKey;
+  private String mRingtoneKey;
+  private String mNicknameKey;
+  private String mMangageNotKey;
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Superclass overrides
-    ///////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+  // Superclass overrides
+  ///////////////////////////////////////////////////////////////////////////
 
-    @Override
-    public void onCreatePreferencesFix(Bundle bundle, String rootKey) {
-        // Load the preferences from an XML resource
-        setPreferencesFromResource(R.xml.preferences, rootKey);
+  @Override
+  public void onCreatePreferencesFix(Bundle bundle, String rootKey) {
+    // Load the preferences from an XML resource
+    setPreferencesFromResource(R.xml.preferences, rootKey);
 
-        // listen for preference changes
-        PreferenceManager
-            .getDefaultSharedPreferences(getContext())
-            .registerOnSharedPreferenceChangeListener(this);
+    // listen for preference changes
+    PreferenceManager
+      .getDefaultSharedPreferences(getContext())
+      .registerOnSharedPreferenceChangeListener(this);
 
-        final Resources resources = getActivity().getResources();
-        mRingtoneKey = resources.getString(R.string.key_pref_ringtone);
-        mNicknameKey = resources.getString(R.string.key_pref_nickname);
-        mMangageNotKey = resources.getString(R.string.key_pref_manage_not);
+    final Resources resources = getActivity().getResources();
+    mRingtoneKey = resources.getString(R.string.key_pref_ringtone);
+    mNicknameKey = resources.getString(R.string.key_pref_nickname);
+    mMangageNotKey = resources.getString(R.string.key_pref_manage_not);
 
-        setRingtoneSummary();
-        setNicknameSummary();
+    setRingtoneSummary();
+    setNicknameSummary();
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    // stop listening for preference changes
+    PreferenceManager.getDefaultSharedPreferences(getContext())
+      .unregisterOnSharedPreferenceChangeListener(this);
+  }
+
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           @Nullable Bundle savedInstanceState) {
+    try {
+      return super.onCreateView(inflater, container, savedInstanceState);
+    } finally {
+      setDividerPreferences(
+        DIVIDER_PADDING_CHILD |
+          DIVIDER_CATEGORY_AFTER_LAST |
+          DIVIDER_CATEGORY_BETWEEN);
     }
+  }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+  @Override
+  public boolean onPreferenceTreeClick(Preference preference) {
 
-        // stop listening for preference changes
-        PreferenceManager.getDefaultSharedPreferences(getContext())
-            .unregisterOnSharedPreferenceChangeListener(this);
-    }
+    final String key = preference.getKey();
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        try {
-            return super.onCreateView(inflater, container, savedInstanceState);
-        } finally {
-            setDividerPreferences(
-                DIVIDER_PADDING_CHILD |
-                    DIVIDER_CATEGORY_AFTER_LAST |
-                    DIVIDER_CATEGORY_BETWEEN);
-        }
-    }
+    if (mRingtoneKey.equals(key)) {
+      // support library doesn't implement RingtonePreference.
+      // need to do it ourselves
+      // see: https://code.google.com/p/android/issues/detail?id=183255
+      final Intent intent =
+        new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+      intent.putExtra(
+        RingtoneManager.EXTRA_RINGTONE_TYPE,
+        RingtoneManager.TYPE_NOTIFICATION);
+      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
+      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
+        Settings.System.DEFAULT_NOTIFICATION_URI);
 
-    @Override
-    public boolean onPreferenceTreeClick(Preference preference) {
-
-        final String key = preference.getKey();
-
-        if (mRingtoneKey.equals(key)) {
-            // support library doesn't implement RingtonePreference.
-            // need to do it ourselves
-            // see: https://code.google.com/p/android/issues/detail?id=183255
-            final Intent intent =
-                new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            intent.putExtra(
-                RingtoneManager.EXTRA_RINGTONE_TYPE,
-                RingtoneManager.TYPE_NOTIFICATION);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
-                    Settings.System.DEFAULT_NOTIFICATION_URI);
-
-            final String existingValue = Prefs.getRingtone();
-            if (existingValue != null) {
-                if (existingValue.isEmpty()) {
-                    // Select "Silent"
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                        (Uri) null);
-                } else {
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                            Uri.parse(existingValue));
-                }
-            } else {
-                // No ringtone has been selected, set to the default
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                        Settings.System.DEFAULT_NOTIFICATION_URI);
-            }
-
-            startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
-
-            return true;
-        } else if (mMangageNotKey.equals(key)) {
-            // Manage notifications for Android O and later
-            NotificationHelper.showNotificationSettings();
-            return true;
-        }
-
-        return super.onPreferenceTreeClick(preference);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ((requestCode == REQUEST_CODE_ALERT_RINGTONE) && (data != null)) {
-            // Save the Ringtone preference
-            final Uri ringtone =
-                data.getParcelableExtra(
-                    RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-            if (ringtone != null) {
-                Prefs.setRingtone(ringtone.toString());
-            } else {
-                // "Silent" was selected
-                Prefs.setRingtone("");
-            }
-            setRingtoneSummary();
+      final String existingValue = Prefs.getRingtone();
+      if (existingValue != null) {
+        if (existingValue.isEmpty()) {
+          // Select "Silent"
+          intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+            (Uri) null);
         } else {
-            super.onActivityResult(requestCode, resultCode, data);
+          intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+            Uri.parse(existingValue));
         }
+      } else {
+        // No ringtone has been selected, set to the default
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+          Settings.System.DEFAULT_NOTIFICATION_URI);
+      }
+
+      startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
+
+      return true;
+    } else if (mMangageNotKey.equals(key)) {
+      // Manage notifications for Android O and later
+      NotificationHelper.showNotificationSettings();
+      return true;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Implement: SharedPreferences.OnSharedPreferenceChangeListener
-    ///////////////////////////////////////////////////////////////////////////
+    return super.onPreferenceTreeClick(preference);
+  }
 
-    @Override
-    public void
-    onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        final String keyNickname =
-            getString(R.string.key_pref_nickname);
-        final String keyMonitor =
-            getString(R.string.key_pref_monitor_clipboard);
-        final String keyTheme =
-            getString(R.string.key_pref_theme);
-        final String keyNotifications =
-            getString(R.string.key_pref_notifications);
-        final String keyReceive =
-            getString(R.string.key_pref_receive_msg);
-        final Activity activity = getActivity();
-
-        if (key.equals(keyNickname)) {
-            setNicknameSummary();
-            MessagingClient.sendPing();
-        } else if (key.equals(keyMonitor)) {
-            // start or stop clipboard service as needed
-            if (Prefs.isMonitorClipboard()) {
-                ClipboardWatcherService.startService(false);
-            } else {
-                final Intent intent =
-                    new Intent(activity, ClipboardWatcherService.class);
-                activity.stopService(intent);
-            }
-        } else if (key.equals(keyTheme)) {
-            // recreate the stack so the theme is updated everywhere
-            // http://stackoverflow.com/a/28799124/4468645
-            TaskStackBuilder.create(activity)
-                .addNextIntent(new Intent(activity, MainActivity.class))
-                .addNextIntent(activity.getIntent())
-                .startActivities();
-        } else if (key.equals(keyNotifications)) {
-            if (Prefs.notNotifications()) {
-                // remove any currently displayed Notifications
-                NotificationHelper.removeAll();
-            }
-        } else if (key.equals(keyReceive)) {
-            if (User.INSTANCE.isLoggedIn()) {
-                if (Prefs.isAllowReceive()) {
-                    // register
-                    new RegistrationClient
-                        .RegisterAsyncTask(getActivity(), null)
-                        .executeMe();
-                } else {
-                    // unregister
-                    new RegistrationClient
-                        .UnregisterAsyncTask(getActivity())
-                        .executeMe();
-                }
-            }
-        }
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if ((requestCode == REQUEST_CODE_ALERT_RINGTONE) && (data != null)) {
+      // Save the Ringtone preference
+      final Uri ringtone =
+        data.getParcelableExtra(
+          RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+      if (ringtone != null) {
+        Prefs.setRingtone(ringtone.toString());
+      } else {
+        // "Silent" was selected
+        Prefs.setRingtone("");
+      }
+      setRingtoneSummary();
+    } else {
+      super.onActivityResult(requestCode, resultCode, data);
     }
+  }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Private methods
-    ///////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+  // Implement: SharedPreferences.OnSharedPreferenceChangeListener
+  ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Update the Ringtone summary text
-     */
-    private void setRingtoneSummary() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return;
-        }
-        final Preference preference = findPreference(mRingtoneKey);
-        final String value = Prefs.getRingtone();
-        final String title;
-        if (TextUtils.isEmpty(value)) {
-            title = getString(R.string.key_pref_ringtone_silent);
+  @Override
+  public void
+  onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    final String keyNickname =
+      getString(R.string.key_pref_nickname);
+    final String keyMonitor =
+      getString(R.string.key_pref_monitor_clipboard);
+    final String keyTheme =
+      getString(R.string.key_pref_theme);
+    final String keyNotifications =
+      getString(R.string.key_pref_notifications);
+    final String keyReceive =
+      getString(R.string.key_pref_receive_msg);
+    final Activity activity = getActivity();
+
+    if (key.equals(keyNickname)) {
+      setNicknameSummary();
+      MessagingClient.sendPing();
+    } else if (key.equals(keyMonitor)) {
+      // start or stop clipboard service as needed
+      if (Prefs.isMonitorClipboard()) {
+        ClipboardWatcherService.startService(false);
+      } else {
+        final Intent intent =
+          new Intent(activity, ClipboardWatcherService.class);
+        activity.stopService(intent);
+      }
+    } else if (key.equals(keyTheme)) {
+      // recreate the stack so the theme is updated everywhere
+      // http://stackoverflow.com/a/28799124/4468645
+      TaskStackBuilder.create(activity)
+        .addNextIntent(new Intent(activity, MainActivity.class))
+        .addNextIntent(activity.getIntent())
+        .startActivities();
+    } else if (key.equals(keyNotifications)) {
+      if (Prefs.notNotifications()) {
+        // remove any currently displayed Notifications
+        NotificationHelper.removeAll();
+      }
+    } else if (key.equals(keyReceive)) {
+      if (User.INSTANCE.isLoggedIn()) {
+        if (Prefs.isAllowReceive()) {
+          // register
+          new RegistrationClient
+            .RegisterAsyncTask(getActivity(), null)
+            .executeMe();
         } else {
-            final Uri uri = Uri.parse(value);
-            final Ringtone ringtone =
-                RingtoneManager.getRingtone(getActivity(), uri);
-            title = ringtone.getTitle(getActivity());
+          // unregister
+          new RegistrationClient
+            .UnregisterAsyncTask(getActivity())
+            .executeMe();
         }
-        preference.setSummary(title);
+      }
     }
+  }
 
-    /**
-     * Update the Nickname summary text
-     */
-    private void setNicknameSummary() {
-        final Preference preference = findPreference(mNicknameKey);
-        String value = Prefs.getDeviceNickname();
-        if (TextUtils.isEmpty(value)) {
-            value = getResources().getString(R.string.pref_nickname_hint);
-        }
-        preference.setSummary(value);
+  ///////////////////////////////////////////////////////////////////////////
+  // Private methods
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Update the Ringtone summary text
+   */
+  private void setRingtoneSummary() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      return;
     }
+    final Preference preference = findPreference(mRingtoneKey);
+    final String value = Prefs.getRingtone();
+    final String title;
+    if (TextUtils.isEmpty(value)) {
+      title = getString(R.string.key_pref_ringtone_silent);
+    } else {
+      final Uri uri = Uri.parse(value);
+      final Ringtone ringtone =
+        RingtoneManager.getRingtone(getActivity(), uri);
+      title = ringtone.getTitle(getActivity());
+    }
+    preference.setSummary(title);
+  }
+
+  /**
+   * Update the Nickname summary text
+   */
+  private void setNicknameSummary() {
+    final Preference preference = findPreference(mNicknameKey);
+    String value = Prefs.getDeviceNickname();
+    if (TextUtils.isEmpty(value)) {
+      value = getResources().getString(R.string.pref_nickname_hint);
+    }
+    preference.setSummary(value);
+  }
 }

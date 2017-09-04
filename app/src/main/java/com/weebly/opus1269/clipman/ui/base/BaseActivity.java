@@ -1,19 +1,8 @@
 /*
- *
- * Copyright 2017 Michael A Updike
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+ * Licensed under Apache 2.0
+ * https://opensource.org/licenses/Apache-2.0
+ * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
 package com.weebly.opus1269.clipman.ui.base;
@@ -48,229 +37,237 @@ import java.text.Collator;
  */
 
 public abstract class BaseActivity extends AppCompatActivity implements
-    SearchView.OnQueryTextListener {
+  SearchView.OnQueryTextListener {
 
-    protected String TAG = this.getClass().getSimpleName();
+  protected final String TAG = this.getClass().getSimpleName();
 
-    // Required to support Vector Drawables on pre-marshmallow devices
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+  // Required to support Vector Drawables on pre-marshmallow devices
+  static {
+    AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+  }
+
+  protected int mLayoutID = -1;
+  protected int mOptionsMenuID = -1;
+  protected Menu mOptionsMenu = null;
+  protected boolean mHomeUpEnabled = true;
+  private Tracker mTracker;
+
+  /**
+   * saved instance state
+   */
+
+  private static final String STATE_QUERY_STRING = "query";
+  protected String mQueryString = "";
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+
+    setTheme();
+
+    super.onCreate(savedInstanceState);
+
+    // Check whether we're recreating a previously destroyed instance
+    if (savedInstanceState != null) {
+      // Restore value of members from saved state
+      restoreInstanceState(savedInstanceState);
     }
 
-    protected int mLayoutID = -1;
-    protected int mOptionsMenuID = -1;
-    protected Menu mOptionsMenu = null;
-    protected boolean mHomeUpEnabled = true;
-    private Tracker mTracker;
-
-    /**
-     * saved instance state
-     */
-
-    private static final String STATE_QUERY_STRING = "query";
-    protected String mQueryString = "";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        setTheme();
-
-        super.onCreate(savedInstanceState);
-
-        // Check whether we're recreating a previously destroyed instance
-        if (savedInstanceState != null) {
-            // Restore value of members from saved state
-            restoreInstanceState(savedInstanceState);
-        }
-
-        if (mLayoutID != -1) {
-            setContentView(mLayoutID);
-        }
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
-
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(mHomeUpEnabled);
-        }
-
-        mTracker = Analytics.INSTANCE.getTracker();
-
+    if (mLayoutID != -1) {
+      setContentView(mLayoutID);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        mTracker.setScreenName(TAG);
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    if (toolbar != null) {
+      setSupportActionBar(toolbar);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        ((App) getApplication()).detach(this);
-
-        outState.putString(STATE_QUERY_STRING, mQueryString);
+    final ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(mHomeUpEnabled);
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+    mTracker = Analytics.INSTANCE.getTracker();
 
-        ((App) getApplication()).attach(this);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+
+    mTracker.setScreenName(TAG);
+    mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    ((App) getApplication()).detach(this);
+
+    outState.putString(STATE_QUERY_STRING, mQueryString);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+
+    ((App) getApplication()).attach(this);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+
+    if (mOptionsMenuID != -1) {
+      getMenuInflater().inflate(mOptionsMenuID, menu);
+
+      mOptionsMenu = menu;
+
+      tintMenuItems();
+
+      if (mOptionsMenu.findItem(R.id.action_search) != null) {
+        setupSearch();
+      }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    return super.onCreateOptionsMenu(menu);
+  }
 
-        if (mOptionsMenuID != -1) {
-            getMenuInflater().inflate(mOptionsMenuID, menu);
+  ///////////////////////////////////////////////////////////////////////////
+  // Protected methods
+  ///////////////////////////////////////////////////////////////////////////
 
-            mOptionsMenu = menu;
-
-            tintMenuItems();
-
-            if (mOptionsMenu.findItem(R.id.action_search) != null) {
-                setupSearch();
-            }
-        }
-
-        return super.onCreateOptionsMenu(menu);
+  /**
+   * Override to restore additional state
+   * @param savedInstanceState our state
+   */
+  protected void restoreInstanceState(Bundle savedInstanceState) {
+    if (savedInstanceState != null) {
+      mQueryString = savedInstanceState.getString(STATE_QUERY_STRING);
     }
+  }
 
-    /**
-     * Override to restore additional state
-     * @param savedInstanceState our state
-     */
-    protected void restoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            mQueryString = savedInstanceState.getString(STATE_QUERY_STRING);
-        }
+  /**
+   * Override to implement business logic
+   * @param queryString String to search for
+   * @return true if the new String differs from the current one
+   */
+  protected boolean setQueryString(String queryString) {
+    boolean ret = false;
+    if (!Collator.getInstance().equals(mQueryString, queryString)) {
+      mQueryString = queryString;
+      ret = true;
     }
+    return ret;
+  }
 
-    /**
-     * Override to implement business logic
-     * @param queryString String to search for
-     * @return true if the new String differs from the current one
-     */
-    protected boolean setQueryString(String queryString) {
-        boolean ret = false;
-        if (!Collator.getInstance().equals(mQueryString, queryString)) {
-            mQueryString = queryString;
-            ret = true;
-        }
-        return ret;
+  /**
+   * Show or hide Fab widget
+   * @param show true to show
+   */
+  protected void setFabVisibility(boolean show) {
+    final FloatingActionButton fab = findViewById(R.id.fab);
+    if (fab != null) {
+      if (show) {
+        fab.show();
+      } else {
+        fab.hide();
+      }
     }
+  }
 
-    protected void setFabVisibility(boolean show) {
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        if (fab != null) {
-            if (show) {
-                fab.show();
-            } else {
-                fab.hide();
-            }
-        }
+  ///////////////////////////////////////////////////////////////////////////
+  // Implement SearchView listeners
+  ///////////////////////////////////////////////////////////////////////////
+
+  @Override
+  public boolean onQueryTextSubmit(String query) {
+    setQueryString(query);
+    return true;
+  }
+
+  @Override
+  public boolean onQueryTextChange(String newText) {
+    setQueryString(newText);
+    return true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Private methods
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Apply the user selected theme
+   */
+  private void setTheme() {
+    if (Prefs.isDarkTheme()) {
+      this.setTheme(R.style.AppThemeDark);
+    } else {
+      this.setTheme(R.style.AppThemeLight);
     }
+  }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Implement SearchView listeners
-    ///////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        setQueryString(query);
-        return true;
+  /**
+   * Color the icons white for all API versions
+   */
+  private void tintMenuItems() {
+    if (mOptionsMenu != null) {
+      final int color = ContextCompat.getColor(this, R.color.icons);
+      MenuTintHelper.on(mOptionsMenu)
+        .setMenuItemIconColor(color)
+        .apply(this);
     }
+  }
 
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        setQueryString(newText);
-        return true;
+  /**
+   * Initialize the {@link android.support.v7.view.menu.ActionMenuItemView}
+   * for search
+   */
+  private void setupSearch() {
+    final MenuItem searchItem = mOptionsMenu.findItem(R.id.action_search);
+    if (searchItem != null) {
+      final SearchManager searchManager =
+        (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+      final SearchView searchView = (SearchView) searchItem.getActionView();
+      searchView.setSearchableInfo(
+        searchManager.getSearchableInfo(getComponentName()));
+      searchView.setOnQueryTextListener(this);
+      final String localQueryString = mQueryString;
+
+      // SearchView OnClose listener does not work
+      // http://stackoverflow.com/a/12975254/4468645
+      searchItem.setOnActionExpandListener(
+        new MenuItem.OnActionExpandListener() {
+          @Override
+          public boolean onMenuItemActionExpand(MenuItem menuItem) {
+            // Return true to allow the action view to expand
+            return true;
+          }
+
+          @Override
+          public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+            // Return true to allow the action view to collapse
+            // When the action view is collapsed, reset the query
+            setQueryString("");
+            // refresh menu, SearchAction does something funky to it
+            // after a rotate
+            mOptionsMenu.clear();
+            onCreateOptionsMenu(mOptionsMenu);
+            return true;
+          }
+        });
+
+      if (!TextUtils.isEmpty(mQueryString)) {
+        // http://stackoverflow.com/a/32397014/4468645
+        // moved expandActionView out of run.
+        // did not always work.
+        searchItem.expandActionView();
+        searchView.post(new Runnable() {
+          @Override
+          public void run() {
+            searchView.setQuery(localQueryString, true);
+          }
+        });
+      }
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Private methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Apply the user selected theme
-     */
-    private void setTheme() {
-        if (Prefs.isDarkTheme()) {
-            this.setTheme(R.style.AppThemeDark);
-        } else {
-            this.setTheme(R.style.AppThemeLight);
-        }
-    }
-
-    /**
-     * Color the icons white for all API versions
-     */
-    private void tintMenuItems() {
-        if (mOptionsMenu != null) {
-            final int color = ContextCompat.getColor(this, R.color.icons);
-            MenuTintHelper.on(mOptionsMenu)
-                .setMenuItemIconColor(color)
-                .apply(this);
-        }
-    }
-
-    /**
-     * Initialize the {@link android.support.v7.view.menu.ActionMenuItemView}
-     * for search
-     */
-    private void setupSearch() {
-        final MenuItem searchItem = mOptionsMenu.findItem(R.id.action_search);
-        if (searchItem != null) {
-            final SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            final SearchView searchView = (SearchView) searchItem.getActionView();
-            searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
-            searchView.setOnQueryTextListener(this);
-            final String localQueryString = mQueryString;
-
-            // SearchView OnClose listener does not work
-            // http://stackoverflow.com/a/12975254/4468645
-            searchItem.setOnActionExpandListener(
-                new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(MenuItem menuItem) {
-                        // Return true to allow the action view to expand
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-                        // Return true to allow the action view to collapse
-                        // When the action view is collapsed, reset the query
-                        setQueryString("");
-                        // refresh menu, SearchAction does something funky to it
-                        // after a rotate
-                        mOptionsMenu.clear();
-                        onCreateOptionsMenu(mOptionsMenu);
-                        return true;
-                    }
-                });
-
-            if (!TextUtils.isEmpty(mQueryString)) {
-                // http://stackoverflow.com/a/32397014/4468645
-                // moved expandActionView out of run.
-                // did not always work.
-                searchItem.expandActionView();
-                searchView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        searchView.setQuery(localQueryString, true);
-                    }
-                });
-            }
-        }
-    }
+  }
 }

@@ -1,19 +1,8 @@
 /*
- *
- * Copyright 2017 Michael A Updike
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+ * Licensed under Apache 2.0
+ * https://opensource.org/licenses/Apache-2.0
+ * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
 package com.weebly.opus1269.clipman.ui.help;
@@ -46,195 +35,195 @@ import com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView;
  */
 public class HelpActivity extends BaseActivity {
 
-    private DialogFragment mDialog;
+  private DialogFragment mDialog;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
 
-        mLayoutID = R.layout.activity_help;
+    mLayoutID = R.layout.activity_help;
 
-        super.onCreate(savedInstanceState);
+    super.onCreate(savedInstanceState);
 
-        TextView release = (TextView) findViewById(R.id.docRelease);
-        release.setTag(getResources()
-            .getString(R.string.help_doc_releas_tag_fmt,
-                Prefs.getVersionName()));
+    TextView release = findViewById(R.id.docRelease);
+    release.setTag(getResources()
+      .getString(R.string.help_doc_releas_tag_fmt,
+        Prefs.getVersionName()));
 
-        // color the TextView icons
-        tintLeftDrawables();
+    // color the TextView icons
+    tintLeftDrawables();
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    mOptionsMenuID = R.menu.menu_help;
+
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    boolean processed = true;
+
+    final int id = item.getItemId();
+    switch (id) {
+      case R.id.action_view_store:
+        showInPlayStore();
+        break;
+      case R.id.action_version:
+        showVersionDialog();
+        break;
+      case R.id.action_privacy:
+        AppUtils.showWebUrl(
+          getString(R.string.help_privacy_url));
+        break;
+      case R.id.action_licenses:
+        AppUtils.showWebUrl(
+          getString(R.string.help_licenses_url));
+        break;
+      default:
+        processed = false;
+        break;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        mOptionsMenuID = R.menu.menu_help;
+    return processed || super.onOptionsItemSelected(item);
+  }
 
-        return super.onCreateOptionsMenu(menu);
+  ///////////////////////////////////////////////////////////////////////////
+  // Public methods
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Handle click on Help and feedback items
+   * @param v the TextView that was clicked
+   */
+  public void onItemClicked(View v) {
+
+    final TextView textView = (TextView) v;
+
+    final int id = v.getId();
+    switch (id) {
+      case R.id.emailTranslate:
+      case R.id.emailGeneral:
+        emailMe((String) textView.getTag(), null);
+        break;
+      case R.id.emailQuestion:
+      case R.id.emailBug:
+      case R.id.emailFeature:
+        emailMe((String) textView.getTag(), getEmailBody());
+        break;
+      case R.id.githubIssue:
+      case R.id.docApp:
+      case R.id.docRelease:
+      case R.id.docSource:
+        AppUtils.showWebUrl((String) textView.getTag());
+        break;
+      case R.id.license:
+        mDialog.dismiss();
+        break;
+      default:
+        break;
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Private methods
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Send an email
+   * @param subject email Subject
+   * @param body    Email Body
+   */
+  private void emailMe(String subject, String body) {
+    final Intent intent = new Intent(Intent.ACTION_SENDTO);
+    intent.setData(Uri.parse("mailto:" + AppUtils.EMAIL_ADDRESS));
+    intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+    if (!TextUtils.isEmpty(body)) {
+      intent.putExtra(Intent.EXTRA_TEXT, body);
+    }
+    if (intent.resolveActivity(getPackageManager()) != null) {
+      startActivity(intent);
+    }
+  }
+
+  /**
+   * Get system info. for body of support requests
+   * @return Email body
+   */
+  private String getEmailBody() {
+    return "Pushy Clipboard Version: " + BuildConfig.VERSION_NAME + '\n' +
+      "Android Version: " + Build.VERSION.RELEASE + '\n' +
+      "Device: " + Device.getMyModel() + " \n \n \n";
+  }
+
+  /**
+   * Show the {@link App} in the play store
+   */
+  private void showInPlayStore() {
+    try {
+      final Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setData(Uri.parse(AppUtils.PLAY_STORE));
+      startActivity(intent);
+    } catch (android.content.ActivityNotFoundException ignored) {
+      Log.logD(TAG, "Could not open app in play store, trying web.");
+      AppUtils.showWebUrl(AppUtils.PLAY_STORE_WEB);
+    }
+  }
+
+  /**
+   * Show the {@link VersionDialogFragment}
+   */
+  private void showVersionDialog() {
+    mDialog = new VersionDialogFragment();
+    mDialog.show(getSupportFragmentManager(), "VersionDialogFragment");
+  }
+
+  /**
+   * color the LeftDrawables in all our {@link VectorDrawableTextView} views
+   */
+  private void tintLeftDrawables() {
+
+    int color;
+    if (Prefs.isLightTheme()) {
+      color = R.color.deep_teal_500;
+    } else {
+      color = R.color.deep_teal_200;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean processed = true;
+    DrawableHelper drawableHelper = DrawableHelper
+      .withContext(this)
+      .withColor(color)
+      .withDrawable(R.drawable.ic_email_black_24dp)
+      .tint();
+    tintLeftDrawable(drawableHelper, R.id.emailQuestion);
+    tintLeftDrawable(drawableHelper, R.id.emailBug);
+    tintLeftDrawable(drawableHelper, R.id.emailFeature);
+    tintLeftDrawable(drawableHelper, R.id.emailTranslate);
+    tintLeftDrawable(drawableHelper, R.id.emailGeneral);
 
-        final int id = item.getItemId();
-        switch (id) {
-            case R.id.action_view_store:
-                showInPlayStore();
-                break;
-            case R.id.action_version:
-                showVersionDialog();
-                break;
-            case R.id.action_privacy:
-                AppUtils.showWebUrl(
-                    getString(R.string.help_privacy_url));
-                break;
-            case R.id.action_licenses:
-                AppUtils.showWebUrl(
-                    getString(R.string.help_licenses_url));
-                break;
-            default:
-                processed = false;
-                break;
-        }
+    drawableHelper = DrawableHelper
+      .withContext(this)
+      .withColor(color)
+      .withDrawable(R.drawable.github_circle)
+      .tint();
+    tintLeftDrawable(drawableHelper, R.id.githubIssue);
+    tintLeftDrawable(drawableHelper, R.id.docApp);
+    tintLeftDrawable(drawableHelper, R.id.docRelease);
+    tintLeftDrawable(drawableHelper, R.id.docSource);
+  }
 
-        return processed || super.onOptionsItemSelected(item);
+  /**
+   * Color the leftDrawable in a {@link VectorDrawableTextView}
+   * @param drawableHelper helper class
+   * @param idView         id of VectorDrawableTextView
+   */
+  private void tintLeftDrawable(DrawableHelper drawableHelper, int idView) {
+    final TextView textView = findViewById(idView);
+    if (textView != null) {
+      Drawable drawable = drawableHelper.get();
+      textView.setCompoundDrawablesWithIntrinsicBounds(
+        drawable, null, null, null);
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Public methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Handle click on Help and feedback items
-     * @param v the TextView that was clicked
-     */
-    public void onItemClicked(View v) {
-
-        final TextView textView = (TextView) v;
-
-        final int id = v.getId();
-        switch (id) {
-            case R.id.emailTranslate:
-            case R.id.emailGeneral:
-                emailMe((String) textView.getTag(), null);
-                break;
-            case R.id.emailQuestion:
-            case R.id.emailBug:
-            case R.id.emailFeature:
-                emailMe((String) textView.getTag(), getEmailBody());
-                break;
-            case R.id.githubIssue:
-            case R.id.docApp:
-            case R.id.docRelease:
-            case R.id.docSource:
-                AppUtils.showWebUrl((String) textView.getTag());
-                break;
-            case R.id.license:
-                mDialog.dismiss();
-                break;
-            default:
-                break;
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Private methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Send an email
-     * @param subject email Subject
-     * @param body Email Body
-     */
-    private void emailMe(String subject, String body) {
-        final Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mailto:" + AppUtils.EMAIL_ADDRESS));
-        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        if(!TextUtils.isEmpty(body)) {
-            intent.putExtra(Intent.EXTRA_TEXT, body);
-        }
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
-    }
-
-    /**
-     * Get system info. for body of support requests
-     * @return Email body
-     */
-    private String getEmailBody() {
-      return  "Pushy Clipboard Version: " + BuildConfig.VERSION_NAME + '\n' +
-              "Android Version: " + Build.VERSION.RELEASE + '\n' +
-              "Device: " + Device.getMyModel() + " \n \n \n";
-    }
-
-    /**
-     * Show the {@link App} in the play store
-     */
-    private void showInPlayStore() {
-        try {
-            final Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(AppUtils.PLAY_STORE));
-            startActivity(intent);
-        } catch (android.content.ActivityNotFoundException ignored) {
-            Log.logD(TAG, "Could not open app in play store, trying web.");
-            AppUtils.showWebUrl(AppUtils.PLAY_STORE_WEB);
-        }
-    }
-
-    /**
-     * Show the {@link VersionDialogFragment}
-     */
-    private void showVersionDialog() {
-        mDialog = new VersionDialogFragment();
-        mDialog.show(getSupportFragmentManager(), "VersionDialogFragment");
-    }
-
-    /**
-     * color the LeftDrawables in all our {@link VectorDrawableTextView} views
-     */
-    private void tintLeftDrawables() {
-
-        int color;
-        if (Prefs.isLightTheme()) {
-            color = R.color.deep_teal_500;
-        } else {
-            color = R.color.deep_teal_200;
-        }
-
-        DrawableHelper drawableHelper = DrawableHelper
-                .withContext(this)
-                .withColor(color)
-                .withDrawable(R.drawable.ic_email_black_24dp)
-                .tint();
-        tintLeftDrawable(drawableHelper, R.id.emailQuestion);
-        tintLeftDrawable(drawableHelper, R.id.emailBug);
-        tintLeftDrawable(drawableHelper, R.id.emailFeature);
-        tintLeftDrawable(drawableHelper, R.id.emailTranslate);
-        tintLeftDrawable(drawableHelper, R.id.emailGeneral);
-
-        drawableHelper = DrawableHelper
-                .withContext(this)
-                .withColor(color)
-                .withDrawable(R.drawable.github_circle)
-                .tint();
-        tintLeftDrawable(drawableHelper, R.id.githubIssue);
-        tintLeftDrawable(drawableHelper, R.id.docApp);
-        tintLeftDrawable(drawableHelper, R.id.docRelease);
-        tintLeftDrawable(drawableHelper, R.id.docSource);
-    }
-
-    /**
-     * Color the leftDrawable in a {@link VectorDrawableTextView}
-     * @param drawableHelper helper class
-     * @param idView id of VectorDrawableTextView
-     */
-    private void tintLeftDrawable(DrawableHelper drawableHelper, int idView) {
-        final TextView textView = (TextView) findViewById(idView);
-        if (textView != null) {
-            Drawable drawable = drawableHelper.get();
-            textView.setCompoundDrawablesWithIntrinsicBounds(
-                drawable, null, null, null);
-        }
-    }
+  }
 }
 

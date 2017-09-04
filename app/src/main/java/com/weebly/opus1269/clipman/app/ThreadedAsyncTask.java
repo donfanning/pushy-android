@@ -1,19 +1,8 @@
 /*
- *
- * Copyright 2017 Michael A Updike
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+ * Licensed under Apache 2.0
+ * https://opensource.org/licenses/Apache-2.0
+ * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
 package com.weebly.opus1269.clipman.app;
@@ -25,15 +14,15 @@ import android.os.AsyncTask;
  * @see <a href="http://stackoverflow.com/a/19060929/4468645">Stack Overflow</a>
  */
 public abstract class ThreadedAsyncTask<Params, Progress, Result> extends
-    AsyncTask<Params, Progress, Result> {
+  AsyncTask<Params, Progress, Result> {
 
-    /**
-     * Call this instead of execute() for parallel execution
-     * @param params - passed in to doInBackground
-     * @return This instance of AsyncTask
-     */
-    @SafeVarargs
-    public final AsyncTask<Params, Progress, Result> executeMe(Params... params){
-        return super.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-    }
+  /**
+   * Call this instead of execute() for parallel execution
+   * @param params - passed in to doInBackground
+   * @return This instance of AsyncTask
+   */
+  @SafeVarargs
+  public final AsyncTask<Params, Progress, Result> executeMe(Params... params) {
+    return super.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+  }
 }
