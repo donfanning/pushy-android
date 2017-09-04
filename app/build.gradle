@@ -71,30 +71,30 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.androidessence:recyclerviewcursoradapter:1.0.0'
     // various fixes for support:preference-v7
-    compile "com.takisoft.fix:preference-v7:${rootProject.supportLibraryVersion}.0"
+    compile "com.takisoft.fix:preference-v7:${rootProject.ext.supportLibraryVersion}.0"
 
     // android support libraries
-    compile "com.android.support:support-v4:${rootProject.supportLibraryVersion}"
-    compile "com.android.support:appcompat-v7:${rootProject.supportLibraryVersion}"
-    compile "com.android.support:recyclerview-v7:${rootProject.supportLibraryVersion}"
-    compile "com.android.support:design:${rootProject.supportLibraryVersion}"
-    compile "com.android.support:support-vector-drawable:${rootProject.supportLibraryVersion}"
+    compile "com.android.support:support-v4:${rootProject.ext.supportLibraryVersion}"
+    compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibraryVersion}"
+    compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibraryVersion}"
+    compile "com.android.support:design:${rootProject.ext.supportLibraryVersion}"
+    compile "com.android.support:support-vector-drawable:${rootProject.ext.supportLibraryVersion}"
 
     // Google Play service
-    compile "com.google.android.gms:play-services-analytics:${rootProject.gmsVersion}"
-    compile "com.google.android.gms:play-services-identity:${rootProject.gmsVersion}"
-    compile "com.google.android.gms:play-services-auth:${rootProject.gmsVersion}"
+    compile "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
+    compile "com.google.android.gms:play-services-identity:${rootProject.ext.gmsVersion}"
+    compile "com.google.android.gms:play-services-auth:${rootProject.ext.gmsVersion}"
     // firebase - keep in sync with play-services dependencies
-    compile "com.google.firebase:firebase-core:${rootProject.gmsVersion}"
-    compile "com.google.firebase:firebase-messaging:${rootProject.gmsVersion}"
-    compile "com.google.firebase:firebase-auth:${rootProject.gmsVersion}"
-    compile "com.google.firebase:firebase-crash:${rootProject.gmsVersion}"
+    compile "com.google.firebase:firebase-core:${rootProject.ext.gmsVersion}"
+    compile "com.google.firebase:firebase-messaging:${rootProject.ext.gmsVersion}"
+    compile "com.google.firebase:firebase-auth:${rootProject.ext.gmsVersion}"
+    compile "com.google.firebase:firebase-crash:${rootProject.ext.gmsVersion}"
     compile 'com.firebase:firebase-jobdispatcher:0.7.0'
 
     // Google API
-    compile "com.google.api-client:google-api-client:${rootProject.gapiVersion}"
-    compile "com.google.api-client:google-api-client-android:${rootProject.gapiVersion}"
-    compile "com.google.apis:google-api-services-people:v1-rev4-${rootProject.gapiVersion}"
+    compile "com.google.api-client:google-api-client:${rootProject.ext.gapiVersion}"
+    compile "com.google.api-client:google-api-client-android:${rootProject.ext.gapiVersion}"
+    compile "com.google.apis:google-api-services-people:v1-rev4-${rootProject.ext.gapiVersion}"
 
     androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
         exclude group: "com.android.support", module: "support-annotations"

@@ -20,11 +20,11 @@
 // to all sub-projects/modules.
 
 ext {
-    buildToolsVersion = '25.0.3'
     minSdkVersion = 16
-    sdkVersion = 25
-    supportLibraryVersion = '25.3.1'
-    gmsVersion = '11.0.4'
+    sdkVersion = 26
+    buildToolsVersion = '26.0.1'
+    supportLibraryVersion = '26.0.2'
+    gmsVersion = '11.2.0'
     gapiVersion = '1.22.0'
 }
 
