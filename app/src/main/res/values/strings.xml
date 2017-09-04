@@ -131,6 +131,9 @@
     <string name="pref_title_notifications">Show notifications</string>
     <string name="key_pref_notifications">notifications</string>
 
+    <string name="pref_title_manage_not">Manage notifications</string>
+    <string name="key_pref_manage_not">manage_notifications</string>
+
     <string name="pref_title_not_types">Notification types</string>
     <string name="key_pref_not_types">notificationTypes</string>
     <string name="ar_not_remote">On remote copy received</string>
@@ -227,7 +230,9 @@
     <string name="err_not_registered">Device is not registered</string>
     <string name="err_not_signed_in">Not signed in</string>
     <string name="err_credential">Unable to get user credential</string>
-    <string name="channel_01" translatable="false">channel_01</string>
+    <string name="channel_message" translatable="false">default</string>
+    <string name="channel_message_name" >Messages</string>
+    <string name="channel_message_desc" >Message notifications</string>
 
 
     <!-- Related to account sign-in -->

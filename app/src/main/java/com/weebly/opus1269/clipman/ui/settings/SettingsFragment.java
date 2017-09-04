@@ -21,13 +21,16 @@ package com.weebly.opus1269.clipman.ui.settings;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -56,6 +59,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
     private String mRingtoneKey;
     private String mNicknameKey;
+    private String mMangageNotKey;
 
     ///////////////////////////////////////////////////////////////////////////
     // Superclass overrides
@@ -71,8 +75,10 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
             .getDefaultSharedPreferences(getContext())
             .registerOnSharedPreferenceChangeListener(this);
 
-        mRingtoneKey = getActivity().getResources().getString(R.string.key_pref_ringtone);
-        mNicknameKey = getActivity().getResources().getString(R.string.key_pref_nickname);
+        final Resources resources = getActivity().getResources();
+        mRingtoneKey = resources.getString(R.string.key_pref_ringtone);
+        mNicknameKey = resources.getString(R.string.key_pref_nickname);
+        mMangageNotKey = resources.getString(R.string.key_pref_manage_not);
 
         setRingtoneSummary();
         setNicknameSummary();
@@ -103,7 +109,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
 
-        if (preference.getKey().equals(mRingtoneKey)) {
+        final String key = preference.getKey();
+
+        if (mRingtoneKey.equals(key)) {
             // support library doesn't implement RingtonePreference.
             // need to do it ourselves
             // see: https://code.google.com/p/android/issues/detail?id=183255
@@ -135,6 +143,10 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
             startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
 
+            return true;
+        } else if (mMangageNotKey.equals(key)) {
+            // Manage notifications for Android O and later
+            NotificationHelper.showNotificationSettings();
             return true;
         }
 
@@ -228,6 +240,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
      * Update the Ringtone summary text
      */
     private void setRingtoneSummary() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return;
+        }
         final Preference preference = findPreference(mRingtoneKey);
         final String value = Prefs.getRingtone();
         final String title;

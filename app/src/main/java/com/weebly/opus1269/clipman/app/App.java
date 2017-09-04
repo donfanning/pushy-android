@@ -25,11 +25,11 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.weebly.opus1269.clipman.model.ClipDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
+import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
 
 import java.util.ArrayList;
@@ -94,12 +94,15 @@ public class App extends Application implements Application.ActivityLifecycleCal
                     getPackageManager().getPackageInfo(getPackageName(), 0);
             Prefs.setVersionName(pInfo.versionName);
             Prefs.setVersionCode(pInfo.versionCode);
-        } catch (final PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Version info not found: " + e.getMessage());
+        } catch (final PackageManager.NameNotFoundException ex) {
+           Log.logEx(TAG, "Version info not found: " + ex.getMessage(), ex);
         }
 
         // Register to be notified of activity state changes
         registerActivityLifecycleCallbacks(this);
+
+        // Initialize the Notification Channels
+        NotificationHelper.initChannels(this);
     }
 
     @Override

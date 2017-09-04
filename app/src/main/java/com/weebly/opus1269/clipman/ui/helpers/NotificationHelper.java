@@ -18,6 +18,8 @@
 
 package com.weebly.opus1269.clipman.ui.helpers;
 
+import android.annotation.TargetApi;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -25,7 +27,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioAttributes;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
@@ -48,6 +53,9 @@ public class NotificationHelper {
     private static final int ID_COPY = 10;
     private static final int ID_DEVICE = 20;
 
+    // Has channel been initialized
+    private static boolean sChannelsInit = false;
+
     // keep track of number of clipboard messages received.
     private static int sClipItemCt;
 
@@ -57,6 +65,30 @@ public class NotificationHelper {
     ///////////////////////////////////////////////////////////////////////////
     // Public methods
     ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Initialize a {@link NotificationChannel} for Android O
+     * @param context      A Context
+     */
+    @TargetApi(26)
+    public static void initChannels(Context context) {
+        if (sChannelsInit || (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)) {
+            return;
+        }
+
+        NotificationManager notificationManager = getManager();
+
+        final String channelId = context.getString(R.string.channel_message);
+        final String channelName = context.getString(R.string.channel_message_name);
+        final String channelDesc = context.getString(R.string.channel_message_desc);
+        final NotificationChannel channel = new NotificationChannel(channelId,
+            channelName,
+            NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription(channelDesc);
+        notificationManager.createNotificationChannel(channel);
+
+        sChannelsInit = true;
+    }
 
     /**
      * Display notification on a clipboard change
@@ -94,6 +126,7 @@ public class NotificationHelper {
 
         // remote vs. local settings
         final int largeIcon;
+        final String channelId = context.getString(R.string.channel_message);
         final String titleText;
         if (clipItem.isRemote()) {
             largeIcon = R.drawable.lic_remote_copy;
@@ -104,7 +137,7 @@ public class NotificationHelper {
         }
 
         final NotificationCompat.Builder builder =
-            getBuilder(pendingIntent, largeIcon, titleText);
+            getBuilder(pendingIntent, channelId, largeIcon, titleText);
         builder.setContentText(clipText)
             .setStyle(new NotificationCompat.BigTextStyle().bigText(clipText))
             .setWhen(clipItem.getTime());
@@ -162,6 +195,7 @@ public class NotificationHelper {
 
         // added vs. removed device settings
         final int largeIcon;
+        final String channelId = context.getString(R.string.channel_message);
         final String titleText;
         if (isAdded) {
             largeIcon = R.drawable.lic_add_device;
@@ -172,7 +206,7 @@ public class NotificationHelper {
         }
 
         final NotificationCompat.Builder builder =
-            getBuilder(pendingIntent, largeIcon, titleText);
+            getBuilder(pendingIntent, channelId, largeIcon, titleText);
         builder
             .setContentText(device)
             .setWhen(System.currentTimeMillis());
@@ -206,6 +240,23 @@ public class NotificationHelper {
         removeDevices();
     }
 
+    /**
+     * Display the Notification settings for Android O
+     */
+    public static void showNotificationSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+
+        final Context context = App.getContext();
+        Intent intent =
+            new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+        intent.putExtra(Settings.EXTRA_CHANNEL_ID,
+            context.getString(R.string.channel_message));
+        intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+        context.startActivity(intent);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Private methods
     ///////////////////////////////////////////////////////////////////////////
@@ -234,10 +285,10 @@ public class NotificationHelper {
      * @return the Builder
      */
     private static NotificationCompat.Builder
-    getBuilder(PendingIntent pInt, int largeIcon, String titleText) {
+    getBuilder(PendingIntent pInt, String channelId, int largeIcon, String titleText) {
         final Context context = App.getContext();
         final NotificationCompat.Builder builder =
-            new NotificationCompat.Builder(context);
+            new NotificationCompat.Builder(context, channelId);
 
         builder.setContentIntent(pInt)
             .setLargeIcon(getLargeIcon(largeIcon))
@@ -249,9 +300,11 @@ public class NotificationHelper {
             .setOnlyAlertOnce(Prefs.isAudibleOnce())
             .setAutoCancel(true);
 
-        final Uri sound = Prefs.getNotificationSound();
-        if (sound != null) {
-            builder.setSound(sound);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            final Uri sound = Prefs.getNotificationSound();
+            if (sound != null) {
+                builder.setSound(sound);
+            }
         }
 
         return builder;
