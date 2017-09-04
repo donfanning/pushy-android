@@ -24,108 +24,105 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
 import org.joda.time.DateTime;
-import org.json.JSONException;
 
 /**
  * Immutable Class that represents a (hopefully) unique device
  * Emulators don't have good names and serial numbers
- *
  */
 public class Device {
-    private static final String TAG = "Device";
+  // IMPORTANT Only use primitives because we go to Preferences as a list of
+  // devices
 
-    // Only use primitives because we go to Preferences as a list of devices
+  // These three should be unique (not for emulators)
+  private final String mModel;
+  private final String mSN;
+  private final String mOS;
 
-    // These three should be unique (not for emulators)
-    private final String mModel;
-    private final String mSN;
-    private final String mOS;
+  private final String mNickname;
+  private final long mLastSeen;
 
-    private final String mNickname;
-    private final long mLastSeen;
+  public Device(String model, String sn, String os, String nickname) {
+    mModel = model;
+    mSN = sn;
+    mOS = os;
+    mNickname = nickname;
+    mLastSeen = new DateTime().getMillis();
+  }
 
-    public Device(String model, String sn, String os, String nickname) {
-        mModel = model;
-        mSN = sn;
-        mOS = os;
-        mNickname = nickname;
-        mLastSeen = new DateTime().getMillis();
+  public static Device getMyDevice() {
+    return new Device(getMyModel(), getMySN(), getMyOS(),
+      Prefs.getDeviceNickname());
+  }
+
+  public static String getMyName() {
+    String myName = getMyNickname();
+    if (TextUtils.isEmpty(myName)) {
+      myName = getMyModel() + " - " + getMySN() + " - " + getMyOS();
     }
+    return myName;
+  }
 
-    public static Device getMyDevice() {
-        return new Device(getMyModel(), getMySN(), getMyOS(), Prefs.getDeviceNickname());
+  public static String getMyModel() {
+    String value;
+    final String manufacturer = Build.MANUFACTURER;
+    final String model = Build.MODEL;
+    if (model.startsWith(manufacturer)) {
+      value = AppUtils.capitalize(model);
+    } else {
+      value = AppUtils.capitalize(manufacturer) + " " + model;
     }
+    if (value.startsWith("Htc ")) {
+      // special case for HTC
+      value = value.replaceFirst("Htc ", "HTC ");
+    }
+    return value;
+  }
 
-    public static String getMyName() {
-        String myName = getMyNickname();
-        if (TextUtils.isEmpty(myName)) {
-            myName = getMyModel() + " - " + getMySN() + " - " + getMyOS();
-        }
-        return myName;
-    }
+  private static String getMySN() {
+    return Prefs.getSN();
+  }
 
-    public static String getMyModel() {
-        String value;
-        final String manufacturer = Build.MANUFACTURER;
-        final String model = Build.MODEL;
-        if (model.startsWith(manufacturer)) {
-            value = AppUtils.capitalize(model);
-        } else {
-            value = AppUtils.capitalize(manufacturer) + " " + model;
-        }
-        if (value.startsWith("Htc ")) {
-            // special case for HTC
-            value = value.replaceFirst("Htc ", "HTC ");
-        }
-        return value;
-    }
+  private static String getMyOS() {
+    return "Android";
+  }
 
-    // TODO look into SERIAL
-    private static String getMySN() {
-        return Build.SERIAL;
-    }
+  private static String getMyNickname() {
+    return Prefs.getDeviceNickname();
+  }
 
-    private static String getMyOS() {
-        return "Android";
-    }
+  public static String getMyUniqueName() {
+    return getMyModel() + " - " + getMySN() + " - " + getMyOS();
+  }
 
-    private static String getMyNickname() {
-        return Prefs.getDeviceNickname();
-    }
+  public String getModel() {
+    return mModel;
+  }
 
-    public static String getMyUniqueName() {
-        return getMyModel() + " - " + getMySN() + " - " + getMyOS();
-    }
+  public String getSN() {
+    return mSN;
+  }
 
-    public String getModel() {
-        return mModel;
-    }
+  public String getOS() {
+    return mOS;
+  }
 
-    public String getSN() {
-        return mSN;
-    }
+  public String getNickname() {
+    return mNickname;
+  }
 
-    public String getOS() {
-        return mOS;
-    }
+  public DateTime getLastSeen() {
+    return new DateTime(mLastSeen);
+  }
 
-    public String getNickname() {
-        return mNickname;
+  public String getDisplayName() {
+    String name = getNickname();
+    if (TextUtils.isEmpty(name)) {
+      name = getModel() + " - " + getSN() + " - " + getOS();
     }
+    return name;
+  }
 
-    public DateTime getLastSeen() {
-        return new DateTime(mLastSeen);
-    }
-
-    public String getDisplayName() {
-        String name = getNickname();
-        if (TextUtils.isEmpty(name)) {
-            name = getModel() + " - " + getSN() + " - " + getOS();
-        }
-        return name;
-    }
-
-    public String getUniqueName() {
-        return getModel() + " - " + getSN() + " - " + getOS();
-    }
+  public String getUniqueName() {
+    return getModel() + " - " + getSN() + " - " + getOS();
+  }
 }

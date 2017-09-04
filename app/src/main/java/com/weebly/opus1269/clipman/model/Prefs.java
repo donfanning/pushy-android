@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.model;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
@@ -17,6 +18,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -57,6 +59,7 @@ public class Prefs {
   private static final String PREF_SORT_TYPE = "prefSortType";
   private static final String PREF_DEVICE_REGISTERED = "prefDeviceRegistered";
   private static final String PREF_DEVICES = "prefDevices";
+  private static final String PREF_SN = "prefSN";
 
   private Prefs() {
   }
@@ -230,7 +233,6 @@ public class Prefs {
     return get(PREF_FAV_FILTER, false);
   }
 
-
   public static void setDeviceRegistered(Boolean value) {
     set(PREF_DEVICE_REGISTERED, value);
   }
@@ -247,6 +249,28 @@ public class Prefs {
     return get(PREF_DEVICES, "");
   }
 
+  static String getSN() {
+    final SharedPreferences preferences =
+      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+    String sN;
+
+    if (preferences.contains(PREF_SN)) {
+      // already set
+      sN = preferences.getString(PREF_SN, "");
+    } else {
+      // generate unique serial number for life of install at least
+      // TODO may need to replace at some point
+      sN = Build.SERIAL;
+      if (sN.isEmpty() || (sN.equals("unknown"))) {
+        // unknown is what emulators return
+        sN = AppUtils.getRandomString();
+      }
+      // set now. will never change unless uninstalled
+      set(PREF_SN, sN);
+    }
+    return sN;
+  }
+
   static void set(String key, String value) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(App.getContext());
@@ -255,7 +279,6 @@ public class Prefs {
       .apply();
   }
 
-  @SuppressWarnings("SameParameterValue")
   private static void set(String key, boolean value) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(App.getContext());

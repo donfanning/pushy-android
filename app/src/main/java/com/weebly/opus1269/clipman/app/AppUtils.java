@@ -30,6 +30,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Random;
+
 /**
  * General static constants utility methods
  */
@@ -237,5 +239,30 @@ public class AppUtils {
     } else {
       return Character.toUpperCase(first) + s.substring(1);
     }
+  }
+
+  /**
+   * Get a pseudo-random string of the given length
+   * @param length  length of string to generate
+   * @return a pseudo-random string
+   */
+  public static String getRandomString(int length) {
+    char[] chars1 = "ABCDEF012GHIJKL345MNOPQR678STUVWXYZ9".toCharArray();
+    StringBuilder sb1 = new StringBuilder();
+    Random random1 = new Random();
+    for (int i = 0; i < length; i++)
+    {
+      char c1 = chars1[random1.nextInt(chars1.length)];
+      sb1.append(c1);
+    }
+    return sb1.toString();
+  }
+
+  /**
+   * Get a pseudo-random string of a fixed length
+   * @return a pseudo-random string
+   */
+  public static String getRandomString() {
+    return getRandomString(8);
   }
 }
