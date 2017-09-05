@@ -203,15 +203,6 @@ public class RegistrationClient extends Endpoint {
         }
 
         @Override
-        protected void onPreExecute() {
-            mProgressMessage =
-                mActivity.getString(R.string.registering);
-
-            // must call
-            super.onPreExecute();
-        }
-
-        @Override
         protected String doInBackground(Void... params) {
             String error = "";
             // register device with the server - blocks
@@ -233,7 +224,6 @@ public class RegistrationClient extends Endpoint {
                     if (mActivity instanceof SignInActivity) {
                         ((SignInActivity) mActivity).doSignOut();
                     }
-                    dismissProgressDialog();
                     new AlertDialog.Builder(mActivity)
                         .setTitle(R.string.err_register)
                         .setMessage(error)
@@ -242,10 +232,10 @@ public class RegistrationClient extends Endpoint {
                 } else {
                     // let others know we are here
                     MessagingClient.sendDeviceAdded();
-                    dismissProgressDialog();
+                    // SignInActivity will be notified
+                    Devices.notifyMyDeviceRegistered();
                 }
             } else {
-                dismissProgressDialog();
                 Log.logD(TAG, NO_ACTIVITY);
             }
         }
@@ -259,15 +249,6 @@ public class RegistrationClient extends Endpoint {
 
         public UnregisterAsyncTask(Activity activity) {
             super(activity);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mProgressMessage =
-                mActivity.getString(R.string.unregistering);
-
-            // must call
-            super.onPreExecute();
         }
 
          @Override
@@ -285,8 +266,6 @@ public class RegistrationClient extends Endpoint {
         protected void onPostExecute(String error) {
             // must call
             super.onPostExecute(error);
-
-            dismissProgressDialog();
 
              // SignInActivity will be notified that it can now sign-out
             Devices.notifyMyDeviceUnregistered();

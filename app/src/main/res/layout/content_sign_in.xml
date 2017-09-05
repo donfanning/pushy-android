@@ -49,7 +49,9 @@
         android:id="@+id/content_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <LinearLayout
           android:id="@+id/user"
@@ -109,8 +111,6 @@
             android:layout_height="wrap_content"
             android:fadeScrollbars="true"
             android:gravity="center"
-            android:padding="10dp"
-            android:scrollbars="vertical"
             android:textAppearance="@style/TextAppearance.AppCompat"
             tools:text="Progress message..." />
 

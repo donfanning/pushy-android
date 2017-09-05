@@ -45,10 +45,10 @@ import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.RegistrationClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
-import com.weebly.opus1269.clipman.ui.helpers.ProgressDialogHelper;
 
 /**
- * This Activity handles account selection, sign-in, and authorization
+ * This Activity handles account selection, sign-in, registration and
+ * authorization
  */
 public class SignInActivity extends BaseActivity implements
   GoogleApiClient.OnConnectionFailedListener,
@@ -203,7 +203,6 @@ public class SignInActivity extends BaseActivity implements
   @Override
   public void onComplete(@NonNull Task<AuthResult> task) {
     // Called after firebase sign in
-    dismissProgress();
     if (!task.isSuccessful()) {
       // If sign in fails, display a message to the user.
       final Exception ex = task.getException();
@@ -222,6 +221,7 @@ public class SignInActivity extends BaseActivity implements
 
           if (!Prefs.isDeviceRegistered()) {
             // register with server
+            setProgressMessage(getString(R.string.registering));
             new RegistrationClient
               .RegisterAsyncTask(this, mAccount.getIdToken())
               .executeMe();
@@ -450,17 +450,24 @@ public class SignInActivity extends BaseActivity implements
         final String action = bundle.getString(Devices.ACTION);
 
         if (action != null) {
-          if (action.equals(Devices.ACTION_MY_DEVICE_REMOVED)) {
-            // device remove message sent, now unregister
-            dismissProgress();
-            doUnregister();
-          } else if (action.equals(Devices.ACTION_MY_DEVICE_UNREGISTERED)) {
-            // unregistered, now signout or revoke
-            if (mIsRevoke) {
-              doRevoke();
-            } else {
-              doSignOut();
-            }
+          switch (action) {
+            case Devices.ACTION_MY_DEVICE_REMOVED:
+              // device remove message sent, now unregister
+              setProgressMessage(getString(R.string.unregistering));
+              doUnregister();
+              break;
+            case Devices.ACTION_MY_DEVICE_REGISTERED:
+              // registered
+              dismissProgress();
+              break;
+            case Devices.ACTION_MY_DEVICE_UNREGISTERED:
+              // unregistered, now signout or revoke
+              if (mIsRevoke) {
+                doRevoke();
+              } else {
+                doSignOut();
+              }
+              break;
           }
         }
       }
@@ -589,11 +596,10 @@ public class SignInActivity extends BaseActivity implements
   private void showProgress(String message) {
     final View userView = findViewById(R.id.user);
     final View progressView = findViewById(R.id.progress);
-    final TextView progressMessageView = findViewById(R.id.progress_message);
 
     userView.setVisibility(View.GONE);
     progressView.setVisibility(View.VISIBLE);
-    progressMessageView.setText(message);
+    setProgressMessage(message);
   }
 
   /**
@@ -602,10 +608,18 @@ public class SignInActivity extends BaseActivity implements
   private void dismissProgress() {
     final View userView = findViewById(R.id.user);
     final View progressView = findViewById(R.id.progress);
-    final TextView progressMessageView = findViewById(R.id.progress_message);
 
     userView.setVisibility(View.VISIBLE);
     progressView.setVisibility(View.GONE);
-    progressMessageView.setText("");
+    setProgressMessage("");
+  }
+
+  /**
+   * Set progress message
+   * @param message - message to display
+   */
+  private void setProgressMessage(String message) {
+    final TextView progressMessageView = findViewById(R.id.progress_message);
+    progressMessageView.setText(message);
   }
 }

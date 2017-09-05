@@ -51,6 +51,9 @@ public class Devices {
     /** @value */
     public static final String ACTION_MY_DEVICE_REMOVED = "myDeviceRemoved";
     /** @value */
+    public static final String ACTION_MY_DEVICE_REGISTERED =
+        "myDeviceRegistered";
+    /** @value */
     public static final String ACTION_MY_DEVICE_UNREGISTERED =
         "myDeviceUnregistered";
 
@@ -158,6 +161,13 @@ public class Devices {
     public static void notifyMyDeviceRemoved() {
         clear();
         _sendBroadcast(ACTION_MY_DEVICE_REMOVED);
+    }
+
+    /**
+     * Notify listeners that our {@link Device} was registered
+     */
+    public static void notifyMyDeviceRegistered() {
+        _sendBroadcast(ACTION_MY_DEVICE_REGISTERED);
     }
 
     /**
