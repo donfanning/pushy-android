@@ -140,7 +140,7 @@ public class SignInActivity extends BaseActivity implements
     LocalBroadcastManager
       .getInstance(this)
       .unregisterReceiver(mDevicesReceiver);
-    dismissProgressDialog();
+    dismissProgress();
   }
 
   @Override
@@ -203,7 +203,7 @@ public class SignInActivity extends BaseActivity implements
   @Override
   public void onComplete(@NonNull Task<AuthResult> task) {
     // Called after firebase sign in
-    dismissProgressDialog();
+    dismissProgress();
     if (!task.isSuccessful()) {
       // If sign in fails, display a message to the user.
       final Exception ex = task.getException();
@@ -266,7 +266,7 @@ public class SignInActivity extends BaseActivity implements
     Log.logE(TAG,
       "onConnectionFailed: " + connectionResult.getErrorMessage());
     mErrorMessage = getString(R.string.error_connection);
-    dismissProgressDialog();
+    dismissProgress();
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -278,7 +278,7 @@ public class SignInActivity extends BaseActivity implements
    */
   public void doSignOut() {
     if (mGoogleApiClient.isConnected()) {
-      showProgressDialog(getString(R.string.signing_out));
+      showProgress(getString(R.string.signing_out));
       Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
         new ResultCallback<Status>() {
           @Override
@@ -286,7 +286,7 @@ public class SignInActivity extends BaseActivity implements
             if (status.isSuccess()) {
               FirebaseAuth.getInstance().signOut();
               clearUser();
-              dismissProgressDialog();
+              dismissProgress();
             } else {
               signOutFailed(getString(R.string.sign_out_err_fmt,
                 status.getStatusMessage()));
@@ -342,11 +342,11 @@ public class SignInActivity extends BaseActivity implements
       // or the sign-in has expired,
       // this asynchronous branch will attempt to sign in the user
       // silently.  Cross-device single sign-on will occur in this branch.
-      showProgressDialog(getString(R.string.signing_in));
+      showProgress(getString(R.string.signing_in));
       opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
         @Override
         public void onResult(@NonNull GoogleSignInResult r) {
-          dismissProgressDialog();
+          dismissProgress();
           handleSignInResult(r);
         }
       });
@@ -380,7 +380,7 @@ public class SignInActivity extends BaseActivity implements
    * Authorize with Firebase
    */
   private void firebaseAuthWithGoogle() {
-    showProgressDialog(getString(R.string.signing_in));
+    showProgress(getString(R.string.signing_in));
     AuthCredential credential =
       GoogleAuthProvider.getCredential(mAccount.getIdToken(), null);
     mAuth.signInWithCredential(credential)
@@ -397,7 +397,7 @@ public class SignInActivity extends BaseActivity implements
     if (Prefs.isDeviceRegistered()) {
       if (Prefs.isPushClipboard()) {
         // also handles unregister and sign-out
-        showProgressDialog(getString(R.string.signing_out));
+        showProgress(getString(R.string.signing_out));
         MessagingClient.sendDeviceRemoved();
       } else {
         // handles unregister and sign-out
@@ -452,7 +452,7 @@ public class SignInActivity extends BaseActivity implements
         if (action != null) {
           if (action.equals(Devices.ACTION_MY_DEVICE_REMOVED)) {
             // device remove message sent, now unregister
-            dismissProgressDialog();
+            dismissProgress();
             doUnregister();
           } else if (action.equals(Devices.ACTION_MY_DEVICE_UNREGISTERED)) {
             // unregistered, now signout or revoke
@@ -493,7 +493,7 @@ public class SignInActivity extends BaseActivity implements
    */
   private void doRevoke() {
     if (mGoogleApiClient.isConnected()) {
-      showProgressDialog(getString(R.string.signing_out));
+      showProgress(getString(R.string.signing_out));
       Auth.GoogleSignInApi
         .revokeAccess(mGoogleApiClient)
         .setResultCallback(
@@ -503,7 +503,7 @@ public class SignInActivity extends BaseActivity implements
               if (status.isSuccess()) {
                 FirebaseAuth.getInstance().signOut();
                 clearUser();
-                dismissProgressDialog();
+                dismissProgress();
               } else {
                 signOutFailed(getString(R.string.revoke_err_fmt,
                   status.getStatusMessage()));
@@ -569,7 +569,7 @@ public class SignInActivity extends BaseActivity implements
     mErrorMessage = error;
     Log.logE(TAG, mErrorMessage);
     clearUser();
-    dismissProgressDialog();
+    dismissProgress();
   }
 
   /**
@@ -579,21 +579,33 @@ public class SignInActivity extends BaseActivity implements
   private void signOutFailed(String error) {
     mErrorMessage = error;
     Log.logE(TAG, mErrorMessage);
-    dismissProgressDialog();
+    dismissProgress();
   }
 
   /**
-   * Display progress dialod
+   * Display progress
    * @param message - message to display
    */
-  private void showProgressDialog(String message) {
-    ProgressDialogHelper.show(this, message);
+  private void showProgress(String message) {
+    final View userView = findViewById(R.id.user);
+    final View progressView = findViewById(R.id.progress);
+    final TextView progressMessageView = findViewById(R.id.progress_message);
+
+    userView.setVisibility(View.GONE);
+    progressView.setVisibility(View.VISIBLE);
+    progressMessageView.setText(message);
   }
 
   /**
-   * Remove progress dialod
+   * Remove progress
    */
-  private void dismissProgressDialog() {
-    ProgressDialogHelper.dismiss();
+  private void dismissProgress() {
+    final View userView = findViewById(R.id.user);
+    final View progressView = findViewById(R.id.progress);
+    final TextView progressMessageView = findViewById(R.id.progress_message);
+
+    userView.setVisibility(View.VISIBLE);
+    progressView.setVisibility(View.GONE);
+    progressMessageView.setText("");
   }
 }

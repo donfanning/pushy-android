@@ -6,133 +6,178 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="5"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.signin.SignInActivity"
-    tools:showIn="@layout/activity_sign_in">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:weightSum="5"
+  app:layout_behavior="@string/appbar_scrolling_view_behavior"
+  tools:context=".ui.signin.SignInActivity"
+  tools:showIn="@layout/activity_sign_in">
 
-    <ScrollView
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="4">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_horizontal"
+      android:orientation="vertical">
+
+      <ImageView
+        android:id="@+id/google_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="@dimen/g_top_margin"
+        android:contentDescription="@string/desc_google_icon"
+        android:src="@drawable/googleg_color" />
+
+      <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="@string/signin_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
+
+      <RelativeLayout
+        android:id="@+id/content_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4">
+        android:layout_weight="1">
 
         <LinearLayout
-            android:layout_width="match_parent"
+          android:id="@+id/user"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center_horizontal"
+          android:orientation="vertical">
+
+          <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:text="@string/signed_out"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
 
-            <ImageView
-                android:id="@+id/google_icon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="@dimen/g_top_margin"
-                android:contentDescription="@string/desc_google_icon"
-                android:src="@drawable/googleg_color" />
+          <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text=""
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            tools:text="aaa.@bbb.com" />
 
-            <TextView
-                android:id="@+id/title_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="@string/signin_title"
-                android:gravity="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
-
-            <TextView
-                android:id="@+id/user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/signed_out"
-                android:gravity="center_horizontal"
-                android:textAppearance="@style/TextAppearance.AppCompat" />
-
-            <TextView
-                android:id="@+id/email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                tools:text="aaa.@bbb.com"
-                android:gravity="center_horizontal"
-                android:textAppearance="@style/TextAppearance.AppCompat" />
-
-            <TextView
-                android:id="@+id/error_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fadeScrollbars="true"
-                android:gravity="center"
-                android:padding="10dp"
-                android:scrollbars="vertical"
-                tools:text="something went awry\n\n\noh well"
-                android:textAppearance="@style/TextAppearance.AppCompat" />
+          <TextView
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fadeScrollbars="true"
+            android:gravity="center"
+            android:padding="10dp"
+            android:scrollbars="vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            tools:text="something went awry\n\n\noh well" />
 
         </LinearLayout>
 
-    </ScrollView>
+        <LinearLayout
+          android:id="@+id/progress"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center_horizontal"
+          android:orientation="vertical"
+          android:visibility="gone"
+          tools:visibility="visible">
+
+          <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+          <TextView
+            android:id="@+id/progress_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fadeScrollbars="true"
+            android:gravity="center"
+            android:padding="10dp"
+            android:scrollbars="vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            tools:text="Progress message..." />
+
+        </LinearLayout>
+
+      </RelativeLayout>
+
+    </LinearLayout>
+
+  </ScrollView>
 
 
-    <RelativeLayout
-        android:id="@+id/button_layout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+  <RelativeLayout
+    android:id="@+id/button_layout"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:background="?attr/signInButtonsBackground">
+
+    <LinearLayout
+      android:id="@+id/sign_in"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerHorizontal="true"
+      android:layout_centerVertical="true"
+      android:orientation="vertical"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp">
+
+      <com.google.android.gms.common.SignInButton
+        android:id="@+id/sign_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/common_signin_button_text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/sign_out_and_disconnect"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerHorizontal="true"
+      android:layout_centerVertical="true"
+      android:orientation="horizontal"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp"
+      android:visibility="gone"
+      tools:visibility="visible">
+
+      <Button
+        android:id="@+id/sign_out_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="?attr/signInButtonsBackground">
+        android:text="@string/sign_out"
+        tools:ignore="ButtonStyle" />
 
-        <LinearLayout
-            android:id="@+id/sign_in"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:orientation="vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+      <Button
+        android:id="@+id/revoke_access_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/disconnect"
+        tools:ignore="ButtonStyle" />
+    </LinearLayout>
 
-            <com.google.android.gms.common.SignInButton
-                android:id="@+id/sign_in_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/common_signin_button_text" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sign_out_and_disconnect"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-
-            <Button
-                android:id="@+id/sign_out_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/sign_out"
-                tools:ignore="ButtonStyle" />
-
-            <Button
-                android:id="@+id/revoke_access_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/disconnect"
-                tools:ignore="ButtonStyle" />
-        </LinearLayout>
-
-    </RelativeLayout>
+  </RelativeLayout>
 
 </LinearLayout>
