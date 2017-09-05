@@ -113,7 +113,6 @@
     <orderEntry type="library" exported="" name="firebase-messaging-11.2.0" level="project" />
     <orderEntry type="library" exported="" name="messaging-v1-1.22.0-SNAPSHOT-sources" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="exposed-instrumentation-api-publish-0.5" level="project" />
-    <orderEntry type="library" exported="" name="firebase-jobdispatcher-0.7.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-1.22.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javax.annotation-api-1.2" level="project" />
     <orderEntry type="library" exported="" name="registration-v1-1.22.0-SNAPSHOT" level="project" />
@@ -143,6 +142,7 @@
     <orderEntry type="library" exported="" scope="TEST" name="espresso-core-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="support-compat-26.0.2" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="rules-0.5" level="project" />
+    <orderEntry type="library" exported="" name="firebase-jobdispatcher-0.8.1" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-1.22.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javax.inject-1" level="project" />
     <orderEntry type="library" exported="" name="gson-2.7" level="project" />
