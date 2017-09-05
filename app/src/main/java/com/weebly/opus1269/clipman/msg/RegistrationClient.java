@@ -19,12 +19,14 @@
 package com.weebly.opus1269.clipman.msg;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -43,232 +45,234 @@ import java.io.IOException;
  * This helper class is the interface to our gae Registration Endpoint
  */
 public class RegistrationClient extends Endpoint {
-    private static final String TAG = "RegistrationClient";
+  private static final String TAG = "RegistrationClient";
 
-    private static final String ERROR_REGISTER =
-        App.getContext().getString(R.string.err_register);
-    private static final String ERROR_UNREGISTER =
-        App.getContext().getString(R.string.err_unregister);
-    private static final String ERROR_INVALID_REGID =
-        App.getContext().getString(R.string.err_invalid_regid);
+  private static final String ERROR_REGISTER =
+    App.getContext().getString(R.string.err_register);
+  private static final String ERROR_UNREGISTER =
+    App.getContext().getString(R.string.err_unregister);
+  private static final String ERROR_INVALID_REGID =
+    App.getContext().getString(R.string.err_invalid_regid);
 
-    private RegistrationClient() {}
+  private RegistrationClient() {
+  }
 
-    /**
-     * Register with server
-     * @param idToken - authorization token
-     * @return getSuccess() false on error
-     */
-    public static EndpointRet register(String idToken) {
-        EndpointRet ret = new EndpointRet();
-        ret.setSuccess(false);
-        ret.setReason(Msg.ERROR_UNKNOWN);
+  /**
+   * Register with server
+   * @param idToken - authorization token
+   * @return getSuccess() false on error
+   */
+  public static EndpointRet register(String idToken) {
+    EndpointRet ret = new EndpointRet();
+    ret.setSuccess(false);
+    ret.setReason(Msg.ERROR_UNKNOWN);
 
-        if (notSignedIn()) {
-            Log.logD(TAG, "Not signed in.");
-            ret.setSuccess(true);
-            return ret;
-        } else if (Prefs.isDeviceRegistered()) {
-            Log.logD(TAG, "Already registered.");
-            ret.setSuccess(true);
-            return ret;
-        } else if (!Prefs.isAllowReceive()) {
-            Log.logD(TAG, "User doesn't want to receive messasges.");
-            ret.setSuccess(true);
-            return ret;
-        }
+    if (notSignedIn()) {
+      Log.logD(TAG, "Not signed in.");
+      ret.setSuccess(true);
+      return ret;
+    } else if (Prefs.isDeviceRegistered()) {
+      Log.logD(TAG, "Already registered.");
+      ret.setSuccess(true);
+      return ret;
+    } else if (!Prefs.isAllowReceive()) {
+      Log.logD(TAG, "User doesn't want to receive messasges.");
+      ret.setSuccess(true);
+      return ret;
+    }
 
-        boolean isRegistered = false;
-        try {
-            final String regToken = getRegToken();
-            if (TextUtils.isEmpty(regToken)) {
-                ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID));
-                return ret;
-            }
-
-            final GoogleCredential credential = getCredential(idToken);
-            if (credential == null) {
-                ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL));
-                return ret;
-            }
-
-            // call server
-            final Registration regService = getRegistrationService(credential);
-            ret = regService.register(regToken).execute();
-            if (ret.getSuccess()) {
-                isRegistered = true;
-                Analytics.INSTANCE.registered();
-            } else {
-                ret.setReason(Log.logE(TAG,
-                    ERROR_REGISTER + " " + ret.getReason()));
-            }
-        } catch (final IOException ex) {
-            ret.setReason(Log.logEx(TAG, ERROR_REGISTER, ex));
-        } finally {
-            Prefs.setDeviceRegistered(isRegistered);
-        }
-
+    boolean isRegistered = false;
+    try {
+      final String regToken = getRegToken();
+      if (TextUtils.isEmpty(regToken)) {
+        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID));
         return ret;
-    }
+      }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Private methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Unregister with server
-     * @return getSuccess() false on error
-     */
-    private static EndpointRet unregister() {
-        EndpointRet ret = new EndpointRet();
-        ret.setSuccess(false);
-        ret.setReason(Msg.ERROR_UNKNOWN);
-
-        if (notSignedIn()) {
-            ret.setSuccess(true);
-            return ret;
-        } else if (!Prefs.isDeviceRegistered()) {
-            Log.logD(TAG, Msg.ERROR_NOT_REGISTERED);
-            ret.setSuccess(true);
-            return ret;
-        }
-
-        boolean isRegistered = true;
-        try {
-            final String regToken = getRegToken();
-            if (TextUtils.isEmpty(regToken)) {
-                ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID));
-                return ret;
-            }
-
-            final GoogleCredential credential = getCredential(null);
-            if (credential == null) {
-                ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL));
-                return ret;
-            }
-
-            // call server
-            final Registration regService = getRegistrationService(credential);
-            ret = regService.unregister(regToken).execute();
-            if (ret.getSuccess()) {
-                Analytics.INSTANCE.unregistered();
-                isRegistered = false;
-            } else {
-                ret.setReason(Log.logE(TAG, ERROR_UNREGISTER +
-                    " " + ret.getReason()));
-            }
-        } catch (final IOException ex) {
-            ret.setReason(Log.logEx(TAG, ERROR_UNREGISTER, ex));
-        } finally {
-            Prefs.setDeviceRegistered(isRegistered);
-        }
-
+      final GoogleCredential credential = getCredential(idToken);
+      if (credential == null) {
+        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL));
         return ret;
+      }
+
+      // call server
+      final Registration regService = getRegistrationService(credential);
+      ret = regService.register(regToken).execute();
+      if (ret.getSuccess()) {
+        isRegistered = true;
+        Analytics.INSTANCE.registered();
+      } else {
+        ret.setReason(Log.logE(TAG,
+          ERROR_REGISTER + " " + ret.getReason()));
+      }
+    } catch (final IOException ex) {
+      ret.setReason(Log.logEx(TAG, ERROR_REGISTER, ex));
+    } finally {
+      Prefs.setDeviceRegistered(isRegistered);
     }
 
-    /**
-     * Get an authorized connection to the RegistrationEndpoint
-     * @param credential - authorization for current user
-     * @return Connection to RegistrationEndpoint on server
-     */
-    private static Registration
-    getRegistrationService(GoogleCredential credential) {
-        final Registration.Builder builder =
-            new Registration.Builder(new NetHttpTransport(),
-                new AndroidJsonFactory(), credential);
+    return ret;
+  }
 
-        builder.setApplicationName(AppUtils.getApplicationName());
+  ///////////////////////////////////////////////////////////////////////////
+  // Private methods
+  ///////////////////////////////////////////////////////////////////////////
 
-        // for development purposes
-        setLocalServer(builder);
+  /**
+   * Unregister with server
+   * @return getSuccess() false on error
+   */
+  private static EndpointRet unregister() {
+    EndpointRet ret = new EndpointRet();
+    ret.setSuccess(false);
+    ret.setReason(Msg.ERROR_UNKNOWN);
 
-        return builder.build();
+    if (notSignedIn()) {
+      ret.setSuccess(true);
+      return ret;
+    } else if (!Prefs.isDeviceRegistered()) {
+      Log.logE(TAG, Msg.ERROR_NOT_REGISTERED);
+      ret.setSuccess(true);
+      return ret;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Inner Classes
-    ///////////////////////////////////////////////////////////////////////////
+    boolean isRegistered = true;
+    try {
+      final String regToken = getRegToken();
+      if (TextUtils.isEmpty(regToken)) {
+        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID));
+        return ret;
+      }
 
-    /**
-     * AsyncTask to register our with the server.
-     */
-    public static class RegisterAsyncTask extends
-        CustomAsyncTask<Void, Void, String> {
+      final GoogleCredential credential = getCredential(null);
+      if (credential == null) {
+        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL));
+        return ret;
+      }
 
-        private final String mIdToken;
-
-        public RegisterAsyncTask(Activity activity, String idToken) {
-            super(activity);
-            mIdToken = idToken;
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            String error = "";
-            // register device with the server - blocks
-            EndpointRet ret = RegistrationClient.register(mIdToken);
-            if(!ret.getSuccess()) {
-                error = ret.getReason();
-            }
-            return error;
-        }
-
-        @Override
-        protected void onPostExecute(String error) {
-            // must call
-            super.onPostExecute(error);
-
-            if (mActivity != null) {
-                if (!TextUtils.isEmpty(error)) {
-                    // failed to register Device with server
-                    if (mActivity instanceof SignInActivity) {
-                        ((SignInActivity) mActivity).doSignOut();
-                    }
-                    new AlertDialog.Builder(mActivity)
-                        .setTitle(R.string.err_register)
-                        .setMessage(error)
-                        .setPositiveButton(R.string.button_dismiss, null)
-                        .show();
-                } else {
-                    // let others know we are here
-                    MessagingClient.sendDeviceAdded();
-                    // SignInActivity will be notified
-                    Devices.notifyMyDeviceRegistered();
-                }
-            } else {
-                Log.logD(TAG, NO_ACTIVITY);
-            }
-        }
+      // call server
+      final Registration regService = getRegistrationService(credential);
+      ret = regService.unregister(regToken).execute();
+      if (ret.getSuccess()) {
+        Analytics.INSTANCE.unregistered();
+        isRegistered = false;
+      } else {
+        ret.setReason(Log.logE(TAG, ERROR_UNREGISTER +
+          " " + ret.getReason()));
+      }
+    } catch (final IOException ex) {
+      ret.setReason(Log.logEx(TAG, ERROR_UNREGISTER, ex));
+    } finally {
+      Prefs.setDeviceRegistered(isRegistered);
     }
 
-    /**
-     * AsyncTask to unregister from server.
-     */
-    public static class UnregisterAsyncTask extends
-        CustomAsyncTask<Void, Void, String> {
+    return ret;
+  }
 
-        public UnregisterAsyncTask(Activity activity) {
-            super(activity);
-        }
+  /**
+   * Get an authorized connection to the RegistrationEndpoint
+   * @param credential - authorization for current user
+   * @return Connection to RegistrationEndpoint on server
+   */
+  private static Registration
+  getRegistrationService(GoogleCredential credential) {
+    final Registration.Builder builder =
+      new Registration.Builder(new NetHttpTransport(),
+        new AndroidJsonFactory(), credential);
 
-         @Override
-        protected String doInBackground(Void... params) {
-            String error = "";
-            // unregister with the server - blocks
-            EndpointRet ret = RegistrationClient.unregister();
-            if (!ret.getSuccess()) {
-                error = ret.getReason();
-            }
-            return error;
-        }
+    builder.setApplicationName(AppUtils.getApplicationName());
 
-        @Override
-        protected void onPostExecute(String error) {
-            // must call
-            super.onPostExecute(error);
+    // for development purposes
+    setLocalServer(builder);
 
-             // SignInActivity will be notified that it can now sign-out
-            Devices.notifyMyDeviceUnregistered();
-        }
+    return builder.build();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Inner Classes
+  ///////////////////////////////////////////////////////////////////////////
+
+  /**
+   * AsyncTask to register our with the server.
+   */
+  public static class RegisterAsyncTask extends
+    CustomAsyncTask<Void, Void, String> {
+
+    private final String mIdToken;
+
+    public RegisterAsyncTask(Activity activity, String idToken) {
+      super(activity);
+      mIdToken = idToken;
     }
+
+    @Override
+    protected String doInBackground(Void... params) {
+      String error = "";
+      // register device with the server - blocks
+      EndpointRet ret = RegistrationClient.register(mIdToken);
+      if (!ret.getSuccess()) {
+        error = ret.getReason();
+      }
+      return error;
+    }
+
+    @Override
+    protected void onPostExecute(String error) {
+      // must call
+      super.onPostExecute(error);
+
+      if (mActivity != null) {
+        if (!TextUtils.isEmpty(error)) {
+          // notifiy listeners
+          Devices.notifyMyDeviceRegisterError(error);
+        } else {
+          // let others know we are here
+          MessagingClient.sendDeviceAdded();
+          // notifiy listeners
+          Devices.notifyMyDeviceRegistered();
+        }
+      } else {
+        Log.logE(TAG, NO_ACTIVITY);
+      }
+    }
+  }
+
+  /**
+   * AsyncTask to unregister from server.
+   */
+  public static class UnregisterAsyncTask extends
+    CustomAsyncTask<Void, Void, String> {
+
+    public UnregisterAsyncTask(Activity activity) {
+      super(activity);
+    }
+
+    @Override
+    protected String doInBackground(Void... params) {
+      String error = "";
+      // unregister with the server - blocks
+      EndpointRet ret = RegistrationClient.unregister();
+      if (!ret.getSuccess()) {
+        Prefs.setDeviceRegistered(false);
+        try {
+          // delete in case user logs into different account - blocks
+          FirebaseInstanceId.getInstance().deleteInstanceId();
+        } catch (IOException ex) {
+          Log.logEx(TAG, "", ex);
+        }
+        error = ret.getReason();
+        Log.logE(TAG, error);
+      }
+      return error;
+    }
+
+    @Override
+    protected void onPostExecute(String error) {
+      // must call
+      super.onPostExecute(error);
+
+      // SignInActivity will be notified that it can now sign-out
+      Devices.notifyMyDeviceUnregistered();
+    }
+  }
 }

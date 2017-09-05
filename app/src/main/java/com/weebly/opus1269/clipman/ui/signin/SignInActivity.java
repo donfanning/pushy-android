@@ -193,6 +193,8 @@ public class SignInActivity extends BaseActivity implements
       final GoogleSignInResult result =
         Auth.GoogleSignInApi.getSignInResultFromIntent(data);
       handleSignInResult(result);
+    } else {
+      dismissProgress();
     }
   }
 
@@ -211,6 +213,7 @@ public class SignInActivity extends BaseActivity implements
       signInFailed(ex.getLocalizedMessage());
     } else {
       // success
+      mErrorMessage = "";
       final FirebaseUser user = mAuth.getCurrentUser();
       if (user != null) {
         // User is signed in
@@ -225,6 +228,8 @@ public class SignInActivity extends BaseActivity implements
             new RegistrationClient
               .RegisterAsyncTask(this, mAccount.getIdToken())
               .executeMe();
+          } else {
+            dismissProgress();
           }
         } else {
           // something went wrong, shouldn't be here
@@ -240,6 +245,7 @@ public class SignInActivity extends BaseActivity implements
 
   @Override
   public void onClick(View v) {
+    mErrorMessage = "";
     switch (v.getId()) {
       case R.id.sign_in_button:
         onSignInClicked();
@@ -467,6 +473,10 @@ public class SignInActivity extends BaseActivity implements
               } else {
                 doSignOut();
               }
+            case Devices.ACTION_MY_DEVICE_REGISTER_ERROR:
+              // registration error
+              mErrorMessage = bundle.getString(Devices.EXTRA_REGISTER_ERROR);
+              doSignOut();
               break;
           }
         }

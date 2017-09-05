@@ -16,7 +16,7 @@
     <color name="icons">#FFFFFFFF</color>
 
     <color name="search_highlight">#B3009688</color>
-    <color name="red_500">#FFF44336</color>
+    <color name="red_500">#f44336</color>
     <color name="red_500_translucent">#CCF44336</color>
 
     <color name="primary_selection_light">#33283593</color>
