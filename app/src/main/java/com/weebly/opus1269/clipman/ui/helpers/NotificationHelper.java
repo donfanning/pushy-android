@@ -42,6 +42,7 @@ import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 public class NotificationHelper {
   private static final int ID_COPY = 10;
   private static final int ID_DEVICE = 20;
+  private static final int ID_CLIPBOARD_SERVICE = 30;
 
   // Has channel been initialized
   private static boolean sChannelsInit = false;
@@ -83,6 +84,7 @@ public class NotificationHelper {
     channelDesc = context.getString(R.string.channel_service_desc);
     channel = new NotificationChannel(channelId, channelName, importance);
     channel.setDescription(channelDesc);
+    channel.setShowBadge(false);
     notificationManager.createNotificationChannel(channel);
 
     sChannelsInit = true;
@@ -97,22 +99,29 @@ public class NotificationHelper {
     final Context context = App.getContext();
     final Intent intent = new Intent(context, SettingsActivity.class);
 
+
+    // stupid android: http://stackoverflow.com/a/36110709/4468645
+    final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+    // Adds the back stack i.e. MainActivity.class
+    stackBuilder.addParentStack(SettingsActivity.class);
+    // Adds the Intent to the top of the stack
+    stackBuilder.addNextIntent(intent);
+    // Gets a PendingIntent containing the entire back stack
+    final PendingIntent pendingIntent =
+      stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
     final String channelId = context.getString(R.string.channel_service);
 
-    final PendingIntent pendingIntent =
-      PendingIntent.getActivity(context, 0, intent, 0);
-    Notification notification =
+    final Notification notification =
       new Notification.Builder(context, channelId)
         .setContentTitle(context.getString(R.string.service_title))
         .setContentText(context.getString(R.string.service_text))
-        .setBadgeIconType(Notification.BADGE_ICON_NONE)
         .setSmallIcon(R.drawable.ic_notification)
-        .setLargeIcon(getLargeIcon(R.drawable.ic_notification))
+        .setLargeIcon(getLargeIcon(R.drawable.lic_local_copy))
         .setContentIntent(pendingIntent)
-//        .setTicker(getText(R.string.ticker_text))
         .build();
 
-    service.startForeground(3333, notification);
+    service.startForeground(ID_CLIPBOARD_SERVICE, notification);
   }
 
   /**
@@ -147,7 +156,7 @@ public class NotificationHelper {
     stackBuilder.addNextIntent(intent);
     // Gets a PendingIntent containing the entire back stack
     pendingIntent = stackBuilder
-      .getPendingIntent(12345, PendingIntent.FLAG_UPDATE_CURRENT);
+      .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
     // remote vs. local settings
     final int largeIcon;
