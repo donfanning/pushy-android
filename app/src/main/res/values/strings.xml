@@ -222,6 +222,9 @@
     <string name="channel_service" translatable="false">service</string>
     <string name="channel_service_name">Clipboard watcher service</string>
     <string name="channel_service_desc">Listen for clipboard changes</string>
+    <string name="channel_device" translatable="false">devices</string>
+    <string name="channel_device_name">Devices</string>
+    <string name="channel_device_desc">Device notifications</string>
     <string name="channel_message" translatable="false">messages</string>
     <string name="channel_message_name">Messages</string>
     <string name="channel_message_desc">Message notifications</string>

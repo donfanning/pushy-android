@@ -58,7 +58,7 @@ public class NotificationHelper {
   ///////////////////////////////////////////////////////////////////////////
 
   /**
-   * Initialize a {@link NotificationChannel} for Android O
+   * Initialize the {@link NotificationChannel} for Android O
    * @param context A Context
    */
   @TargetApi(26)
@@ -76,6 +76,17 @@ public class NotificationHelper {
     NotificationChannel channel =
       new NotificationChannel(channelId, channelName, importance);
     channel.setDescription(channelDesc);
+    channel.setShowBadge(true);
+    notificationManager.createNotificationChannel(channel);
+
+    importance = NotificationManager.IMPORTANCE_DEFAULT;
+    channelId = context.getString(R.string.channel_device);
+    channelName = context.getString(R.string.channel_device_name);
+    channelDesc = context.getString(R.string.channel_device_desc);
+    channel =
+      new NotificationChannel(channelId, channelName, importance);
+    channel.setDescription(channelDesc);
+    channel.setShowBadge(true);
     notificationManager.createNotificationChannel(channel);
 
     importance = NotificationManager.IMPORTANCE_LOW;
@@ -177,7 +188,8 @@ public class NotificationHelper {
       .setWhen(clipItem.getTime());
 
     if (sClipItemCt > 1) {
-      builder.setSubText(context.getString(R.string.clip_notification_count_fmt, sClipItemCt));
+      builder.setSubText(context.getString(R.string.clip_notification_count_fmt, sClipItemCt))
+        .setNumber(sClipItemCt);
     }
 
     // notification deleted (cleared, swiped, etc) action
@@ -229,7 +241,7 @@ public class NotificationHelper {
 
     // added vs. removed device settings
     final int largeIcon;
-    final String channelId = context.getString(R.string.channel_message);
+    final String channelId = context.getString(R.string.channel_device);
     final String titleText;
     if (isAdded) {
       largeIcon = R.drawable.lic_add_device;
@@ -283,10 +295,7 @@ public class NotificationHelper {
       return;
     }
 
-    Intent intent =
-      new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
-    intent.putExtra(Settings.EXTRA_CHANNEL_ID,
-      context.getString(R.string.channel_message));
+    Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
     intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
     context.startActivity(intent);
   }
