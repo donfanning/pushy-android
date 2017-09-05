@@ -219,7 +219,10 @@
     <string name="err_not_registered">Device is not registered</string>
     <string name="err_not_signed_in">Not signed in</string>
     <string name="err_credential">Unable to get user credential</string>
-    <string name="channel_message" translatable="false">default</string>
+    <string name="channel_service" translatable="false">service</string>
+    <string name="channel_service_name">Clipboard watcher service</string>
+    <string name="channel_service_desc">Listen for clipboard changes</string>
+    <string name="channel_message" translatable="false">messages</string>
     <string name="channel_message_name">Messages</string>
     <string name="channel_message_desc">Message notifications</string>
 

@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.helpers;
 
 import android.annotation.TargetApi;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -31,8 +32,10 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.msg.Msg;
+import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
+import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 
 /**
  * Static class to manage our {@link android.app.Notification} objects
@@ -66,16 +69,51 @@ public class NotificationHelper {
 
     NotificationManager notificationManager = getManager();
 
-    final String channelId = context.getString(R.string.channel_message);
-    final String channelName = context.getString(R.string.channel_message_name);
-    final String channelDesc = context.getString(R.string.channel_message_desc);
-    final NotificationChannel channel = new NotificationChannel(channelId,
-      channelName,
-      NotificationManager.IMPORTANCE_DEFAULT);
+    int importance = NotificationManager.IMPORTANCE_DEFAULT;
+    String channelId = context.getString(R.string.channel_message);
+    String channelName = context.getString(R.string.channel_message_name);
+    String channelDesc = context.getString(R.string.channel_message_desc);
+    NotificationChannel channel =
+      new NotificationChannel(channelId, channelName, importance);
+    channel.setDescription(channelDesc);
+    notificationManager.createNotificationChannel(channel);
+
+    importance = NotificationManager.IMPORTANCE_LOW;
+    channelId = context.getString(R.string.channel_service);
+    channelName = context.getString(R.string.channel_service_name);
+    channelDesc = context.getString(R.string.channel_service_desc);
+    channel = new NotificationChannel(channelId, channelName, importance);
     channel.setDescription(channelDesc);
     notificationManager.createNotificationChannel(channel);
 
     sChannelsInit = true;
+  }
+
+  /**
+   * Start and show the {@link ClipboardWatcherService}
+   * @param service the foreground service to minitor the clipboard
+   */
+  @TargetApi(26)
+  public static void startAndShow(ClipboardWatcherService service) {
+    final Context context = App.getContext();
+    final Intent intent = new Intent(context, SettingsActivity.class);
+
+    final String channelId = context.getString(R.string.channel_service);
+
+    final PendingIntent pendingIntent =
+      PendingIntent.getActivity(context, 0, intent, 0);
+    Notification notification =
+      new Notification.Builder(context, channelId)
+        .setContentTitle(context.getString(R.string.channel_service_name))
+        .setContentText(context.getString(R.string.channel_service_desc))
+        .setBadgeIconType(Notification.BADGE_ICON_NONE)
+        .setSmallIcon(R.drawable.ic_notification)
+        .setLargeIcon(getLargeIcon(R.drawable.ic_notification))
+        .setContentIntent(pendingIntent)
+//        .setTicker(getText(R.string.ticker_text))
+        .build();
+
+    service.startForeground(3333, notification);
   }
 
   /**
