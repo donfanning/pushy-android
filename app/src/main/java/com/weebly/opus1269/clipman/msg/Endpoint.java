@@ -44,130 +44,134 @@ import java.util.concurrent.TimeUnit;
  * Base class for Google App Engine Endpoints
  */
 abstract class Endpoint {
-    private static final String TAG = "Endpoint";
+  private static final String TAG = "Endpoint";
 
-    /** Set to true to use local gae server - {@value} */
-    private static final boolean USE_LOCAL_SERVER = false;
+  /**
+   * Set to true to use local gae server - {@value}
+   */
+  private static final boolean USE_LOCAL_SERVER = false;
 
-    /** Network timeout in seconds - {@value} */
-    private static final int TIMEOUT = 20;
+  /**
+   * Network timeout in seconds - {@value}
+   */
+  private static final int TIMEOUT = 20;
 
-    /**
-     * Determine if we are signed in
-     * @return true if not signed in
-     */
-    static boolean notSignedIn() {
-        if (!User.INSTANCE.isLoggedIn()) {
-            Log.logD(TAG, Msg.ERROR_NOT_SIGNED_IN);
-            return true;
+  /**
+   * Determine if we are signed in
+   * @return true if not signed in
+   */
+  static boolean notSignedIn() {
+    if (!User.INSTANCE.isLoggedIn()) {
+      Log.logD(TAG, Msg.ERROR_NOT_SIGNED_IN);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get InstanceId (regToken)
+   * @return regToken
+   */
+  static String getRegToken() {
+    return FirebaseInstanceId.getInstance().getToken();
+  }
+
+  /**
+   * Get an idToken for authorization
+   * @return idToken
+   */
+  private static String getIdToken() {
+    String idToken = "";
+
+    // Get the IDToken that can be used securely on the backend
+    // for a short time
+    final GoogleSignInOptions gso =
+      new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestEmail()
+        .requestIdToken(Msg.WEB_CLIENT_ID)
+        .build();
+
+    // Build a GoogleApiClient with access to the Google Sign-In API and the
+    // options specified by gso.
+    final GoogleApiClient googleApiClient =
+      new GoogleApiClient.Builder(App.getContext())
+        .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+        .build();
+
+    try {
+      final ConnectionResult result =
+        googleApiClient.blockingConnect(TIMEOUT, TimeUnit.SECONDS);
+      if (result.isSuccess()) {
+        final GoogleSignInResult googleSignInResult =
+          Auth.GoogleSignInApi
+            .silentSignIn(googleApiClient)
+            .await(TIMEOUT, TimeUnit.SECONDS);
+        if (googleSignInResult.isSuccess()) {
+          final GoogleSignInAccount acct =
+            googleSignInResult.getSignInAccount();
+          if (acct != null) {
+            idToken = acct.getIdToken();
+          }
         }
-        return false;
+      }
+    } catch (Exception ex) {
+      Log.logEx(TAG, "", ex);
+    } finally {
+      googleApiClient.disconnect();
     }
 
-    /**
-     * Get InstanceId (regToken)
-     * @return regToken
-     */
-    static String getRegToken() {
-        return FirebaseInstanceId.getInstance().getToken();
+    return idToken;
+  }
+
+  /**
+   * Get a {@link GoogleCredential} for authorized server call
+   * @param idToken - authorization token for user
+   * @return {@link GoogleCredential} for authorized server call
+   */
+  static GoogleCredential getCredential(String idToken) {
+
+    // get credential for a server call
+    final NetHttpTransport transport = new NetHttpTransport();
+    final GoogleCredential.Builder credentialBuilder =
+      new GoogleCredential.Builder();
+    final GoogleCredential credential = credentialBuilder
+      .setTransport(transport)
+      .setJsonFactory(JacksonFactory.getDefaultInstance())
+      .build();
+
+    final String token;
+    if (TextUtils.isEmpty(idToken)) {
+      token = getIdToken();
+    } else {
+      token = idToken;
     }
 
-    /**
-     * Get an idToken for authorization
-     * @return idToken
-     */
-    private static String getIdToken() {
-        String idToken = "";
-
-        // Get the IDToken that can be used securely on the backend
-        // for a short time
-        final GoogleSignInOptions gso =
-            new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .requestIdToken(Msg.WEB_CLIENT_ID)
-                .build();
-
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
-        final GoogleApiClient googleApiClient =
-            new GoogleApiClient.Builder(App.getContext())
-            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-            .build();
-
-        try {
-            final ConnectionResult result =
-                googleApiClient.blockingConnect(TIMEOUT, TimeUnit.SECONDS);
-            if (result.isSuccess()) {
-                final GoogleSignInResult googleSignInResult =
-                    Auth.GoogleSignInApi
-                        .silentSignIn(googleApiClient)
-                        .await(TIMEOUT, TimeUnit.SECONDS);
-                if (googleSignInResult.isSuccess()) {
-                    final GoogleSignInAccount acct =
-                        googleSignInResult.getSignInAccount();
-                    if (acct != null) {
-                        idToken = acct.getIdToken();
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            Log.logEx(TAG, "", ex);
-        } finally {
-            googleApiClient.disconnect();
-        }
-
-        return idToken;
+    if (TextUtils.isEmpty(token)) {
+      return null;
     }
 
-    /**
-     * Get a {@link GoogleCredential} for authorized server call
-     * @param idToken - authorization token for user
-     * @return {@link GoogleCredential} for authorized server call
-     */
-    static GoogleCredential getCredential(String idToken) {
+    credential.setAccessToken(token);
 
-        // get credential for a server call
-        final NetHttpTransport transport = new NetHttpTransport();
-        final GoogleCredential.Builder credentialBuilder =
-            new GoogleCredential.Builder();
-        final GoogleCredential credential = credentialBuilder
-            .setTransport(transport)
-            .setJsonFactory(JacksonFactory.getDefaultInstance())
-            .build();
+    return credential;
+  }
 
-        final String token;
-        if (TextUtils.isEmpty(idToken)) {
-            token = getIdToken();
-        } else {
-            token = idToken;
-        }
-
-        if (TextUtils.isEmpty(token)) {
-            return null;
-        }
-
-        credential.setAccessToken(token);
-
-        return credential;
+  /**
+   * Set setRootUrl and setGoogleClientRequestInitializer
+   * for running with local server
+   * @param builder JSON client
+   */
+  static void setLocalServer(AbstractGoogleJsonClient.Builder builder) {
+    if (USE_LOCAL_SERVER && BuildConfig.DEBUG) {
+      // options for running against local devappserver
+      // - 10.0.2.2 is localhost's IP address in Android emulator
+      // - turn off compression when running against local devappserver
+      builder.setRootUrl("http://10.0.2.2:8080/_ah/api/")
+        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+          @Override
+          public void initialize(AbstractGoogleClientRequest<?> request) {
+            request.setDisableGZipContent(true);
+          }
+        });
     }
-
-    /**
-     * Set setRootUrl and setGoogleClientRequestInitializer
-     * for running with local server
-     * @param builder JSON client
-     */
-    static void setLocalServer(AbstractGoogleJsonClient.Builder builder) {
-        if (USE_LOCAL_SERVER && BuildConfig.DEBUG) {
-            // options for running against local devappserver
-            // - 10.0.2.2 is localhost's IP address in Android emulator
-            // - turn off compression when running against local devappserver
-            builder.setRootUrl("http://10.0.2.2:8080/_ah/api/")
-                .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-                    @Override
-                    public void initialize(AbstractGoogleClientRequest<?> request) {
-                        request.setDisableGZipContent(true);
-                    }
-                });
-        }
-    }
+  }
 }
