@@ -11,13 +11,13 @@
         android:title="@string/pref_cat_title_clipboard"
         android:key="@string/key_pref_cat_clipboard">
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/key_pref_monitor_clipboard"
             android:title="@string/pref_title_monitor_clipboard"
             android:summary="@string/pref_desc_monitor_clipboard" />
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:dependency="@string/key_pref_monitor_clipboard"
             android:defaultValue="true"
             android:key="@string/key_pref_monitor_startup"
@@ -30,26 +30,26 @@
         android:title="@string/pref_cat_title_msg"
         android:key="@string/key_pref_cat_msg">
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/key_pref_push_msg"
             android:title="@string/pref_title_push_msg"
             android:summary="@string/pref_desc_push_msg" />
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:dependency="@string/key_pref_push_msg"
             android:defaultValue="true"
             android:key="@string/key_pref_auto_msg"
             android:title="@string/pref_title_auto_msg"
             android:summary="@string/pref_desc_auto_msg" />
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/key_pref_receive_msg"
             android:title="@string/pref_title_receive_msg"
             android:summary="@string/pref_desc_receive_msg" />
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/key_pref_priority_msg"
             android:title="@string/pref_title_priority_msg"
@@ -94,7 +94,7 @@
         android:title="@string/pref_cat_title_notifications"
         android:key="@string/key_pref_cat_notifications">
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/key_pref_notifications"
             android:title="@string/pref_title_notifications" />
@@ -112,7 +112,7 @@
             android:entries="@array/pref_not_types_entries"
             android:entryValues="@array/pref_not_types_values" />
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:dependency="@string/key_pref_notifications"
             android:defaultValue="true"
             android:key="@string/key_pref_not_audible_once"
