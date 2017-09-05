@@ -225,6 +225,8 @@
     <string name="channel_message" translatable="false">messages</string>
     <string name="channel_message_name">Messages</string>
     <string name="channel_message_desc">Message notifications</string>
+    <string name="service_title">Pushy is monitoring the clipboard</string>
+    <string name="service_text">Touch to change setting</string>
 
 
     <!-- Related to account sign-in -->
