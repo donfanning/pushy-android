@@ -13,6 +13,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -66,31 +67,6 @@ public class AppUtils {
   }
 
   /**
-   * Convert device density to pixels
-   * @param context  A Context
-   * @param dipValue Value to convert
-   * @return Value in pixels
-   */
-  public static int dp2px(Context context, float dipValue) {
-    final float scale = context.getResources().getDisplayMetrics().density;
-    //noinspection NumericCastThatLosesPrecision,MagicNumber
-    return (int) ((dipValue * scale) + 0.5F);
-  }
-
-  /**
-   * Convert pixels to device density
-   * @param context A Context
-   * @param pxValue Value to convert
-   * @return Value in device density
-   */
-  @SuppressWarnings("unused")
-  public static int px2dp(Context context, float pxValue) {
-    final float scale = context.getResources().getDisplayMetrics().density;
-    //noinspection NumericCastThatLosesPrecision,MagicNumber
-    return (int) ((pxValue / scale) + 0.5F);
-  }
-
-  /**
    * Get the app name
    * @return app name
    */
@@ -98,6 +74,30 @@ public class AppUtils {
     final Context context = App.getContext();
     final int stringId = context.getApplicationInfo().labelRes;
     return context.getString(stringId);
+  }
+
+  /**
+   * Check if we are running on an oreo or newer device
+   * @return boolean
+   */
+  public static boolean isOreoOrLater() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+  }
+
+  /**
+   * Check if we are running on a lollipop or newer device
+   * @return boolean
+   */
+  public static boolean isLollipopOrLater() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+  }
+
+  /**
+   * Check if we are running on a jellybean or newer device
+   * @return boolean
+   */
+  public static boolean isJellyBeanOrLater() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
   }
 
   /**
@@ -264,5 +264,30 @@ public class AppUtils {
    */
   public static String getRandomString() {
     return getRandomString(8);
+  }
+
+  /**
+   * Convert device density to pixels
+   * @param context  A Context
+   * @param dipValue Value to convert
+   * @return Value in pixels
+   */
+  public static int dp2px(Context context, float dipValue) {
+    final float scale = context.getResources().getDisplayMetrics().density;
+    //noinspection NumericCastThatLosesPrecision,MagicNumber
+    return (int) ((dipValue * scale) + 0.5F);
+  }
+
+  /**
+   * Convert pixels to device density
+   * @param context A Context
+   * @param pxValue Value to convert
+   * @return Value in device density
+   */
+  @SuppressWarnings("unused")
+  public static int px2dp(Context context, float pxValue) {
+    final float scale = context.getResources().getDisplayMetrics().density;
+    //noinspection NumericCastThatLosesPrecision,MagicNumber
+    return (int) ((pxValue / scale) + 0.5F);
   }
 }

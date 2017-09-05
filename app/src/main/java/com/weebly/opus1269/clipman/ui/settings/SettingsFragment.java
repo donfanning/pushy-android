@@ -14,7 +14,6 @@ import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -28,6 +27,7 @@ import android.view.ViewGroup;
 
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -228,7 +228,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
    * Update the Ringtone summary text
    */
   private void setRingtoneSummary() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    if (AppUtils.isOreoOrLater()) {
       return;
     }
     final Preference preference = findPreference(mRingtoneKey);

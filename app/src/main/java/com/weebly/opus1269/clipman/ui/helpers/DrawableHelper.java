@@ -11,7 +11,6 @@ package com.weebly.opus1269.clipman.ui.helpers;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -21,6 +20,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+
+import com.weebly.opus1269.clipman.app.AppUtils;
 
 /**
  * {@link Drawable} helper class.
@@ -81,7 +82,7 @@ public class DrawableHelper {
       throw new NullPointerException("É preciso chamar o método tint()");
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+    if (AppUtils.isJellyBeanOrLater()) {
       view.setBackground(mWrappedDrawable);
     } else {
       view.setBackgroundDrawable(mWrappedDrawable);

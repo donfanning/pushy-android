@@ -12,13 +12,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -112,7 +112,7 @@ public class BitmapHelper {
   @SuppressWarnings("unused")
   public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
     Drawable drawable = AppCompatDrawableManager.get().getDrawable(context, drawableId);
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+    if (!AppUtils.isLollipopOrLater()) {
       drawable = (DrawableCompat.wrap(drawable)).mutate();
     }
 

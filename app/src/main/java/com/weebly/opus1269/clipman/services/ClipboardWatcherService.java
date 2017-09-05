@@ -11,7 +11,6 @@ import android.app.Service;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -60,10 +59,10 @@ public class ClipboardWatcherService extends Service implements
       final Context context = App.getContext();
       final Intent intent = new Intent(context, ClipboardWatcherService.class);
       intent.putExtra(EXTRA_ON_BOOT, onBoot);
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-        context.startService(intent);
-      } else {
+      if (AppUtils.isOreoOrLater()) {
         context.startForegroundService(intent);
+      } else {
+        context.startService(intent);
       }
     }
   }
@@ -74,7 +73,7 @@ public class ClipboardWatcherService extends Service implements
 
   @Override
   public void onCreate() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    if (AppUtils.isOreoOrLater()) {
       NotificationHelper.startAndShow(this);
     }
 

@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -63,7 +62,7 @@ public class NotificationHelper {
    */
   @TargetApi(26)
   public static void initChannels(Context context) {
-    if (sChannelsInit || (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)) {
+    if (sChannelsInit || !AppUtils.isOreoOrLater()) {
       return;
     }
 
@@ -104,8 +103,8 @@ public class NotificationHelper {
       PendingIntent.getActivity(context, 0, intent, 0);
     Notification notification =
       new Notification.Builder(context, channelId)
-        .setContentTitle(context.getString(R.string.channel_service_name))
-        .setContentText(context.getString(R.string.channel_service_desc))
+        .setContentTitle(context.getString(R.string.service_title))
+        .setContentText(context.getString(R.string.service_text))
         .setBadgeIconType(Notification.BADGE_ICON_NONE)
         .setSmallIcon(R.drawable.ic_notification)
         .setLargeIcon(getLargeIcon(R.drawable.ic_notification))
@@ -271,7 +270,7 @@ public class NotificationHelper {
    * @param context A context
    */
   public static void showNotificationSettings(Context context) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+    if (!AppUtils.isOreoOrLater()) {
       return;
     }
 
@@ -326,7 +325,7 @@ public class NotificationHelper {
       .setOnlyAlertOnce(Prefs.isAudibleOnce())
       .setAutoCancel(true);
 
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+    if (!AppUtils.isOreoOrLater()) {
       final Uri sound = Prefs.getNotificationSound();
       if (sound != null) {
         builder.setSound(sound);

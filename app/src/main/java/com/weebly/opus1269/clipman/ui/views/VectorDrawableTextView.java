@@ -12,11 +12,11 @@ import android.support.v7.widget.AppCompatTextView;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 
 /**
  * Custom TextView that handles VectorDrawables correctly
@@ -52,7 +52,7 @@ public class VectorDrawableTextView extends AppCompatTextView {
     Drawable drawableBottom = null;
     Drawable drawableTop = null;
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+    if (AppUtils.isLollipopOrLater()) {
       drawableLeft = attributeArray.getDrawable(R.styleable.VectorDrawableTextView_drawableLeftCompat);
       drawableRight = attributeArray.getDrawable(R.styleable.VectorDrawableTextView_drawableRightCompat);
       drawableBottom = attributeArray.getDrawable(R.styleable.VectorDrawableTextView_drawableBottomCompat);
