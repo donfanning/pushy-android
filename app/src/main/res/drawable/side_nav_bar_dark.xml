@@ -16,11 +16,11 @@
   ~
   -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-       android:shape="rectangle">
-    <gradient
-        android:angle="135"
-        android:endColor="@color/grey_900"
-        android:centerColor="@color/grey_800"
-        android:startColor="@color/grey_700"
-        android:type="linear"/>
+  android:shape="rectangle">
+  <gradient
+    android:angle="135"
+    android:endColor="@color/grey_900"
+    android:centerColor="@color/grey_800"
+    android:startColor="@color/grey_700"
+    android:type="linear" />
 </shape>

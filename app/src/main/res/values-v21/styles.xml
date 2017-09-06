@@ -7,28 +7,28 @@
 
 <resources>
 
-    <style name="AppThemeLight.NoActionBar" parent="PreferenceFixTheme.Light.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle
-        </item>
-        <item name="autoCompleteTextViewStyle">@style/SearchViewStyle</item>
+  <style name="AppThemeLight.NoActionBar" parent="PreferenceFixTheme.Light.NoActionBar">
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="windowActionModeOverlay">true</item>
+    <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle
+    </item>
+    <item name="autoCompleteTextViewStyle">@style/SearchViewStyle</item>
 
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-    </style>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+  </style>
 
-    <style name="AppThemeDark.NoActionBar" parent="PreferenceFixTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle
-        </item>
-        <item name="autoCompleteTextViewStyle">@style/SearchViewStyle</item>
+  <style name="AppThemeDark.NoActionBar" parent="PreferenceFixTheme.NoActionBar">
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="windowActionModeOverlay">true</item>
+    <item name="android:autoCompleteTextViewStyle">@style/SearchViewStyle
+    </item>
+    <item name="autoCompleteTextViewStyle">@style/SearchViewStyle</item>
 
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-    </style>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+  </style>
 
 </resources>

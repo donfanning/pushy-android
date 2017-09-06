@@ -7,118 +7,118 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
-        android:title="@string/pref_cat_title_clipboard"
-        android:key="@string/key_pref_cat_clipboard">
+  <PreferenceCategory
+    android:title="@string/pref_cat_title_clipboard"
+    android:key="@string/key_pref_cat_clipboard">
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="@string/key_pref_monitor_clipboard"
-            android:title="@string/pref_title_monitor_clipboard"
-            android:summary="@string/pref_desc_monitor_clipboard" />
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="@string/key_pref_monitor_clipboard"
+      android:title="@string/pref_title_monitor_clipboard"
+      android:summary="@string/pref_desc_monitor_clipboard" />
 
-        <SwitchPreference
-            android:dependency="@string/key_pref_monitor_clipboard"
-            android:defaultValue="true"
-            android:key="@string/key_pref_monitor_startup"
-            android:title="@string/pref_title_monitor_startup"
-            android:summary="@string/pref_desc_monitor_startup" />
+    <SwitchPreference
+      android:dependency="@string/key_pref_monitor_clipboard"
+      android:defaultValue="true"
+      android:key="@string/key_pref_monitor_startup"
+      android:title="@string/pref_title_monitor_startup"
+      android:summary="@string/pref_desc_monitor_startup" />
 
-    </PreferenceCategory>
+  </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pref_cat_title_msg"
-        android:key="@string/key_pref_cat_msg">
+  <PreferenceCategory
+    android:title="@string/pref_cat_title_msg"
+    android:key="@string/key_pref_cat_msg">
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="@string/key_pref_push_msg"
-            android:title="@string/pref_title_push_msg"
-            android:summary="@string/pref_desc_push_msg" />
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="@string/key_pref_push_msg"
+      android:title="@string/pref_title_push_msg"
+      android:summary="@string/pref_desc_push_msg" />
 
-        <SwitchPreference
-            android:dependency="@string/key_pref_push_msg"
-            android:defaultValue="true"
-            android:key="@string/key_pref_auto_msg"
-            android:title="@string/pref_title_auto_msg"
-            android:summary="@string/pref_desc_auto_msg" />
+    <SwitchPreference
+      android:dependency="@string/key_pref_push_msg"
+      android:defaultValue="true"
+      android:key="@string/key_pref_auto_msg"
+      android:title="@string/pref_title_auto_msg"
+      android:summary="@string/pref_desc_auto_msg" />
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="@string/key_pref_receive_msg"
-            android:title="@string/pref_title_receive_msg"
-            android:summary="@string/pref_desc_receive_msg" />
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="@string/key_pref_receive_msg"
+      android:title="@string/pref_title_receive_msg"
+      android:summary="@string/pref_desc_receive_msg" />
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="@string/key_pref_priority_msg"
-            android:title="@string/pref_title_priority_msg"
-            android:summary="@string/pref_desc_priority_msg" />
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="@string/key_pref_priority_msg"
+      android:title="@string/pref_title_priority_msg"
+      android:summary="@string/pref_desc_priority_msg" />
 
-    </PreferenceCategory>
+  </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pref_cat_title_general"
-        android:key="@string/key_pref_cat_general">
+  <PreferenceCategory
+    android:title="@string/pref_cat_title_general"
+    android:key="@string/key_pref_cat_general">
 
-        <EditTextPreference
-            android:defaultValue=""
-            android:key="@string/key_pref_nickname"
-            android:title="@string/pref_title_nickname"
-            android:summary="@string/pref_desc_nickname_fmt"
-            android:dialogTitle="@string/pref_title_nickname"
-            android:hint="@string/pref_nickname_hint"
-            android:inputType="text"
-            android:maxLength="32"
-            android:maxLines="1" />
+    <EditTextPreference
+      android:defaultValue=""
+      android:key="@string/key_pref_nickname"
+      android:title="@string/pref_title_nickname"
+      android:summary="@string/pref_desc_nickname_fmt"
+      android:dialogTitle="@string/pref_title_nickname"
+      android:hint="@string/pref_nickname_hint"
+      android:inputType="text"
+      android:maxLength="32"
+      android:maxLines="1" />
 
-        <ListPreference
-            android:defaultValue="forever"
-            android:key="@string/key_pref_duration"
-            android:title="@string/pref_title_duration"
-            android:summary="%s"
-            android:entries="@array/pref_duration_entries"
-            android:entryValues="@array/pref_duration_values" />
+    <ListPreference
+      android:defaultValue="forever"
+      android:key="@string/key_pref_duration"
+      android:title="@string/pref_title_duration"
+      android:summary="%s"
+      android:entries="@array/pref_duration_entries"
+      android:entryValues="@array/pref_duration_values" />
 
-        <ListPreference
-            android:defaultValue="light"
-            android:key="@string/key_pref_theme"
-            android:title="@string/pref_title_theme"
-            android:summary="%s"
-            android:entries="@array/pref_theme_entries"
-            android:entryValues="@array/pref_theme_values" />
+    <ListPreference
+      android:defaultValue="light"
+      android:key="@string/key_pref_theme"
+      android:title="@string/pref_title_theme"
+      android:summary="%s"
+      android:entries="@array/pref_theme_entries"
+      android:entryValues="@array/pref_theme_values" />
 
-    </PreferenceCategory>
+  </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pref_cat_title_notifications"
-        android:key="@string/key_pref_cat_notifications">
+  <PreferenceCategory
+    android:title="@string/pref_cat_title_notifications"
+    android:key="@string/key_pref_cat_notifications">
 
-        <SwitchPreference
-            android:defaultValue="true"
-            android:key="@string/key_pref_notifications"
-            android:title="@string/pref_title_notifications" />
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="@string/key_pref_notifications"
+      android:title="@string/pref_title_notifications" />
 
-        <Preference
-            android:dependency="@string/key_pref_notifications"
-            android:key="@string/key_pref_manage_not"
-            android:title="@string/pref_title_manage_not" />
+    <Preference
+      android:dependency="@string/key_pref_notifications"
+      android:key="@string/key_pref_manage_not"
+      android:title="@string/pref_title_manage_not" />
 
-        <MultiSelectListPreference
-            android:dependency="@string/key_pref_notifications"
-            android:defaultValue="@array/pref_not_types_default_values"
-            android:key="@string/key_pref_not_types"
-            android:title="@string/pref_title_not_types"
-            android:entries="@array/pref_not_types_entries"
-            android:entryValues="@array/pref_not_types_values" />
+    <MultiSelectListPreference
+      android:dependency="@string/key_pref_notifications"
+      android:defaultValue="@array/pref_not_types_default_values"
+      android:key="@string/key_pref_not_types"
+      android:title="@string/pref_title_not_types"
+      android:entries="@array/pref_not_types_entries"
+      android:entryValues="@array/pref_not_types_values" />
 
-        <SwitchPreference
-            android:dependency="@string/key_pref_notifications"
-            android:defaultValue="true"
-            android:key="@string/key_pref_not_audible_once"
-            android:title="@string/pref_title_not_audible_once"
-            android:summary="@string/pref_desc_not_audible_once" />
+    <SwitchPreference
+      android:dependency="@string/key_pref_notifications"
+      android:defaultValue="true"
+      android:key="@string/key_pref_not_audible_once"
+      android:title="@string/pref_title_not_audible_once"
+      android:summary="@string/pref_desc_not_audible_once" />
 
-    </PreferenceCategory>
+  </PreferenceCategory>
 
 </PreferenceScreen>

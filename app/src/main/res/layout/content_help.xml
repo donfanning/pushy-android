@@ -6,110 +6,110 @@
   -->
 
 <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:scrollbars="vertical"
+  app:layout_behavior="@string/appbar_scrolling_view_behavior"
+  tools:context=".ui.help.HelpActivity"
+  tools:showIn="@layout/activity_help">
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scrollbars="vertical"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.help.HelpActivity"
-    tools:showIn="@layout/activity_help">
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+    <TextView
+      style="@style/HelpTitleView"
+      android:text="@string/help_title_feedback" />
 
-        <TextView
-            style="@style/HelpTitleView"
-            android:text="@string/help_title_feedback" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/emailQuestion"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/ic_email_black_24dp"
+      android:text="@string/help_email_question"
+      android:tag="@string/help_email_question_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/emailQuestion"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/ic_email_black_24dp"
-            android:text="@string/help_email_question"
-            android:tag="@string/help_email_question_tag" />
+    <View style="@style/HelpDivider" />
 
-        <View style="@style/HelpDivider" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/emailBug"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/ic_email_black_24dp"
+      android:text="@string/help_email_bug"
+      android:tag="@string/help_email_bug_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/emailBug"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/ic_email_black_24dp"
-            android:text="@string/help_email_bug"
-            android:tag="@string/help_email_bug_tag" />
+    <View style="@style/HelpDivider" />
 
-        <View style="@style/HelpDivider" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/emailFeature"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/ic_email_black_24dp"
+      android:text="@string/help_email_feature"
+      android:tag="@string/help_email_feature_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/emailFeature"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/ic_email_black_24dp"
-            android:text="@string/help_email_feature"
-            android:tag="@string/help_email_feature_tag" />
+    <View style="@style/HelpDivider" />
 
-        <View style="@style/HelpDivider" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/emailTranslate"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/ic_email_black_24dp"
+      android:text="@string/help_email_trans"
+      android:tag="@string/help_email_trans_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/emailTranslate"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/ic_email_black_24dp"
-            android:text="@string/help_email_trans"
-            android:tag="@string/help_email_trans_tag" />
+    <View style="@style/HelpDivider" />
 
-        <View style="@style/HelpDivider" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/emailGeneral"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/ic_email_black_24dp"
+      android:text="@string/help_email_general"
+      android:tag="@string/help_email_general_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/emailGeneral"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/ic_email_black_24dp"
-            android:text="@string/help_email_general"
-            android:tag="@string/help_email_general_tag" />
+    <View style="@style/HelpDivider" />
 
-        <View style="@style/HelpDivider" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/githubIssue"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/github_circle"
+      android:text="@string/help_github_issue"
+      android:tag="@string/help_github_issue_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/githubIssue"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/github_circle"
-            android:text="@string/help_github_issue"
-            android:tag="@string/help_github_issue_tag" />
+    <View
+      style="@style/HelpDivider"
+      android:layout_marginLeft="0dp"
+      android:layout_marginStart="0dp" />
 
-        <View
-            style="@style/HelpDivider"
-            android:layout_marginLeft="0dp"
-            android:layout_marginStart="0dp" />
+    <TextView
+      style="@style/HelpTitleView"
+      android:text="@string/help_title_documentation" />
 
-        <TextView
-            style="@style/HelpTitleView"
-            android:text="@string/help_title_documentation" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/docApp"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/github_circle"
+      android:text="@string/help_doc_usage"
+      android:tag="@string/help_doc_usage_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/docApp"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/github_circle"
-            android:text="@string/help_doc_usage"
-            android:tag="@string/help_doc_usage_tag" />
+    <View style="@style/HelpDivider" />
 
-        <View style="@style/HelpDivider" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/docRelease"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/github_circle"
+      android:text="@string/help_doc_release"
+      android:tag="@string/help_doc_releas_tag_fmt" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/docRelease"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/github_circle"
-            android:text="@string/help_doc_release"
-            android:tag="@string/help_doc_releas_tag_fmt" />
+    <View style="@style/HelpDivider" />
 
-        <View style="@style/HelpDivider" />
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/docSource"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/github_circle"
+      android:text="@string/help_doc_source"
+      android:tag="@string/help_doc_source_tag" />
 
-        <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
-            android:id="@+id/docSource"
-            style="@style/HelpItemView"
-            app:drawableLeftCompat="@drawable/github_circle"
-            android:text="@string/help_doc_source"
-            android:tag="@string/help_doc_source_tag" />
-
-    </LinearLayout>
+  </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

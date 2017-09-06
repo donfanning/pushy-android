@@ -6,15 +6,15 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
 
-    <ImageButton
-        android:id="@+id/sendButton"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/selector_widget"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/content_description_send" />
+  <ImageButton
+    android:id="@+id/sendButton"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:src="@drawable/selector_widget"
+    android:background="@android:color/transparent"
+    android:contentDescription="@string/content_description_send" />
 
 </FrameLayout>

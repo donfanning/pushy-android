@@ -30,26 +30,26 @@ import com.weebly.opus1269.clipman.app.App;
  */
 public class MyInstanceIDListenerService extends FirebaseInstanceIdService {
 
-    /**
-     * Called if InstanceID token is updated. This may occur if the security of
-     * the previous token had been compromised. Note that this is also called
-     * when the InstanceID token is initially generated, so this is where
-     * you retrieve the token. Use JobService
-     * @see <a href="https://goo.gl/wYr4o2">firebase-jobdispatcher-android</a>
-     */
-    @Override
-    public void onTokenRefresh() {
-        // Use Job Service
-        FirebaseJobDispatcher dispatcher =
-            new FirebaseJobDispatcher(new GooglePlayDriver(App.getContext()));
+  /**
+   * Called if InstanceID token is updated. This may occur if the security of
+   * the previous token had been compromised. Note that this is also called
+   * when the InstanceID token is initially generated, so this is where
+   * you retrieve the token. Use JobService
+   * @see <a href="https://goo.gl/wYr4o2">firebase-jobdispatcher-android</a>
+   */
+  @Override
+  public void onTokenRefresh() {
+    // Use Job Service
+    FirebaseJobDispatcher dispatcher =
+      new FirebaseJobDispatcher(new GooglePlayDriver(App.getContext()));
 
-        Job myJob = dispatcher.newJobBuilder()
-            .setService(RefreshTokenJobService.class)
-            .setTrigger(Trigger.executionWindow(0, 0))
-            .setRecurring(false)
-            .setTag(RefreshTokenJobService.TAG)
-            .build();
+    Job myJob = dispatcher.newJobBuilder()
+      .setService(RefreshTokenJobService.class)
+      .setTrigger(Trigger.executionWindow(0, 0))
+      .setRecurring(false)
+      .setTag(RefreshTokenJobService.TAG)
+      .build();
 
-        dispatcher.mustSchedule(myJob);
-    }
+    dispatcher.mustSchedule(myJob);
+  }
 }

@@ -6,29 +6,29 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn=".ui.help.HelpActivity"
-    tools:context=".ui.help.HelpActivity">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  tools:showIn=".ui.help.HelpActivity"
+  tools:context=".ui.help.HelpActivity">
 
-    <item
-        android:id="@+id/action_view_store"
-        android:title="@string/action_help_view_store"
-        app:showAsAction="never" />
+  <item
+    android:id="@+id/action_view_store"
+    android:title="@string/action_help_view_store"
+    app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_version"
-        android:title="@string/action_help_version"
-        app:showAsAction="never" />
+  <item
+    android:id="@+id/action_version"
+    android:title="@string/action_help_version"
+    app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_privacy"
-        android:title="@string/action_help_privacy"
-        app:showAsAction="never" />
+  <item
+    android:id="@+id/action_privacy"
+    android:title="@string/action_help_privacy"
+    app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_licenses"
-        android:title="@string/action_help_licenses"
-        app:showAsAction="never" />
+  <item
+    android:id="@+id/action_licenses"
+    android:title="@string/action_help_licenses"
+    app:showAsAction="never" />
 
 </menu>

@@ -7,18 +7,18 @@
 
 <resources>
 
-    <!-- selector for the selected clip_row -->
-    <attr name="clipRowSelector" format="string" />
+  <!-- selector for the selected clip_row -->
+  <attr name="clipRowSelector" format="string" />
 
-    <attr name="deviceRowSelector" format="string" />
+  <attr name="deviceRowSelector" format="string" />
 
-    <attr name="signInButtonsBackground" format="color" />
+  <attr name="signInButtonsBackground" format="color" />
 
-    <declare-styleable name="VectorDrawableTextView">
-        <attr name="drawableLeftCompat" format="reference" />
-        <attr name="drawableRightCompat" format="reference" />
-        <attr name="drawableTopCompat" format="reference" />
-        <attr name="drawableBottomCompat" format="reference" />
-    </declare-styleable>
+  <declare-styleable name="VectorDrawableTextView">
+    <attr name="drawableLeftCompat" format="reference" />
+    <attr name="drawableRightCompat" format="reference" />
+    <attr name="drawableTopCompat" format="reference" />
+    <attr name="drawableBottomCompat" format="reference" />
+  </declare-styleable>
 
 </resources>

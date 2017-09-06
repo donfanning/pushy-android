@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~
   ~ Copyright 2016 Michael A Updike
   ~
@@ -19,30 +18,30 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/nav_account"
-        android:enabled="true"
-        android:icon="@drawable/ic_account_circle_black_24dp"
-        android:title="@string/nav_account" />
-    <item
-        android:id="@+id/nav_devices"
-        android:enabled="true"
-        android:icon="@drawable/ic_devices_black_24dp"
-        android:title="@string/nav_devices" />
-    <item
-        android:id="@+id/nav_settings"
-        android:icon="@drawable/ic_settings_black_24dp"
-        android:title="@string/nav_settings" />
-    <item
-        android:id="@+id/nav_help"
-        android:icon="@drawable/ic_help_black_24dp"
-        android:title="@string/nav_help" />
+  <item
+    android:id="@+id/nav_account"
+    android:enabled="true"
+    android:icon="@drawable/ic_account_circle_black_24dp"
+    android:title="@string/nav_account" />
+  <item
+    android:id="@+id/nav_devices"
+    android:enabled="true"
+    android:icon="@drawable/ic_devices_black_24dp"
+    android:title="@string/nav_devices" />
+  <item
+    android:id="@+id/nav_settings"
+    android:icon="@drawable/ic_settings_black_24dp"
+    android:title="@string/nav_settings" />
+  <item
+    android:id="@+id/nav_help"
+    android:icon="@drawable/ic_help_black_24dp"
+    android:title="@string/nav_help" />
 
-    <group android:id="@+id/group_extension">
-        <item
-            android:id="@+id/nav_chrome_extension"
-            android:icon="@drawable/ic_extension_black_24dp"
-            android:title="@string/nav_extension" />
-    </group>
+  <group android:id="@+id/group_extension">
+    <item
+      android:id="@+id/nav_chrome_extension"
+      android:icon="@drawable/ic_extension_black_24dp"
+      android:title="@string/nav_extension" />
+  </group>
 
 </menu>

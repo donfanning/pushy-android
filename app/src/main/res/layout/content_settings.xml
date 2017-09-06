@@ -6,9 +6,9 @@
   -->
 
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fragment"
-    android:name="com.weebly.opus1269.clipman.ui.settings.SettingsFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/fragment"
+  android:name="com.weebly.opus1269.clipman.ui.settings.SettingsFragment"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  app:layout_behavior="@string/appbar_scrolling_view_behavior" />

@@ -6,15 +6,15 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn=".ui.devices.DevicesActivity"
-    tools:context=".ui.devices.DevicesActivity">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  tools:showIn=".ui.devices.DevicesActivity"
+  tools:context=".ui.devices.DevicesActivity">
 
-    <!--<item-->
-    <!--android:id="@+id/action_sort"-->
-    <!--android:icon="@drawable/ic_sort_black_24dp"-->
-    <!--android:title="@string/action_sort"-->
-    <!--app:showAsAction="always"/>-->
+  <!--<item-->
+  <!--android:id="@+id/action_sort"-->
+  <!--android:icon="@drawable/ic_sort_black_24dp"-->
+  <!--android:title="@string/action_sort"-->
+  <!--app:showAsAction="always"/>-->
 
 </menu>

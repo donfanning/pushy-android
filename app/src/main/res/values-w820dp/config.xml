@@ -6,5 +6,5 @@
   -->
 
 <resources>
-    <item name="dual_pane" type="bool">true</item>
+  <item name="dual_pane" type="bool">true</item>
 </resources>

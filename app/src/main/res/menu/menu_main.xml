@@ -6,52 +6,52 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn=".ui.main.MainActivity"
-    tools:context=".ui.main.MainActivity">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  tools:showIn=".ui.main.MainActivity"
+  tools:context=".ui.main.MainActivity">
 
-    <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/ic_search_black_24dp"
-        android:title="@string/action_search"
-        app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="collapseActionView|ifRoom" />
+  <item
+    android:id="@+id/action_search"
+    android:icon="@drawable/ic_search_black_24dp"
+    android:title="@string/action_search"
+    app:actionViewClass="android.support.v7.widget.SearchView"
+    app:showAsAction="collapseActionView|ifRoom" />
 
-    <item
-        android:id="@+id/action_send"
-        android:icon="@drawable/ic_send_black_24dp"
-        android:title="@string/action_send"
-        app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/action_send"
+    android:icon="@drawable/ic_send_black_24dp"
+    android:title="@string/action_send"
+    app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/action_fav_filter"
-        android:icon="@drawable/ic_favorite_border_black_24dp"
-        android:title="@string/action_show_favs"
-        app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/action_fav_filter"
+    android:icon="@drawable/ic_favorite_border_black_24dp"
+    android:title="@string/action_show_favs"
+    app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/action_sort"
-        android:icon="@drawable/ic_sort_black_24dp"
-        android:title="@string/action_sort"
-        app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/action_sort"
+    android:icon="@drawable/ic_sort_black_24dp"
+    android:title="@string/action_sort"
+    app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/action_delete"
-        android:icon="@drawable/ic_delete_black_24dp"
-        android:title="@string/action_delete_all"
-        app:showAsAction="ifRoom" />
+  <item
+    android:id="@+id/action_delete"
+    android:icon="@drawable/ic_delete_black_24dp"
+    android:title="@string/action_delete_all"
+    app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings_black_24dp"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+  <item
+    android:id="@+id/action_settings"
+    android:icon="@drawable/ic_settings_black_24dp"
+    android:title="@string/action_settings"
+    app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_help"
-        android:icon="@drawable/ic_help_black_24dp"
-        android:title="@string/action_help_feedback"
-        app:showAsAction="never" />
+  <item
+    android:id="@+id/action_help"
+    android:icon="@drawable/ic_help_black_24dp"
+    android:title="@string/action_help_feedback"
+    app:showAsAction="never" />
 
 </menu>

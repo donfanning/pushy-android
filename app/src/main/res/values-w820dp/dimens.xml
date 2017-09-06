@@ -6,8 +6,8 @@
   -->
 
 <resources>
-    <dimen name="activity_horizontal_margin">24dp</dimen>
-    <dimen name="activity_vertical_margin">8dp</dimen>
-    <dimen name="row_image_horizontal_margin">24dp</dimen>
-    <dimen name="clip_item_width">400dp</dimen>
+  <dimen name="activity_horizontal_margin">24dp</dimen>
+  <dimen name="activity_vertical_margin">8dp</dimen>
+  <dimen name="row_image_horizontal_margin">24dp</dimen>
+  <dimen name="clip_item_width">400dp</dimen>
 </resources>

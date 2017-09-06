@@ -38,95 +38,95 @@ import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
  */
 class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
 
-    ///////////////////////////////////////////////////////////////////////////
-    // superclass overrides
-    ///////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
+  // superclass overrides
+  ///////////////////////////////////////////////////////////////////////////
 
-    @Override
-    public DeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final Context context = parent.getContext();
-        final LayoutInflater inflater = LayoutInflater.from(context);
+  @Override
+  public DeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    final Context context = parent.getContext();
+    final LayoutInflater inflater = LayoutInflater.from(context);
 
-        // Inflate the custom layout
-        final View view = inflater.inflate(R.layout.device_row, parent, false);
+    // Inflate the custom layout
+    final View view = inflater.inflate(R.layout.device_row, parent, false);
 
-        // Return a new holder instance
-        return new DeviceViewHolder(view);
-    }
+    // Return a new holder instance
+    return new DeviceViewHolder(view);
+  }
 
-    @Override
-    public void onBindViewHolder(DeviceViewHolder holder, int position) {
-        final Context context = holder.deviceTextView.getContext();
+  @Override
+  public void onBindViewHolder(DeviceViewHolder holder, int position) {
+    final Context context = holder.deviceTextView.getContext();
 
-        tintIcons(holder);
+    tintIcons(holder);
 
-        // Get the data model based on position
-        final Device device = Devices.get(position);
+    // Get the data model based on position
+    final Device device = Devices.get(position);
 
-        final String desc =
-                context.getString(R.string.device_nickname_fmt, device.getNickname()) + '\n' +
-                context.getString(R.string.device_model_fmt, device.getModel()) + '\n' +
-                context.getString(R.string.device_SN_fmt, device.getSN()) + '\n' +
-                context.getString(R.string.device_OS_fmt, device.getOS());
-        final TextView deviceTextView = holder.deviceTextView;
-        deviceTextView.setText(desc);
+    final String desc =
+      context.getString(R.string.device_nickname_fmt, device.getNickname()) + '\n' +
+        context.getString(R.string.device_model_fmt, device.getModel()) + '\n' +
+        context.getString(R.string.device_SN_fmt, device.getSN()) + '\n' +
+        context.getString(R.string.device_OS_fmt, device.getOS());
+    final TextView deviceTextView = holder.deviceTextView;
+    deviceTextView.setText(desc);
 
-        final CharSequence value = AppUtils.getRelativeDisplayTime(device.getLastSeen());
-        final TextView lastSeenTextView = holder.lastSeenTextView;
-        lastSeenTextView.setText(context.getString(R.string.device_last_seen_fmt, value));
+    final CharSequence value = AppUtils.getRelativeDisplayTime(device.getLastSeen());
+    final TextView lastSeenTextView = holder.lastSeenTextView;
+    lastSeenTextView.setText(context.getString(R.string.device_last_seen_fmt, value));
 
-        holder.forgetButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Devices.remove(device);
-                    }
-                }
-        );
-    }
-
-    @Override
-    public int getItemCount() {
-        return Devices.getCount();
-    }
-
-    /**
-     * Color the Vector Drawables based on theme
-     * @param holder DeviceViewHolder
-     */
-    private void tintIcons(DevicesAdapter.DeviceViewHolder holder) {
-        final Context context = holder.forgetButton.getContext();
-        final int color;
-
-        if (Prefs.isLightTheme()) {
-            color = android.R.color.primary_text_light;
-        } else {
-            color = android.R.color.primary_text_dark;
+    holder.forgetButton.setOnClickListener(
+      new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Devices.remove(device);
         }
+      }
+    );
+  }
 
-        DrawableHelper
-                .withContext(context)
-                .withColor(color)
-                .withDrawable(R.drawable.ic_clear_black_24dp)
-                .tint()
-                .applyTo(holder.forgetButton);
+  @Override
+  public int getItemCount() {
+    return Devices.getCount();
+  }
+
+  /**
+   * Color the Vector Drawables based on theme
+   * @param holder DeviceViewHolder
+   */
+  private void tintIcons(DevicesAdapter.DeviceViewHolder holder) {
+    final Context context = holder.forgetButton.getContext();
+    final int color;
+
+    if (Prefs.isLightTheme()) {
+      color = android.R.color.primary_text_light;
+    } else {
+      color = android.R.color.primary_text_dark;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // inner classes
-    ///////////////////////////////////////////////////////////////////////////
+    DrawableHelper
+      .withContext(context)
+      .withColor(color)
+      .withDrawable(R.drawable.ic_clear_black_24dp)
+      .tint()
+      .applyTo(holder.forgetButton);
+  }
 
-    static class DeviceViewHolder extends RecyclerView.ViewHolder {
-        final TextView lastSeenTextView;
-        final TextView deviceTextView;
-        final ImageButton forgetButton;
+  ///////////////////////////////////////////////////////////////////////////
+  // inner classes
+  ///////////////////////////////////////////////////////////////////////////
 
-        DeviceViewHolder(View view) {
-            super(view);
+  static class DeviceViewHolder extends RecyclerView.ViewHolder {
+    final TextView lastSeenTextView;
+    final TextView deviceTextView;
+    final ImageButton forgetButton;
 
-            lastSeenTextView = (TextView) view.findViewById(R.id.lastSeenDate);
-            deviceTextView = (TextView) view.findViewById(R.id.deviceText);
-            forgetButton = (ImageButton) view.findViewById(R.id.forgetButton);
-        }
+    DeviceViewHolder(View view) {
+      super(view);
+
+      lastSeenTextView = (TextView) view.findViewById(R.id.lastSeenDate);
+      deviceTextView = (TextView) view.findViewById(R.id.deviceText);
+      forgetButton = (ImageButton) view.findViewById(R.id.forgetButton);
     }
+  }
 }
