@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.helpers;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -67,36 +68,23 @@ public class NotificationHelper {
       return;
     }
 
-    NotificationManager notificationManager = getManager();
-
     int importance = NotificationManager.IMPORTANCE_DEFAULT;
-    String channelId = context.getString(R.string.channel_message);
-    String channelName = context.getString(R.string.channel_message_name);
-    String channelDesc = context.getString(R.string.channel_message_desc);
-    NotificationChannel channel =
-      new NotificationChannel(channelId, channelName, importance);
-    channel.setDescription(channelDesc);
-    channel.setShowBadge(true);
-    notificationManager.createNotificationChannel(channel);
+    String id = context.getString(R.string.channel_message);
+    String name = context.getString(R.string.channel_message_name);
+    String desc = context.getString(R.string.channel_message_desc);
+    createChannel(id, importance, name, desc, true);
 
     importance = NotificationManager.IMPORTANCE_DEFAULT;
-    channelId = context.getString(R.string.channel_device);
-    channelName = context.getString(R.string.channel_device_name);
-    channelDesc = context.getString(R.string.channel_device_desc);
-    channel =
-      new NotificationChannel(channelId, channelName, importance);
-    channel.setDescription(channelDesc);
-    channel.setShowBadge(true);
-    notificationManager.createNotificationChannel(channel);
+    id = context.getString(R.string.channel_device);
+    name = context.getString(R.string.channel_device_name);
+    desc = context.getString(R.string.channel_device_desc);
+    createChannel(id, importance, name, desc, true);
 
     importance = NotificationManager.IMPORTANCE_LOW;
-    channelId = context.getString(R.string.channel_service);
-    channelName = context.getString(R.string.channel_service_name);
-    channelDesc = context.getString(R.string.channel_service_desc);
-    channel = new NotificationChannel(channelId, channelName, importance);
-    channel.setDescription(channelDesc);
-    channel.setShowBadge(false);
-    notificationManager.createNotificationChannel(channel);
+    id = context.getString(R.string.channel_service);
+    name = context.getString(R.string.channel_service_name);
+    desc = context.getString(R.string.channel_service_desc);
+    createChannel(id, importance, name, desc, false);
 
     sChannelsInit = true;
   }
@@ -109,25 +97,15 @@ public class NotificationHelper {
   public static void startAndShow(ClipboardWatcherService service) {
     final Context context = App.getContext();
     final Intent intent = new Intent(context, SettingsActivity.class);
-
-
-    // stupid android: http://stackoverflow.com/a/36110709/4468645
-    final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-    // Adds the back stack i.e. MainActivity.class
-    stackBuilder.addParentStack(SettingsActivity.class);
-    // Adds the Intent to the top of the stack
-    stackBuilder.addNextIntent(intent);
-    // Gets a PendingIntent containing the entire back stack
     final PendingIntent pendingIntent =
-      stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
+      getPendingIntent(context, SettingsActivity.class, intent);
     final String channelId = context.getString(R.string.channel_service);
 
     final Notification notification =
       new Notification.Builder(context, channelId)
         .setContentTitle(context.getString(R.string.service_title))
         .setContentText(context.getString(R.string.service_text))
-        .setSmallIcon(R.drawable.ic_notification)
+        .setSmallIcon(R.drawable.ic_clipboard_service)
         .setLargeIcon(getLargeIcon(R.drawable.lic_local_copy))
         .setContentIntent(pendingIntent)
         .build();
@@ -151,7 +129,6 @@ public class NotificationHelper {
     final String clipText = clipItem.getText();
     final int id = ID_COPY;
     final Context context = App.getContext();
-    PendingIntent pendingIntent;
 
     // keep track of number of new items
     sClipItemCt++;
@@ -160,18 +137,13 @@ public class NotificationHelper {
     intent.putExtra(AppUtils.INTENT_EXTRA_CLIP_ITEM, clipItem);
     intent.putExtra(AppUtils.INTENT_EXTRA_CLIP_COUNT, sClipItemCt);
 
-    final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-    // Adds the back stack
-    stackBuilder.addParentStack(MainActivity.class);
-    // Adds the Intent to the top of the stack
-    stackBuilder.addNextIntent(intent);
-    // Gets a PendingIntent containing the entire back stack
-    pendingIntent = stackBuilder
-      .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+    PendingIntent pendingIntent =
+      getPendingIntent(context, MainActivity.class, intent);
+
+    final String channelId = context.getString(R.string.channel_message);
 
     // remote vs. local settings
     final int largeIcon;
-    final String channelId = context.getString(R.string.channel_message);
     final String titleText;
     if (clipItem.isRemote()) {
       largeIcon = R.drawable.lic_remote_copy;
@@ -188,8 +160,7 @@ public class NotificationHelper {
       .setWhen(clipItem.getTime());
 
     if (sClipItemCt > 1) {
-      builder.setSubText(context.getString(R.string.clip_notification_count_fmt, sClipItemCt))
-        .setNumber(sClipItemCt);
+      builder.setSubText(context.getString(R.string.clip_notification_count_fmt, sClipItemCt)).setNumber(sClipItemCt);
     }
 
     // notification deleted (cleared, swiped, etc) action
@@ -229,15 +200,8 @@ public class NotificationHelper {
     final Context context = App.getContext();
     final Intent intent = new Intent(context, DevicesActivity.class);
 
-    // stupid android: http://stackoverflow.com/a/36110709/4468645
-    final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-    // Adds the back stack i.e. MainActivity.class
-    stackBuilder.addParentStack(DevicesActivity.class);
-    // Adds the Intent to the top of the stack
-    stackBuilder.addNextIntent(intent);
-    // Gets a PendingIntent containing the entire back stack
     final PendingIntent pendingIntent =
-      stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+      getPendingIntent(context, DevicesActivity.class, intent);
 
     // added vs. removed device settings
     final int largeIcon;
@@ -321,14 +285,45 @@ public class NotificationHelper {
   }
 
   /**
+   * Get the NotificationManager
+   * @return NotificationManager
+   */
+  private static NotificationManager getManager() {
+    final Context context = App.getContext();
+    return (NotificationManager)
+      context.getSystemService(Context.NOTIFICATION_SERVICE);
+  }
+
+  /**
+   * Get a pending intent with a synthetic back stack
+   * @param context a context
+   * @param aClass  an {@link Activity} class
+   * @param intent  an intent for the top of the stack
+   * @return pending intent of full back stack
+   */
+  private static PendingIntent getPendingIntent(Context context, Class aClass,
+                                                Intent intent) {
+    // stupid android: http://stackoverflow.com/a/36110709/4468645
+    final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+    // Adds the back stack i.e. MainActivity.class
+    stackBuilder.addParentStack(aClass);
+    // Adds the Intent to the top of the stack
+    stackBuilder.addNextIntent(intent);
+    // Gets a PendingIntent containing the entire back stack
+    return stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+  }
+
+  /**
    * Get a {@link NotificationCompat.Builder} with the shared settings
    * @param pInt      Content intent
    * @param largeIcon display icon
    * @param titleText display title
    * @return the Builder
    */
-  private static NotificationCompat.Builder
-  getBuilder(PendingIntent pInt, String channelId, int largeIcon, String titleText) {
+  private static NotificationCompat.Builder getBuilder(PendingIntent pInt,
+                                                       String channelId,
+                                                       int largeIcon,
+                                                       String titleText) {
     final Context context = App.getContext();
     final NotificationCompat.Builder builder =
       new NotificationCompat.Builder(context, channelId);
@@ -354,13 +349,21 @@ public class NotificationHelper {
   }
 
   /**
-   * Get the NotificationManager
-   * @return NotificationManager
+   * Create a {@link NotificationChannel}
+   * @param id         unique channel ID
+   * @param importance channel importance
+   * @param name       channel name
+   * @param desc       channel description
+   * @param badge      true if a badge should be shown on app icon
    */
-  private static NotificationManager getManager() {
-    final Context context = App.getContext();
-    return (NotificationManager)
-      context.getSystemService(Context.NOTIFICATION_SERVICE);
+  @TargetApi(26)
+  private static void createChannel(String id, int importance, String name,
+                                    String desc, Boolean badge) {
+    NotificationManager notificationManager = getManager();
+    NotificationChannel channel = new NotificationChannel(id, name, importance);
+    channel.setDescription(desc);
+    channel.setShowBadge(badge);
+    notificationManager.createNotificationChannel(channel);
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -411,8 +414,8 @@ public class NotificationHelper {
      * @param clipItem The {@link ClipItem}
      * @return a {@link PendingIntent}
      */
-    public static PendingIntent
-    getPendingIntent(String action, int noteId, ClipItem clipItem) {
+    public static PendingIntent getPendingIntent(String action, int noteId,
+                                                 ClipItem clipItem) {
       final Context context = App.getContext();
       final Intent intent =
         new Intent(context, NotificationReceiver.class);
