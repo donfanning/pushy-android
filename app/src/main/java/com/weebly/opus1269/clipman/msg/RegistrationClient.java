@@ -19,8 +19,6 @@
 package com.weebly.opus1269.clipman.msg;
 
 import android.app.Activity;
-import android.content.Context;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -37,7 +35,6 @@ import com.weebly.opus1269.clipman.backend.registration.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 
 import java.io.IOException;
 

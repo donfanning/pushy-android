@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
-import com.google.api.client.googleapis.testing.json.GoogleJsonResponseExceptionFactoryTesting;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.app.App;

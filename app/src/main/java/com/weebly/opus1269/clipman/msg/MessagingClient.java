@@ -18,9 +18,6 @@
 
 package com.weebly.opus1269.clipman.msg;
 
-import android.net.Uri;
-import android.os.AsyncTask;
-
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;

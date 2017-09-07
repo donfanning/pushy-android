@@ -124,9 +124,9 @@ class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolde
     DeviceViewHolder(View view) {
       super(view);
 
-      lastSeenTextView = (TextView) view.findViewById(R.id.lastSeenDate);
-      deviceTextView = (TextView) view.findViewById(R.id.deviceText);
-      forgetButton = (ImageButton) view.findViewById(R.id.forgetButton);
+      lastSeenTextView = view.findViewById(R.id.lastSeenDate);
+      deviceTextView = view.findViewById(R.id.deviceText);
+      forgetButton = view.findViewById(R.id.forgetButton);
     }
   }
 }
