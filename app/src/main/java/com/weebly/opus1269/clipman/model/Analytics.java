@@ -28,6 +28,7 @@ public enum Analytics {
    */
   private static final String TRACKING_ID = "UA-61314754-3";
 
+  private static final String CAT_APP = "app";
   private static final String CAT_MSG = "message";
   private static final String CAT_REG = "register";
   private static final String CAT_TOKEN = "token";
@@ -37,6 +38,7 @@ public enum Analytics {
   private static final String REGISTERED = "registered";
   private static final String UNREGISTERED = "unregistered";
   private static final String REFRESHED = "refeshed";
+  private static final String UPDATED = "updated";
   private static final String NO_SCREEN = "none";
 
   /**
@@ -89,6 +91,17 @@ public enum Analytics {
     getTracker().send(new HitBuilders.ExceptionBuilder()
       .setFatal(true)
       .setDescription(msg)
+      .build());
+  }
+
+  /**
+   * App updated
+   */
+  public void updated() {
+    getTracker().setScreenName(NO_SCREEN);
+    getTracker().send(new HitBuilders.EventBuilder()
+      .setCategory(CAT_APP)
+      .setAction(UPDATED)
       .build());
   }
 
