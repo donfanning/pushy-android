@@ -45,11 +45,13 @@ public class Prefs {
     App.getContext().getString(R.string.ar_not_dev_added_value);
   private static final String NOTIFY_DEVICE_REMOVED =
     App.getContext().getString(R.string.ar_not_dev_removed_value);
+  private static final String NOTIFY_ERROR =
+    App.getContext().getString(R.string.ar_not_error_value);
 
   private static final String[] DEF_NOTIFY_VALUES =
     App.getContext().getResources().getStringArray(
       R.array.pref_not_types_default_values);
-  private static final Set<String> DEF_NOTIFICATIONS =
+  public static final Set<String> DEF_NOTIFICATIONS =
     new HashSet<>(Arrays.asList(DEF_NOTIFY_VALUES));
 
   // Preferences that are not set through the SettingsActivity
@@ -152,6 +154,10 @@ public class Prefs {
 
   public static boolean isNotifyDeviceRemoved() {
     return isNotifyEnabled(NOTIFY_DEVICE_REMOVED);
+  }
+
+  public static boolean isNotifyError() {
+    return isNotifyEnabled(NOTIFY_ERROR);
   }
 
   private static boolean isNotifyEnabled(String value) {

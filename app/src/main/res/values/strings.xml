@@ -129,10 +129,12 @@
   <string name="ar_not_local">On local copy</string>
   <string name="ar_not_dev_added">On device added</string>
   <string name="ar_not_dev_removed">On device removed</string>
+  <string name="ar_not_error">On Error</string>
   <string name="ar_not_remote_value" translatable="false">remoteCopy</string>
   <string name="ar_not_local_value" translatable="false">localCopy</string>
   <string name="ar_not_dev_added_value" translatable="false">deviceAdded</string>
   <string name="ar_not_dev_removed_value" translatable="false">deviceRemoved</string>
+  <string name="ar_not_error_value" translatable="false">notifyError</string>
 
   <string name="pref_title_not_audible_once">Audible only once</string>
   <string name="key_pref_not_audible_once">audible_once</string>

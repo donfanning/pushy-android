@@ -58,6 +58,7 @@
     <item>@string/ar_not_local</item>
     <item>@string/ar_not_dev_added</item>
     <item>@string/ar_not_dev_removed</item>
+    <item>@string/ar_not_error</item>
   </string-array>
 
   <string-array name="pref_not_types_values">
@@ -65,12 +66,14 @@
     <item>@string/ar_not_local_value</item>
     <item>@string/ar_not_dev_added_value</item>
     <item>@string/ar_not_dev_removed_value</item>
+    <item>@string/ar_not_error_value</item>
   </string-array>
 
   <string-array name="pref_not_types_default_values">
     <item>@string/ar_not_remote_value</item>
     <item>@string/ar_not_dev_added_value</item>
     <item>@string/ar_not_dev_removed_value</item>
+    <item>@string/ar_not_error_value</item>
   </string-array>
 
 </resources>
