@@ -18,6 +18,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -83,7 +85,7 @@ public class NotificationHelper {
     desc = context.getString(R.string.channel_device_desc);
     createChannel(id, importance, name, desc, true);
 
-    importance = NotificationManager.IMPORTANCE_DEFAULT;
+    importance = NotificationManager.IMPORTANCE_HIGH;
     id = context.getString(R.string.channel_error);
     name = context.getString(R.string.channel_error_name);
     desc = context.getString(R.string.channel_error_desc);
@@ -262,13 +264,14 @@ public class NotificationHelper {
       .setStyle(new NotificationCompat.BigTextStyle().bigText(error))
       .setWhen(System.currentTimeMillis());
 
-    // todo change small icon
+    // change small icon
+    builder.setSmallIcon(R.drawable.ic_notification_error);
 
     final String emailSubject = "App error";
     String emailBody = Email.INSTANCE.getBody();
     emailBody += error;
     emailBody +=
-      "\nPlease provide what information you can on what led to the error\n\n";
+      "\nPlease provide what information you can on what led to the error\n \n";
 
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
@@ -306,7 +309,7 @@ public class NotificationHelper {
   /**
    * Remove our Error notifications
    */
-  public static void removeErrors() {
+  private static void removeErrors() {
     final NotificationManager notificationManager = getManager();
     notificationManager.cancel(ID_ERROR);
   }
@@ -501,8 +504,7 @@ public class NotificationHelper {
       intent.putExtra(AppUtils.INTENT_EXTRA_NOTIFICATION_ID, noteId);
       intent.putExtra(AppUtils.INTENT_EXTRA_CLIP_ITEM, clipItem);
       return PendingIntent
-        .getBroadcast(context, 12345, intent,
-          PendingIntent.FLAG_UPDATE_CURRENT);
+        .getBroadcast(context, 12345, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
