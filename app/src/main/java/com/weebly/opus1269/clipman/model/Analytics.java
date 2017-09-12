@@ -78,15 +78,16 @@ public enum Analytics {
 
   /**
    * Exception
-   * @param message Error message
-   * @param e       Exception
+   * @param message   Error message
+   * @param exception Exception
    */
-  public void exception(String message, Exception e) {
+  public void exception(String message, Exception exception) {
     String msg = "Exception caught: ";
     if (!TextUtils.isEmpty(message)) {
-      msg = message;
+      msg += message;
+      msg += "\n";
     }
-    msg += Log.getStackTraceString(e);
+    msg += Log.getStackTraceString(exception);
     getTracker().setScreenName(NO_SCREEN);
     getTracker().send(new HitBuilders.ExceptionBuilder()
       .setFatal(true)
