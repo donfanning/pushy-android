@@ -10,21 +10,18 @@ package com.weebly.opus1269.clipman.ui.help;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.Email;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -104,12 +101,13 @@ public class HelpActivity extends BaseActivity {
     switch (id) {
       case R.id.emailTranslate:
       case R.id.emailGeneral:
-        emailMe((String) textView.getTag(), null);
+        Email.INSTANCE.send((String) textView.getTag(), null);
         break;
       case R.id.emailQuestion:
       case R.id.emailBug:
       case R.id.emailFeature:
-        emailMe((String) textView.getTag(), getEmailBody());
+        final String body = Email.INSTANCE.getBody();
+        Email.INSTANCE.send((String) textView.getTag(), body);
         break;
       case R.id.githubIssue:
       case R.id.docApp:
@@ -128,33 +126,6 @@ public class HelpActivity extends BaseActivity {
   ///////////////////////////////////////////////////////////////////////////
   // Private methods
   ///////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Send an email
-   * @param subject email Subject
-   * @param body    Email Body
-   */
-  private void emailMe(String subject, String body) {
-    final Intent intent = new Intent(Intent.ACTION_SENDTO);
-    intent.setData(Uri.parse("mailto:" + AppUtils.EMAIL_ADDRESS));
-    intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-    if (!TextUtils.isEmpty(body)) {
-      intent.putExtra(Intent.EXTRA_TEXT, body);
-    }
-    if (intent.resolveActivity(getPackageManager()) != null) {
-      startActivity(intent);
-    }
-  }
-
-  /**
-   * Get system info. for body of support requests
-   * @return Email body
-   */
-  private String getEmailBody() {
-    return "Pushy Clipboard Version: " + BuildConfig.VERSION_NAME + '\n' +
-      "Android Version: " + Build.VERSION.RELEASE + '\n' +
-      "Device: " + Device.getMyModel() + " \n \n \n";
-  }
 
   /**
    * Show the {@link App} in the play store

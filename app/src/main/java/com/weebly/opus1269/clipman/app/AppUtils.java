@@ -47,17 +47,21 @@ public class AppUtils {
   public static final String PLAY_STORE_WEB =
     "https://play.google.com/store/apps/details?id=" + PACKAGE_NAME;
 
-  public static final String EMAIL_ADDRESS = "pushyclipboard@gmail.com";
-
   // Intent constants
   public static final String SEARCH_ACTION =
     PACKAGE_PATH + "SEARCH_ACTION";
   public static final String SHARE_ACTION =
     PACKAGE_PATH + "SHARE_ACTION";
+  public static final String EMAIL_ACTION =
+    PACKAGE_PATH + "EMAIL_ACTION";
   public static final String DELETE_NOTIFICATION_ACTION =
     PACKAGE_PATH + "DELETE_NOTIFICATION_ACTION";
   public static final String INTENT_EXTRA_CLIP_ITEM =
     PACKAGE_PATH + "CLIP_ITEM";
+  public static final String INTENT_EXTRA_EMAIL_SUBJECT =
+    PACKAGE_PATH + "EMAIL_SUBJECT";
+  public static final String INTENT_EXTRA_EMAIL_BODY =
+    PACKAGE_PATH + "EMAIL_BODY";
   public static final String INTENT_EXTRA_NOTIFICATION_ID =
     PACKAGE_PATH + "NOTIFICATION_ID";
   public static final String INTENT_EXTRA_CLIP_COUNT =

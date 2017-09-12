@@ -176,7 +176,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   @Override
   public void onSendError(String msgId, Exception ex) {
     super.onSendError(msgId, ex);
-    Log.logEx(TAG, FCM_SEND_ERROR + msgId, ex);
+    Log.logEx(TAG, FCM_SEND_ERROR + msgId, ex, true);
   }
 
   ///////////////////////////////////////////////////////////////////////////

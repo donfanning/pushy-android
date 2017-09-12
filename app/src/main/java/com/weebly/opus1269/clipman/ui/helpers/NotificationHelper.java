@@ -30,6 +30,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.Email;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
@@ -41,9 +42,11 @@ import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
  * Static class to manage our {@link android.app.Notification} objects
  */
 public class NotificationHelper {
+  // notification ids
   private static final int ID_COPY = 10;
   private static final int ID_DEVICE = 20;
   private static final int ID_CLIPBOARD_SERVICE = 30;
+  private static final int ID_ERROR = 40;
 
   // Has channel been initialized
   private static boolean sChannelsInit = false;
@@ -161,7 +164,8 @@ public class NotificationHelper {
 
     final NotificationCompat.Builder builder =
       getBuilder(pendingIntent, channelId, largeIcon, titleText);
-    builder.setContentText(clipText)
+    builder
+      .setContentText(clipText)
       .setStyle(new NotificationCompat.BigTextStyle().bigText(clipText))
       .setWhen(clipItem.getTime());
 
@@ -232,6 +236,57 @@ public class NotificationHelper {
   }
 
   /**
+   * Display notification on an app error or exception
+   * @param error error message
+   */
+  public static void show(String error) {
+    if (TextUtils.isEmpty(error) || !Prefs.isNotifyError()) {
+      return;
+    }
+
+    final Context context = App.getContext();
+    final Intent intent = new Intent(context, MainActivity.class);
+
+    PendingIntent pendingIntent =
+      getPendingIntent(context, MainActivity.class, intent);
+
+    final int id = ID_ERROR;
+    final int largeIcon = R.drawable.lic_error;
+    final String channelId = context.getString(R.string.channel_error);
+    final String titleText = context.getString(R.string.error_not_title);
+
+    final NotificationCompat.Builder builder =
+      getBuilder(pendingIntent, channelId, largeIcon, titleText);
+    builder
+      .setContentText(error)
+      .setStyle(new NotificationCompat.BigTextStyle().bigText(error))
+      .setWhen(System.currentTimeMillis());
+
+    // todo change small icon
+
+    final String emailSubject = "App error";
+    String emailBody = Email.INSTANCE.getBody();
+    emailBody += error;
+    emailBody +=
+      "\nPlease provide what information you can on what led to the error\n\n";
+
+    // notification deleted (cleared, swiped, etc) action
+    // does not get called on tap if autocancel is true
+    pendingIntent = NotificationReceiver
+      .getPendingIntent(AppUtils.DELETE_NOTIFICATION_ACTION, id, null, null);
+    builder.setDeleteIntent(pendingIntent);
+
+    // Email support action
+    pendingIntent = NotificationReceiver
+      .getPendingIntent(AppUtils.EMAIL_ACTION, id, emailSubject, emailBody);
+    builder.addAction(R.drawable.ic_email,
+      context.getString(R.string.action_email), pendingIntent);
+
+    final NotificationManager notificationManager = getManager();
+    notificationManager.notify(id, builder.build());
+  }
+
+  /**
    * Remove our {@link ClipItem} notifications
    */
   public static void removeClips() {
@@ -249,11 +304,20 @@ public class NotificationHelper {
   }
 
   /**
+   * Remove our Error notifications
+   */
+  public static void removeErrors() {
+    final NotificationManager notificationManager = getManager();
+    notificationManager.cancel(ID_ERROR);
+  }
+
+  /**
    * Remove all our Notifications
    */
   public static void removeAll() {
     removeClips();
     removeDevices();
+    removeErrors();
   }
 
   /**
@@ -384,32 +448,40 @@ public class NotificationHelper {
     @Override
     public void onReceive(Context context, Intent intent) {
       final String action = intent.getAction();
-      final ClipItem item;
+      final ClipItem clipItem;
       final int noteId =
         intent.getIntExtra(AppUtils.INTENT_EXTRA_NOTIFICATION_ID, -1);
 
       if (AppUtils.DELETE_NOTIFICATION_ACTION.equals(action)) {
-        resetCount();
+        if (noteId == ID_COPY) {
+          resetCount();
+        }
       } else if (AppUtils.SEARCH_ACTION.equals(action)) {
-        item = (ClipItem) intent.getSerializableExtra(
+        clipItem = (ClipItem) intent.getSerializableExtra(
           AppUtils.INTENT_EXTRA_CLIP_ITEM);
+
         // search the web for the clip text
-        AppUtils.performWebSearch(item.getText());
+        AppUtils.performWebSearch(clipItem.getText());
 
         cancelNotification(noteId);
-        // collapse notifications
-        context.sendBroadcast(
-          new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
       } else if (AppUtils.SHARE_ACTION.equals(action)) {
-        item = (ClipItem) intent.getSerializableExtra(
+        clipItem = (ClipItem) intent.getSerializableExtra(
           AppUtils.INTENT_EXTRA_CLIP_ITEM);
+
         // share the clip text with other apps
-        item.doShare(null);
+        clipItem.doShare(null);
 
         cancelNotification(noteId);
-        // collapse notifications
-        context.sendBroadcast(
-          new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+      } else if (AppUtils.EMAIL_ACTION.equals(action)) {
+        final String emailSubject =
+          intent.getStringExtra(AppUtils.INTENT_EXTRA_EMAIL_SUBJECT);
+        final String emailBody =
+          intent.getStringExtra(AppUtils.INTENT_EXTRA_EMAIL_BODY);
+
+        // Send email
+        Email.INSTANCE.send(emailSubject, emailBody);
+
+        cancelNotification(noteId);
       }
     }
 
@@ -434,15 +506,41 @@ public class NotificationHelper {
     }
 
     /**
+     * Get a pending intent for this receiver
+     * @param action       An action we know about
+     * @param noteId       The id of the source notification
+     * @param emailSubject subject of email
+     * @param emailBody    body of email
+     * @return a {@link PendingIntent}
+     */
+    public static PendingIntent getPendingIntent(String action, int noteId,
+                                                 String emailSubject,
+                                                 String emailBody) {
+      final Context context = App.getContext();
+      final Intent intent = new Intent(context, NotificationReceiver.class);
+      intent.setAction(action);
+      intent.putExtra(AppUtils.INTENT_EXTRA_NOTIFICATION_ID, noteId);
+      intent.putExtra(AppUtils.INTENT_EXTRA_EMAIL_SUBJECT, emailSubject);
+      intent.putExtra(AppUtils.INTENT_EXTRA_EMAIL_BODY, emailBody);
+      return PendingIntent.getBroadcast(context, 12345, intent,
+        PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    /**
      * Remove the given notification
      * @param notificationId notification id to remove
      */
     private static void cancelNotification(int notificationId) {
       if (notificationId != -1) {
-        // cancel notification
+        if (notificationId == ID_COPY) {
+          resetCount();
+        }
+        final Context context = App.getContext();
         final NotificationManager notificationManager = getManager();
         notificationManager.cancel(notificationId);
-        resetCount();
+
+        // collapse notifications dialog
+        context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
       }
     }
   }
