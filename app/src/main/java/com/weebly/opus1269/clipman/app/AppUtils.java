@@ -9,23 +9,16 @@ package com.weebly.opus1269.clipman.app;
 
 import android.app.ActivityManager;
 import android.app.SearchManager;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Patterns;
-import android.view.View;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Devices;
-import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.msg.MessagingClient;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
