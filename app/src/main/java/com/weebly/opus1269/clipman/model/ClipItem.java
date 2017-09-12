@@ -24,6 +24,7 @@ import android.view.View;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.msg.MessagingClient;
 
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
@@ -143,6 +144,26 @@ public class ClipItem implements Serializable {
   }
 
   /**
+   * Send the clipboard contents to our {@link Devices}
+   */
+  public static void sendClipboardContents(View view) {
+    ClipboardManager clipboardManager = (ClipboardManager)
+      App.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+    final ClipItem clipItem = getFromClipboard(clipboardManager);
+    if (clipItem != null) {
+      if (Prefs.isPushClipboard()) {
+        MessagingClient.send(clipItem);
+        if (view != null) {
+          Snackbar
+            .make(view, R.string.clipboard_sent,
+              Snackbar.LENGTH_SHORT)
+            .show();
+        }
+      }
+    }
+  }
+
+  /**
    * Parse the fav state from the {@link ClipDescription}
    * @param desc The item's {@link ClipDescription}
    * @return The fav state
@@ -178,7 +199,6 @@ public class ClipItem implements Serializable {
     }
     return device;
   }
-
 
   public String getText() {
     return mText;
@@ -227,17 +247,6 @@ public class ClipItem implements Serializable {
 
   public void setDevice(String device) {
     mDevice = device;
-  }
-
-  /**
-   * Initialize the members
-   */
-  private void init() {
-    mText = "";
-    mDate = new DateTime();
-    mFav = false;
-    mRemote = false;
-    mDevice = Device.getMyName();
   }
 
   /**
@@ -323,5 +332,16 @@ public class ClipItem implements Serializable {
       // Verify that the intent will resolve to an activity
       context.startActivity(sendIntent);
     }
+  }
+
+  /**
+   * Initialize the members
+   */
+  private void init() {
+    mText = "";
+    mDate = new DateTime();
+    mFav = false;
+    mRemote = false;
+    mDevice = Device.getMyName();
   }
 }

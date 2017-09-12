@@ -451,7 +451,7 @@ public class MainActivity extends BaseActivity implements
    * Send the clipboard contents to our {@link Devices}
    */
   private void sendClipboardContents() {
-    AppUtils.sendClipboardContents(findViewById(R.id.fab));
+    ClipItem.sendClipboardContents(findViewById(R.id.fab));
   }
 
   /**

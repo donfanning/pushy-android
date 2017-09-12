@@ -207,27 +207,6 @@ public class AppUtils {
     return value;
   }
 
-
-  /**
-   * Send the clipboard contents to our {@link Devices}
-   */
-  public static void sendClipboardContents(View view) {
-    ClipboardManager clipboardManager = (ClipboardManager)
-      App.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-    final ClipItem clipItem = ClipItem.getFromClipboard(clipboardManager);
-    if (clipItem != null) {
-      if (Prefs.isPushClipboard()) {
-        MessagingClient.send(clipItem);
-        if (view != null) {
-          Snackbar
-            .make(view, R.string.clipboard_sent,
-              Snackbar.LENGTH_SHORT)
-            .show();
-        }
-      }
-    }
-  }
-
   /**
    * Capitalize a {@link String}
    * @param s String to captialize
