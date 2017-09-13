@@ -427,6 +427,10 @@ public class Notifications {
   @TargetApi(26)
   private static void createChannel(String id, int importance, String name,
                                     String desc, Boolean badge) {
+    if (!AppUtils.isOreoOrLater()) {
+      return;
+    }
+
     NotificationManager notificationManager = getManager();
     NotificationChannel channel = new NotificationChannel(id, name, importance);
     channel.setDescription(desc);
