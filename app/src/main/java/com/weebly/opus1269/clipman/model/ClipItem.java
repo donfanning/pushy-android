@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -36,9 +37,8 @@ import java.io.Serializable;
  */
 public class ClipItem implements Serializable {
 
-  private static final String TAG = "ClipItem";
-
   public static final String TEXT_PLAIN = "text/plain";
+  private static final String TAG = "ClipItem";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
   private String mText;
@@ -155,8 +155,9 @@ public class ClipItem implements Serializable {
    * Send the clipboard contents to our {@link Devices}
    */
   public static void sendClipboardContents(View view) {
-    ClipboardManager clipboardManager = (ClipboardManager)
-      App.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+    final Context context = App.getContext();
+    ClipboardManager clipboardManager =
+      (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     final ClipItem clipItem = getFromClipboard(clipboardManager);
     if ((clipItem != null) && !TextUtils.isEmpty(clipItem.getText())) {
       if (!Prefs.isAutoSaveLocal()) {
@@ -167,11 +168,18 @@ public class ClipItem implements Serializable {
         }
       }
       if (clipItem.send()) {
+        final String msg = context.getString(R.string.clipboard_sent);
         if (view != null) {
           Snackbar
-            .make(view, R.string.clipboard_sent,
-              Snackbar.LENGTH_SHORT)
+            .make(view, R.string.clipboard_sent, Snackbar.LENGTH_SHORT)
             .show();
+        } else {
+          Handler handler = new Handler(context.getMainLooper());
+          handler.post(new Runnable() {
+            public void run() {
+              Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+            }
+          });
         }
       }
     }
@@ -226,13 +234,13 @@ public class ClipItem implements Serializable {
     return new DateTime(mDate.getMillis());
   }
 
-  void setDate(long date) {
-    mDate = new DateTime(date);
-  }
-
   @SuppressWarnings("unused")
   public void setDate(ReadableInstant date) {
     mDate = new DateTime(date.getMillis());
+  }
+
+  void setDate(long date) {
+    mDate = new DateTime(date);
   }
 
   public long getTime() {
