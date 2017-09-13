@@ -33,7 +33,7 @@ import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.RegistrationClient;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
-import com.weebly.opus1269.clipman.model.NotificationHelper;
+import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
 
 /**
@@ -134,7 +134,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       return true;
     } else if (mMangageNotKey.equals(key)) {
       // Manage notifications for Android O and later
-      NotificationHelper.showNotificationSettings(getContext());
+      Notifications.showNotificationSettings(getContext());
       return true;
     }
 
@@ -201,7 +201,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     } else if (key.equals(keyNotifications)) {
       if (Prefs.notNotifications()) {
         // remove any currently displayed Notifications
-        NotificationHelper.removeAll();
+        Notifications.removeAll();
       }
     } else if (key.equals(keyReceive)) {
       if (User.INSTANCE.isLoggedIn()) {

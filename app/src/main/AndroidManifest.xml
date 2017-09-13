@@ -164,7 +164,7 @@
 
     <!-- private to app -->
     <receiver
-      android:name=".model.NotificationHelper$NotificationReceiver"
+      android:name=".model.Notifications$NotificationReceiver"
       android:enabled="true"
       android:exported="false">
       <intent-filter>

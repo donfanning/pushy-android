@@ -23,7 +23,7 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
-import com.weebly.opus1269.clipman.model.NotificationHelper;
+import com.weebly.opus1269.clipman.model.Notifications;
 
 /**
  * An app private {@link Service} to listen for changes to the clipboard,
@@ -74,7 +74,7 @@ public class ClipboardWatcherService extends Service implements
   @Override
   public void onCreate() {
     if (AppUtils.isOreoOrLater()) {
-      NotificationHelper.startAndShow(this);
+      Notifications.startAndShow(this);
     }
 
     mClipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -186,7 +186,7 @@ public class ClipboardWatcherService extends Service implements
       super.onPostExecute(aVoid);
       if (mResult) {
         // display notification if requested by user
-        NotificationHelper.show(mClipItem);
+        Notifications.show(mClipItem);
 
         if (!mClipItem.isRemote() && User.INSTANCE.isLoggedIn() &&
           Prefs.isPushClipboard() && Prefs.isAutoSend()) {

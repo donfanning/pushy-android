@@ -42,7 +42,7 @@ import com.weebly.opus1269.clipman.ui.clipviewer.ClipViewerFragment;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
 import com.weebly.opus1269.clipman.ui.help.HelpActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
-import com.weebly.opus1269.clipman.model.NotificationHelper;
+import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 
@@ -151,7 +151,7 @@ public class MainActivity extends BaseActivity implements
 
     updateOptionsMenu();
 
-    NotificationHelper.removeClips();
+    Notifications.removeClips();
 
     // so relative dates get updated
     mLoaderManager.getAdapter().notifyDataSetChanged();

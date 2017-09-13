@@ -21,7 +21,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.ClipDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
-import com.weebly.opus1269.clipman.model.NotificationHelper;
+import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
 
 import java.util.ArrayList;
@@ -105,7 +105,7 @@ public class App extends Application
     registerActivityLifecycleCallbacks(this);
 
     // Initialize the Notification Channels
-    NotificationHelper.initChannels(this);
+    Notifications.initChannels(this);
   }
 
   @Override

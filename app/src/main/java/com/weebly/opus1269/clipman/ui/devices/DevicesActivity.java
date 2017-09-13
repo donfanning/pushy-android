@@ -22,7 +22,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
-import com.weebly.opus1269.clipman.model.NotificationHelper;
+import com.weebly.opus1269.clipman.model.Notifications;
 
 /**
  * Activity to manage our connected devices
@@ -74,7 +74,7 @@ public class DevicesActivity extends BaseActivity {
       .registerReceiver(mDevicesReceiver,
         new IntentFilter(Devices.INTENT_FILTER));
 
-    NotificationHelper.removeDevices();
+    Notifications.removeDevices();
 
     // ping devices
     MessagingClient.sendPing();

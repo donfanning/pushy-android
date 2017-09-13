@@ -28,11 +28,6 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Device;
-import com.weebly.opus1269.clipman.model.Email;
-import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
@@ -42,7 +37,7 @@ import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 /**
  * Static class to manage our {@link android.app.Notification} objects
  */
-public class NotificationHelper {
+public class Notifications {
   // notification ids
   private static final int ID_COPY = 10;
   private static final int ID_DEVICE = 20;
@@ -55,7 +50,7 @@ public class NotificationHelper {
   // keep track of number of clipboard messages received.
   private static int sClipItemCt;
 
-  private NotificationHelper() {
+  private Notifications() {
   }
 
   ///////////////////////////////////////////////////////////////////////////

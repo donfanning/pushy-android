@@ -31,7 +31,7 @@ import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
-import com.weebly.opus1269.clipman.model.NotificationHelper;
+import com.weebly.opus1269.clipman.model.Notifications;
 
 import org.joda.time.DateTime;
 
@@ -144,12 +144,12 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       case Msg.ACTION_DEVICE_ADDED:
         // A new device was added
         Devices.add(device, true);
-        NotificationHelper.show(action, device.getDisplayName());
+        Notifications.show(action, device.getDisplayName());
         break;
       case Msg.ACTION_DEVICE_REMOVED:
         // A device was removed
         Devices.remove(device);
-        NotificationHelper.show(action, device.getDisplayName());
+        Notifications.show(action, device.getDisplayName());
         break;
       default:
         Log.logE(TAG, FCM_MESSAGE_ERROR + action);
