@@ -33,7 +33,7 @@ import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.RegistrationClient;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
-import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
+import com.weebly.opus1269.clipman.model.NotificationHelper;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
 
 /**

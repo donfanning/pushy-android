@@ -22,7 +22,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
-import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
+import com.weebly.opus1269.clipman.model.NotificationHelper;
 
 /**
  * Activity to manage our connected devices

@@ -23,7 +23,7 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
-import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
+import com.weebly.opus1269.clipman.model.NotificationHelper;
 
 /**
  * An app private {@link Service} to listen for changes to the clipboard,

@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
+import com.weebly.opus1269.clipman.model.NotificationHelper;
 
 /**
  * Message logger Class

@@ -31,7 +31,7 @@ import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
-import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
+import com.weebly.opus1269.clipman.model.NotificationHelper;
 
 import org.joda.time.DateTime;
 

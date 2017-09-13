@@ -21,7 +21,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.ClipDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
-import com.weebly.opus1269.clipman.ui.helpers.NotificationHelper;
+import com.weebly.opus1269.clipman.model.NotificationHelper;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
 
 import java.util.ArrayList;

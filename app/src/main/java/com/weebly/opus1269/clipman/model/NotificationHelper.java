@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.ui.helpers;
+package com.weebly.opus1269.clipman.model;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
