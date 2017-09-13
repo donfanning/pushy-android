@@ -88,9 +88,18 @@
     <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
       android:id="@+id/docApp"
       style="@style/HelpItemView"
-      app:drawableLeftCompat="@drawable/github_circle"
+      app:drawableLeftCompat="@drawable/ic_help_black_24dp"
       android:text="@string/help_doc_usage"
       android:tag="@string/help_doc_usage_tag" />
+
+    <View style="@style/HelpDivider" />
+
+    <com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView
+      android:id="@+id/docFaq"
+      style="@style/HelpItemView"
+      app:drawableLeftCompat="@drawable/ic_help_black_24dp"
+      android:text="@string/help_doc_faq"
+      android:tag="@string/help_doc_faq_tag" />
 
     <View style="@style/HelpDivider" />
 

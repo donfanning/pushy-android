@@ -111,6 +111,7 @@ public class HelpActivity extends BaseActivity {
         break;
       case R.id.githubIssue:
       case R.id.docApp:
+      case R.id.docFaq:
       case R.id.docRelease:
       case R.id.docSource:
         AppUtils.showWebUrl((String) textView.getTag());
@@ -178,9 +179,16 @@ public class HelpActivity extends BaseActivity {
       .withDrawable(R.drawable.github_circle)
       .tint();
     tintLeftDrawable(drawableHelper, R.id.githubIssue);
-    tintLeftDrawable(drawableHelper, R.id.docApp);
     tintLeftDrawable(drawableHelper, R.id.docRelease);
     tintLeftDrawable(drawableHelper, R.id.docSource);
+
+    drawableHelper = DrawableHelper
+      .withContext(this)
+      .withColor(color)
+      .withDrawable(R.drawable.ic_help_black_24dp)
+      .tint();
+    tintLeftDrawable(drawableHelper, R.id.docApp);
+    tintLeftDrawable(drawableHelper, R.id.docFaq);
   }
 
   /**
