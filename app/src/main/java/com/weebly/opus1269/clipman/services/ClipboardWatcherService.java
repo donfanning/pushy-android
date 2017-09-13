@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.services;
 
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -52,6 +53,7 @@ public class ClipboardWatcherService extends Service implements
    * Start ourselves
    * @param onBoot true if called on device boot
    */
+  @TargetApi(26)
   public static void startService(Boolean onBoot) {
     if (Prefs.isMonitorClipboard()
       && !AppUtils.isMyServiceRunning(ClipboardWatcherService.class)) {
