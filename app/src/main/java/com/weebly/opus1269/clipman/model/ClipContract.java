@@ -10,9 +10,9 @@ package com.weebly.opus1269.clipman.model;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
 
 /**
  * The contract between the {@link ClipContentProvider} and applications.
@@ -20,7 +20,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 public class ClipContract {
 
   // The authority for the clip provider
-  static final String AUTHORITY = AppUtils.PACKAGE_NAME;
+  static final String AUTHORITY = BuildConfig.APPLICATION_ID;
 
   // A content:// style uri to the authority for the clip provider
   private static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);

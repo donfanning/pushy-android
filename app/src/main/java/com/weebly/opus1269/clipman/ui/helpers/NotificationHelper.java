@@ -31,6 +31,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Email;
+import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
@@ -143,8 +144,8 @@ public class NotificationHelper {
     sClipItemCt++;
 
     final Intent intent = new Intent(context, MainActivity.class);
-    intent.putExtra(AppUtils.INTENT_EXTRA_CLIP_ITEM, clipItem);
-    intent.putExtra(AppUtils.INTENT_EXTRA_CLIP_COUNT, sClipItemCt);
+    intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
+    intent.putExtra(Intents.EXTRA_CLIP_COUNT, sClipItemCt);
 
     PendingIntent pendingIntent =
       getPendingIntent(context, MainActivity.class, intent);
@@ -176,17 +177,17 @@ public class NotificationHelper {
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
     pendingIntent = NotificationReceiver
-      .getPendingIntent(AppUtils.DELETE_NOTIFICATION_ACTION, id, null);
+      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATIOn, id, null);
     builder.setDeleteIntent(pendingIntent);
 
     // Web Search action
     pendingIntent = NotificationReceiver
-      .getPendingIntent(AppUtils.SEARCH_ACTION, id, clipItem);
+      .getPendingIntent(Intents.ACTION_SEARCH, id, clipItem);
     builder.addAction(R.drawable.ic_search, context.getString(R.string.action_search), pendingIntent);
 
     // Share action
     pendingIntent = NotificationReceiver
-      .getPendingIntent(AppUtils.SHARE_ACTION, id, clipItem);
+      .getPendingIntent(Intents.ACTION_SHARE, id, clipItem);
     builder.addAction(R.drawable.ic_share, context.getString(R.string.action_share) + " ...", pendingIntent);
 
     final NotificationManager notificationManager = getManager();
@@ -274,12 +275,12 @@ public class NotificationHelper {
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
     pendingIntent = NotificationReceiver
-      .getPendingIntent(AppUtils.DELETE_NOTIFICATION_ACTION, id, null, null);
+      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATIOn, id, null, null);
     builder.setDeleteIntent(pendingIntent);
 
     // Email support action
     pendingIntent = NotificationReceiver
-      .getPendingIntent(AppUtils.EMAIL_ACTION, id, emailSubject, emailBody);
+      .getPendingIntent(Intents.ACTION_EMAIL, id, emailSubject, emailBody);
     builder.addAction(R.drawable.ic_email,
       context.getString(R.string.action_email), pendingIntent);
 
@@ -325,6 +326,7 @@ public class NotificationHelper {
    * Display the Notification settings for Android O
    * @param context A context
    */
+  @TargetApi(26)
   public static void showNotificationSettings(Context context) {
     if (!AppUtils.isOreoOrLater()) {
       return;
@@ -451,33 +453,33 @@ public class NotificationHelper {
       final String action = intent.getAction();
       final ClipItem clipItem;
       final int noteId =
-        intent.getIntExtra(AppUtils.INTENT_EXTRA_NOTIFICATION_ID, -1);
+        intent.getIntExtra(Intents.EXTRA_NOTIFICATION_ID, -1);
 
-      if (AppUtils.DELETE_NOTIFICATION_ACTION.equals(action)) {
+      if (Intents.ACTION_DELETE_NOTIFICATIOn.equals(action)) {
         if (noteId == ID_COPY) {
           resetCount();
         }
-      } else if (AppUtils.SEARCH_ACTION.equals(action)) {
+      } else if (Intents.ACTION_SEARCH.equals(action)) {
         clipItem = (ClipItem) intent.getSerializableExtra(
-          AppUtils.INTENT_EXTRA_CLIP_ITEM);
+          Intents.EXTRA_CLIP_ITEM);
 
         // search the web for the clip text
         AppUtils.performWebSearch(clipItem.getText());
 
         cancelNotification(noteId);
-      } else if (AppUtils.SHARE_ACTION.equals(action)) {
+      } else if (Intents.ACTION_SHARE.equals(action)) {
         clipItem = (ClipItem) intent.getSerializableExtra(
-          AppUtils.INTENT_EXTRA_CLIP_ITEM);
+          Intents.EXTRA_CLIP_ITEM);
 
         // share the clip text with other apps
         clipItem.doShare(null);
 
         cancelNotification(noteId);
-      } else if (AppUtils.EMAIL_ACTION.equals(action)) {
+      } else if (Intents.ACTION_EMAIL.equals(action)) {
         final String emailSubject =
-          intent.getStringExtra(AppUtils.INTENT_EXTRA_EMAIL_SUBJECT);
+          intent.getStringExtra(Intents.EXTRA_EMAIL_SUBJECT);
         final String emailBody =
-          intent.getStringExtra(AppUtils.INTENT_EXTRA_EMAIL_BODY);
+          intent.getStringExtra(Intents.EXTRA_EMAIL_BODY);
 
         // Send email
         Email.INSTANCE.send(emailSubject, emailBody);
@@ -499,8 +501,8 @@ public class NotificationHelper {
       final Intent intent =
         new Intent(context, NotificationReceiver.class);
       intent.setAction(action);
-      intent.putExtra(AppUtils.INTENT_EXTRA_NOTIFICATION_ID, noteId);
-      intent.putExtra(AppUtils.INTENT_EXTRA_CLIP_ITEM, clipItem);
+      intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);
+      intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
       return PendingIntent
         .getBroadcast(context, 12345, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
@@ -519,9 +521,9 @@ public class NotificationHelper {
       final Context context = App.getContext();
       final Intent intent = new Intent(context, NotificationReceiver.class);
       intent.setAction(action);
-      intent.putExtra(AppUtils.INTENT_EXTRA_NOTIFICATION_ID, noteId);
-      intent.putExtra(AppUtils.INTENT_EXTRA_EMAIL_SUBJECT, emailSubject);
-      intent.putExtra(AppUtils.INTENT_EXTRA_EMAIL_BODY, emailBody);
+      intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);
+      intent.putExtra(Intents.EXTRA_EMAIL_SUBJECT, emailSubject);
+      intent.putExtra(Intents.EXTRA_EMAIL_BODY, emailBody);
       return PendingIntent.getBroadcast(context, 12345, intent,
         PendingIntent.FLAG_UPDATE_CURRENT);
     }

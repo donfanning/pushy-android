@@ -32,33 +32,12 @@ import java.util.Random;
 public class AppUtils {
   private static final String TAG = "AppUtils";
 
-  public static final String PACKAGE_NAME = BuildConfig.APPLICATION_ID;
-  public static final String PACKAGE_PATH = PACKAGE_NAME + '.';
+  private static final String PACKAGE_NAME = BuildConfig.APPLICATION_ID;
+  private static final int VERSION_CODE = Build.VERSION.SDK_INT;
 
-  public static final String PLAY_STORE =
-    "market://details?id=" + PACKAGE_NAME;
+  public static final String PLAY_STORE = "market://details?id=" + PACKAGE_NAME;
   public static final String PLAY_STORE_WEB =
     "https://play.google.com/store/apps/details?id=" + PACKAGE_NAME;
-
-  // Intent constants
-  public static final String SEARCH_ACTION =
-    PACKAGE_PATH + "SEARCH_ACTION";
-  public static final String SHARE_ACTION =
-    PACKAGE_PATH + "SHARE_ACTION";
-  public static final String EMAIL_ACTION =
-    PACKAGE_PATH + "EMAIL_ACTION";
-  public static final String DELETE_NOTIFICATION_ACTION =
-    PACKAGE_PATH + "DELETE_NOTIFICATION_ACTION";
-  public static final String INTENT_EXTRA_CLIP_ITEM =
-    PACKAGE_PATH + "CLIP_ITEM";
-  public static final String INTENT_EXTRA_EMAIL_SUBJECT =
-    PACKAGE_PATH + "EMAIL_SUBJECT";
-  public static final String INTENT_EXTRA_EMAIL_BODY =
-    PACKAGE_PATH + "EMAIL_BODY";
-  public static final String INTENT_EXTRA_NOTIFICATION_ID =
-    PACKAGE_PATH + "NOTIFICATION_ID";
-  public static final String INTENT_EXTRA_CLIP_COUNT =
-    PACKAGE_PATH + "CLIP_COUNT";
 
   private AppUtils() {
   }
@@ -78,7 +57,7 @@ public class AppUtils {
    * @return boolean
    */
   public static boolean isOreoOrLater() {
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    return VERSION_CODE >= Build.VERSION_CODES.O;
   }
 
   /**
@@ -86,7 +65,7 @@ public class AppUtils {
    * @return boolean
    */
   public static boolean isLollipopOrLater() {
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    return VERSION_CODE >= Build.VERSION_CODES.LOLLIPOP;
   }
 
   /**
@@ -94,7 +73,7 @@ public class AppUtils {
    * @return boolean
    */
   public static boolean isJellyBeanOrLater() {
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    return VERSION_CODE >= Build.VERSION_CODES.JELLY_BEAN;
   }
 
   /**

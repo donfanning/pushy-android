@@ -31,6 +31,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -394,8 +395,8 @@ public class MainActivity extends BaseActivity implements
       }
     } else {
       final Intent intent = new Intent(this, ClipViewerActivity.class);
-      intent.putExtra(ClipViewerFragment.ARG_CLIP_ITEM, clipItem);
-      intent.putExtra(ClipViewerFragment.ARG_HIGHLIGHT, mQueryString);
+      intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
+      intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
       startActivity(intent);
     }
   }
@@ -424,15 +425,15 @@ public class MainActivity extends BaseActivity implements
           MessagingClient.send(item);
         }
       }
-    } else if (intent.hasExtra(AppUtils.INTENT_EXTRA_CLIP_ITEM)) {
+    } else if (intent.hasExtra(Intents.EXTRA_CLIP_ITEM)) {
       // notification
       final int msgCt =
-        intent.getIntExtra(AppUtils.INTENT_EXTRA_CLIP_COUNT, 0);
+        intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
         final ClipItem item = (ClipItem) intent.getSerializableExtra(
-          AppUtils.INTENT_EXTRA_CLIP_ITEM);
-        intent.removeExtra(AppUtils.INTENT_EXTRA_CLIP_ITEM);
+          Intents.EXTRA_CLIP_ITEM);
+        intent.removeExtra(Intents.EXTRA_CLIP_ITEM);
         startOrUpdateClipViewer(item);
       }
     }

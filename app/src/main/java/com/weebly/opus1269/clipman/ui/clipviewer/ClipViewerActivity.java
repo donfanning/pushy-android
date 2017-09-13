@@ -23,6 +23,7 @@ import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 
@@ -56,11 +57,12 @@ public class ClipViewerActivity extends BaseActivity implements
       // Create the viewer fragment and add it to the activity
       // using a fragment transaction.
       final Serializable clipItem =
-        getIntent().getSerializableExtra(ClipViewerFragment.ARG_CLIP_ITEM);
+        getIntent().getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
       final String highlightText =
-        getIntent().getStringExtra(ClipViewerFragment.ARG_HIGHLIGHT);
+        getIntent().getStringExtra(Intents.EXTRA_TEXT);
 
-      final ClipViewerFragment fragment = ClipViewerFragment.newInstance(clipItem, highlightText);
+      final ClipViewerFragment fragment =
+        ClipViewerFragment.newInstance(clipItem, highlightText);
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();
@@ -188,7 +190,8 @@ public class ClipViewerActivity extends BaseActivity implements
   }
 
   /**
-   * Set the favorite {@link MenuItem} {@link android.graphics.drawable.Drawable}
+   * Set the favorite {@link MenuItem}
+   * {@link android.graphics.drawable.Drawable}
    */
   private void setFavoriteMenuItem() {
     MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
@@ -216,7 +219,8 @@ public class ClipViewerActivity extends BaseActivity implements
       final String text = DatabaseUtils.sqlEscapeString(clipItem.getText());
       final String selection = ClipContract.Clip.COL_TEXT + '=' + text;
 
-      final int nRows = getContentResolver().delete(ClipContract.Clip.CONTENT_URI, selection, null);
+      final int nRows = getContentResolver()
+        .delete(ClipContract.Clip.CONTENT_URI, selection, null);
 
       // save item for undo
       mUndoItem = getClipViewerFragment().getClipItemClone().getContentValues();
@@ -226,13 +230,15 @@ public class ClipViewerActivity extends BaseActivity implements
         message = getResources().getString(R.string.item_delete_empty);
       }
 
-      final Snackbar snack = Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
+      final Snackbar snack =
+        Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
 
       if (nRows > 0) {
         snack.setAction("UNDO", new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            ClipContentProvider.insert(ClipViewerActivity.this, new ContentValues[]{mUndoItem});
+            ClipContentProvider
+              .insert(ClipViewerActivity.this, new ContentValues[]{mUndoItem});
           }
         })
           .addCallback(new Snackbar.Callback() {

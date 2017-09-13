@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.Intents;
 
 import java.io.Serializable;
 import java.text.Collator;
@@ -36,9 +37,8 @@ import java.util.regex.Pattern;
 /**
  * A fragment containing a view of a ClipItem's text.
  */
-public class ClipViewerFragment extends Fragment implements View.OnClickListener {
-  public static final String ARG_CLIP_ITEM = AppUtils.PACKAGE_PATH + "ARG_CLIP_ITEM";
-  public static final String ARG_HIGHLIGHT = AppUtils.PACKAGE_PATH + "ARG_HIGHLIGHT";
+public class ClipViewerFragment extends Fragment
+  implements View.OnClickListener {
 
   private static final String STATE_CLIP_ITEM = "clip";
   private static final String STATE_CLIP_VIEWABLE = "viewable";
@@ -61,8 +61,8 @@ public class ClipViewerFragment extends Fragment implements View.OnClickListener
   // The text to be highlighted
   private String mHighlightText = "";
 
-  // Flag to indicate if we are viewable (as opposed to recreated from a savedInstanceState
-  // but will not be seen.
+  // Flag to indicate if we are viewable
+  // (as opposed to recreated from a savedInstanceState but will not be seen.
   private boolean mIsViewable = true;
 
 
@@ -76,8 +76,8 @@ public class ClipViewerFragment extends Fragment implements View.OnClickListener
     final ClipViewerFragment fragment = new ClipViewerFragment();
 
     final Bundle args = new Bundle();
-    args.putSerializable(ARG_CLIP_ITEM, item);
-    args.putString(ARG_HIGHLIGHT, highlight);
+    args.putSerializable(Intents.EXTRA_CLIP_ITEM, item);
+    args.putString(Intents.EXTRA_TEXT, highlight);
 
     fragment.setArguments(args);
 
@@ -125,7 +125,8 @@ public class ClipViewerFragment extends Fragment implements View.OnClickListener
       return null;
     }
 
-    final View rootView = inflater.inflate(R.layout.fragment_clip_viewer, container, false);
+    final View rootView =
+      inflater.inflate(R.layout.fragment_clip_viewer, container, false);
 
     setText(mClipItem.getText());
 
@@ -142,7 +143,8 @@ public class ClipViewerFragment extends Fragment implements View.OnClickListener
     try {
       mOnClipChanged = (OnClipChanged) activity;
     } catch (final ClassCastException ignore) {
-      throw new ClassCastException(activity.getLocalClassName() + " must implement OnClipChanged");
+      throw new ClassCastException(activity.getLocalClassName() +
+        " must implement OnClipChanged");
     }
   }
 
@@ -150,13 +152,14 @@ public class ClipViewerFragment extends Fragment implements View.OnClickListener
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    if (getArguments().containsKey(ARG_CLIP_ITEM)) {
-      final ClipItem clipItem = (ClipItem) getArguments().getSerializable(ARG_CLIP_ITEM);
+    if (getArguments().containsKey(Intents.EXTRA_CLIP_ITEM)) {
+      final ClipItem clipItem =
+        (ClipItem) getArguments().getSerializable(Intents.EXTRA_CLIP_ITEM);
       setClipItem(clipItem);
     }
 
-    if (getArguments().containsKey(ARG_HIGHLIGHT)) {
-      final String highlightText = getArguments().getString(ARG_HIGHLIGHT);
+    if (getArguments().containsKey(Intents.EXTRA_TEXT)) {
+      final String highlightText = getArguments().getString(Intents.EXTRA_TEXT);
       setHighlightText(highlightText);
     }
 
@@ -225,7 +228,8 @@ public class ClipViewerFragment extends Fragment implements View.OnClickListener
       ret = true;
       View view = getView();
       if (view != null) {
-        Snackbar.make(view, R.string.clipboard_copy, Snackbar.LENGTH_SHORT).show();
+        Snackbar
+          .make(view, R.string.clipboard_copy, Snackbar.LENGTH_SHORT).show();
       }
     }
 
@@ -249,9 +253,12 @@ public class ClipViewerFragment extends Fragment implements View.OnClickListener
       setText(mClipItem.getText());
     } else {
       final String text = mClipItem.getText();
-      final Spannable spanText = Spannable.Factory.getInstance().newSpannable(text);
-      final int color = ContextCompat.getColor(getContext(), R.color.search_highlight);
-      final Pattern p = Pattern.compile(highlightText, Pattern.CASE_INSENSITIVE);
+      final Spannable spanText =
+        Spannable.Factory.getInstance().newSpannable(text);
+      final int color =
+        ContextCompat.getColor(getContext(), R.color.search_highlight);
+      final Pattern p =
+        Pattern.compile(highlightText, Pattern.CASE_INSENSITIVE);
       final Matcher m = p.matcher(text);
       final int length = highlightText.length();
       while (m.find()) {
