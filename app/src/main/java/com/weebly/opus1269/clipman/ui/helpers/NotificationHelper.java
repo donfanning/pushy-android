@@ -84,7 +84,7 @@ public class NotificationHelper {
     desc = context.getString(R.string.channel_device_desc);
     createChannel(id, importance, name, desc, true);
 
-    importance = NotificationManager.IMPORTANCE_HIGH;
+    importance = NotificationManager.IMPORTANCE_DEFAULT;
     id = context.getString(R.string.channel_error);
     name = context.getString(R.string.channel_error_name);
     desc = context.getString(R.string.channel_error_desc);
