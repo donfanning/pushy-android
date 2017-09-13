@@ -37,22 +37,9 @@ import java.util.List;
 /**
  * Static Class to manage the collection of registered {@link Device} objects.
  * Register a {@link LocalBroadcastManager} with
- * Devices.INTENT_FILTER to be notified of changes.
+ * Intents.FILTER_DEVICES to be notified of changes.
  */
 public class Devices {
-
-  public static final String INTENT_FILTER = "devicesIntent";
-  public static final String BUNDLE = "bundleDevices";
-  public static final String ACTION = "actionDevices";
-  public static final String ACTION_UPDATE = "updateDevices";
-  public static final String ACTION_MY_DEVICE_REMOVED = "myDeviceRemoved";
-  public static final String ACTION_MY_DEVICE_REGISTERED =
-    "myDeviceRegistered";
-  public static final String ACTION_MY_DEVICE_UNREGISTERED =
-    "myDeviceUnregistered";
-  public static final String ACTION_MY_DEVICE_REGISTER_ERROR =
-    "myDeviceRegisterError";
-  public static final String EXTRA_REGISTER_ERROR = "extraRegisterError";
 
   @SuppressWarnings("StaticNonFinalField")
   private static List<Device> sDevices = load();
@@ -83,7 +70,7 @@ public class Devices {
 
     if (broadcast) {
       // let listeners know
-      _sendBroadcast(ACTION_UPDATE);
+      _sendBroadcast(Intents.TYPE_UPDATE_DEVICES);
     }
   }
 
@@ -158,14 +145,14 @@ public class Devices {
    */
   public static void notifyMyDeviceRemoved() {
     clear();
-    _sendBroadcast(ACTION_MY_DEVICE_REMOVED);
+    _sendBroadcast(Intents.TYPE_DEVICE_REMOVED);
   }
 
   /**
    * Notify listeners that our {@link Device} was registered
    */
   public static void notifyMyDeviceRegistered() {
-    _sendBroadcast(ACTION_MY_DEVICE_REGISTERED);
+    _sendBroadcast(Intents.TYPE_DEVICE_REGISTERED);
   }
 
   /**
@@ -173,7 +160,7 @@ public class Devices {
    */
   public static void notifyMyDeviceUnregistered() {
     clear();
-    _sendBroadcast(ACTION_MY_DEVICE_UNREGISTERED);
+    _sendBroadcast(Intents.TYPE_DEVICE_UNREGISTERED);
   }
 
   /**
@@ -182,7 +169,7 @@ public class Devices {
    */
   public static void notifyMyDeviceRegisterError(String message) {
     clear();
-    _sendBroadcast(ACTION_MY_DEVICE_REGISTER_ERROR, EXTRA_REGISTER_ERROR,
+    _sendBroadcast(Intents.TYPE_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
       message);
   }
 
@@ -210,16 +197,18 @@ public class Devices {
   /**
    * Broadcast changes to listeners
    * @param action the type of the change
+   * @param extra extra String info type
+   * @param extraValue value of extra
    */
   private static void _sendBroadcast(String action, String extra,
                                      String extraValue) {
-    final Intent intent = new Intent(INTENT_FILTER);
+    final Intent intent = new Intent(Intents.FILTER_DEVICES);
     final Bundle bundle = new Bundle();
-    bundle.putString(ACTION, action);
+    bundle.putString(Intents.ACTION_TYPE_DEVICES, action);
     if (!TextUtils.isEmpty(extra)) {
       bundle.putString(extra, extraValue);
     }
-    intent.putExtra(BUNDLE, bundle);
+    intent.putExtra(Intents.BUNDLE_DEVICES, bundle);
     LocalBroadcastManager
       .getInstance(App.getContext())
       .sendBroadcast(intent);

@@ -172,7 +172,7 @@ public class Notifications {
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
     pendingIntent = NotificationReceiver
-      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATIOn, id, null);
+      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATION, id, null);
     builder.setDeleteIntent(pendingIntent);
 
     // Web Search action
@@ -270,7 +270,7 @@ public class Notifications {
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
     pendingIntent = NotificationReceiver
-      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATIOn, id, null, null);
+      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATION, id, null, null);
     builder.setDeleteIntent(pendingIntent);
 
     // Email support action
@@ -450,7 +450,7 @@ public class Notifications {
       final int noteId =
         intent.getIntExtra(Intents.EXTRA_NOTIFICATION_ID, -1);
 
-      if (Intents.ACTION_DELETE_NOTIFICATIOn.equals(action)) {
+      if (Intents.ACTION_DELETE_NOTIFICATION.equals(action)) {
         if (noteId == ID_COPY) {
           resetCount();
         }

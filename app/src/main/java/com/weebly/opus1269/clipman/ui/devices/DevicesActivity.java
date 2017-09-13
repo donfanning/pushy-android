@@ -19,7 +19,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -72,7 +72,7 @@ public class DevicesActivity extends BaseActivity {
     // Register mDevicesReceiver to receive Device notifications.
     LocalBroadcastManager.getInstance(this)
       .registerReceiver(mDevicesReceiver,
-        new IntentFilter(Devices.INTENT_FILTER));
+        new IntentFilter(Intents.FILTER_DEVICES));
 
     Notifications.removeDevices();
 
@@ -107,14 +107,14 @@ public class DevicesActivity extends BaseActivity {
       }
 
       private void notifyAdapter(Intent intent) {
-        final Bundle bundle = intent.getBundleExtra(Devices.BUNDLE);
-        final String action = bundle.getString(Devices.ACTION);
+        final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
+        final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
         if (action == null) {
           return;
         }
 
         switch (action) {
-          case Devices.ACTION_UPDATE:
+          case Intents.TYPE_UPDATE_DEVICES:
             mAdapter.notifyDataSetChanged();
             break;
           default:

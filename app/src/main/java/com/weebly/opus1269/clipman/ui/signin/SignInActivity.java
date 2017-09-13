@@ -40,6 +40,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -125,7 +126,7 @@ public class SignInActivity extends BaseActivity implements
     LocalBroadcastManager
       .getInstance(this)
       .registerReceiver(mDevicesReceiver,
-        new IntentFilter(Devices.INTENT_FILTER));
+        new IntentFilter(Intents.FILTER_DEVICES));
     updateView();
 
     if (User.INSTANCE.isLoggedIn()) {
@@ -452,30 +453,30 @@ public class SignInActivity extends BaseActivity implements
     mDevicesReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        final Bundle bundle = intent.getBundleExtra(Devices.BUNDLE);
-        final String action = bundle.getString(Devices.ACTION);
+        final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
+        final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
 
         if (action != null) {
           switch (action) {
-            case Devices.ACTION_MY_DEVICE_REMOVED:
+            case Intents.TYPE_DEVICE_REMOVED:
               // device remove message sent, now unregister
               setProgressMessage(getString(R.string.unregistering));
               doUnregister();
               break;
-            case Devices.ACTION_MY_DEVICE_REGISTERED:
+            case Intents.TYPE_DEVICE_REGISTERED:
               // registered
               dismissProgress();
               break;
-            case Devices.ACTION_MY_DEVICE_UNREGISTERED:
+            case Intents.TYPE_DEVICE_UNREGISTERED:
               // unregistered, now signout or revoke
               if (mIsRevoke) {
                 doRevoke();
               } else {
                 doSignOut();
               }
-            case Devices.ACTION_MY_DEVICE_REGISTER_ERROR:
+            case Intents.TYPE_DEVICE_REGISTER_ERROR:
               // registration error
-              mErrorMessage = bundle.getString(Devices.EXTRA_REGISTER_ERROR);
+              mErrorMessage = bundle.getString(Intents.EXTRA_TEXT);
               doSignOut();
               break;
           }

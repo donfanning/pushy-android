@@ -14,21 +14,32 @@ import com.weebly.opus1269.clipman.BuildConfig;
  * Static class for our intents
  */
 public class Intents {
-  private static final String PACKAGE_NAME = BuildConfig.APPLICATION_ID;
-  private static final String PACKAGE_PATH = PACKAGE_NAME + '.';
+  private static final String PATH = BuildConfig.APPLICATION_ID + '.';
 
-  public static final String ACTION_DELETE_NOTIFICATIOn =
-    PACKAGE_PATH + "ACTION_DELETE_NOTIFICATIOn";
-  public static final String ACTION_EMAIL = PACKAGE_PATH + "ACTION_EMAIL";
-  public static final String ACTION_SHARE = PACKAGE_PATH + "ACTION_SHARE";
-  public static final String ACTION_SEARCH = PACKAGE_PATH + "ACTION_SEARCH";
+  /**
+   * Related to {@link Devices}
+   */
+  public static final String FILTER_DEVICES = PATH + "filterDevices";
+  public static final String BUNDLE_DEVICES = PATH + "bundleDevices";
+  public static final String ACTION_TYPE_DEVICES = PATH + "actionTypeDevices";
+  public static final String TYPE_UPDATE_DEVICES = PATH + "updateDevices";
+  public static final String TYPE_DEVICE_REMOVED = PATH + "deviceRemoved";
+  public static final String TYPE_DEVICE_REGISTERED = PATH + "deviceRegistered";
+  public static final String TYPE_DEVICE_UNREGISTERED = PATH + "deviceUnregistered";
+  public static final String TYPE_DEVICE_REGISTER_ERROR = PATH + "deviceRegisterError";
 
-  public static final String EXTRA_TEXT = PACKAGE_PATH + "TEXT";
-  public static final String EXTRA_CLIP_COUNT = PACKAGE_PATH + "CLIP_COUNT";
-  public static final String EXTRA_NOTIFICATION_ID =
-    PACKAGE_PATH + "NOTIFICATION_ID";
-  public static final String EXTRA_EMAIL_BODY = PACKAGE_PATH + "EMAIL_BODY";
-  public static final String EXTRA_EMAIL_SUBJECT =
-    PACKAGE_PATH + "EMAIL_SUBJECT";
-  public static final String EXTRA_CLIP_ITEM = PACKAGE_PATH + "CLIP_ITEM";
+  /**
+   * Related to {@link Notifications}
+   */
+  static final String ACTION_DELETE_NOTIFICATION = PATH + "deleteNotification";
+  static final String ACTION_EMAIL = PATH + "email";
+  static final String ACTION_SHARE = PATH + "share";
+  static final String ACTION_SEARCH = PATH + "search";
+
+  public static final String EXTRA_TEXT = PATH + "text";
+  public static final String EXTRA_CLIP_COUNT = PATH + "clipCount";
+  static final String EXTRA_NOTIFICATION_ID = PATH + "notificationId";
+  static final String EXTRA_EMAIL_BODY = PATH + "emailBody";
+  static final String EXTRA_EMAIL_SUBJECT = PATH + "emailSubject";
+  public static final String EXTRA_CLIP_ITEM = PATH + "clipItem";
 }
