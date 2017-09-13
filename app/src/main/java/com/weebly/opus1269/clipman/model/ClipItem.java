@@ -38,10 +38,9 @@ public class ClipItem implements Serializable {
 
   private static final String TAG = "ClipItem";
 
+  public static final String TEXT_PLAIN = "text/plain";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
-  public static final String TEXT_PLAIN = "text/plain";
-
   private String mText;
   private DateTime mDate;
   private Boolean mFav;
@@ -93,9 +92,18 @@ public class ClipItem implements Serializable {
   }
 
   /**
+   * Does a {@link ClipItem} have text
+   * @param clipItem the clip
+   * @return true if the clip has no text
+   */
+  public static Boolean isEmpty(ClipItem clipItem) {
+    return (clipItem == null) || TextUtils.isEmpty(clipItem.getText());
+  }
+
+  /**
    * Get the text on the Clipboard as a ClipItem
-   * @param clipboard The {@link ClipboardManager}
-   * @return Clipboard content as ClipItem
+   * @param clipboard The manager
+   * @return A new clip from the clipboard contents
    */
   @Nullable
   public static ClipItem getFromClipboard(ClipboardManager clipboard) {
@@ -150,9 +158,15 @@ public class ClipItem implements Serializable {
     ClipboardManager clipboardManager = (ClipboardManager)
       App.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
     final ClipItem clipItem = getFromClipboard(clipboardManager);
-    if (clipItem != null) {
-      if (Prefs.isPushClipboard()) {
-        MessagingClient.send(clipItem);
+    if ((clipItem != null) && !TextUtils.isEmpty(clipItem.getText())) {
+      if (!Prefs.isAutoSaveLocal()) {
+        // save to DB if auto save is off
+        if (clipItem.save()) {
+          // display notification if requested by user
+          Notifications.show(clipItem);
+        }
+      }
+      if (clipItem.send()) {
         if (view != null) {
           Snackbar
             .make(view, R.string.clipboard_sent,
@@ -212,13 +226,13 @@ public class ClipItem implements Serializable {
     return new DateTime(mDate.getMillis());
   }
 
+  void setDate(long date) {
+    mDate = new DateTime(date);
+  }
+
   @SuppressWarnings("unused")
   public void setDate(ReadableInstant date) {
     mDate = new DateTime(date.getMillis());
-  }
-
-  void setDate(long date) {
-    mDate = new DateTime(date);
   }
 
   public long getTime() {
@@ -332,6 +346,37 @@ public class ClipItem implements Serializable {
       // Verify that the intent will resolve to an activity
       context.startActivity(sendIntent);
     }
+  }
+
+  /**
+   * Save to database
+   * @param onNewOnly if true, only save if text is not in database
+   * @return true if saved
+   */
+  public Boolean save(Boolean onNewOnly) {
+    final Context context = App.getContext();
+    return ClipContentProvider.insert(context, this, onNewOnly);
+  }
+
+  /**
+   * Save to database
+   * @return true if saved
+   */
+  public Boolean save() {
+    return save(false);
+  }
+
+  /**
+   * Send to our devices
+   * @return true if sent
+   */
+  public Boolean send() {
+    Boolean ret = false;
+    if (User.INSTANCE.isLoggedIn() && Prefs.isPushClipboard()) {
+      ret = true;
+      MessagingClient.send(this);
+    }
+    return ret;
   }
 
   /**

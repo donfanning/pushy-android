@@ -94,6 +94,16 @@ public class Prefs {
     return get(key, true);
   }
 
+  public static boolean isAutoSaveLocal() {
+    if (isAutoSend()) {
+      // if auto send is on save local is on too
+      return true;
+    }
+    final Context context = App.getContext();
+    final String key = context.getResources().getString(R.string.key_pref_auto_save);
+    return get(key, true);
+  }
+
   public static boolean isAllowReceive() {
     final Context context = App.getContext();
     final String key = context.getResources().getString(R.string.key_pref_receive_msg);
@@ -140,19 +150,19 @@ public class Prefs {
     return !get(key, true);
   }
 
-  public static boolean isNotifyLocal() {
+  static boolean isNotifyLocal() {
     return isNotifyEnabled(NOTIFY_LOCAL_COPY);
   }
 
-  public static boolean isNotifyRemote() {
+  static boolean isNotifyRemote() {
     return isNotifyEnabled(NOTIFY_REMOTE_COPY);
   }
 
-  public static boolean isNotifyDeviceAdded() {
+  static boolean isNotifyDeviceAdded() {
     return isNotifyEnabled(NOTIFY_DEVICE_ADDED);
   }
 
-  public static boolean isNotifyDeviceRemoved() {
+  static boolean isNotifyDeviceRemoved() {
     return isNotifyEnabled(NOTIFY_DEVICE_REMOVED);
   }
 
@@ -173,14 +183,14 @@ public class Prefs {
     return values.contains(value);
   }
 
-  public static boolean isAudibleOnce() {
+  static boolean isAudibleOnce() {
     final Context context = App.getContext();
     final String key = context.getResources().getString(R.string.key_pref_not_audible_once);
     return get(key, true);
   }
 
   @Nullable
-  public static Uri getNotificationSound() {
+  static Uri getNotificationSound() {
     Uri ret = null;
     final String value = getRingtone();
     if (!TextUtils.isEmpty(value)) {

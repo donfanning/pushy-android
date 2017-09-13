@@ -420,7 +420,7 @@ public class MainActivity extends BaseActivity implements
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
           final ClipItem item = new ClipItem(sharedText);
-          ClipContentProvider.insert(this, item);
+          item.save();
           startOrUpdateClipViewer(item);
           MessagingClient.send(item);
         }

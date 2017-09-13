@@ -273,7 +273,7 @@ public class ClipViewerActivity extends BaseActivity implements
       final String selection = ClipContract.Clip.COL_TEXT + '=' + text;
 
       getContentResolver().delete(ClipContract.Clip.CONTENT_URI, selection, null);
-      ClipContentProvider.insert(ClipViewerActivity.this, clipItem);
+      clipItem.save();
 
       return null;
     }

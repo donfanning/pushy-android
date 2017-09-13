@@ -53,10 +53,10 @@ public class ClipContentProvider extends ContentProvider {
    * @param context   a {@link Context}
    * @param clipItem  the {@link ClipItem} to insert
    * @param onNewOnly only insert if item text is not in database if true
-   * @return boolean true if inserted
+   * @return true if inserted
    */
-  public static boolean
-  insert(Context context, ClipItem clipItem, Boolean onNewOnly) {
+  public static Boolean insert(Context context, ClipItem clipItem,
+                               Boolean onNewOnly) {
     if ((clipItem == null) || TextUtils.isEmpty(clipItem.getText())) {
       return false;
     }
@@ -87,19 +87,16 @@ public class ClipContentProvider extends ContentProvider {
     return true;
   }
 
-  @SuppressWarnings("UnusedReturnValue")
-  public static Uri insert(Context context, ClipItem item) {
+  private static Uri insert(Context context, ClipItem item) {
     final ContentResolver resolver = context.getContentResolver();
     return resolver.insert(ClipContract.Clip.CONTENT_URI,
       item.getContentValues());
   }
 
-  @SuppressWarnings("UnusedReturnValue")
   public static int insert(Context context, ContentValues[] items) {
     final ContentResolver resolver = context.getContentResolver();
     return resolver.bulkInsert(ClipContract.Clip.CONTENT_URI, items);
   }
-
 
   /**
    * Get the non-favorite and optionally favorite rows in the database
@@ -371,7 +368,8 @@ public class ClipContentProvider extends ContentProvider {
   }
 
   @Override
-  public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+  public int update(@NonNull Uri uri, ContentValues values, String selection,
+                    String[] selectionArgs) {
     final String table;
     String newSelection = selection;
 

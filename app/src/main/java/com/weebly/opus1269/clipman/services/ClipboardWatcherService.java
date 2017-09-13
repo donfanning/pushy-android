@@ -18,12 +18,11 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.model.User;
-import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.model.Notifications;
 
 /**
@@ -146,6 +145,12 @@ public class ClipboardWatcherService extends Service implements
       return;
     }
 
+    if (!clipItem.isRemote() && !Prefs.isAutoSaveLocal()) {
+      // don't save local copies if autoSave is off
+      Log.logD(TAG, "not saving local copy");
+      return;
+    }
+
     if (!clipItem.isRemote() && mLastText.equals(clipItem.getText())) {
       if (deltaTime > MIN_TIME_MILLIS) {
         // only handle identical local copies this fast
@@ -177,9 +182,7 @@ public class ClipboardWatcherService extends Service implements
     @Override
     protected Void doInBackground(Boolean... params) {
       final Boolean onNewOnly = params[0];
-      mResult =
-        ClipContentProvider.insert(ClipboardWatcherService.this,
-          mClipItem, onNewOnly);
+      mResult = mClipItem.save(onNewOnly);
       return null;
     }
 
@@ -190,10 +193,9 @@ public class ClipboardWatcherService extends Service implements
         // display notification if requested by user
         Notifications.show(mClipItem);
 
-        if (!mClipItem.isRemote() && User.INSTANCE.isLoggedIn() &&
-          Prefs.isPushClipboard() && Prefs.isAutoSend()) {
+        if (!mClipItem.isRemote() && Prefs.isAutoSend()) {
           // send local copy to server for delivery
-          MessagingClient.send(mClipItem);
+          mClipItem.send();
         }
       }
     }

@@ -37,11 +37,17 @@
       android:summary="@string/pref_desc_push_msg" />
 
     <SwitchPreference
-      android:dependency="@string/key_pref_push_msg"
+      android:dependency="@string/key_pref_auto_msg"
       android:defaultValue="true"
-      android:key="@string/key_pref_auto_msg"
-      android:title="@string/pref_title_auto_msg"
-      android:summary="@string/pref_desc_auto_msg" />
+      android:key="@string/key_pref_auto_save"
+      android:title="@string/pref_title_auto_save"
+      android:summary="@string/pref_desc_auto_save" />
+
+    <SwitchPreference
+      android:defaultValue="true"
+      android:key="@string/key_pref_receive_msg"
+      android:title="@string/pref_title_receive_msg"
+      android:summary="@string/pref_desc_receive_msg" />
 
     <SwitchPreference
       android:defaultValue="true"
