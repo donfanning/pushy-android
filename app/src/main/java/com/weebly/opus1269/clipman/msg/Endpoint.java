@@ -54,7 +54,7 @@ abstract class Endpoint {
   /**
    * Network timeout in seconds - {@value}
    */
-  private static final int TIMEOUT = 20;
+  private static final int TIMEOUT = 60;
 
   /**
    * Determine if we are signed in
