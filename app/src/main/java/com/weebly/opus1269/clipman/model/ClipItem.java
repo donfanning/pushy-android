@@ -234,13 +234,13 @@ public class ClipItem implements Serializable {
     return new DateTime(mDate.getMillis());
   }
 
+  void setDate(long date) {
+    mDate = new DateTime(date);
+  }
+
   @SuppressWarnings("unused")
   public void setDate(ReadableInstant date) {
     mDate = new DateTime(date.getMillis());
-  }
-
-  void setDate(long date) {
-    mDate = new DateTime(date);
   }
 
   public long getTime() {

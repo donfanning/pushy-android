@@ -190,14 +190,10 @@ public class Devices {
     return sDevices.size();
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * Broadcast changes to listeners
-   * @param action the type of the change
-   * @param extra extra String info type
+   * @param action     the type of the change
+   * @param extra      extra String info type
    * @param extraValue value of extra
    */
   private static void _sendBroadcast(String action, String extra,
