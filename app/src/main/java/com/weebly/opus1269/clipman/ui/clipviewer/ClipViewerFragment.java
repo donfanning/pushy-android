@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
@@ -28,6 +27,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
 import java.io.Serializable;
 import java.text.Collator;
@@ -227,10 +227,7 @@ public class ClipViewerFragment extends Fragment
       mClipItem.copyToClipboard();
       ret = true;
       View view = getView();
-      if (view != null) {
-        Snackbar
-          .make(view, R.string.clipboard_copy, Snackbar.LENGTH_SHORT).show();
-      }
+      AppUtils.showMessage(view, getString(R.string.clipboard_copy));
     }
 
     return ret;
