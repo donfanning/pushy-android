@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Toast;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -162,19 +161,26 @@ public class ClipItem implements Serializable {
     ClipboardManager clipboardManager =
       (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     final ClipItem clipItem = getFromClipboard(clipboardManager);
-    boolean wasSent = false;
+    int id = R.string.clipboard_no_text;
 
     if ((clipItem != null) && !TextUtils.isEmpty(clipItem.getText())) {
 
       // save to DB
       clipItem.saveIfNew();
 
-      // send to registered devices
-      wasSent = clipItem.send();
+      // send to registered devices , if possible
+      if (!User.INSTANCE.isLoggedIn()) {
+        id = R.string.err_not_signed_in;
+      } else if (!Prefs.isDeviceRegistered()) {
+        id = R.string.err_not_registered;
+      } else if (!Prefs.isPushClipboard()) {
+        id = R.string.err_no_push;
+      } else if (clipItem.send()) {
+        id = R.string.clipboard_sent;
+      }
     }
 
     // display status message
-    int id = wasSent ? R.string.clipboard_sent : R.string.clipboard_not_sent;
     final String msg = context.getString(id);
     AppUtils.showMessage(view, msg);
   }
@@ -355,7 +361,8 @@ public class ClipItem implements Serializable {
    * @param onNewOnly if true, only save if text is not in database
    * @return true if saved
    */
-  @NonNull private Boolean save(Boolean onNewOnly) {
+  @NonNull
+  private Boolean save(Boolean onNewOnly) {
     final Context context = App.getContext();
     return ClipContentProvider.insert(context, this, onNewOnly);
   }

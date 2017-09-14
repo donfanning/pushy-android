@@ -223,6 +223,7 @@
   <string name="err_unknown">An unknown error occurred</string>
   <string name="err_invalid_regid">Registration ID is invalid</string>
   <string name="err_not_registered">Device is not registered</string>
+  <string name="err_no_push">Sending push messages is disabled</string>
   <string name="err_not_signed_in">Not signed in</string>
   <string name="err_credential">Unable to get user credential</string>
   <string name="channel_service" translatable="false">service</string>
@@ -278,7 +279,7 @@
   <string name="items_deleted">" items deleted"</string>
   <string name="clipboard_copy">Copied to clipboard</string>
   <string name="clipboard_sent">Sent clipboard contents</string>
-  <string name="clipboard_not_sent">No text on clipboard</string>
+  <string name="clipboard_no_text">No text on clipboard</string>
   <string name="clip_notification_remote_fmt">From %s</string>
   <string name="clip_notification_local">Clipboard item added</string>
   <string name="clip_notification_count_fmt" tools:ignore="PluralsCandidate">%d new items</string>
