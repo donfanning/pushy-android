@@ -13,9 +13,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Patterns;
+import android.view.View;
+import android.widget.Toast;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
@@ -33,11 +37,10 @@ public class AppUtils {
   private static final String TAG = "AppUtils";
 
   private static final String PACKAGE_NAME = BuildConfig.APPLICATION_ID;
-  private static final int VERSION_CODE = Build.VERSION.SDK_INT;
-
   public static final String PLAY_STORE = "market://details?id=" + PACKAGE_NAME;
   public static final String PLAY_STORE_WEB =
     "https://play.google.com/store/apps/details?id=" + PACKAGE_NAME;
+  private static final int VERSION_CODE = Build.VERSION.SDK_INT;
 
   private AppUtils() {
   }
@@ -87,7 +90,7 @@ public class AppUtils {
   /**
    * Check if a service is running
    * @param serviceClass Class name of Service
-   * @return boolean
+   * @return true if service is running
    * @see <a href="https://goo.gl/55RFa6">Stack Overflow</a>
    */
   public static boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -104,6 +107,35 @@ public class AppUtils {
       }
     }
     return ret;
+  }
+
+  /**
+   * Display a toast or snackbar message
+   * @param view a view to use for snackbar
+   * @param msg  message to display
+   */
+  public static void showMessage(final View view, final String msg) {
+    final Context context = App.getContext();
+    if (view != null) {
+      Snackbar
+        .make(view, msg, Snackbar.LENGTH_SHORT)
+        .show();
+    } else {
+      Handler handler = new Handler(context.getMainLooper());
+      handler.post(new Runnable() {
+        public void run() {
+          Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+        }
+      });
+    }
+  }
+
+  /**
+   * Display a toast message
+   * @param msg  message to display
+   */
+  public static void showMessage(final String msg) {
+    showMessage(null, msg);
   }
 
   /**
