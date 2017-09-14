@@ -163,7 +163,14 @@ public abstract class BaseActivity extends AppCompatActivity implements
   }
 
   /**
-   * Show or hide Fab widget
+   * Get the Fab view
+   */
+  public FloatingActionButton getFab() {
+    return findViewById(R.id.fab);
+  }
+
+  /**
+   * Show or hide Fab view
    * @param show true to show
    */
   protected void setFabVisibility(boolean show) {
