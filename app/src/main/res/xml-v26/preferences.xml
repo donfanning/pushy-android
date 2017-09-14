@@ -38,18 +38,10 @@
 
     <SwitchPreference
       android:dependency="@string/key_pref_push_msg"
-      android:disableDependentsState="true"
       android:defaultValue="true"
       android:key="@string/key_pref_auto_msg"
       android:title="@string/pref_title_auto_msg"
       android:summary="@string/pref_desc_auto_msg" />
-
-    <SwitchPreference
-      android:dependency="@string/key_pref_auto_msg"
-      android:defaultValue="true"
-      android:key="@string/key_pref_auto_save"
-      android:title="@string/pref_title_auto_save"
-      android:summary="@string/pref_desc_auto_save" />
 
     <SwitchPreference
       android:defaultValue="true"

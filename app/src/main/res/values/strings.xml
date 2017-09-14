@@ -79,10 +79,6 @@
   <string name="pref_desc_auto_msg">Automatically send messages to your registered devices</string>
   <string name="key_pref_auto_msg">auto_clipboard</string>
 
-  <string name="pref_title_auto_save">Auto save local</string>
-  <string name="pref_desc_auto_save">Automatically save clipboard contents on copy and cut</string>
-  <string name="key_pref_auto_save">auto_clipboard_save</string>
-
   <string name="pref_title_receive_msg">Receive from devices</string>
   <string name="pref_desc_receive_msg">Receive messages from your registered devices</string>
   <string name="key_pref_receive_msg">receive_clipboard</string>

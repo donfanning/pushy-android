@@ -94,16 +94,6 @@ public class Prefs {
     return get(key, true);
   }
 
-  public static boolean isAutoSaveLocal() {
-    if (isAutoSend()) {
-      // if auto send is on save local is on too
-      return true;
-    }
-    final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string.key_pref_auto_save);
-    return get(key, true);
-  }
-
   public static boolean isAllowReceive() {
     final Context context = App.getContext();
     final String key = context.getResources().getString(R.string.key_pref_receive_msg);
