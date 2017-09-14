@@ -41,25 +41,24 @@ import java.text.Collator;
 public abstract class BaseActivity extends AppCompatActivity implements
   SearchView.OnQueryTextListener {
 
-  protected final String TAG = this.getClass().getSimpleName();
+  /**
+   * saved instance state
+   */
+
+  private static final String STATE_QUERY_STRING = "query";
 
   // Required to support Vector Drawables on pre-marshmallow devices
   static {
     AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
   }
 
+  protected final String TAG = this.getClass().getSimpleName();
   protected int mLayoutID = -1;
   protected int mOptionsMenuID = -1;
   protected Menu mOptionsMenu = null;
   protected boolean mHomeUpEnabled = true;
-  private Tracker mTracker;
-
-  /**
-   * saved instance state
-   */
-
-  private static final String STATE_QUERY_STRING = "query";
   protected String mQueryString = "";
+  private Tracker mTracker;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +94,15 @@ public abstract class BaseActivity extends AppCompatActivity implements
   }
 
   @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    ((App) getApplication()).detach(this);
+
+    outState.putString(STATE_QUERY_STRING, mQueryString);
+  }
+
+  @Override
   protected void onResume() {
     super.onResume();
 
@@ -103,15 +111,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
     mTracker.setScreenName(TAG);
     mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-  }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-
-    ((App) getApplication()).detach(this);
-
-    outState.putString(STATE_QUERY_STRING, mQueryString);
   }
 
   @Override
@@ -138,10 +137,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
     return super.onCreateOptionsMenu(menu);
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Protected methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Override to restore additional state
@@ -182,10 +177,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement SearchView listeners
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public boolean onQueryTextSubmit(String query) {
     setQueryString(query);
@@ -197,10 +188,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
     setQueryString(newText);
     return true;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Apply the user selected theme
