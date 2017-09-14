@@ -28,6 +28,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
@@ -41,34 +42,48 @@ import java.util.Map;
  * A service that listens for messages from firebase
  */
 public class MyFcmListenerService extends FirebaseMessagingService {
+  /** {@value} */
   private static final String TAG = "MyFcmListenerService";
 
-  /**
-   * {@value}
-   */
+  /** {@value} */
   private static final String FCM_RECEIVED = "FCM message received: ";
-  /**
-   * {@value}
-   */
+  /** {@value} */
   private static final String FCM_SENT = "FCM message sent: ";
-  /**
-   * {@value}
-   */
+  /** {@value} */
   private static final String FCM_DELETED = "FCM messages deleted";
-  /**
-   * {@value}
-   */
+  /** {@value} */
   private static final String FCM_SEND_ERROR = "Error sending FCM message: ";
-  /**
-   * {@value}
-   */
+  /** {@value} */
   private static final String FCM_MESSAGE_ERROR =
     "Unknown FCM message received: ";
 
+  /**
+   * Copy data to clipboard
+   * @param data   {@link Map} of key value pairs
+   * @param device Source {@link Device}
+   */
+  private static void copyToClipboard(Map<String, String> data, Device device) {
+    final String message = data.get(Msg.MESSAGE);
+    final String favString = data.get(Msg.FAV);
+    final Boolean fav = "1".equals(favString);
+    final String name = device.getDisplayName();
+    final ClipItem clipItem =
+      new ClipItem(message, new DateTime(), fav, true, name);
+
+    // TODO Messes up repaint in MainActicity
+    if (Prefs.isMonitorClipboard()) {
+      // just in case Clipboard Service is messed up
+      clipItem.save();
+    }
+
+    // add to clipboard
+    clipItem.copyToClipboard();
+  }
 
   @Override
   public void onCreate() {
     super.onCreate();
+
     // start if needed
     ClipboardWatcherService.startService(false);
   }
@@ -96,22 +111,23 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
     // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
-    Map<String, String> data = message.getData();
+    // start if needed
+    ClipboardWatcherService.startService(false);
 
+    final Map<String, String> data = message.getData();
     final String action = data.get(Msg.ACTION);
+    final String model = data.get(Msg.DEVICE_MODEL);
+    final String SN = data.get(Msg.DEVICE_SN);
+    final String OS = data.get(Msg.DEVICE_OS);
+    final String nickname = data.get(Msg.DEVICE_NICKNAME);
+    final Device device = new Device(model, SN, OS, nickname);
+
 
     // decode message text
     final String msg = data.get(Msg.MESSAGE);
     if (msg != null) {
       data.put(Msg.MESSAGE, Uri.decode(msg));
     }
-
-    final String deviceModel = data.get(Msg.DEVICE_MODEL);
-    final String deviceSN = data.get(Msg.DEVICE_SN);
-    final String deviceOS = data.get(Msg.DEVICE_OS);
-    final String deviceNickname = data.get(Msg.DEVICE_NICKNAME);
-    final Device device =
-      new Device(deviceModel, deviceSN, deviceOS, deviceNickname);
 
     if (device.getUniqueName().equals(Device.getMyUniqueName())) {
       // ignore our own messages
@@ -177,30 +193,5 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   public void onSendError(String msgId, Exception ex) {
     super.onSendError(msgId, ex);
     Log.logEx(TAG, FCM_SEND_ERROR + msgId, ex, true);
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Copy data to clipboard
-   * @param data   {@link Map} of key value pairs
-   * @param device Source {@link Device}
-   */
-  private static void
-  copyToClipboard(Map<String, String> data, Device device) {
-    final String message = data.get(Msg.MESSAGE);
-    final String favString = data.get(Msg.FAV);
-    final Boolean fav = "1".equals(favString);
-
-    // add device
-    Devices.add(device, false);
-
-    // add to clipboard
-    final String name = device.getDisplayName();
-    final ClipItem clipItem =
-      new ClipItem(message, new DateTime(), fav, true, name);
-    clipItem.copyToClipboard();
   }
 }
