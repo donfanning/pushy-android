@@ -96,6 +96,7 @@ public class ClipItem implements Serializable {
    * @param clipItem the clip
    * @return true if the clip has no text
    */
+  @SuppressWarnings("unused")
   public static Boolean isEmpty(ClipItem clipItem) {
     return (clipItem == null) || TextUtils.isEmpty(clipItem.getText());
   }
