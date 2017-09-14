@@ -28,6 +28,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 
 import java.text.Collator;
@@ -96,6 +97,9 @@ public abstract class BaseActivity extends AppCompatActivity implements
   @Override
   protected void onResume() {
     super.onResume();
+
+    // start if needed
+    ClipboardWatcherService.startService(false);
 
     mTracker.setScreenName(TAG);
     mTracker.send(new HitBuilders.ScreenViewBuilder().build());

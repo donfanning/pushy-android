@@ -111,9 +111,6 @@ public class MainActivity extends BaseActivity implements
 
     mFavFilter = Prefs.isFavFilter();
 
-    // start if needed
-    ClipboardWatcherService.startService(false);
-
     setupNavigationView();
 
     if (AppUtils.isDualPane()) {
