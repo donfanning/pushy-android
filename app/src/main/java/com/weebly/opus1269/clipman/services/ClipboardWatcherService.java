@@ -34,18 +34,19 @@ public class ClipboardWatcherService extends Service implements
   ClipboardManager.OnPrimaryClipChangedListener {
   private static final String TAG = "ClipboardWatcherService";
 
+  /** {@link Intent} extra to indicate if service is starting on boot */
   private static final String EXTRA_ON_BOOT = "on_boot";
 
-  // The fastest we will process identical local copies
+  /** The fastest we will process identical local copies {@value} */
   private static final long MIN_TIME_MILLIS = 200;
 
-  // The last text we read
+  /** The last text we read */
   private String mLastText;
 
-  // The last time we read
+  /** The last time we read */
   private long mLastTime;
 
-  // ye olde ClipboardManager
+  /** ye olde ClipboardManager */
   private ClipboardManager mClipboard = null;
 
   /**
@@ -67,10 +68,6 @@ public class ClipboardWatcherService extends Service implements
       }
     }
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Superclass overrides
-  ///////////////////////////////////////////////////////////////////////////
 
   @Override
   public void onCreate() {
@@ -114,18 +111,10 @@ public class ClipboardWatcherService extends Service implements
     throw new UnsupportedOperationException("Unimplemented onBind method in: " + TAG);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement ClipboardManager.OnPrimaryClipChangedListener
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public void onPrimaryClipChanged() {
     processClipboard(false);
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Read the clipboard, then write to database asynchronously.
@@ -145,13 +134,13 @@ public class ClipboardWatcherService extends Service implements
       return;
     }
 
-    if (!clipItem.isRemote() && !Prefs.isAutoSaveLocal()) {
-      // don't save local copies if autoSave is off
-      Log.logD(TAG, "not saving local copy");
+    if (clipItem.isRemote()) {
+      // ignore remote clips - they were already saved to DB
+      mLastText = "";
       return;
     }
 
-    if (!clipItem.isRemote() && mLastText.equals(clipItem.getText())) {
+    if (mLastText.equals(clipItem.getText())) {
       if (deltaTime > MIN_TIME_MILLIS) {
         // only handle identical local copies this fast
         // some apps (at least Chrome) write to clipboard twice.
@@ -163,10 +152,6 @@ public class ClipboardWatcherService extends Service implements
     }
     mLastText = clipItem.getText();
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Inner classes
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * AsyncTask to write to the Clip database
@@ -182,7 +167,11 @@ public class ClipboardWatcherService extends Service implements
     @Override
     protected Void doInBackground(Boolean... params) {
       final Boolean onNewOnly = params[0];
-      mResult = mClipItem.save(onNewOnly);
+      if (onNewOnly) {
+        mResult = mClipItem.saveIfNew();
+      } else {
+        mResult = mClipItem.save();
+      }
       return null;
     }
 

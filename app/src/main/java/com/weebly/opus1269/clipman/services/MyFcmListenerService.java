@@ -28,7 +28,6 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Devices;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
@@ -58,11 +57,11 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     "Unknown FCM message received: ";
 
   /**
-   * Copy data to clipboard
+   * Save {@link ClipItem} to database and copy to clipboard
    * @param data   {@link Map} of key value pairs
    * @param device Source {@link Device}
    */
-  private static void copyToClipboard(Map<String, String> data, Device device) {
+  private static void saveClipItem(Map<String, String> data, Device device) {
     final String message = data.get(Msg.MESSAGE);
     final String favString = data.get(Msg.FAV);
     final Boolean fav = "1".equals(favString);
@@ -70,14 +69,14 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final ClipItem clipItem =
       new ClipItem(message, new DateTime(), fav, true, name);
 
-    // TODO Messes up repaint in MainActicity
-    if (Prefs.isMonitorClipboard()) {
-      // just in case Clipboard Service is messed up
-      clipItem.save();
-    }
+    // save to DB
+    clipItem.save();
 
     // add to clipboard
     clipItem.copyToClipboard();
+
+    // display notification if requested by user
+    Notifications.show(clipItem);
   }
 
   @Override
@@ -111,9 +110,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
     // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
-    // start if needed
-    ClipboardWatcherService.startService(false);
-
     final Map<String, String> data = message.getData();
     final String action = data.get(Msg.ACTION);
     final String model = data.get(Msg.DEVICE_MODEL);
@@ -121,7 +117,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final String OS = data.get(Msg.DEVICE_OS);
     final String nickname = data.get(Msg.DEVICE_NICKNAME);
     final Device device = new Device(model, SN, OS, nickname);
-
 
     // decode message text
     final String msg = data.get(Msg.MESSAGE);
@@ -142,9 +137,9 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
     switch (action) {
       case Msg.ACTION_MESSAGE:
-        // normal message, copy to clipboard
+        // normal message, save and copy to clipboard
         Devices.add(device, false);
-        copyToClipboard(data, device);
+        saveClipItem(data, device);
         break;
       case Msg.ACTION_PING:
         // We were pinged

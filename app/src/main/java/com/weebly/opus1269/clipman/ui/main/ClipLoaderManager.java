@@ -9,6 +9,7 @@ package com.weebly.opus1269.clipman.ui.main;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,10 +22,12 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 /**
  * This class manages most everything related to the main RecyclerView
@@ -191,6 +194,11 @@ class ClipLoaderManager implements
     holder.clipItem.setRemote(false);
     holder.clipItem.setDevice(Device.getMyName());
     holder.clipItem.copyToClipboard();
+    if (!Prefs.isMonitorClipboard()) {
+      final Context context = App.getContext();
+      AppUtils.showMessage(mMainActivity.getFab(),
+        context.getString(R.string.clipboard_copy));
+    }
   }
 
   /**

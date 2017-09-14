@@ -282,6 +282,7 @@
   <string name="items_deleted">" items deleted"</string>
   <string name="clipboard_copy">Copied to clipboard</string>
   <string name="clipboard_sent">Sent clipboard contents</string>
+  <string name="clipboard_not_sent">No text on clipboard</string>
   <string name="clip_notification_remote_fmt">From %s</string>
   <string name="clip_notification_local">Clipboard item added</string>
   <string name="clip_notification_count_fmt" tools:ignore="PluralsCandidate">%d new items</string>

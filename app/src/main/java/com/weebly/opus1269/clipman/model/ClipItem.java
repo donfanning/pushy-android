@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 
@@ -160,30 +162,21 @@ public class ClipItem implements Serializable {
     ClipboardManager clipboardManager =
       (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     final ClipItem clipItem = getFromClipboard(clipboardManager);
+    boolean wasSent = false;
+
     if ((clipItem != null) && !TextUtils.isEmpty(clipItem.getText())) {
-      if (!Prefs.isAutoSaveLocal()) {
-        // save to DB if auto save is off
-        if (clipItem.save()) {
-          // display notification if requested by user
-          Notifications.show(clipItem);
-        }
-      }
-      if (clipItem.send()) {
-        final String msg = context.getString(R.string.clipboard_sent);
-        if (view != null) {
-          Snackbar
-            .make(view, R.string.clipboard_sent, Snackbar.LENGTH_SHORT)
-            .show();
-        } else {
-          Handler handler = new Handler(context.getMainLooper());
-          handler.post(new Runnable() {
-            public void run() {
-              Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-            }
-          });
-        }
-      }
+
+      // save to DB
+      clipItem.saveIfNew();
+
+      // send to registered devices
+      wasSent = clipItem.send();
     }
+
+    // display status message
+    int id = wasSent ? R.string.clipboard_sent : R.string.clipboard_not_sent;
+    final String msg = context.getString(id);
+    AppUtils.showMessage(view, msg);
   }
 
   /**
@@ -362,9 +355,17 @@ public class ClipItem implements Serializable {
    * @param onNewOnly if true, only save if text is not in database
    * @return true if saved
    */
-  public Boolean save(Boolean onNewOnly) {
+  @NonNull private Boolean save(Boolean onNewOnly) {
     final Context context = App.getContext();
     return ClipContentProvider.insert(context, this, onNewOnly);
+  }
+
+  /**
+   * Save to database if it is a new item
+   * @return true if saved
+   */
+  public Boolean saveIfNew() {
+    return save(true);
   }
 
   /**
