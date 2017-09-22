@@ -233,16 +233,17 @@ public class Notifications {
 
   /**
    * Display notification on an app error or exception
-   * @param error error message
+   * @param lastError error message
    */
-  public static void show(LastError error) {
-    final String message = error.getMessage();
+  public static void show(LastError lastError) {
+    final String message = lastError.getMessage();
     if (TextUtils.isEmpty(message) || !Prefs.isNotifyError()) {
       return;
     }
 
     final Context context = App.getContext();
     final Intent intent = new Intent(context, MainActivity.class);
+    intent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
 
     PendingIntent pendingIntent =
       getPendingIntent(context, MainActivity.class, intent);
@@ -250,7 +251,7 @@ public class Notifications {
     final int id = ID_ERROR;
     final int largeIcon = R.drawable.lic_error;
     final String channelId = context.getString(R.string.channel_error);
-    final String title = error.getTitle();
+    final String title = lastError.getTitle();
 
     final NotificationCompat.Builder builder =
       getBuilder(pendingIntent, channelId, largeIcon, title);

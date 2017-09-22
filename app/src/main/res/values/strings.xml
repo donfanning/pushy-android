@@ -167,6 +167,10 @@
   <string name="default_clip_5">Swipe \u261E to delete.</string>
 
 
+  <!-- Related to ErrorViewerActivity -->
+  <string name="last_error">Last Error</string>
+
+
   <!-- Related to HelpActivity -->
   <string name="help_title_feedback">Feedback (English only, please)</string>
 
@@ -210,7 +214,7 @@
   <string name="remote_device_fmt">Source - %s</string>
 
 
-  <!-- Related to push notifications -->
+  <!-- Related to notifications -->
   <string name="refresh_devices">Refreshing device list…</string>
   <string name="device_ping">Contacting other devices&#8230;</string>
   <string name="device_ping_response">Device is online</string>
@@ -228,6 +232,7 @@
   <string name="err_no_push">Sending push messages is disabled</string>
   <string name="err_not_signed_in">Not signed in</string>
   <string name="err_credential">Unable to get user credential</string>
+  <string name="err_start_activity">Failed to start activity</string>
   <string name="channel_service" translatable="false">service</string>
   <string name="channel_service_name">Clipboard watcher service</string>
   <string name="channel_service_desc">Listen for clipboard changes</string>
@@ -301,5 +306,6 @@
   <string name="now_fmt">just now, %s</string>
   <string name="joda_time_fmt_pattern">h:mm a</string>
   <string name="content_description_send">Send current clipboard contents</string>
+  <string name="email_error_info">Please provide any additional info. on what led to the error.</string>
 
 </resources>

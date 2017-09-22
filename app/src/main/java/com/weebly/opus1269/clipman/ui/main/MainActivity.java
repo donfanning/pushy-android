@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.ui.main;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -20,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -56,38 +58,35 @@ public class MainActivity extends BaseActivity implements
   View.OnLayoutChangeListener,
   ClipViewerFragment.OnClipChanged,
   DeleteDialogFragment.DeleteDialogListener,
-  SortTypeDialogFragment.SortTypeDialogListener {
-
-  /**
-   * Delegate for RecyclerView
-   */
-  private ClipLoaderManager mLoaderManager;
-
-  /**
-   * Items from last delete operation
-   */
-  private ContentValues[] mUndoItems = null;
-
-  // saved preferences
-
-  /**
-   * AppBar setting for fav filter
-   */
-  private Boolean mFavFilter = false;
-
-  // saved instance state
+  SortTypeDialogFragment.SortTypeDialogListener,
+  SharedPreferences.OnSharedPreferenceChangeListener {
 
   /**
    * The currently selected position in the list,
    * delegated to ClipCursorAdapter
    */
   private static final String STATE_POS = "pos";
-
   /**
    * The database _ID of the selection list item,
    * delegated to ClipCursorAdapter
    */
   private static final String STATE_ITEM_ID = "item_id";
+
+  // saved preferences
+  /**
+   * Delegate for RecyclerView
+   */
+  private ClipLoaderManager mLoaderManager;
+
+  // saved instance state
+  /**
+   * Items from last delete operation
+   */
+  private ContentValues[] mUndoItems = null;
+  /**
+   * AppBar setting for fav filter
+   */
+  private Boolean mFavFilter = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +97,11 @@ public class MainActivity extends BaseActivity implements
     mHomeUpEnabled = false;
 
     super.onCreate(savedInstanceState);
+
+    // listen for preference changes
+    PreferenceManager
+      .getDefaultSharedPreferences(this)
+      .registerOnSharedPreferenceChangeListener(this);
 
     // handles the adapter and RecyclerView
     mLoaderManager = new ClipLoaderManager(this);
@@ -143,6 +147,25 @@ public class MainActivity extends BaseActivity implements
   }
 
   @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    // stop listening for preference changes
+    PreferenceManager.getDefaultSharedPreferences(this)
+      .unregisterOnSharedPreferenceChangeListener(this);
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    outState.putInt(STATE_POS,
+      mLoaderManager.getAdapter().getSelectedPos());
+    outState.putLong(STATE_ITEM_ID,
+      mLoaderManager.getAdapter().getSelectedItemID());
+  }
+
+  @Override
   protected void onResume() {
     super.onResume();
 
@@ -154,26 +177,6 @@ public class MainActivity extends BaseActivity implements
 
     // so relative dates get updated
     mLoaderManager.getAdapter().notifyDataSetChanged();
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-
-    // save persistent state
-    Prefs.setFavFilter(mFavFilter);
-
-    mUndoItems = null;
-  }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-
-    outState.putInt(STATE_POS,
-      mLoaderManager.getAdapter().getSelectedPos());
-    outState.putLong(STATE_ITEM_ID,
-      mLoaderManager.getAdapter().getSelectedItemID());
   }
 
   @Override
@@ -189,6 +192,26 @@ public class MainActivity extends BaseActivity implements
     updateOptionsMenu();
 
     return ret;
+  }
+
+  @Override
+  protected boolean setQueryString(String queryString) {
+    boolean ret = false;
+    if (super.setQueryString(queryString)) {
+      getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+      ret = true;
+    }
+    return ret;
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    // save persistent state
+    Prefs.setFavFilter(mFavFilter);
+
+    mUndoItems = null;
   }
 
   @Override
@@ -229,20 +252,6 @@ public class MainActivity extends BaseActivity implements
   }
 
   @Override
-  protected boolean setQueryString(String queryString) {
-    boolean ret = false;
-    if (super.setQueryString(queryString)) {
-      getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
-      ret = true;
-    }
-    return ret;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement NavigationView.OnNavigationItemSelectedListener
-  ///////////////////////////////////////////////////////////////////////////
-
-  @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     final int id = item.getItemId();
 
@@ -277,10 +286,6 @@ public class MainActivity extends BaseActivity implements
     return true;
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement View.OnLayoutChangeListener
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * Set NavigationView header aspect ratio to 16:9
    */
@@ -302,19 +307,11 @@ public class MainActivity extends BaseActivity implements
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement ClipViewerFragment.OnClipChanged
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public void onClipChanged(ClipItem clipItem) {
     setFabVisibility(!TextUtils.isEmpty(clipItem.getText()));
     setTitle();
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement DeleteDialogFragment.DeleteDialogListener
-  ///////////////////////////////////////////////////////////////////////////
 
   @Override
   public void onDeleteDialogPositiveClick(Boolean deleteFavs) {
@@ -346,30 +343,30 @@ public class MainActivity extends BaseActivity implements
       }).addCallback(new Snackbar.Callback() {
 
         @Override
-        public void onDismissed(Snackbar snackbar, int event) {
-          mUndoItems = null;
+        public void onShown(Snackbar snackbar) {
         }
 
         @Override
-        public void onShown(Snackbar snackbar) {
+        public void onDismissed(Snackbar snackbar, int event) {
+          mUndoItems = null;
         }
       });
     }
     snack.show();
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement SortTypeDialogFragment.SortTypeDialogListener
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public void onSortTypeSelected() {
     getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Package private methods
-  ///////////////////////////////////////////////////////////////////////////
+  @Override
+  public void
+  onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    if (key.equals(LastError.PREF_LAST_ERROR)) {
+      updateNavHeader();
+    }
+  }
 
   Boolean getFavFilter() {
     return mFavFilter;
@@ -399,13 +396,13 @@ public class MainActivity extends BaseActivity implements
       final Intent intent = new Intent(this, ClipViewerActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
       intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
-      startActivity(intent);
+      try {
+        startActivity(intent);
+      } catch (Exception ex) {
+        Log.logEx(TAG, getString(R.string.err_start_activity), ex);
+      }
     }
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Process intents we know about
@@ -581,7 +578,7 @@ public class MainActivity extends BaseActivity implements
   }
 
   /**
-   * Set Nav Header based on sign-in state
+   * Set Nav Header view
    */
   private void updateNavHeader() {
     final NavigationView navigationView =

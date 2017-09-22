@@ -42,4 +42,5 @@ public class Intents {
   static final String EXTRA_EMAIL_BODY = PATH + "emailBody";
   static final String EXTRA_EMAIL_SUBJECT = PATH + "emailSubject";
   public static final String EXTRA_CLIP_ITEM = PATH + "clipItem";
+  public static final String EXTRA_LAST_ERROR = PATH + "lastError";
 }

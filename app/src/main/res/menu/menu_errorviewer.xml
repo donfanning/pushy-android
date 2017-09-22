@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  tools:showIn=".ui.errorviewer.ErrorViewerActivity"
+  tools:context=".ui.errorviewer.ErrorViewerActivity">
+
+  <item
+    android:id="@+id/action_email"
+    android:icon="@drawable/ic_email_black_24dp"
+    android:title="@string/action_email"
+    app:showAsAction="ifRoom" />
+
+  <item
+    android:id="@+id/action_delete"
+    android:icon="@drawable/ic_delete_black_24dp"
+    android:title="@string/action_delete"
+    app:showAsAction="ifRoom" />
+
+</menu>
