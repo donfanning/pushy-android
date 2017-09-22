@@ -263,12 +263,6 @@ public class Notifications {
     // change small icon
     builder.setSmallIcon(R.drawable.ic_notification_error);
 
-    final String emailSubject = "App error";
-    String emailBody = Email.INSTANCE.getBody();
-    emailBody += message;
-    emailBody +=
-      "\nPlease provide what information you can on what led to the error\n \n";
-
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
     pendingIntent = NotificationReceiver
@@ -276,10 +270,15 @@ public class Notifications {
     builder.setDeleteIntent(pendingIntent);
 
     // Email support action
+    final String emailSubject = context.getString(R.string.last_error);
+    String emailBody = Email.INSTANCE.getBody() + lastError + " \n" +
+      context.getString(R.string.email_error_info) + " \n \n";
+
     pendingIntent = NotificationReceiver
       .getPendingIntent(Intents.ACTION_EMAIL, id, emailSubject, emailBody);
-    builder.addAction(R.drawable.ic_email,
-      context.getString(R.string.action_email), pendingIntent);
+    builder
+      .addAction(R.drawable.ic_email, context.getString(R.string.action_email),
+        pendingIntent);
 
     final NotificationManager notificationManager = getManager();
     notificationManager.notify(id, builder.build());
