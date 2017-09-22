@@ -235,8 +235,9 @@ public class Notifications {
    * Display notification on an app error or exception
    * @param error error message
    */
-  public static void show(String error) {
-    if (TextUtils.isEmpty(error) || !Prefs.isNotifyError()) {
+  public static void show(LastError error) {
+    final String message = error.getMessage();
+    if (TextUtils.isEmpty(message) || !Prefs.isNotifyError()) {
       return;
     }
 
@@ -249,13 +250,13 @@ public class Notifications {
     final int id = ID_ERROR;
     final int largeIcon = R.drawable.lic_error;
     final String channelId = context.getString(R.string.channel_error);
-    final String titleText = context.getString(R.string.error_not_title);
+    final String title = error.getTitle();
 
     final NotificationCompat.Builder builder =
-      getBuilder(pendingIntent, channelId, largeIcon, titleText);
+      getBuilder(pendingIntent, channelId, largeIcon, title);
     builder
-      .setContentText(error)
-      .setStyle(new NotificationCompat.BigTextStyle().bigText(error))
+      .setContentText(message)
+      .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
       .setWhen(System.currentTimeMillis());
 
     // change small icon
@@ -263,7 +264,7 @@ public class Notifications {
 
     final String emailSubject = "App error";
     String emailBody = Email.INSTANCE.getBody();
-    emailBody += error;
+    emailBody += message;
     emailBody +=
       "\nPlease provide what information you can on what led to the error\n \n";
 
