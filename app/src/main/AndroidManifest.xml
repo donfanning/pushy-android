@@ -57,6 +57,11 @@
       android:parentActivityName=".ui.main.MainActivity"
       android:theme="@style/AppThemeLight" />
     <activity
+      android:name=".ui.errorviewer.ErrorViewerActivity"
+      android:label="@string/title_activity_error_viewer"
+      android:parentActivityName=".ui.main.MainActivity"
+      android:theme="@style/AppThemeLight" />
+    <activity
       android:name=".ui.help.HelpActivity"
       android:label="@string/title_activity_help"
       android:parentActivityName=".ui.main.MainActivity"
@@ -125,8 +130,10 @@
         android:resource="@xml/widget_info" />
     </receiver>
 
-    <!-- Register AnalyticsReceiver and AnalyticsService to support
-     background dispatching on non-Google Play devices. -->
+    <!--
+     Register AnalyticsReceiver and AnalyticsService to support
+     background dispatching on non-Google Play devices.
+        -->
     <receiver
       android:name="com.google.android.gms.analytics.AnalyticsReceiver"
       android:enabled="true"
@@ -173,6 +180,7 @@
         <action android:name="com.weebly.opus1269.clipman.SHARE_ACTION" />
       </intent-filter>
     </receiver>
+
   </application>
 
 </manifest>

@@ -18,6 +18,7 @@
   <string name="title_activity_clip_viewer">Local clip</string>
   <string name="title_activity_clip_viewer_remote">Remote clip</string>
   <string name="title_activity_settings">Settings</string>
+  <string name="title_activity_error_viewer">Last error</string>
   <string name="title_activity_help">Help &amp; feedback</string>
   <string name="title_activity_sign_in">Manage account</string>
   <string name="title_activity_devices">Manage devices</string>

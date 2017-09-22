@@ -39,6 +39,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clipviewer.ClipViewerActivity;
 import com.weebly.opus1269.clipman.ui.clipviewer.ClipViewerFragment;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
+import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.ui.help.HelpActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -252,6 +253,9 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.nav_settings:
         startActivity(SettingsActivity.class);
+        break;
+      case R.id.nav_error:
+        startActivity(ErrorViewerActivity.class);
         break;
       case R.id.nav_help:
         startActivity(HelpActivity.class);
