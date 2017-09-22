@@ -11,6 +11,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.Notifications;
 
@@ -46,9 +47,12 @@ public class Log {
 
     Analytics.INSTANCE.error(message, tag);
 
+    // save last error
+    final LastError lastError = new LastError(tag, "An error occured", message);
+
     if (notify && Prefs.isNotifyError()) {
       // notify user
-      Notifications.show(message);
+      Notifications.show(lastError);
     }
 
     return message;
@@ -68,31 +72,28 @@ public class Log {
    * Log an {@link Exception}
    * @param tag       Class we are from
    * @param message   message to log
-   * @param exception Exception to log
+   * @param ex Exception to log
    * @param notify    notify user if true
    * @return The message
    */
-  public static String logEx(String tag, String message, Exception exception,
+  public static String logEx(String tag, String message, Exception ex,
                              Boolean notify) {
     String msg = "";
     if (!TextUtils.isEmpty(message)) {
       msg = message + ": ";
     }
-    msg += exception.getLocalizedMessage();
+    msg += ex.getLocalizedMessage();
     android.util.Log.e(MY_APP + tag, msg);
-    android.util.Log.e(MY_APP + tag, exception.toString());
+    android.util.Log.e(MY_APP + tag, ex.toString());
 
-    Analytics.INSTANCE.exception(message, exception);
+    Analytics.INSTANCE.exception(message, ex);
+
+    // save last error
+    final LastError lastError =
+      new LastError(tag, "An error occured", message, ex);
 
     if (notify && Prefs.isNotifyError()) {
-      // notify user
-      String notifyMessage = "";
-      if (!TextUtils.isEmpty(message)) {
-        notifyMessage += message + "\n\n";
-      }
-      notifyMessage += exception.getLocalizedMessage() + "\n\n";
-      notifyMessage += android.util.Log.getStackTraceString(exception);
-      Notifications.show(notifyMessage);
+      Notifications.show(lastError);
     }
 
     return msg;
