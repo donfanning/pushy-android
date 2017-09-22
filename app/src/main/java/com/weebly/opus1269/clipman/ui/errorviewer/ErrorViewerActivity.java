@@ -47,7 +47,7 @@ public class ErrorViewerActivity extends BaseActivity
   protected void onResume() {
     super.onResume();
 
-    // Check for intent
+    // Check for intent first time
     Intent intent = getIntent();
     if (intent.hasExtra(Intents.EXTRA_LAST_ERROR)) {
       mLastError =
@@ -112,6 +112,9 @@ public class ErrorViewerActivity extends BaseActivity
     }
   }
 
+  /**
+   * Set all the {@link TextView} components
+   */
   private void updateText() {
     TextView title = findViewById(R.id.title);
     TextView time = findViewById(R.id.time);
@@ -131,6 +134,9 @@ public class ErrorViewerActivity extends BaseActivity
     }
   }
 
+  /**
+   * Set enabled state of menu items
+   */
   private void updateOptionsMenu() {
     if (mOptionsMenu != null) {
       Boolean enabled = false;
