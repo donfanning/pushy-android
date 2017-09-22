@@ -28,10 +28,12 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -426,15 +428,26 @@ public class MainActivity extends BaseActivity implements
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP_ITEM)) {
-      // notification
+      // from clip notification
       final int msgCt =
         intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
-        final ClipItem item = (ClipItem) intent.getSerializableExtra(
-          Intents.EXTRA_CLIP_ITEM);
+        final ClipItem item =
+          (ClipItem) intent.getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
         intent.removeExtra(Intents.EXTRA_CLIP_ITEM);
         startOrUpdateClipViewer(item);
+      }
+    } else if (intent.hasExtra(Intents.EXTRA_LAST_ERROR)) {
+      // from error notification
+      final LastError lastError =
+        (LastError) intent.getSerializableExtra(Intents.EXTRA_LAST_ERROR);
+      final Intent newIntent = new Intent(this, ErrorViewerActivity.class);
+      newIntent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
+      try {
+        startActivity(newIntent);
+      } catch (Exception ex) {
+        Log.logEx(TAG, getString(R.string.err_start_activity), ex);
       }
     }
   }
@@ -445,7 +458,11 @@ public class MainActivity extends BaseActivity implements
    */
   private void startActivity(Class cls) {
     final Intent intent = new Intent(this, cls);
-    startActivity(intent);
+    try {
+      startActivity(intent);
+    } catch (Exception ex) {
+      Log.logEx(TAG, getString(R.string.err_start_activity), ex);
+    }
   }
 
   /**
@@ -577,10 +594,15 @@ public class MainActivity extends BaseActivity implements
       return;
     }
 
-    // set Devices menu state
     final Menu menu = navigationView.getMenu();
-    final MenuItem deviceItem = menu.findItem(R.id.nav_devices);
-    deviceItem.setEnabled(User.INSTANCE.isLoggedIn());
+
+    // set Devices menu state
+    MenuItem menuItem = menu.findItem(R.id.nav_devices);
+    menuItem.setEnabled(User.INSTANCE.isLoggedIn());
+
+    // set Error Viewer menu state
+    menuItem = menu.findItem(R.id.nav_error);
+    menuItem.setEnabled(LastError.exists());
 
     User.INSTANCE.setNavigationHeaderView(hView);
   }
