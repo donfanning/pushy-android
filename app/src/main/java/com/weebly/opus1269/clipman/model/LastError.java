@@ -54,7 +54,7 @@ public class LastError  implements Serializable {
     DateTimeFormatter fmt = DateTimeFormat.forStyle("MM");
     String date = fmt.print(dt);
 
-    return mTitle + "\n  at " +
+    return mTitle + "\n  on " +
       date + "\n\n" +
       mMessage + "\n\n" +
       mStack + '\n';
