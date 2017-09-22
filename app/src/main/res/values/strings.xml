@@ -51,6 +51,7 @@
   <string name="nav_account">Manage account</string>
   <string name="nav_devices">Manage devices</string>
   <string name="nav_settings">Settings</string>
+  <string name="nav_error">View last error</string>
   <string name="nav_help">Help &amp; feedback</string>
   <string name="nav_extension">Get Chrome extension</string>
   <string name="chrome_extension_url" translatable="false">https://chrome.google.com/webstore/detail/pushy-clipboard/jemdfhaheennfkehopbpkephjlednffd</string>
