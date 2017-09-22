@@ -49,7 +49,8 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   /** {@value} */
   private static final String FCM_SENT = "FCM message sent: ";
   /** {@value} */
-  private static final String FCM_DELETED = "FCM messages deleted";
+  private static final String FCM_DELETED =
+    "Messages from remote devices were deleted before they could be delivered";
   /** {@value} */
   private static final String FCM_SEND_ERROR = "Error sending FCM message: ";
   /** {@value} */
@@ -174,8 +175,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   @Override
   public void onDeletedMessages() {
     super.onDeletedMessages();
-    Log.logD(TAG, FCM_DELETED);
-    Analytics.INSTANCE.error("", "deletedMessages");
+    Log.logE(TAG, FCM_DELETED, true);
   }
 
   @Override
@@ -187,6 +187,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   @Override
   public void onSendError(String msgId, Exception ex) {
     super.onSendError(msgId, ex);
-    Log.logEx(TAG, FCM_SEND_ERROR + msgId, ex, true);
+    Log.logEx(TAG, FCM_SEND_ERROR + msgId, ex);
   }
 }
