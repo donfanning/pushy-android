@@ -365,7 +365,7 @@ public enum User {
       try {
         userProfile = service.people().get("people/me").execute();
       } catch (IOException ex) {
-        Log.logEx(TAG, "", ex);
+        Log.logEx(TAG, "", ex, false);
       }
 
       if (userProfile != null) {
