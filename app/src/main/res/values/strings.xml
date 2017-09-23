@@ -220,7 +220,7 @@
   <string name="device_ping_response">Device is online</string>
   <string name="device_added">New device added</string>
   <string name="device_removed">Device removed</string>
-  <string name="error_not_title">An app error occurred</string>
+  <string name="error_not_title">An error occurred</string>
   <string name="registering">Registering device with the messaging service…</string>
   <string name="unregistering">Removing device registration from the messaging service…</string>
   <string name="err_register">Error registering device with server</string>
@@ -264,10 +264,10 @@
         \n\n\"Revoke Access\" will remove access to this app
          for all of your connected devices using this account name until you sign-in again.]]>
     </string>
-  <string name="revoke_err_fmt">"App revocation failed. Please try again later\n %s"</string>
-  <string name="sign_out_err_fmt">"Sign-out failed. Please try again later\n %s"</string>
+  <string name="revoke_err">"App revocation failed. Please try again later"</string>
+  <string name="sign_out_err">"Sign-out failed. Please try again later"</string>
   <string name="sign_in_err">"Sign-in failed. Please try again later"</string>
-  <string name="sign_in_err_fmt">"Sign-in failed. Please try again later\n %s"</string>
+  <string name="sign_in_err_firebase">"Sign-in to firebase failed"</string>
   <string name="error_connection">Unable to connect to Google SignIn</string>
   <string name="auth_code_fmt">Auth Code: %s</string>
   <string name="id_token_fmt">ID Token: %s</string>

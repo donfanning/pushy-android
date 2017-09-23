@@ -209,9 +209,7 @@ public class SignInActivity extends BaseActivity implements
     if (!task.isSuccessful()) {
       // If sign in fails, display a message to the user.
       final Exception ex = task.getException();
-      Log.logEx(TAG, "firebase signin error", ex);
-      assert ex != null;
-      signInFailed(ex.getLocalizedMessage());
+      signInFailed(getString(R.string.sign_in_err_firebase), ex);
     } else {
       // success
       mErrorMessage = "";
@@ -234,7 +232,7 @@ public class SignInActivity extends BaseActivity implements
           }
         } else {
           // something went wrong, shouldn't be here
-          signInFailed(getString(R.string.sign_in_err));
+          signInFailed(getString(R.string.err_unknown));
         }
       }
     }
@@ -270,10 +268,7 @@ public class SignInActivity extends BaseActivity implements
   public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     // An unresolvable error has occurred and Google APIs
     // (including Sign-In) will not be available.
-    Log.logE(TAG,
-      "onConnectionFailed: " + connectionResult.getErrorMessage());
-    mErrorMessage = getString(R.string.error_connection);
-    dismissProgress();
+    connectFailed(connectionResult);
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -295,13 +290,12 @@ public class SignInActivity extends BaseActivity implements
               clearUser();
               dismissProgress();
             } else {
-              signOutFailed(getString(R.string.sign_out_err_fmt,
-                status.getStatusMessage()));
+              signOutFailed(status.getStatusMessage());
             }
           }
         });
     } else {
-      signOutFailed(getString(R.string.sign_out_err_fmt, ""));
+      dismissProgress();
     }
   }
 
@@ -365,21 +359,22 @@ public class SignInActivity extends BaseActivity implements
    * @param result The {@link GoogleSignInResult} of any SignIn attempt
    */
   private void handleSignInResult(GoogleSignInResult result) {
-    mErrorMessage = "";
-    if (result.isSuccess()) {
-      mAccount = result.getSignInAccount();
-      if (!User.INSTANCE.isLoggedIn()) {
-        // Authenticate with Firebase, also completes sign-in activities
-        firebaseAuthWithGoogle();
+    if (mGoogleApiClient.isConnected()) {
+      mErrorMessage = "";
+      if (result.isSuccess()) {
+        mAccount = result.getSignInAccount();
+        if (!User.INSTANCE.isLoggedIn()) {
+          // Authenticate with Firebase, also completes sign-in activities
+          firebaseAuthWithGoogle();
+        } else {
+          updateView();
+        }
       } else {
-        updateView();
+        // Google signIn failed
+        signInFailed(result.getStatus().toString());
       }
     } else {
-      // Google signIn failed
-      final String error =
-        getString(R.string.sign_in_err_fmt,
-          result.getStatus().toString());
-      signInFailed(error);
+      signInFailed(getString(R.string.error_connection));
     }
   }
 
@@ -523,13 +518,12 @@ public class SignInActivity extends BaseActivity implements
                 clearUser();
                 dismissProgress();
               } else {
-                signOutFailed(getString(R.string.revoke_err_fmt,
-                  status.getStatusMessage()));
+                revokeFailed(status.getStatusMessage());
               }
             }
           });
     } else {
-      signOutFailed(getString(R.string.revoke_err_fmt, ""));
+      dismissProgress();
     }
   }
 
@@ -580,12 +574,37 @@ public class SignInActivity extends BaseActivity implements
   }
 
   /**
+   * Google API connection failed for some reason
+   * @param result info. on failure
+   */
+  private void connectFailed(@NonNull ConnectionResult result) {
+    final String title = getString(R.string.error_connection);
+    mErrorMessage = title + '\n' + result.toString();
+    Log.logE(TAG, result.toString(), title);
+    clearUser();
+    dismissProgress();
+  }
+
+  /**
    * SignIn failed for some reason
    * @param error info. on failure
    */
   private void signInFailed(String error) {
-    mErrorMessage = error;
-    Log.logE(TAG, mErrorMessage);
+    final String title = getString(R.string.sign_in_err);
+    mErrorMessage = title + '\n' + error;
+    Log.logE(TAG, error, title);
+    clearUser();
+    dismissProgress();
+  }
+
+  /**
+   * SignIn failed for some reason
+   * @param ex info. on failure
+   */
+  private void signInFailed(String message, Exception ex) {
+    final String title = getString(R.string.sign_in_err);
+    mErrorMessage = title + '\n' + message;
+    Log.logEx(TAG, message, ex, title);
     clearUser();
     dismissProgress();
   }
@@ -595,8 +614,20 @@ public class SignInActivity extends BaseActivity implements
    * @param error info. on failure
    */
   private void signOutFailed(String error) {
-    mErrorMessage = error;
-    Log.logE(TAG, mErrorMessage);
+    final String title = getString(R.string.sign_out_err);
+    mErrorMessage = title + '\n' + error;
+    Log.logE(TAG, error, title);
+    dismissProgress();
+  }
+
+  /**
+   * Revoke access failed for some reason
+   * @param error info. on failure
+   */
+  private void revokeFailed(String error) {
+    final String title = getString(R.string.revoke_err);
+    mErrorMessage = title + '\n' + error;
+    Log.logE(TAG, error, title);
     dismissProgress();
   }
 
