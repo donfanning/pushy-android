@@ -53,7 +53,7 @@ public class BitmapHelper {
       try {
         url = new URL(urlName);
       } catch (final MalformedURLException ex) {
-        Log.logEx(TAG, "Bad bitmap URL", ex);
+        Log.logEx(TAG, "Bad bitmap URL", ex, false);
         return null;
       }
       InputStream inputStream = null;
@@ -61,7 +61,7 @@ public class BitmapHelper {
         inputStream = url.openStream();
         bitmap = BitmapFactory.decodeStream(inputStream);
       } catch (final IOException ex) {
-        Log.logEx(TAG, "Failed to get bitmap", ex);
+        Log.logEx(TAG, "Failed to get bitmap", ex, false);
       } finally {
         try {
           if (inputStream != null) {
