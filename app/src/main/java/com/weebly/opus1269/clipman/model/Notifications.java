@@ -53,10 +53,6 @@ public class Notifications {
   private Notifications() {
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Public methods
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * Initialize the {@link NotificationChannel} for Android O
    * @param context A Context
@@ -330,12 +326,8 @@ public class Notifications {
 
     Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
     intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
-    context.startActivity(intent);
+    AppUtils.startActivity(intent);
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Reset count
@@ -439,54 +431,10 @@ public class Notifications {
     notificationManager.createNotificationChannel(channel);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Inner classes
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * {@link BroadcastReceiver} to handle notification actions
    */
   public static class NotificationReceiver extends BroadcastReceiver {
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      final String action = intent.getAction();
-      final ClipItem clipItem;
-      final int noteId =
-        intent.getIntExtra(Intents.EXTRA_NOTIFICATION_ID, -1);
-
-      if (Intents.ACTION_DELETE_NOTIFICATION.equals(action)) {
-        if (noteId == ID_COPY) {
-          resetCount();
-        }
-      } else if (Intents.ACTION_SEARCH.equals(action)) {
-        clipItem = (ClipItem) intent.getSerializableExtra(
-          Intents.EXTRA_CLIP_ITEM);
-
-        // search the web for the clip text
-        AppUtils.performWebSearch(clipItem.getText());
-
-        cancelNotification(noteId);
-      } else if (Intents.ACTION_SHARE.equals(action)) {
-        clipItem = (ClipItem) intent.getSerializableExtra(
-          Intents.EXTRA_CLIP_ITEM);
-
-        // share the clip text with other apps
-        clipItem.doShare(null);
-
-        cancelNotification(noteId);
-      } else if (Intents.ACTION_EMAIL.equals(action)) {
-        final String emailSubject =
-          intent.getStringExtra(Intents.EXTRA_EMAIL_SUBJECT);
-        final String emailBody =
-          intent.getStringExtra(Intents.EXTRA_EMAIL_BODY);
-
-        // Send email
-        Email.INSTANCE.send(emailSubject, emailBody);
-
-        cancelNotification(noteId);
-      }
-    }
 
     /**
      * Get a pending intent for this receiver
@@ -543,6 +491,46 @@ public class Notifications {
 
         // collapse notifications dialog
         context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+      }
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      final String action = intent.getAction();
+      final ClipItem clipItem;
+      final int noteId =
+        intent.getIntExtra(Intents.EXTRA_NOTIFICATION_ID, -1);
+
+      if (Intents.ACTION_DELETE_NOTIFICATION.equals(action)) {
+        if (noteId == ID_COPY) {
+          resetCount();
+        }
+      } else if (Intents.ACTION_SEARCH.equals(action)) {
+        clipItem = (ClipItem) intent.getSerializableExtra(
+          Intents.EXTRA_CLIP_ITEM);
+
+        // search the web for the clip text
+        AppUtils.performWebSearch(clipItem.getText());
+
+        cancelNotification(noteId);
+      } else if (Intents.ACTION_SHARE.equals(action)) {
+        clipItem = (ClipItem) intent.getSerializableExtra(
+          Intents.EXTRA_CLIP_ITEM);
+
+        // share the clip text with other apps
+        clipItem.doShare(null);
+
+        cancelNotification(noteId);
+      } else if (Intents.ACTION_EMAIL.equals(action)) {
+        final String emailSubject =
+          intent.getStringExtra(Intents.EXTRA_EMAIL_SUBJECT);
+        final String emailBody =
+          intent.getStringExtra(Intents.EXTRA_EMAIL_BODY);
+
+        // Send email
+        Email.INSTANCE.send(emailSubject, emailBody);
+
+        cancelNotification(noteId);
       }
     }
   }

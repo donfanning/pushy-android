@@ -85,10 +85,6 @@ public class HelpActivity extends BaseActivity {
     return processed || super.onOptionsItemSelected(item);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Public methods
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * Handle click on Help and feedback items
    * @param v the TextView that was clicked
@@ -124,19 +120,13 @@ public class HelpActivity extends BaseActivity {
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * Show the {@link App} in the play store
    */
   private void showInPlayStore() {
-    try {
-      final Intent intent = new Intent(Intent.ACTION_VIEW);
-      intent.setData(Uri.parse(AppUtils.PLAY_STORE));
-      startActivity(intent);
-    } catch (android.content.ActivityNotFoundException ignored) {
+    final Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(AppUtils.PLAY_STORE));
+    if (!AppUtils.startActivity(intent)) {
       Log.logD(TAG, "Could not open app in play store, trying web.");
       AppUtils.showWebUrl(AppUtils.PLAY_STORE_WEB);
     }

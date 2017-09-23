@@ -30,7 +30,6 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
@@ -72,13 +71,11 @@ public class MainActivity extends BaseActivity implements
    */
   private static final String STATE_ITEM_ID = "item_id";
 
-  // saved preferences
   /**
    * Delegate for RecyclerView
    */
   private ClipLoaderManager mLoaderManager;
 
-  // saved instance state
   /**
    * Items from last delete operation
    */
@@ -147,15 +144,6 @@ public class MainActivity extends BaseActivity implements
   }
 
   @Override
-  public void onDestroy() {
-    super.onDestroy();
-
-    // stop listening for preference changes
-    PreferenceManager.getDefaultSharedPreferences(this)
-      .unregisterOnSharedPreferenceChangeListener(this);
-  }
-
-  @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
 
@@ -202,6 +190,15 @@ public class MainActivity extends BaseActivity implements
       ret = true;
     }
     return ret;
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    // stop listening for preference changes
+    PreferenceManager.getDefaultSharedPreferences(this)
+      .unregisterOnSharedPreferenceChangeListener(this);
   }
 
   @Override
@@ -396,11 +393,7 @@ public class MainActivity extends BaseActivity implements
       final Intent intent = new Intent(this, ClipViewerActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
       intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
-      try {
-        startActivity(intent);
-      } catch (Exception ex) {
-        Log.logEx(TAG, getString(R.string.err_start_activity), ex);
-      }
+      AppUtils.startActivity(intent);
     }
   }
 
@@ -441,11 +434,7 @@ public class MainActivity extends BaseActivity implements
         (LastError) intent.getSerializableExtra(Intents.EXTRA_LAST_ERROR);
       final Intent newIntent = new Intent(this, ErrorViewerActivity.class);
       newIntent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
-      try {
-        startActivity(newIntent);
-      } catch (Exception ex) {
-        Log.logEx(TAG, getString(R.string.err_start_activity), ex);
-      }
+      AppUtils.startActivity(newIntent);
     }
   }
 
@@ -455,11 +444,7 @@ public class MainActivity extends BaseActivity implements
    */
   private void startActivity(Class cls) {
     final Intent intent = new Intent(this, cls);
-    try {
-      startActivity(intent);
-    } catch (Exception ex) {
-      Log.logEx(TAG, getString(R.string.err_start_activity), ex);
-    }
+    AppUtils.startActivity(intent);
   }
 
   /**

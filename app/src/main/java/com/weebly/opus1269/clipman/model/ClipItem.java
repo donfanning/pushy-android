@@ -42,6 +42,7 @@ public class ClipItem implements Serializable {
   private static final String TAG = "ClipItem";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
+  private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
   private String mText;
   private DateTime mDate;
   private Boolean mFav;
@@ -123,7 +124,7 @@ public class ClipItem implements Serializable {
         try {
           clipText = item.coerceToText(App.getContext());
         } catch (Exception ex) {
-          Log.logEx(TAG, ex.getMessage(), ex);
+          Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_CLIPBOARD_READ);
           return null;
         }
       }
@@ -234,13 +235,13 @@ public class ClipItem implements Serializable {
     return new DateTime(mDate.getMillis());
   }
 
-  void setDate(long date) {
-    mDate = new DateTime(date);
-  }
-
   @SuppressWarnings("unused")
   public void setDate(ReadableInstant date) {
     mDate = new DateTime(date.getMillis());
+  }
+
+  void setDate(long date) {
+    mDate = new DateTime(date);
   }
 
   public long getTime() {
@@ -350,10 +351,7 @@ public class ClipItem implements Serializable {
     final Intent sendIntent = Intent.createChooser(intent,
       context.getResources().getString(R.string.share_text_to));
     sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    if (sendIntent.resolveActivity(context.getPackageManager()) != null) {
-      // Verify that the intent will resolve to an activity
-      context.startActivity(sendIntent);
-    }
+    AppUtils.startActivity(sendIntent);
   }
 
   /**

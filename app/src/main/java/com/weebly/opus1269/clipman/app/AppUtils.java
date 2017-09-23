@@ -41,6 +41,7 @@ public class AppUtils {
   public static final String PLAY_STORE_WEB =
     "https://play.google.com/store/apps/details?id=" + PACKAGE_NAME;
   private static final int VERSION_CODE = Build.VERSION.SDK_INT;
+  private static final String ERROR_ACTIVITY = "Failed to start activity";
 
   private AppUtils() {
   }
@@ -110,6 +111,24 @@ public class AppUtils {
   }
 
   /**
+   * Try to start an activity
+   * @param intent Activity intent
+   * @return true if successful
+   */
+  public static boolean startActivity(Intent intent) {
+    final Context context = App.getContext();
+    boolean ret = true;
+    try {
+      context.startActivity(intent);
+    } catch (Exception ex) {
+      final String msg = context.getString(R.string.err_start_activity);
+      Log.logEx(TAG, msg, ex, ERROR_ACTIVITY);
+      ret = false;
+    }
+    return ret;
+  }
+
+  /**
    * Display a toast or snackbar message
    * @param view a view to use for snackbar
    * @param msg  message to display
@@ -131,14 +150,6 @@ public class AppUtils {
   }
 
   /**
-   * Display a toast message
-   * @param msg  message to display
-   */
-  public static void showMessage(final String msg) {
-    showMessage(null, msg);
-  }
-
-  /**
    * Launch an {@link Intent} to show a {@link Uri}
    * @param uri A String that is a valid Web Url
    * @return true on success
@@ -147,16 +158,10 @@ public class AppUtils {
     Boolean ret = false;
 
     if (Patterns.WEB_URL.matcher(uri).matches()) {
-      ret = true;
       final Intent intent = new Intent(Intent.ACTION_VIEW);
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       intent.setData(Uri.parse(uri));
-      try {
-        App.getContext().startActivity(intent);
-      } catch (Exception ex) {
-        Log.logEx(TAG, "", ex);
-        ret = false;
-      }
+      ret = startActivity(intent);
     }
     return ret;
   }
@@ -167,8 +172,7 @@ public class AppUtils {
    * @return true on success
    */
   public static Boolean performWebSearch(String text) {
-    boolean ret = true;
-    final Context context = App.getContext();
+    boolean ret;
 
     if (TextUtils.isEmpty(text)) {
       ret = false;
@@ -176,12 +180,7 @@ public class AppUtils {
       final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
       intent.putExtra(SearchManager.QUERY, text);
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      try {
-        context.startActivity(intent);
-      } catch (Exception ex) {
-        Log.logEx(TAG, "", ex);
-        ret = false;
-      }
+      ret = startActivity(intent);
     }
     return ret;
   }

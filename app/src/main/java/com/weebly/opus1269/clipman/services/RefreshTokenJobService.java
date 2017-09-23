@@ -38,19 +38,16 @@ public class RefreshTokenJobService extends JobService {
         @Override
         public void run() {
           // Get updated InstanceID token.
-          String refreshedToken =
-            FirebaseInstanceId.getInstance().getToken();
+          String refreshedToken = FirebaseInstanceId.getInstance().getToken();
           Log.logD(TAG, "Refreshed token: " + refreshedToken);
           Analytics.INSTANCE.instanceIdRefreshed();
-          final EndpointRet ret =
-            RegistrationClient.register(refreshedToken);
+          final EndpointRet ret = RegistrationClient.register(refreshedToken);
           if (!ret.getSuccess()) {
-            Log.logE(TAG, ret.getReason());
+            Log.logE(TAG, ret.getReason(), false);
           }
         }
       });
     }
-
     return ret; // Answers the question: "Is there still work going on?"
   }
 

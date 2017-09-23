@@ -7,14 +7,13 @@
 
 package com.weebly.opus1269.clipman.model;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.BuildConfig;
-import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 
 /**
  * Singleton for sending emails
@@ -43,7 +42,6 @@ public enum Email {
    * @param body    Email body
    */
   public void send(String subject, String body) {
-    final Context context = App.getContext();
     final Intent intent = new Intent(Intent.ACTION_SENDTO);
     intent.setData(Uri.parse("mailto:" + SUPPORT_ADDRESS));
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -53,10 +51,6 @@ public enum Email {
     if (!TextUtils.isEmpty(body)) {
       intent.putExtra(Intent.EXTRA_TEXT, body);
     }
-
-    if (intent.resolveActivity(context.getPackageManager()) != null) {
-      // Verify that the intent will resolve to an activity
-      context.startActivity(intent);
-    }
+    AppUtils.startActivity(intent);
   }
 }

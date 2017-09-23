@@ -98,7 +98,7 @@ public class App extends Application
       Prefs.setVersionName(pInfo.versionName);
       Prefs.setVersionCode(pInfo.versionCode);
     } catch (final PackageManager.NameNotFoundException ex) {
-      Log.logEx(TAG, "Version info not found: " + ex.getMessage(), ex);
+      Log.logEx(TAG, "Version info not found: " + ex.getMessage(), ex, false);
     }
 
     // Register to be notified of activity state changes
@@ -204,10 +204,6 @@ public class App extends Application
       }
     }
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Update preferences on version change. If we add or change preferences

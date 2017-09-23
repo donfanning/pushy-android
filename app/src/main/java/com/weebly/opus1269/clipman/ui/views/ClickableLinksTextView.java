@@ -141,7 +141,7 @@ public class ClickableLinksTextView extends
       }
 
     } catch (Exception ex) {
-      Log.logEx(TAG, "", ex);
+      Log.logEx(TAG, "", ex, false);
     } finally {
       this.mBaseEditorCopied = true;
     }
