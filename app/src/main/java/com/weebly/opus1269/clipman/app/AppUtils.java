@@ -114,19 +114,29 @@ public class AppUtils {
   /**
    * Try to start an activity
    * @param intent Activity intent
+   * @param notify notify user on error if true
    * @return true if successful
    */
-  public static boolean startActivity(Intent intent) {
+  public static boolean startActivity(Intent intent, boolean notify) {
     final Context context = App.getContext();
     boolean ret = true;
     try {
       context.startActivity(intent);
     } catch (Exception ex) {
       final String msg = context.getString(R.string.err_start_activity);
-      Log.logEx(TAG, msg, ex, ERROR_ACTIVITY);
+      Log.logEx(TAG, msg, ex, ERROR_ACTIVITY, notify);
       ret = false;
     }
     return ret;
+  }
+
+  /**
+   * Try to start an activity
+   * @param intent Activity intent
+   * @return true if successful
+   */
+  public static boolean startActivity(Intent intent) {
+    return startActivity(intent, true);
   }
 
   /**
@@ -156,7 +166,7 @@ public class AppUtils {
   public static void showInPlayStore() {
     final Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(PLAY_STORE));
-    if (!AppUtils.startActivity(intent)) {
+    if (!AppUtils.startActivity(intent, false)) {
       Log.logD(TAG, "Could not open app in play store, trying web.");
       AppUtils.showWebUrl(PLAY_STORE_WEB);
     }
