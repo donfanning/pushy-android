@@ -74,7 +74,7 @@ public class MessagingClient extends Endpoint {
     try {
       data.put(Msg.FAV, favString);
     } catch (JSONException ex) {
-      Log.logEx(TAG, ERROR_SEND, ex, true);
+      Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
       data = null;
     }
 
@@ -141,7 +141,7 @@ public class MessagingClient extends Endpoint {
     try {
       data.put(Msg.SRC_REG_ID, srcRegId);
     } catch (JSONException ex) {
-      Log.logEx(TAG, ERROR_SEND, ex, true);
+      Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
       data = null;
     }
 
@@ -189,7 +189,7 @@ public class MessagingClient extends Endpoint {
       data.put(Msg.DEVICE_OS, Device.getMyDevice().getOS());
       data.put(Msg.DEVICE_NICKNAME, Device.getMyDevice().getNickname());
     } catch (JSONException ex) {
-      Log.logEx(TAG, ERROR_SEND, ex, true);
+      Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
       data = null;
     }
     return data;
@@ -224,7 +224,7 @@ public class MessagingClient extends Endpoint {
 
         final GoogleCredential credential = getCredential(null);
         if (credential == null) {
-          ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL, true));
+          ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL, ERROR_SEND));
           return ret;
         }
 
@@ -240,10 +240,10 @@ public class MessagingClient extends Endpoint {
           Analytics.INSTANCE.sent(mAction);
         } else {
           ret.setReason(
-            Log.logE(TAG, ERROR_SEND + ": " + ret.getReason(), true));
+            Log.logE(TAG, ret.getReason(), ERROR_SEND));
         }
       } catch (IOException | JSONException ex) {
-        ret.setReason(Log.logEx(TAG, ERROR_SEND, ex, true));
+        ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND));
       }
       return ret;
     }

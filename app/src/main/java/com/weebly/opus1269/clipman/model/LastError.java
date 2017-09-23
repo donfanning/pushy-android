@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Immutable class representing the last error/exception that occured
  */
-public class LastError  implements Serializable {
+public class LastError implements Serializable {
 
   public static final String PREF_LAST_ERROR = "prefLastError";
 
@@ -45,19 +45,7 @@ public class LastError  implements Serializable {
   }
 
   public LastError(String tag, String title, String message) {
-    init(tag, title, message, new Exception());
-  }
-
-  @Override
-  public String toString() {
-    DateTime dt = new DateTime(mTime);
-    DateTimeFormatter fmt = DateTimeFormat.forStyle("MM");
-    String date = fmt.print(dt);
-
-    return mTitle + "\n  on " +
-      date + "\n\n" +
-      mMessage + "\n\n" +
-      mStack + '\n';
+    init(tag, title, message, null);
   }
 
   /**
@@ -100,6 +88,18 @@ public class LastError  implements Serializable {
     return ret;
   }
 
+  @Override
+  public String toString() {
+    DateTime dt = new DateTime(mTime);
+    DateTimeFormatter fmt = DateTimeFormat.forStyle("MM");
+    String date = fmt.print(dt);
+
+    return mTitle + "\n  on " +
+      date + "\n\n" +
+      mMessage + "\n\n" +
+      mStack + '\n';
+  }
+
   /**
    * Get relative time string
    * @return relative time
@@ -118,17 +118,34 @@ public class LastError  implements Serializable {
 
   /**
    * Inialize members and persist
-   * @param tag source tag
-   * @param title title
+   * @param tag     source tag
+   * @param title   title
    * @param message message
-   * @param ex causing exception
+   * @param ex      causing exception
    */
   private void init(String tag, String title, String message, Exception ex) {
     mTag = tag;
     mTitle = title;
     mMessage = message;
-    mStack = Log.getStackTraceString(ex);
     mTime = DateTime.now().getMillis();
+
+    if (ex != null) {
+      mStack = "";
+      final String exMsg = ex.getLocalizedMessage();
+      final String exTrace = Log.getStackTraceString(ex);
+      if (!TextUtils.isEmpty(exMsg) && !exMsg.equals(message)) {
+        mStack += exMsg + '\n';
+      }
+      if (!TextUtils.isEmpty(exMsg) && !TextUtils.isEmpty(exTrace) &&
+        !exMsg.equals(exTrace)) {
+        mStack += exTrace;
+      }
+      if (TextUtils.isEmpty(mStack) || mStack.equals(exMsg + '\n')) {
+        mStack += Log.getStackTraceString(new Exception());
+      }
+    } else {
+      mStack = Log.getStackTraceString(new Exception());
+    }
 
     persist();
   }

@@ -46,19 +46,26 @@ public class Log {
    */
   private static String logE(String tag, String message, String title,
                              Boolean notify) {
-    android.util.Log.e(MY_APP + tag, message);
+    String msg = "";
+    if(!TextUtils.isEmpty(title)) {
+      msg += title;
+    }
+    if(!TextUtils.isEmpty(message)) {
+      msg += ": " + message;
+    }
 
-    Analytics.INSTANCE.error(message, tag);
+    android.util.Log.e(MY_APP + tag, msg);
+
+    Analytics.INSTANCE.error(msg, tag);
 
     // save last error
     final LastError lastError = new LastError(tag, title, message);
-
     if (notify && Prefs.isNotifyError()) {
       // notify user
       Notifications.show(lastError);
     }
 
-    return message;
+    return msg;
   }
 
   /**
@@ -107,19 +114,20 @@ public class Log {
   private static String logEx(String tag, String message, Exception ex,
                               String title, Boolean notify) {
     String msg = "";
-    if (!TextUtils.isEmpty(message)) {
-      msg = message + ": ";
+      if(!TextUtils.isEmpty(title)) {
+      msg += title;
     }
-    msg += ex.getLocalizedMessage();
+    if(!TextUtils.isEmpty(message)) {
+      msg += ": " + message;
+    }
+
+    Analytics.INSTANCE.exception(msg, ex);
+
     android.util.Log.e(MY_APP + tag, msg);
     android.util.Log.e(MY_APP + tag, ex.toString());
 
-    Analytics.INSTANCE.exception(message, ex);
-
     // save last error
-    final LastError lastError =
-      new LastError(tag, title, message, ex);
-
+    final LastError lastError = new LastError(tag, title, message, ex);
     if (notify && Prefs.isNotifyError()) {
       Notifications.show(lastError);
     }
