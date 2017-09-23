@@ -82,13 +82,13 @@ public class RegistrationClient extends Endpoint {
     try {
       final String regToken = getRegToken();
       if (TextUtils.isEmpty(regToken)) {
-        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID));
+        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID, ERROR_REGISTER));
         return ret;
       }
 
       final GoogleCredential credential = getCredential(idToken);
       if (credential == null) {
-        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL));
+        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL, ERROR_REGISTER));
         return ret;
       }
 
@@ -99,11 +99,11 @@ public class RegistrationClient extends Endpoint {
         isRegistered = true;
         Analytics.INSTANCE.registered();
       } else {
-        ret.setReason(Log.logE(TAG,
-          ERROR_REGISTER + " " + ret.getReason()));
+        ret.setReason(Log.logE(TAG, ret.getReason(), ERROR_REGISTER));
       }
     } catch (final IOException ex) {
-      ret.setReason(Log.logEx(TAG, ERROR_REGISTER, ex));
+      ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex,
+        ERROR_REGISTER));
     } finally {
       Prefs.setDeviceRegistered(isRegistered);
     }
@@ -128,7 +128,7 @@ public class RegistrationClient extends Endpoint {
       ret.setSuccess(true);
       return ret;
     } else if (!Prefs.isDeviceRegistered()) {
-      Log.logE(TAG, Msg.ERROR_NOT_REGISTERED);
+      Log.logE(TAG, Msg.ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
       ret.setSuccess(true);
       return ret;
     }
@@ -137,13 +137,13 @@ public class RegistrationClient extends Endpoint {
     try {
       final String regToken = getRegToken();
       if (TextUtils.isEmpty(regToken)) {
-        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID));
+        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID, ERROR_UNREGISTER));
         return ret;
       }
 
       final GoogleCredential credential = getCredential(null);
       if (credential == null) {
-        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL));
+        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL, ERROR_UNREGISTER));
         return ret;
       }
 
@@ -154,11 +154,11 @@ public class RegistrationClient extends Endpoint {
         Analytics.INSTANCE.unregistered();
         isRegistered = false;
       } else {
-        ret.setReason(Log.logE(TAG, ERROR_UNREGISTER +
-          " " + ret.getReason()));
+        ret.setReason(Log.logE(TAG, ret.getReason(), ERROR_UNREGISTER));
       }
     } catch (final IOException ex) {
-      ret.setReason(Log.logEx(TAG, ERROR_UNREGISTER, ex));
+      ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex,
+        ERROR_UNREGISTER));
     } finally {
       Prefs.setDeviceRegistered(isRegistered);
     }
@@ -229,7 +229,7 @@ public class RegistrationClient extends Endpoint {
           Devices.notifyMyDeviceRegistered();
         }
       } else {
-        Log.logE(TAG, NO_ACTIVITY);
+        Log.logE(TAG, NO_ACTIVITY, false);
       }
     }
   }
@@ -255,10 +255,10 @@ public class RegistrationClient extends Endpoint {
           // delete in case user logs into different account - blocks
           FirebaseInstanceId.getInstance().deleteInstanceId();
         } catch (IOException ex) {
-          Log.logEx(TAG, "", ex);
+          Log.logEx(TAG, "", ex, false);
         }
         error = ret.getReason();
-        Log.logE(TAG, error);
+        Log.logE(TAG, error, false);
       }
       return error;
     }
