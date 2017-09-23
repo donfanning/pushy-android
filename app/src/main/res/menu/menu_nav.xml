@@ -41,11 +41,15 @@
     android:icon="@drawable/ic_help_black_24dp"
     android:title="@string/nav_help" />
 
-  <group android:id="@+id/group_extension">
+  <group android:id="@+id/extras">
     <item
       android:id="@+id/nav_chrome_extension"
       android:icon="@drawable/ic_extension_black_24dp"
       android:title="@string/nav_extension" />
+    <item
+      android:id="@+id/rate_app"
+      android:icon="@drawable/ic_stars_black_24dp"
+      android:title="@string/rate_app" />
   </group>
 
 </menu>

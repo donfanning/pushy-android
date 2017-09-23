@@ -64,7 +64,7 @@ public class HelpActivity extends BaseActivity {
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_view_store:
-        showInPlayStore();
+        AppUtils.showInPlayStore();
         break;
       case R.id.action_version:
         showVersionDialog();
@@ -117,18 +117,6 @@ public class HelpActivity extends BaseActivity {
         break;
       default:
         break;
-    }
-  }
-
-  /**
-   * Show the {@link App} in the play store
-   */
-  private void showInPlayStore() {
-    final Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setData(Uri.parse(AppUtils.PLAY_STORE));
-    if (!AppUtils.startActivity(intent)) {
-      Log.logD(TAG, "Could not open app in play store, trying web.");
-      AppUtils.showWebUrl(AppUtils.PLAY_STORE_WEB);
     }
   }
 

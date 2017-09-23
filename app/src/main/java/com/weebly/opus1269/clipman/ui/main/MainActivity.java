@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -271,6 +272,9 @@ public class MainActivity extends BaseActivity implements
       case R.id.nav_chrome_extension:
         AppUtils.showWebUrl(
           getString(R.string.chrome_extension_url));
+        break;
+      case R.id.rate_app:
+        AppUtils.showInPlayStore();
         break;
       default:
         break;

@@ -31,14 +31,15 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.Random;
 
 /**
- * General static constants utility methods
+ * General static constants and utility methods
  */
 public class AppUtils {
   private static final String TAG = "AppUtils";
 
   private static final String PACKAGE_NAME = BuildConfig.APPLICATION_ID;
-  public static final String PLAY_STORE = "market://details?id=" + PACKAGE_NAME;
-  public static final String PLAY_STORE_WEB =
+  private static final String PLAY_STORE =
+    "market://details?id=" + PACKAGE_NAME;
+  private static final String PLAY_STORE_WEB =
     "https://play.google.com/store/apps/details?id=" + PACKAGE_NAME;
   private static final int VERSION_CODE = Build.VERSION.SDK_INT;
   private static final String ERROR_ACTIVITY = "Failed to start activity";
@@ -150,6 +151,18 @@ public class AppUtils {
   }
 
   /**
+   * Show the {@link App} in the play store
+   */
+  public static void showInPlayStore() {
+    final Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(PLAY_STORE));
+    if (!AppUtils.startActivity(intent)) {
+      Log.logD(TAG, "Could not open app in play store, trying web.");
+      AppUtils.showWebUrl(PLAY_STORE_WEB);
+    }
+  }
+
+  /**
    * Launch an {@link Intent} to show a {@link Uri}
    * @param uri A String that is a valid Web Url
    * @return true on success
@@ -161,7 +174,7 @@ public class AppUtils {
       final Intent intent = new Intent(Intent.ACTION_VIEW);
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       intent.setData(Uri.parse(uri));
-      ret = startActivity(intent);
+      ret = AppUtils.startActivity(intent);
     }
     return ret;
   }
@@ -180,7 +193,7 @@ public class AppUtils {
       final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
       intent.putExtra(SearchManager.QUERY, text);
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      ret = startActivity(intent);
+      ret = AppUtils.startActivity(intent);
     }
     return ret;
   }

@@ -56,6 +56,7 @@
   <string name="nav_help">Help &amp; feedback</string>
   <string name="nav_extension">Get Chrome extension</string>
   <string name="chrome_extension_url" translatable="false">https://chrome.google.com/webstore/detail/pushy-clipboard/jemdfhaheennfkehopbpkephjlednffd</string>
+  <string name="rate_app">Rate app</string>
 
 
   <!-- Related to Preferences -->
