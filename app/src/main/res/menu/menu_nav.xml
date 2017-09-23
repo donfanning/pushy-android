@@ -48,7 +48,7 @@
       android:title="@string/nav_extension" />
     <item
       android:id="@+id/rate_app"
-      android:icon="@drawable/ic_stars_black_24dp"
+      android:icon="@drawable/ic_star"
       android:title="@string/rate_app" />
   </group>
 
