@@ -307,5 +307,8 @@
   <string name="joda_time_fmt_pattern">h:mm a</string>
   <string name="content_description_send">Send current clipboard contents</string>
   <string name="email_error_info">Please provide any additional info. on what led to the error.</string>
+  <string name="fcm_deleted_message"><![CDATA[
+        Either messages have expired because they are too old,
+        or this device has more than 100 undelivered messages.]]></string>
 
 </resources>

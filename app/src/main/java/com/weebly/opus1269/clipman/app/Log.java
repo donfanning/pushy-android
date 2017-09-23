@@ -44,8 +44,8 @@ public class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  private static String logE(String tag, String message, String title,
-                             Boolean notify) {
+  public static String logE(String tag, String message, String title,
+                             boolean notify) {
     String msg = "";
     if(!TextUtils.isEmpty(title)) {
       msg += title;
@@ -75,7 +75,7 @@ public class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  public static String logE(String tag, String message, Boolean notify) {
+  public static String logE(String tag, String message, boolean notify) {
     final String title = App.getContext().getString(R.string.error_not_title);
     return logE(tag, message, title, notify);
   }
@@ -111,7 +111,7 @@ public class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  private static String logEx(String tag, String message, Exception ex,
+  public static String logEx(String tag, String message, Exception ex,
                               String title, Boolean notify) {
     String msg = "";
       if(!TextUtils.isEmpty(title)) {

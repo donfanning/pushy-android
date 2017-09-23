@@ -23,6 +23,8 @@ import android.os.SystemClock;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -164,7 +166,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
         Notifications.show(action, device.getDisplayName());
         break;
       default:
-        Log.logE(TAG, FCM_MESSAGE_ERROR + action);
+        Log.logE(TAG, action, FCM_MESSAGE_ERROR, false);
         break;
     }
 
@@ -175,18 +177,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   @Override
   public void onDeletedMessages() {
     super.onDeletedMessages();
-    Log.logE(TAG, FCM_DELETED, true);
-  }
-
-  @Override
-  public void onMessageSent(String msgId) {
-    super.onMessageSent(msgId);
-    Log.logD(TAG, FCM_SENT + msgId);
-  }
-
-  @Override
-  public void onSendError(String msgId, Exception ex) {
-    super.onSendError(msgId, ex);
-    Log.logEx(TAG, FCM_SEND_ERROR + msgId, ex);
+    final String msg = App.getContext().getString(R.string.fcm_deleted_message);
+    Log.logE(TAG, msg, FCM_DELETED);
   }
 }
