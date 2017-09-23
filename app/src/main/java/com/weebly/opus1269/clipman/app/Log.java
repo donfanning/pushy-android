@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.app;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.BuildConfig;
+import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -39,16 +40,18 @@ public class Log {
    * Log an error message
    * @param tag     Class we are from
    * @param message message to log
-   * @param notify    notify user if true
+   * @param title   title for LastError
+   * @param notify  notify user if true
    * @return The message
    */
-  public static String logE(String tag, String message, Boolean notify) {
+  private static String logE(String tag, String message, String title,
+                             Boolean notify) {
     android.util.Log.e(MY_APP + tag, message);
 
     Analytics.INSTANCE.error(message, tag);
 
     // save last error
-    final LastError lastError = new LastError(tag, "An error occured", message);
+    final LastError lastError = new LastError(tag, title, message);
 
     if (notify && Prefs.isNotifyError()) {
       // notify user
@@ -62,22 +65,47 @@ public class Log {
    * Log an error message
    * @param tag     Class we are from
    * @param message message to log
+   * @param notify  notify user if true
+   * @return The message
+   */
+  public static String logE(String tag, String message, Boolean notify) {
+    final String title = App.getContext().getString(R.string.error_not_title);
+    return logE(tag, message, title, notify);
+  }
+
+  /**
+   * Log an error message
+   * @param tag     Class we are from
+   * @param message message to log
+   * @param title   title for LastError
+   * @return The message
+   */
+  public static String logE(String tag, String message, String title) {
+    return logE(tag, message, title, true);
+  }
+
+  /**
+   * Log an error message
+   * @param tag     Class we are from
+   * @param message message to log
    * @return The message
    */
   public static String logE(String tag, String message) {
-    return logE(tag, message, false);
+    final String title = App.getContext().getString(R.string.error_not_title);
+    return logE(tag, message, title, true);
   }
 
   /**
    * Log an {@link Exception}
-   * @param tag       Class we are from
-   * @param message   message to log
-   * @param ex Exception to log
-   * @param notify    notify user if true
+   * @param tag     Class we are from
+   * @param message message to log
+   * @param ex      Exception to log
+   * @param title   LastError title
+   * @param notify  notify user if true
    * @return The message
    */
-  public static String logEx(String tag, String message, Exception ex,
-                             Boolean notify) {
+  private static String logEx(String tag, String message, Exception ex,
+                              String title, Boolean notify) {
     String msg = "";
     if (!TextUtils.isEmpty(message)) {
       msg = message + ": ";
@@ -90,7 +118,7 @@ public class Log {
 
     // save last error
     final LastError lastError =
-      new LastError(tag, "An error occured", message, ex);
+      new LastError(tag, title, message, ex);
 
     if (notify && Prefs.isNotifyError()) {
       Notifications.show(lastError);
@@ -101,12 +129,40 @@ public class Log {
 
   /**
    * Log an {@link Exception}
+   * @param tag     Class we are from
+   * @param message message to log
+   * @param ex      Exception to log
+   * @param notify  notify user if true
+   * @return The message
+   */
+  public static String logEx(String tag, String message, Exception ex,
+                             Boolean notify) {
+    final String title = App.getContext().getString(R.string.error_not_title);
+    return logEx(tag, message, ex, title, notify);
+  }
+
+  /**
+   * Log an {@link Exception}
    * @param tag       Class we are from
    * @param message   message to log
    * @param exception Exception to log
    * @return The message
    */
   public static String logEx(String tag, String message, Exception exception) {
-    return logEx(tag, message, exception, false);
+    final String title = App.getContext().getString(R.string.error_not_title);
+    return logEx(tag, message, exception, title, true);
+  }
+
+  /**
+   * Log an {@link Exception}
+   * @param tag       Class we are from
+   * @param message   message to log
+   * @param exception Exception to log
+   * @param title     LastError title
+   * @return The message
+   */
+  public static String logEx(String tag, String message, Exception exception,
+                             String title) {
+    return logEx(tag, message, exception, title, true);
   }
 }
