@@ -56,49 +56,31 @@ public class SignInActivity extends BaseActivity implements
   OnCompleteListener<AuthResult>,
   View.OnClickListener {
 
-  /**
-   * Result of Google signIn attempt - {@value}
-   */
+  /** Result of Google signIn attempt - {@value} */
   private static final int RC_SIGN_IN = 9001;
-
-  /**
-   * Google authorization
-   */
+  /** Saved state: {@value} */
+  private static final String STATE_CONNECTION = "connection";
+  /** Google API interface */
+  private static final String STATE_ERROR = "error";
+  /** Google API interface */
   private GoogleApiClient mGoogleApiClient = null;
-
-  /**
-   * Google account
-   */
+  /** Google account */
   private GoogleSignInAccount mAccount = null;
-
-  /**
-   * Firebase authorization
-   */
+  /** Firebase authorization */
   private FirebaseAuth mAuth = null;
-
-  /**
-   * To be notified of device removal
-   */
+  /** Receive {@link Devices} actions */
   private BroadcastReceiver mDevicesReceiver = null;
-
-  /**
-   * Flag to indicate if sign-out includes revocation of app access
-   */
+  /** Flag to indicate if sign-out includes revocation of app access */
   private boolean mIsRevoke = false;
 
   // saved state
-  /**
-   * Error message related to SignIn or SignOut
-   */
+  /** Flag to indicate if Google API connection failed */
+  private boolean mConnectionFailed = false;
+  /** Error message related to SignIn or SignOut */
   private String mErrorMessage = null;
-  /**
-   * Saved state: {@value}
-   */
-  private static final String STATE_ERROR = "error";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-
     mLayoutID = R.layout.activity_sign_in;
 
     super.onCreate(savedInstanceState);
@@ -109,24 +91,46 @@ public class SignInActivity extends BaseActivity implements
       restoreInstanceState(savedInstanceState);
     }
 
-    setupButtons();
-
-    setupDevicesBroadcastReceiver();
+    mDevicesReceiver = new DevicesReceiver(this);
 
     mAuth = FirebaseAuth.getInstance();
 
-    setupGoogleSignIn();
+    setupButtons();
 
+    setupGoogleSignIn();
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    // Save the current state
+    outState.putString(STATE_ERROR, mErrorMessage);
+    outState.putBoolean(STATE_CONNECTION, mConnectionFailed);
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    mOptionsMenuID = R.menu.menu_signin;
+
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  protected void restoreInstanceState(Bundle savedInstanceState) {
+    super.restoreInstanceState(savedInstanceState);
+
+    mErrorMessage = savedInstanceState.getString(STATE_ERROR);
+    mConnectionFailed = savedInstanceState.getBoolean(STATE_CONNECTION);
   }
 
   @Override
   protected void onStart() {
     super.onStart();
 
-    LocalBroadcastManager
-      .getInstance(this)
-      .registerReceiver(mDevicesReceiver,
-        new IntentFilter(Intents.FILTER_DEVICES));
+    LocalBroadcastManager.getInstance(this).registerReceiver(mDevicesReceiver,
+      new IntentFilter(Intents.FILTER_DEVICES));
+
     updateView();
 
     if (User.INSTANCE.isLoggedIn()) {
@@ -138,32 +142,10 @@ public class SignInActivity extends BaseActivity implements
   protected void onStop() {
     super.onStop();
 
-    LocalBroadcastManager
-      .getInstance(this)
+    LocalBroadcastManager.getInstance(this)
       .unregisterReceiver(mDevicesReceiver);
+
     dismissProgress();
-  }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-
-    // Save the current state
-    outState.putString(STATE_ERROR, mErrorMessage);
-  }
-
-  @Override
-  protected void restoreInstanceState(Bundle savedInstanceState) {
-    super.restoreInstanceState(savedInstanceState);
-
-    mErrorMessage = savedInstanceState.getString(STATE_ERROR);
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    mOptionsMenuID = R.menu.menu_signin;
-
-    return super.onCreateOptionsMenu(menu);
   }
 
   @Override
@@ -199,48 +181,38 @@ public class SignInActivity extends BaseActivity implements
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement Firebase OnCompleteListener
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public void onComplete(@NonNull Task<AuthResult> task) {
-    // Called after firebase sign in
+    // Called after firebase sign in attempt
     if (!task.isSuccessful()) {
       // If sign in fails, display a message to the user.
       final Exception ex = task.getException();
       signInFailed(getString(R.string.sign_in_err_firebase), ex);
-    } else {
-      // success
-      mErrorMessage = "";
-      final FirebaseUser user = mAuth.getCurrentUser();
-      if (user != null) {
-        // User is signed in
-        if (mAccount != null) {
-          // set User
-          User.INSTANCE.set(mAccount);
-          updateView();
+      return;
+    }
 
-          if (!Prefs.isDeviceRegistered()) {
-            // register with server
-            setProgressMessage(getString(R.string.registering));
-            new RegistrationClient
-              .RegisterAsyncTask(this, mAccount.getIdToken())
-              .executeMe();
-          } else {
-            dismissProgress();
-          }
-        } else {
-          // something went wrong, shouldn't be here
-          signInFailed(getString(R.string.err_unknown));
-        }
+    // success
+    mErrorMessage = "";
+    final FirebaseUser user = mAuth.getCurrentUser();
+    if ((user != null) && (mAccount != null)) {
+      // set User
+      User.INSTANCE.set(mAccount);
+      updateView();
+
+      if (!Prefs.isDeviceRegistered()) {
+        // now register with server
+        setProgressMessage(getString(R.string.registering));
+        new RegistrationClient
+          .RegisterAsyncTask(this, mAccount.getIdToken())
+          .executeMe();
+      } else {
+        dismissProgress();
       }
+    } else {
+      // something went wrong, shouldn't be here
+      signInFailed(getString(R.string.err_unknown));
     }
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement View.OnClickListener
-  ///////////////////////////////////////////////////////////////////////////
 
   @Override
   public void onClick(View v) {
@@ -260,24 +232,24 @@ public class SignInActivity extends BaseActivity implements
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement GoogleApiClient.OnConnectionFailedListener
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     // An unresolvable error has occurred and Google APIs
     // (including Sign-In) will not be available.
-    connectFailed(connectionResult);
+    connectionFailed(connectionResult);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // public methods
-  ///////////////////////////////////////////////////////////////////////////
+  /** Are we to revoke access to app */
+  public boolean isRevoke() {
+    return mIsRevoke;
+  }
 
-  /**
-   * SignOut of Google and Firebase
-   */
+  /** Set the error message to display to user */
+  public void setErrorMessage(String errorMessage) {
+    mErrorMessage = errorMessage;
+  }
+
+  /** SignOut of Google and Firebase */
   public void doSignOut() {
     if (mGoogleApiClient.isConnected()) {
       showProgress(getString(R.string.signing_out));
@@ -295,40 +267,28 @@ public class SignInActivity extends BaseActivity implements
           }
         });
     } else {
-      dismissProgress();
+      signOutFailed(getString(R.string.error_connection));
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // private methods
-  ///////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Event: SignIn button clicked
-   */
+  /** SignIn button clicked */
   private void onSignInClicked() {
     final Intent signInIntent =
       Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
     startActivityForResult(signInIntent, RC_SIGN_IN);
   }
 
-  /**
-   * Event: SignOut button clicked
-   */
+  /** SignOut button clicked */
   private void onSignOutClicked() {
     handleSigningOut(false);
   }
 
-  /**
-   * Event: Revoke access button clicked
-   */
+  /** Revoke access button clicked */
   private void onRevokeAccessClicked() {
     handleSigningOut(true);
   }
 
-  /**
-   * Try to signin with cached credentials or cross-device single sign-on
-   */
+  /** Try to signin with cached credentials or cross-device single signin */
   private void attemptSilentSignIn() {
     final OptionalPendingResult<GoogleSignInResult> opr =
       Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
@@ -359,7 +319,7 @@ public class SignInActivity extends BaseActivity implements
    * @param result The {@link GoogleSignInResult} of any SignIn attempt
    */
   private void handleSignInResult(GoogleSignInResult result) {
-    if (mGoogleApiClient.isConnected()) {
+    if (!mConnectionFailed) {
       mErrorMessage = "";
       if (result.isSuccess()) {
         mAccount = result.getSignInAccount();
@@ -367,6 +327,7 @@ public class SignInActivity extends BaseActivity implements
           // Authenticate with Firebase, also completes sign-in activities
           firebaseAuthWithGoogle();
         } else {
+          User.INSTANCE.set(mAccount);
           updateView();
         }
       } else {
@@ -378,20 +339,18 @@ public class SignInActivity extends BaseActivity implements
     }
   }
 
-  /**
-   * Authorize with Firebase
-   */
+  /** Authorize with Firebase */
   private void firebaseAuthWithGoogle() {
     showProgress(getString(R.string.signing_in));
     AuthCredential credential =
       GoogleAuthProvider.getCredential(mAccount.getIdToken(), null);
     mAuth.signInWithCredential(credential)
       .addOnCompleteListener(this, this);
+    // handled in onCompleteListener
   }
 
   /**
-   * Handle everything related to unregistering, signing out, and revoking
-   * access
+   * All signout attempts come through here
    * @param revoke - if true revoke access to app
    */
   private void handleSigningOut(Boolean revoke) {
@@ -414,17 +373,13 @@ public class SignInActivity extends BaseActivity implements
     }
   }
 
-  /**
-   * Show a dialog with rationale for signin
-   */
+  /** Show a dialog with rationale for signin */
   private void showHelpDialog() {
     DialogFragment dialogFragment = new HelpDialogFragment();
     dialogFragment.show(getSupportFragmentManager(), "HelpDialogFragment");
   }
 
-  /**
-   * Initialize  Buttons
-   */
+  /** Initialize  Buttons */
   private void setupButtons() {
     findViewById(R.id.sign_in_button).setOnClickListener(this);
     findViewById(R.id.sign_out_button).setOnClickListener(this);
@@ -438,52 +393,9 @@ public class SignInActivity extends BaseActivity implements
     }
   }
 
-  /**
-   * Initialize  {@link Devices} {@link BroadcastReceiver}
-   */
-  private void setupDevicesBroadcastReceiver() {
-    // handler for received Intents for the "devices" event
-    // we want to know when our device is removed and unregistered
-    // so we can finish logout
-    mDevicesReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
-        final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
-
-        if (action != null) {
-          switch (action) {
-            case Intents.TYPE_DEVICE_REMOVED:
-              // device remove message sent, now unregister
-              setProgressMessage(getString(R.string.unregistering));
-              doUnregister();
-              break;
-            case Intents.TYPE_DEVICE_REGISTERED:
-              // registered
-              dismissProgress();
-              break;
-            case Intents.TYPE_DEVICE_UNREGISTERED:
-              // unregistered, now signout or revoke
-              if (mIsRevoke) {
-                doRevoke();
-              } else {
-                doSignOut();
-              }
-            case Intents.TYPE_DEVICE_REGISTER_ERROR:
-              // registration error
-              mErrorMessage = bundle.getString(Intents.EXTRA_TEXT);
-              doSignOut();
-              break;
-          }
-        }
-      }
-    };
-  }
-
-  /**
-   * Initialize Google SignIn
-   */
+  /** Initialize Google SignIn API */
   private void setupGoogleSignIn() {
+    mConnectionFailed = false;
     // Configure sign-in to request the user's ID, email address, and basic
     // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
     final GoogleSignInOptions gso =
@@ -501,10 +413,8 @@ public class SignInActivity extends BaseActivity implements
       .build();
   }
 
-  /**
-   * Revoke access to app for this {@link User}
-   */
-  private void doRevoke() {
+  /** Revoke access to app for this {@link User} */
+  void doRevoke() {
     if (mGoogleApiClient.isConnected()) {
       showProgress(getString(R.string.signing_out));
       Auth.GoogleSignInApi
@@ -523,29 +433,23 @@ public class SignInActivity extends BaseActivity implements
             }
           });
     } else {
-      dismissProgress();
+      revokeFailed(getString(R.string.error_connection));
     }
   }
 
-  /**
-   * Unregister with fcm. This will also perform the sign-out or revoke
-   */
-  private void doUnregister() {
+  /** Unregister with App Engine. This will also perform the sign-out */
+  void doUnregister() {
     new RegistrationClient.UnregisterAsyncTask(
       SignInActivity.this).executeMe();
   }
 
-  /**
-   * Remove all {@link User} info.
-   */
+  /** Remove all {@link User} info. */
   private void clearUser() {
     User.INSTANCE.clear();
     updateView();
   }
 
-  /**
-   * Set the state of all the UI elements
-   */
+  /** Set the state of all the UI elements */
   private void updateView() {
     final View signInView = findViewById(R.id.sign_in);
     final View signOutView = findViewById(R.id.sign_out_and_disconnect);
@@ -577,7 +481,8 @@ public class SignInActivity extends BaseActivity implements
    * Google API connection failed for some reason
    * @param result info. on failure
    */
-  private void connectFailed(@NonNull ConnectionResult result) {
+  private void connectionFailed(@NonNull ConnectionResult result) {
+    mConnectionFailed = true;
     final String title = getString(R.string.error_connection);
     mErrorMessage = title + '\n' + result.toString();
     Log.logE(TAG, result.toString(), title);
@@ -647,7 +552,7 @@ public class SignInActivity extends BaseActivity implements
   /**
    * Remove progress
    */
-  private void dismissProgress() {
+  void dismissProgress() {
     final View userView = findViewById(R.id.user);
     final View progressView = findViewById(R.id.progress);
 
@@ -660,8 +565,58 @@ public class SignInActivity extends BaseActivity implements
    * Set progress message
    * @param message - message to display
    */
-  private void setProgressMessage(String message) {
-    final TextView progressMessageView = findViewById(R.id.progress_message);
-    progressMessageView.setText(message);
+  void setProgressMessage(String message) {
+    final TextView view = findViewById(R.id.progress_message);
+    view.setText(message);
   }
 }
+
+/**
+ * {@link BroadcastReceiver} to handle {@link Devices} actions
+ */
+class DevicesReceiver extends BroadcastReceiver {
+  private SignInActivity mActivity;
+
+  public DevicesReceiver(SignInActivity activity) {
+    mActivity = activity;
+  }
+
+  @Override
+  public void onReceive(Context context, Intent intent) {
+    final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
+    if (bundle == null) {
+      return;
+    }
+    final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
+    if (action == null) {
+      return;
+    }
+
+    switch (action) {
+      case Intents.TYPE_DEVICE_REMOVED:
+        // device remove message sent, now unregister
+        mActivity
+          .setProgressMessage(mActivity.getString(R.string.unregistering));
+        mActivity.doUnregister();
+        break;
+      case Intents.TYPE_DEVICE_REGISTERED:
+        // registered
+        mActivity.dismissProgress();
+        break;
+      case Intents.TYPE_DEVICE_UNREGISTERED:
+        // unregistered, now signout or revoke
+        if (mActivity.isRevoke()) {
+          mActivity.doRevoke();
+        } else {
+          mActivity.doSignOut();
+        }
+      case Intents.TYPE_DEVICE_REGISTER_ERROR:
+        // registration error
+        mActivity.setErrorMessage(bundle.getString(Intents.EXTRA_TEXT));
+        mActivity.doSignOut();
+        break;
+    }
+  }
+}
+
+
