@@ -44,13 +44,12 @@ public enum Email {
   public void send(String subject, String body) {
     final Intent intent = new Intent(Intent.ACTION_SENDTO);
     intent.setData(Uri.parse("mailto:" + SUPPORT_ADDRESS));
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     if (!TextUtils.isEmpty(subject)) {
       intent.putExtra(Intent.EXTRA_SUBJECT, subject);
     }
     if (!TextUtils.isEmpty(body)) {
       intent.putExtra(Intent.EXTRA_TEXT, body);
     }
-    AppUtils.startActivity(intent);
+    AppUtils.startNewTaskActivity(intent);
   }
 }

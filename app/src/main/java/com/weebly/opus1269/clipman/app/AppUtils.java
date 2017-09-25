@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.app;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.SearchManager;
 import android.content.Context;
@@ -99,8 +100,8 @@ public class AppUtils {
     final Context context = App.getContext();
     final ActivityManager manager = (ActivityManager)
       context.getSystemService(Context.ACTIVITY_SERVICE);
-
     boolean ret = false;
+
     for (final ActivityManager.RunningServiceInfo service :
       manager.getRunningServices(Integer.MAX_VALUE)) {
       if (serviceClass.getName().equals(service.service.getClassName())) {
@@ -108,35 +109,71 @@ public class AppUtils {
         break;
       }
     }
+
     return ret;
   }
 
   /**
-   * Try to start an activity
+   * Try to start an activity from another activity
+   * @param activity starting activity
    * @param intent Activity intent
    * @param notify notify user on error if true
    * @return true if successful
    */
-  public static boolean startActivity(Intent intent, boolean notify) {
-    final Context context = App.getContext();
+  public static boolean startActivity(Activity activity, Intent intent,
+                                      boolean notify) {
     boolean ret = true;
+
     try {
+      activity.startActivity(intent);
+    } catch (Exception ex) {
+      final String msg = activity.getString(R.string.err_start_activity);
+      Log.logEx(TAG, msg, ex, ERROR_ACTIVITY, notify);
+      ret = false;
+    }
+
+    return ret;
+  }
+
+  /**
+   * Try to start an activity from another activity
+   * @param activity starting activity
+   * @param intent Activity intent
+   * @return true if successful
+   */
+  public static boolean startActivity(Activity activity, Intent intent) {
+    return startActivity(activity, intent, true);
+  }
+
+  /**
+   * Try to start an activity as a new task
+   * @param intent Activity intent
+   * @param notify if true, notify user on error
+   * @return true if successful
+   */
+  public static boolean startNewTaskActivity(Intent intent, boolean notify) {
+    Context context = App.getContext();
+    boolean ret = true;
+
+    try {
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       context.startActivity(intent);
     } catch (Exception ex) {
       final String msg = context.getString(R.string.err_start_activity);
       Log.logEx(TAG, msg, ex, ERROR_ACTIVITY, notify);
       ret = false;
     }
+
     return ret;
   }
 
   /**
-   * Try to start an activity
+   * Try to start an activity as a new task
    * @param intent Activity intent
    * @return true if successful
    */
-  public static boolean startActivity(Intent intent) {
-    return startActivity(intent, true);
+  public static boolean startNewTaskActivity(Intent intent) {
+    return  startNewTaskActivity(intent, true);
   }
 
   /**
@@ -166,7 +203,7 @@ public class AppUtils {
   public static void showInPlayStore() {
     final Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(PLAY_STORE));
-    if (!AppUtils.startActivity(intent, false)) {
+    if (!AppUtils.startNewTaskActivity(intent, false)) {
       Log.logD(TAG, "Could not open app in play store, trying web.");
       AppUtils.showWebUrl(PLAY_STORE_WEB);
     }
@@ -182,9 +219,8 @@ public class AppUtils {
 
     if (Patterns.WEB_URL.matcher(uri).matches()) {
       final Intent intent = new Intent(Intent.ACTION_VIEW);
-      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       intent.setData(Uri.parse(uri));
-      ret = AppUtils.startActivity(intent);
+      ret = AppUtils.startNewTaskActivity(intent);
     }
     return ret;
   }
@@ -202,8 +238,7 @@ public class AppUtils {
     } else {
       final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
       intent.putExtra(SearchManager.QUERY, text);
-      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      ret = AppUtils.startActivity(intent);
+      ret = AppUtils.startNewTaskActivity(intent);
     }
     return ret;
   }

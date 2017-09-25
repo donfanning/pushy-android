@@ -326,7 +326,7 @@ public class Notifications {
 
     Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
     intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
-    AppUtils.startActivity(intent);
+    AppUtils.startNewTaskActivity(intent);
   }
 
   /**

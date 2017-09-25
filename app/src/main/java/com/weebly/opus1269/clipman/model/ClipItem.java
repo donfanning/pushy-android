@@ -350,8 +350,7 @@ public class ClipItem implements Serializable {
     intent.setType(TEXT_PLAIN);
     final Intent sendIntent = Intent.createChooser(intent,
       context.getResources().getString(R.string.share_text_to));
-    sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    AppUtils.startActivity(sendIntent);
+    AppUtils.startNewTaskActivity(sendIntent);
   }
 
   /**

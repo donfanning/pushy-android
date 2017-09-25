@@ -397,7 +397,7 @@ public class MainActivity extends BaseActivity implements
       final Intent intent = new Intent(this, ClipViewerActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
       intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
-      AppUtils.startActivity(intent);
+      AppUtils.startActivity(this, intent);
     }
   }
 
@@ -438,7 +438,7 @@ public class MainActivity extends BaseActivity implements
         (LastError) intent.getSerializableExtra(Intents.EXTRA_LAST_ERROR);
       final Intent newIntent = new Intent(this, ErrorViewerActivity.class);
       newIntent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
-      AppUtils.startActivity(newIntent);
+      AppUtils.startActivity(this, newIntent);
     }
   }
 
@@ -448,7 +448,7 @@ public class MainActivity extends BaseActivity implements
    */
   private void startActivity(Class cls) {
     final Intent intent = new Intent(this, cls);
-    AppUtils.startActivity(intent);
+    AppUtils.startActivity(this, intent);
   }
 
   /**
