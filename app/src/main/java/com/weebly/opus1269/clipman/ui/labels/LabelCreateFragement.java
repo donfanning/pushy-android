@@ -122,13 +122,14 @@ public class LabelCreateFragement extends Fragment implements
         (keyCode == KeyEvent.KEYCODE_ENTER)) {
         addLabel((EditText) view);
         // dismiss keyboard
-        InputMethodManager imm = (InputMethodManager) getActivity()
-          .getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager)
+          getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         return true;
       }
       return false;
     }
+
     return false;
   }
 
