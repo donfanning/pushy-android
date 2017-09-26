@@ -10,15 +10,12 @@ package com.weebly.opus1269.clipman.model;
 import com.weebly.opus1269.clipman.BuildConfig;
 
 /**
- *
  * Static class for our intents
  */
 public class Intents {
   private static final String PATH = BuildConfig.APPLICATION_ID + '.';
 
-  /**
-   * Related to {@link Devices}
-   */
+  // related to Devices
   public static final String FILTER_DEVICES = PATH + "filterDevices";
   public static final String BUNDLE_DEVICES = PATH + "bundleDevices";
   public static final String ACTION_TYPE_DEVICES = PATH + "actionTypeDevices";
@@ -28,14 +25,22 @@ public class Intents {
   public static final String TYPE_DEVICE_UNREGISTERED = PATH + "deviceUnregistered";
   public static final String TYPE_DEVICE_REGISTER_ERROR = PATH + "deviceRegisterError";
 
-  /**
-   * Related to {@link Notifications}
-   */
+  // related to Labels
+  public static final String FILTER_LABELS = PATH + "filterLabels";
+  public static final String BUNDLE_LABELS = PATH + "bundleLabels";
+  public static final String ACTION_TYPE_LABELS = PATH + "actionTypeLabels";
+  public static final String TYPE_LABELS_UPDATED = PATH + "labelsUpdated";
+  public static final String TYPE_LABEL_ADDED = PATH + "labelAdded";
+  public static final String TYPE_LABEL_CHANGED = PATH + "labelChanged";
+  public static final String TYPE_LABEL_REMOVED = PATH + "labelRemoved";
+
+  // related to Notifications
   static final String ACTION_DELETE_NOTIFICATION = PATH + "deleteNotification";
   static final String ACTION_EMAIL = PATH + "email";
   static final String ACTION_SHARE = PATH + "share";
   static final String ACTION_SEARCH = PATH + "search";
 
+  // Extras
   public static final String EXTRA_TEXT = PATH + "text";
   public static final String EXTRA_CLIP_COUNT = PATH + "clipCount";
   static final String EXTRA_NOTIFICATION_ID = PATH + "notificationId";
@@ -43,4 +48,6 @@ public class Intents {
   static final String EXTRA_EMAIL_SUBJECT = PATH + "emailSubject";
   public static final String EXTRA_CLIP_ITEM = PATH + "clipItem";
   public static final String EXTRA_LAST_ERROR = PATH + "lastError";
+  public static final String EXTRA_LABEL = PATH + "label";
+  public static final String EXTRA_OLD_LABEL_NAME = PATH + "oldLabelName";
 }

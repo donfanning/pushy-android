@@ -216,6 +216,8 @@
   <string name="device_last_seen_fmt">Last seen - %s</string>
   <string name="remote_device_fmt">Source - %s</string>
 
+  <!-- Related to LabelsActivity -->
+  <string name="label_create_hint">Create new label</string>
 
   <!-- Related to notifications -->
   <string name="refresh_devices">Refreshing device list…</string>
@@ -296,6 +298,7 @@
   <string name="content_favorite">Select to make favorite</string>
   <string name="content_copy">Copy item to clipboard</string>
   <string name="device_forget">Forget device</string>
+  <string name="label_add">Add label</string>
   <string name="no_share">Nothing to share</string>
   <string name="share_text_to">Share text to…</string>
   <string name="delete_all_question">Delete all items?</string>

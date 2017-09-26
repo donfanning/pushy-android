@@ -7,6 +7,8 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 
 /**
@@ -16,21 +18,21 @@ public class Label implements Serializable {
   private static final String TAG = "Label";
 
   /** The name of the label */
-  private String mName;
+  @NonNull private String mName;
 
   public Label() {
     mName = "Label name";
   }
 
-  public Label(String name) {
+  public Label(@NonNull String name) {
     mName = name;
   }
 
-  public String getName() {
+  @NonNull public String getName() {
     return mName;
   }
 
-  public void setName(String name) {
+  public void setName(@NonNull String name) {
     mName = name;
   }
 }
