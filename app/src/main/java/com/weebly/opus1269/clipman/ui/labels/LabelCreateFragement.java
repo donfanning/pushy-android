@@ -24,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Labels;
 import com.weebly.opus1269.clipman.model.Prefs;
