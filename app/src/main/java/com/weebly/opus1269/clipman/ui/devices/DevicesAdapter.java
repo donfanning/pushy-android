@@ -38,10 +38,6 @@ import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
  */
 class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
 
-  ///////////////////////////////////////////////////////////////////////////
-  // superclass overrides
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public DeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     final Context context = parent.getContext();
@@ -111,10 +107,6 @@ class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolde
       .tint()
       .applyTo(holder.forgetButton);
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // inner classes
-  ///////////////////////////////////////////////////////////////////////////
 
   static class DeviceViewHolder extends RecyclerView.ViewHolder {
     final TextView lastSeenTextView;
