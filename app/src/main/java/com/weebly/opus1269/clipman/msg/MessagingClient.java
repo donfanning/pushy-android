@@ -45,9 +45,7 @@ import java.io.IOException;
 public class MessagingClient extends Endpoint {
   private static final String TAG = "MessagingClient";
 
-  /**
-   * {@value}
-   */
+  /** Send error message */
   private static final String ERROR_SEND =
     App.getContext().getString(R.string.err_send);
 

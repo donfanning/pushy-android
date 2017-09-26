@@ -13,7 +13,7 @@ import android.app.Activity;
 /**
  * This class is part of a solution to the problem of screen
  * orientation/Activity destruction during lengthy Async tasks.
- * {@see https://goo.gl/vsNa1h}
+ * @see <a href="https://goo.gl/vsNa1h">https://goo.gl/vsNa1h</a>
  */
 
 public abstract class CustomAsyncTask<TParams, TProgress, TResult>

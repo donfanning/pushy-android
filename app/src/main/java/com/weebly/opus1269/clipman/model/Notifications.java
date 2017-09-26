@@ -375,7 +375,7 @@ public class Notifications {
   }
 
   /**
-   * Get a {@link NotificationCompat.Builder} with the shared settings
+   * Get a builder with the common settings for a notification
    * @param pInt      Content intent
    * @param largeIcon display icon
    * @param titleText display title
