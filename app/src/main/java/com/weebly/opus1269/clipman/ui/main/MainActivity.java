@@ -29,7 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -47,6 +46,7 @@ import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.ui.help.HelpActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.model.Notifications;
+import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 
@@ -262,6 +262,9 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.nav_settings:
         startActivity(SettingsActivity.class);
+        break;
+      case R.id.nav_labels_edit:
+        startActivity(LabelsEditActivity.class);
         break;
       case R.id.nav_error:
         startActivity(ErrorViewerActivity.class);

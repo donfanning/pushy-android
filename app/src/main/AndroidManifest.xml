@@ -76,6 +76,11 @@
       android:label="@string/title_activity_devices"
       android:parentActivityName=".ui.main.MainActivity"
       android:theme="@style/AppThemeLight" />
+    <activity
+      android:name=".ui.labels.LabelsEditActivity"
+      android:label="@string/title_activity_labels_edit"
+      android:parentActivityName=".ui.main.MainActivity"
+      android:theme="@style/AppThemeLight" />
 
     <!-- private to app -->
     <provider
