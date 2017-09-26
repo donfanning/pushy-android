@@ -13,6 +13,12 @@
   android:id="@+id/content_devices"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:layout_marginBottom="@dimen/activity_vertical_margin"
+  android:layout_marginEnd="@dimen/activity_horizontal_margin"
+  android:layout_marginLeft="@dimen/activity_horizontal_margin"
+  android:layout_marginRight="@dimen/activity_horizontal_margin"
+  android:layout_marginStart="@dimen/activity_horizontal_margin"
+  android:layout_marginTop="@dimen/activity_vertical_margin"
   android:descendantFocusability="beforeDescendants"
   android:focusableInTouchMode="true"
   android:orientation="vertical"
@@ -20,69 +26,11 @@
   tools:context=".ui.labels.LabelsEditActivity"
   tools:showIn="@layout/activity_labels_edit">
 
-  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/deviceRow"
+  <fragment android:name="com.weebly.opus1269.clipman.ui.labels.LabelCreateFragement"
+    android:id="@+id/labelCreate"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/activity_vertical_margin"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-    android:layout_marginRight="@dimen/activity_horizontal_margin"
-    android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical">
-
-    <RelativeLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
-
-      <ImageView
-        android:id="@+id/addImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:background="@android:color/transparent"
-        app:srcCompat="@drawable/ic_add" />
-
-      <EditText
-        android:id="@+id/addText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/item_horizontal_margin"
-        android:layout_marginLeft="@dimen/item_horizontal_margin"
-        android:layout_marginRight="@dimen/item_horizontal_margin"
-        android:layout_marginStart="@dimen/item_horizontal_margin"
-        android:layout_toEndOf="@+id/addImage"
-        android:layout_toLeftOf="@+id/addDoneButton"
-        android:layout_toRightOf="@+id/addImage"
-        android:layout_toStartOf="@+id/addDoneButton"
-        android:hint="@string/label_create_hint"
-        android:inputType="textCapWords"
-        android:maxLength="32"
-        android:maxLines="1"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:textIsSelectable="false" />
-
-      <ImageButton
-        android:id="@+id/addDoneButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/label_add"
-        app:srcCompat="@drawable/ic_done" />
-
-    </RelativeLayout>
-
-    <View style="@style/Divider" />
-
-  </LinearLayout>
+    />
 
   <include layout="@layout/label_edit_list" />
 

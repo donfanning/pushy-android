@@ -15,25 +15,18 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Labels;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
-import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-public class LabelsEditActivity extends BaseActivity
-  implements View.OnClickListener {
+public class LabelsEditActivity extends BaseActivity {
 
-  // Adapter being used to display the list's data
-  private LabelsEditAdapter mAdapter = null;
+  /** Adapter used to display the list's data */
+   private LabelsEditAdapter mAdapter = null;
 
+  /** Listens for {@link Labels} changes */
   private BroadcastReceiver mReceiver = null;
 
   @Override
@@ -42,27 +35,20 @@ public class LabelsEditActivity extends BaseActivity
 
     super.onCreate(savedInstanceState);
 
-    // TODO remove
-//    Labels.add(new Label("Item"), true);
-//    Labels.add(new Label("Item 2"), true);
-
-    setupAddLabel();
+    mReceiver = new LabelsBroadcastReceiver();
 
     setupRecyclerView();
-
-    setupLabelsBroadcastReceiver();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
 
-    // Register mReceiver to receive Device notifications.
+    // Register mReceiver to receive Labels notifications.
     LocalBroadcastManager.getInstance(this)
       .registerReceiver(mReceiver,
         new IntentFilter(Intents.FILTER_LABELS));
 
-    // TODO need it? so relative dates get updated
     mAdapter.notifyDataSetChanged();
   }
 
@@ -73,15 +59,6 @@ public class LabelsEditActivity extends BaseActivity
     // Unregister since the activity is not visible
     LocalBroadcastManager.getInstance(this)
       .unregisterReceiver(mReceiver);
-  }
-
-  @Override
-  public void onClick(View view) {
-    if (view.getId() == R.id.addDoneButton) {
-      final EditText editText = findViewById(R.id.addText);
-      final String text = editText.getText().toString();
-      Labels.add(new Label(text), true);
-    }
   }
 
   /**
@@ -97,82 +74,34 @@ public class LabelsEditActivity extends BaseActivity
     }
   }
 
-  private void setupAddLabel() {
-    int color;
-
-    final ImageView addImage = findViewById(R.id.addImage);
-    final ImageButton addDoneButton = findViewById(R.id.addDoneButton);
-
-    // listen for click
-    addDoneButton.setOnClickListener(this);
-
-    // tint icons
-    if (Prefs.isLightTheme()) {
-      color = R.color.deep_teal_500;
-    } else {
-      color = R.color.deep_teal_200;
-    }
-    DrawableHelper
-      .withContext(this)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_add)
-      .tint()
-      .applyTo(addImage);
-
-    if (Prefs.isLightTheme()) {
-      color = android.R.color.primary_text_light;
-    } else {
-      color = android.R.color.primary_text_dark;
-    }
-    DrawableHelper
-      .withContext(this)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_done)
-      .tint()
-      .applyTo(addDoneButton);
-  }
-
   /**
-   * Create the {@link BroadcastReceiver} to handle changes to the list
+   * Inner class to handle notifications of {@link Labels} changes
    */
-  private void setupLabelsBroadcastReceiver() {
-    // handler for received Intents for the "labels" event
-    mReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        notifyAdapter(intent);
+  class LabelsBroadcastReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_LABELS);
+      final String action = bundle.getString(Intents.ACTION_TYPE_LABELS);
+      if (action == null) {
+        return;
       }
 
-      private void notifyAdapter(Intent intent) {
-        final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_LABELS);
-        final String action = bundle.getString(Intents.ACTION_TYPE_LABELS);
-        if (action == null) {
-          return;
-        }
-
-        switch (action) {
-          case Intents.TYPE_LABELS_UPDATED:
-            mAdapter.notifyDataSetChanged();
-          case Intents.TYPE_LABEL_ADDED:
-            mAdapter.notifyDataSetChanged();
-            break;
-          case Intents.TYPE_LABEL_REMOVED:
-            mAdapter.notifyDataSetChanged();
-            break;
-          case Intents.TYPE_LABEL_CHANGED:
-            mAdapter.notifyDataSetChanged();
-            break;
-          default:
-            break;
-        }
+      switch (action) {
+        case Intents.TYPE_LABELS_UPDATED:
+          mAdapter.notifyDataSetChanged();
+        case Intents.TYPE_LABEL_ADDED:
+          mAdapter.notifyDataSetChanged();
+          break;
+        case Intents.TYPE_LABEL_REMOVED:
+          mAdapter.notifyDataSetChanged();
+          break;
+        case Intents.TYPE_LABEL_CHANGED:
+          mAdapter.notifyDataSetChanged();
+          break;
+        default:
+          break;
       }
-    };
-  }
-
-  /**
-   * Refresh the list
-   */
-  private void doRefresh() {
-    mAdapter.notifyDataSetChanged();
+    }
   }
 }

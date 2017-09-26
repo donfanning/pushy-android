@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/addLabelRow"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical"
+  tools:context="com.weebly.opus1269.clipman.ui.labels.LabelCreateFragement">
+
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+      android:id="@+id/addImage"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentLeft="true"
+      android:layout_alignParentStart="true"
+      android:layout_centerVertical="true"
+      android:background="@android:color/transparent"
+      app:srcCompat="@drawable/ic_add" />
+
+    <EditText
+      android:id="@+id/addText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/item_horizontal_margin"
+      android:layout_marginLeft="@dimen/item_horizontal_margin"
+      android:layout_marginRight="@dimen/item_horizontal_margin"
+      android:layout_marginStart="@dimen/item_horizontal_margin"
+      android:layout_toEndOf="@+id/addImage"
+      android:layout_toLeftOf="@+id/addDoneButton"
+      android:layout_toRightOf="@+id/addImage"
+      android:layout_toStartOf="@+id/addDoneButton"
+      android:hint="@string/label_create_hint"
+      android:inputType="textCapWords"
+      android:maxLength="32"
+      android:maxLines="1"
+      android:textAppearance="?attr/textAppearanceListItem"
+      android:textIsSelectable="false" />
+
+    <ImageButton
+      android:id="@+id/addDoneButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
+      android:layout_alignParentRight="true"
+      android:layout_centerVertical="true"
+      android:background="@android:color/transparent"
+      android:contentDescription="@string/label_add"
+      app:srcCompat="@drawable/ic_done" />
+
+  </RelativeLayout>
+
+  <View style="@style/Divider" />
+
+</LinearLayout>
