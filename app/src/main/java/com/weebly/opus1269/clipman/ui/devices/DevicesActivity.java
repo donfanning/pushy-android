@@ -58,15 +58,6 @@ public class DevicesActivity extends BaseActivity {
   }
 
   @Override
-  protected void onPause() {
-    super.onPause();
-
-    // Unregister since the activity is not visible
-    LocalBroadcastManager.getInstance(this)
-      .unregisterReceiver(mReceiver);
-  }
-
-  @Override
   protected void onResume() {
     super.onResume();
 
@@ -82,6 +73,15 @@ public class DevicesActivity extends BaseActivity {
 
     // so relative dates get updated
     mAdapter.notifyDataSetChanged();
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    // Unregister since the activity is not visible
+    LocalBroadcastManager.getInstance(this)
+      .unregisterReceiver(mReceiver);
   }
 
   /**
