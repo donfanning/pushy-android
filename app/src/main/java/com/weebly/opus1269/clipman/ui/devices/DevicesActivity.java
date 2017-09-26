@@ -29,10 +29,11 @@ import com.weebly.opus1269.clipman.model.Notifications;
  */
 public class DevicesActivity extends BaseActivity {
 
-  // Adapter being used to display the list's data
+  /** Adapter being used to display the list's data */
   private DevicesAdapter mAdapter = null;
 
-  private BroadcastReceiver mDevicesReceiver = null;
+  /** Receiver to be notified of changes */
+  private BroadcastReceiver mReceiver = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -62,16 +63,16 @@ public class DevicesActivity extends BaseActivity {
 
     // Unregister since the activity is not visible
     LocalBroadcastManager.getInstance(this)
-      .unregisterReceiver(mDevicesReceiver);
+      .unregisterReceiver(mReceiver);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
 
-    // Register mDevicesReceiver to receive Device notifications.
+    // Register mReceiver to receive Device notifications.
     LocalBroadcastManager.getInstance(this)
-      .registerReceiver(mDevicesReceiver,
+      .registerReceiver(mReceiver,
         new IntentFilter(Intents.FILTER_DEVICES));
 
     Notifications.removeDevices();
@@ -83,11 +84,9 @@ public class DevicesActivity extends BaseActivity {
     mAdapter.notifyDataSetChanged();
   }
 
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
-
+  /**
+   * Connect the {@link DevicesAdapter} to the {@link RecyclerView}
+   */
   private void setupRecyclerView() {
     final RecyclerView recyclerView =
       findViewById(R.id.deviceList);
@@ -98,9 +97,12 @@ public class DevicesActivity extends BaseActivity {
     }
   }
 
+  /**
+   * Create the {@link BroadcastReceiver} to handle changes to the list
+   */
   private void setupDevicesBroadcastReceiver() {
     // handler for received Intents for the "devices" event
-    mDevicesReceiver = new BroadcastReceiver() {
+    mReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
         notifyAdapter(intent);
@@ -124,6 +126,9 @@ public class DevicesActivity extends BaseActivity {
     };
   }
 
+  /**
+   * Refresh the list
+   */
   private void doRefresh() {
     mAdapter.notifyDataSetChanged();
     MessagingClient.sendPing();
