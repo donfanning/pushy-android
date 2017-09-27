@@ -64,6 +64,7 @@ public class ClipContentProvider extends ContentProvider {
    * @param onNewOnly only insert if item text is not in database if true
    * @return true if inserted
    */
+  @NonNull
   public static Boolean insert(Context context, ClipItem clipItem,
                                Boolean onNewOnly) {
     if ((clipItem == null) || TextUtils.isEmpty(clipItem.getText())) {
@@ -109,6 +110,53 @@ public class ClipContentProvider extends ContentProvider {
   }
 
   /**
+   * Add a {@link ClipItem} and {@link Label} to the LabelMap table
+   * @param context  the context
+   * @param clipItem the clip
+   * @param label    the label
+   * @return if true, added
+   */
+  @NonNull
+  public static Boolean insert(Context context, ClipItem clipItem,
+                               Label label) {
+    if ((label == null) || TextUtils.isEmpty(label.getName()) ||
+      (clipItem == null) || TextUtils.isEmpty(clipItem.getText())) {
+      return false;
+    }
+
+    // query for existence and skip insert if it does
+    final String[] projection =
+      {ClipContract.LabelMap.COL_LABEL_NAME};
+    final String selection = "(" +
+      "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
+      "(" + ClipContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
+      ")";
+    final String[] selectionArgs = {label.getName(), clipItem.getText()};
+
+    final Cursor cursor =
+      context.getContentResolver()
+        .query(ClipContract.LabelMap.CONTENT_URI, projection,
+          selection, selectionArgs, null);
+    if (cursor.getCount() != 0) {
+      // already in database, we are done
+      cursor.close();
+      Log.logD(TAG, "found in LabelMap, wont add");
+      return false;
+
+    }
+    cursor.close();
+
+    // do it
+    final ContentValues cv = new ContentValues();
+    cv.put(ClipContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
+    cv.put(ClipContract.LabelMap.COL_LABEL_NAME, label.getName());
+    final ContentResolver resolver = context.getContentResolver();
+    resolver.insert(ClipContract.LabelMap.CONTENT_URI, cv);
+
+    return true;
+  }
+
+  /**
    * Add a {@link Label} to the database, if new
    * @param context the context
    * @param label   the label to add
@@ -127,9 +175,8 @@ public class ClipContentProvider extends ContentProvider {
     final String[] selectionArgs = {label.getName()};
 
     final Cursor cursor =
-      context.getContentResolver()
-        .query(ClipContract.Label.CONTENT_URI, projection,
-          selection, selectionArgs, null);
+      context.getContentResolver().query(ClipContract.Label.CONTENT_URI,
+        projection, selection, selectionArgs, null);
     if (cursor.getCount() != 0) {
       // already in database, we are done
       cursor.close();
@@ -148,7 +195,7 @@ public class ClipContentProvider extends ContentProvider {
 
   /**
    * Add a group of {@link ClipItem} objects to the databse
-   * @param context a context
+   * @param context   a context
    * @param clipItems the items to add
    * @return number of items added
    */
@@ -186,17 +233,40 @@ public class ClipContentProvider extends ContentProvider {
     while (cursor.moveToNext()) {
       //noinspection ObjectAllocationInLoop
       final ContentValues cv = new ContentValues();
-      cv.put(ClipContract.Clip.COL_TEXT, cursor.getString(cursor.getColumnIndex(ClipContract.Clip.COL_TEXT)));
-      cv.put(ClipContract.Clip.COL_DATE, cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_DATE)));
-      cv.put(ClipContract.Clip.COL_FAV, cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_FAV)));
-      cv.put(ClipContract.Clip.COL_REMOTE, cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_REMOTE)));
-      cv.put(ClipContract.Clip.COL_DEVICE, cursor.getString(cursor.getColumnIndex(ClipContract.Clip.COL_DEVICE)));
+      cv.put(ClipContract.Clip.COL_TEXT,
+        cursor.getString(cursor.getColumnIndex(ClipContract.Clip.COL_TEXT)));
+      cv.put(ClipContract.Clip.COL_DATE,
+        cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_DATE)));
+      cv.put(ClipContract.Clip.COL_FAV,
+        cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_FAV)));
+      cv.put(ClipContract.Clip.COL_REMOTE,
+        cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_REMOTE)));
+      cv.put(ClipContract.Clip.COL_DEVICE,
+        cursor.getString(cursor.getColumnIndex(ClipContract.Clip.COL_DEVICE)));
       array[count] = cv;
       count++;
     }
     cursor.close();
 
     return array;
+  }
+
+  /**
+   * Delete a {@link ClipItem} and {@link Label} from the LabelMap table
+   * @param context  the context
+   * @param clipItem the clip
+   * @param label    the label
+   */
+  public static void delete(Context context, ClipItem clipItem, Label label) {
+    final String selection = "(" +
+      "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
+      "(" + ClipContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
+      ")";
+    final String[] selectionArgs = {label.getName(), clipItem.getText()};
+
+    final ContentResolver resolver = context.getContentResolver();
+    resolver.delete(ClipContract.LabelMap.CONTENT_URI, selection,
+      selectionArgs);
   }
 
   /**
@@ -288,6 +358,12 @@ public class ClipContentProvider extends ContentProvider {
           newSortOrder = ClipContract.Label.getDefaultSortOrder();
         }
         break;
+      case LABEL_MAP:
+        queryBuilder.setTables(ClipContract.LabelMap.TABLE_NAME);
+        if (TextUtils.isEmpty(sortOrder)) {
+          newSortOrder = ClipContract.LabelMap.getDefaultSortOrder();
+        }
+        break;
       case CLIP_ID:
         queryBuilder.setTables(ClipContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
@@ -303,6 +379,17 @@ public class ClipContentProvider extends ContentProvider {
         queryBuilder.setTables(ClipContract.Label.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
           newSortOrder = ClipContract.Label.getDefaultSortOrder();
+        }
+        // Because this URI was for a single row, the _ID value part is
+        // present. Get the last path segment from the URI; this is the
+        // _ID value. Then, append the value to the WHERE clause for
+        // the query
+        newSelection += "and _ID = " + uri.getLastPathSegment();
+        break;
+      case LABEL_MAP_ID:
+        queryBuilder.setTables(ClipContract.LabelMap.TABLE_NAME);
+        if (TextUtils.isEmpty(sortOrder)) {
+          newSortOrder = ClipContract.LabelMap.getDefaultSortOrder();
         }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the

@@ -34,7 +34,6 @@ import org.joda.time.ReadableInstant;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 
 /**
  * This class represents the data for a single clipboard entry
@@ -275,6 +274,17 @@ public class ClipItem implements Serializable {
   public void setDevice(String device) {
     mDevice = device;
   }
+
+  public void addLabel(Label label) {
+    mLabels.add(label);
+    ClipContentProvider.insert(App.getContext(), this, label);
+  }
+
+  public void removeLabel(Label label) {
+    mLabels.remove(label);
+    ClipContentProvider.delete(App.getContext(), this, label);
+  }
+
 
   /**
    * Get the ClipItem as a {@link ContentValues object}

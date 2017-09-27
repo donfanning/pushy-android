@@ -18,25 +18,21 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.ClipContract;
+import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -46,9 +42,9 @@ import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
  */
 class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.LabelViewHolder> {
 
-  private final Activity mActivity;
+  private final LabelsSelectActivity mActivity;
 
-  LabelsSelectAdapter(Activity activity) {
+  LabelsSelectAdapter(LabelsSelectActivity activity) {
     super(activity);
 
     mActivity = activity;
@@ -92,13 +88,23 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
     final TextView textView = holder.lastText;
     textView.setText(label.getName());
 
-    ViewGroup parent = (ViewGroup) holder.checkBox.getParent();
-    parent.setOnClickListener(
+    holder.labelRow.setOnClickListener(
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          // TODO add or remove association of label to clip
           holder.checkBox.toggle();
+          final boolean checked = holder.checkBox.isChecked();
+          addOrRemoveLabel(checked, label);
+        }
+      }
+    );
+
+    holder.checkBox.setOnClickListener(
+      new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          final boolean checked = holder.checkBox.isChecked();
+          addOrRemoveLabel(checked, label);
         }
       }
     );
@@ -109,6 +115,20 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
   // needed to allow animations to run
   public long getItemId(int position) {
     return mCursorAdapter.getItemId(position);
+  }
+
+  /**
+   * Add or remove a {@link Label} to our {@link ClipItem}
+   * @param checked if true, add
+   * @param label label to add or remove
+   */
+  private void addOrRemoveLabel(boolean checked, Label label) {
+    final ClipItem clipItem = mActivity.getClipItem();
+    if (checked) {
+      clipItem.addLabel(label);
+    } else {
+      clipItem.removeLabel(label);
+    }
   }
 
   /**
@@ -145,6 +165,7 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
   }
 
   static class LabelViewHolder extends RecyclerViewCursorViewHolder {
+    final RelativeLayout labelRow;
     final ImageView labelImage;
     final TextView lastText;
     final CheckBox checkBox;
@@ -154,6 +175,7 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
     LabelViewHolder(View view) {
       super(view);
 
+      labelRow = view.findViewById(R.id.labelRow);
       labelImage = view.findViewById(R.id.labelImage);
       lastText = view.findViewById(R.id.labelText);
       checkBox = view.findViewById(R.id.checkBox);

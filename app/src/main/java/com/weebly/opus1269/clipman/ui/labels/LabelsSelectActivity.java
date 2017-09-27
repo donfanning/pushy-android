@@ -110,6 +110,10 @@ public class LabelsSelectActivity extends BaseActivity implements
     mAdapter.swapCursor(null);
   }
 
+  ClipItem getClipItem() {
+    return mClipItem;
+  }
+
   /**
    * Connect the {@link LabelsEditAdapter} to the {@link RecyclerView}
    */
