@@ -10,11 +10,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/deviceRow"
+  android:id="@+id/labelRow"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:layout_marginBottom="@dimen/activity_vertical_margin"
-  android:layout_marginTop="@dimen/activity_vertical_margin"
+  android:paddingBottom="@dimen/activity_vertical_margin"
+  android:paddingLeft="@dimen/activity_horizontal_margin"
+  android:paddingRight="@dimen/activity_horizontal_margin"
+  android:paddingTop="@dimen/activity_vertical_margin"
   android:orientation="vertical">
 
   <ImageView
@@ -39,6 +41,7 @@
     android:layout_toLeftOf="@+id/deleteButton"
     android:layout_toRightOf="@+id/labelImage"
     android:layout_toStartOf="@+id/deleteButton"
+    android:layout_centerVertical="true"
     android:inputType="textCapWords"
     android:maxLength="32"
     android:maxLines="1"
