@@ -23,6 +23,7 @@
   <string name="title_activity_sign_in">Manage account</string>
   <string name="title_activity_devices">Manage devices</string>
   <string name="title_activity_labels_edit">Edit labels</string>
+  <string name="title_activity_labels_select">Select labels</string>
 
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -30,6 +31,7 @@
 
   <!-- Related to Menus -->
   <string name="action_favorite">Toggle favorite</string>
+  <string name="action_labels_select">Select labels</string>
   <string name="action_show_favs">Show favorites</string>
   <string name="action_show_all">Show all</string>
   <string name="action_send">Send clipboard contents</string>
@@ -298,6 +300,7 @@
   <string name="content_favorite">Select to make favorite</string>
   <string name="content_copy">Copy item to clipboard</string>
   <string name="device_forget">Forget device</string>
+  <string name="label_select">Select label</string>
   <string name="label_add">Add label</string>
   <string name="no_share">Nothing to share</string>
   <string name="share_text_to">Share text to…</string>
@@ -316,9 +319,6 @@
   <string name="fcm_deleted_message"><![CDATA[
         Either messages have expired because they are too old,
         or this device has more than 100 undelivered messages.]]></string>
-  <string name="title_activity_labels">LabelsActivity</string>
 
-  <!-- TODO: Remove or change this placeholder text -->
-  <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

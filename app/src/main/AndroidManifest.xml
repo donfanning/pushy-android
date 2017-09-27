@@ -32,13 +32,17 @@
       <meta-data
         android:name="android.app.searchable"
         android:resource="@xml/searchable" />
+
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
+
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
       <intent-filter>
         <action android:name="android.intent.action.SEND" />
+
         <category android:name="android.intent.category.DEFAULT" />
+
         <data android:mimeType="text/plain" />
       </intent-filter>
     </activity>
@@ -75,6 +79,11 @@
     <activity
       android:name=".ui.labels.LabelsEditActivity"
       android:label="@string/title_activity_labels_edit"
+      android:parentActivityName=".ui.main.MainActivity"
+      android:theme="@style/AppThemeLight" />
+    <activity
+      android:name=".ui.labels.LabelsSelectActivity"
+      android:label="@string/title_activity_labels_select"
       android:parentActivityName=".ui.main.MainActivity"
       android:theme="@style/AppThemeLight" />
 
@@ -181,7 +190,6 @@
         <action android:name="com.weebly.opus1269.clipman.SHARE_ACTION" />
       </intent-filter>
     </receiver>
-
   </application>
 
 </manifest>

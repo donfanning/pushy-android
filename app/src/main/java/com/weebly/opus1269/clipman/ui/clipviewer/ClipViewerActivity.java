@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.clipviewer;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
@@ -26,6 +28,7 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
+import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 import java.io.Serializable;
 
@@ -97,6 +100,11 @@ public class ClipViewerActivity extends BaseActivity implements
     switch (id) {
       case R.id.action_favorite:
         toggleFavorite();
+        break;
+      case R.id.action_labels:
+        final Intent intent = new Intent(this, LabelsSelectActivity.class);
+        intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
+        AppUtils.startActivity(this, intent);
         break;
       case R.id.action_search_web:
         AppUtils.performWebSearch(getClipItemClone().getText());
