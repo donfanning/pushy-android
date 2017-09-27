@@ -27,6 +27,8 @@ import com.weebly.opus1269.clipman.app.Log;
 
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+
 /**
  * App private {@link ContentProvider} for the saved {@link ClipItem}
  */
@@ -54,6 +56,25 @@ public class ClipContentProvider extends ContentProvider {
     URI_MATCHER.addURI(ClipContract.AUTHORITY, "label/#", LABEL_ID);
     URI_MATCHER.addURI(ClipContract.AUTHORITY, "label_map", LABEL_MAP);
     URI_MATCHER.addURI(ClipContract.AUTHORITY, "label_map/#", LABEL_MAP_ID);
+  }
+
+  /**
+   * Get a cursor that contains the label names for a {@link ClipItem}
+   * @param context a context
+   * @param clipItem clip to check
+   * @return cursor of ClipContract.LabelMap.COL_LABEL_NAME
+   */
+  public static Cursor getLabelNames(Context context, ClipItem clipItem) {
+
+    final String[] projection =
+      {ClipContract.LabelMap.COL_LABEL_NAME};
+    final String selection =
+      "(" + ClipContract.LabelMap.COL_CLIP_TEXT + " == ? )";
+    final String[] selectionArgs = {clipItem.getText()};
+
+    final ContentResolver resolver = context.getContentResolver();
+    return resolver.query(ClipContract.LabelMap.CONTENT_URI, projection,
+      selection, selectionArgs, null);
   }
 
   /**

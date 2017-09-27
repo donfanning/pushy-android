@@ -32,6 +32,7 @@ import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +61,7 @@ public class ClipItem implements Serializable {
   public ClipItem(String text) {
     init();
     mText = text;
+    loadLabels();
   }
 
   public ClipItem(String text, ReadableInstant date, Boolean fav,
@@ -69,6 +71,7 @@ public class ClipItem implements Serializable {
     mFav = fav;
     mRemote = remote;
     mDevice = device;
+    loadLabels();
   }
 
   public ClipItem(Cursor cursor) {
@@ -85,6 +88,7 @@ public class ClipItem implements Serializable {
     mRemote = remote != 0L;
     idx = cursor.getColumnIndex(ClipContract.Clip.COL_DEVICE);
     mDevice = cursor.getString(idx);
+    loadLabels();
   }
 
   public ClipItem(ClipItem clipItem) {
@@ -94,6 +98,7 @@ public class ClipItem implements Serializable {
     mFav = clipItem.isFav();
     mRemote = clipItem.isRemote();
     mDevice = clipItem.getDevice();
+    loadLabels();
   }
 
   /**
@@ -101,7 +106,7 @@ public class ClipItem implements Serializable {
    * @param clipItem the clip
    * @return true if the clip has no text
    */
-  @SuppressWarnings("unused")
+  @NonNull
   public static Boolean isEmpty(ClipItem clipItem) {
     return (clipItem == null) || TextUtils.isEmpty(clipItem.getText());
   }
@@ -275,6 +280,28 @@ public class ClipItem implements Serializable {
     mDevice = device;
   }
 
+  /**
+   * Do we have the given label
+   * @param label a label
+   * @return true if we have label
+   */
+  public boolean hasLabel(Label label) {
+    for (Label label_ : mLabels) {
+      if (label_.getName().equals(label.getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public String[] getLabelNames() {
+    final String[] names = new String[mLabels.size()];
+    for (int i=0; i < mLabels.size(); i++) {
+      names[i] = mLabels.get(i).getName();
+    }
+    return names;
+  }
+
   public void addLabel(Label label) {
     mLabels.add(label);
     ClipContentProvider.insert(App.getContext(), this, label);
@@ -405,6 +432,26 @@ public class ClipItem implements Serializable {
       MessagingClient.send(this);
     }
     return ret;
+  }
+
+  /**
+   * Get our {@link Label} names from the database
+   */
+  private void loadLabels() {
+    mLabels.clear();
+    final Cursor cursor =
+      ClipContentProvider.getLabelNames(App.getContext(), this);
+    try {
+      while (cursor.moveToNext()) {
+        final int idx =
+          cursor.getColumnIndex(ClipContract.LabelMap.COL_LABEL_NAME);
+        final String name = cursor.getString(idx);
+        Log.logD(TAG, "Label name: " + name);
+        mLabels.add(new Label(name));
+      }
+    } finally {
+      cursor.close();
+    }
   }
 
   /**

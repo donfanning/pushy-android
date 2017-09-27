@@ -85,6 +85,10 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
     // Get the data model from the holder
     final Label label = holder.label;
 
+    // set checked state
+    final boolean checked = mActivity.getClipItem().hasLabel(label);
+    holder.checkBox.setChecked(checked);
+
     final TextView textView = holder.lastText;
     textView.setText(label.getName());
 
