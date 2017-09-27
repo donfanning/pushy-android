@@ -342,7 +342,7 @@ public class MainActivity extends BaseActivity implements
       snack.setAction("UNDO", new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          ClipContentProvider.insert(MainActivity.this, mUndoItems);
+          ClipContentProvider.insertClipItems(MainActivity.this, mUndoItems);
         }
       }).addCallback(new Snackbar.Callback() {
 

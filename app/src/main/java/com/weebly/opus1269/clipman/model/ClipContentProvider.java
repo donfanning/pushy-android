@@ -35,6 +35,7 @@ public class ClipContentProvider extends ContentProvider {
   private static final String TAG = "ClipContentProvider";
 
   private static final String UNKNOWN_URI = "Unknown URI: ";
+  private static final String UNSUPPORTED_URI = "Unsupported URI: ";
 
   // used for the UriMatcher
   private static final int CLIP = 10;
@@ -95,6 +96,12 @@ public class ClipContentProvider extends ContentProvider {
     return true;
   }
 
+  /**
+   * Add a {@link ClipItem} to the database
+   * @param context the context
+   * @param item    the clip to add
+   * @return the Uri of the inserted item
+   */
   private static Uri insert(Context context, ClipItem item) {
     final ContentResolver resolver = context.getContentResolver();
     return resolver.insert(ClipContract.Clip.CONTENT_URI,
@@ -102,9 +109,9 @@ public class ClipContentProvider extends ContentProvider {
   }
 
   /**
-   * Add the contents of a {@link Label} to the database, if new
-   * @param context   a {@link Context}
-   * @param label  the {@link Label} to insert
+   * Add a {@link Label} to the database, if new
+   * @param context the context
+   * @param label   the label to add
    * @return true if inserted
    */
   @NonNull
@@ -113,23 +120,23 @@ public class ClipContentProvider extends ContentProvider {
       return false;
     }
 
-      // query for existence and skip insert if it does
-      final String[] projection = {ClipContract.Label.COL_NAME};
-      final String selection =
-        "(" + ClipContract.Label.COL_NAME + " == ? )";
-      final String[] selectionArgs = {label.getName()};
+    // query for existence and skip insert if it does
+    final String[] projection = {ClipContract.Label.COL_NAME};
+    final String selection =
+      "(" + ClipContract.Label.COL_NAME + " == ? )";
+    final String[] selectionArgs = {label.getName()};
 
-      final Cursor cursor =
-        context.getContentResolver()
-          .query(ClipContract.Label.CONTENT_URI, projection,
-            selection, selectionArgs, null);
-      if (cursor.getCount() != 0) {
-        // already in database, we are done
-        cursor.close();
-        return false;
-
-      }
+    final Cursor cursor =
+      context.getContentResolver()
+        .query(ClipContract.Label.CONTENT_URI, projection,
+          selection, selectionArgs, null);
+    if (cursor.getCount() != 0) {
+      // already in database, we are done
       cursor.close();
+      return false;
+
+    }
+    cursor.close();
 
     // do it
     final ContentResolver resolver = context.getContentResolver();
@@ -139,9 +146,15 @@ public class ClipContentProvider extends ContentProvider {
     return true;
   }
 
-  public static int insert(Context context, ContentValues[] items) {
+  /**
+   * Add a group of {@link ClipItem} objects to the databse
+   * @param context a context
+   * @param clipItems the items to add
+   * @return number of items added
+   */
+  public static int insertClipItems(Context context, ContentValues[] clipItems) {
     final ContentResolver resolver = context.getContentResolver();
-    return resolver.bulkInsert(ClipContract.Clip.CONTENT_URI, items);
+    return resolver.bulkInsert(ClipContract.Clip.CONTENT_URI, clipItems);
   }
 
   /**
@@ -339,9 +352,13 @@ public class ClipContentProvider extends ContentProvider {
       case LABEL:
         table = ClipContract.Label.TABLE_NAME;
         break;
+      case LABEL_MAP:
+        table = ClipContract.LabelMap.TABLE_NAME;
+        break;
       case CLIP_ID:
       case LABEL_ID:
-        throw new IllegalArgumentException("Unsupported URI: " + uri);
+      case LABEL_MAP_ID:
+        throw new IllegalArgumentException(UNSUPPORTED_URI + uri);
       default:
         throw new IllegalArgumentException(UNKNOWN_URI + uri);
     }
@@ -382,7 +399,7 @@ public class ClipContentProvider extends ContentProvider {
         db.endTransaction();
         break;
       case CLIP_ID:
-        throw new IllegalArgumentException(UNKNOWN_URI + uri);
+        throw new IllegalArgumentException(UNSUPPORTED_URI + uri);
       default:
         throw new IllegalArgumentException(UNKNOWN_URI + uri);
     }
@@ -402,17 +419,42 @@ public class ClipContentProvider extends ContentProvider {
     final String table;
     String newSelection = selection;
 
+    String id;
     switch (uriType) {
       case CLIP:
         table = ClipContract.Clip.TABLE_NAME;
         break;
       case CLIP_ID:
         table = ClipContract.Clip.TABLE_NAME;
-        final String id = uri.getLastPathSegment();
+        id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
           newSelection = ClipContract.Clip._ID + "=" + id;
         } else {
           newSelection = selection + ClipContract.Clip._ID + "=" + id;
+        }
+        break;
+      case LABEL:
+        table = ClipContract.Label.TABLE_NAME;
+        break;
+      case LABEL_ID:
+        table = ClipContract.Label.TABLE_NAME;
+        id = uri.getLastPathSegment();
+        if (TextUtils.isEmpty(selection)) {
+          newSelection = ClipContract.Label._ID + "=" + id;
+        } else {
+          newSelection = selection + ClipContract.Label._ID + "=" + id;
+        }
+        break;
+      case LABEL_MAP:
+        table = ClipContract.LabelMap.TABLE_NAME;
+        break;
+      case LABEL_MAP_ID:
+        table = ClipContract.LabelMap.TABLE_NAME;
+        id = uri.getLastPathSegment();
+        if (TextUtils.isEmpty(selection)) {
+          newSelection = ClipContract.LabelMap._ID + "=" + id;
+        } else {
+          newSelection = selection + ClipContract.LabelMap._ID + "=" + id;
         }
         break;
       default:

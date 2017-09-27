@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.model.ClipContentProvider;
@@ -246,7 +245,7 @@ public class ClipViewerActivity extends BaseActivity implements
           @Override
           public void onClick(View v) {
             ClipContentProvider
-              .insert(ClipViewerActivity.this, new ContentValues[]{mUndoItem});
+              .insertClipItems(ClipViewerActivity.this, new ContentValues[]{mUndoItem});
           }
         })
           .addCallback(new Snackbar.Callback() {
