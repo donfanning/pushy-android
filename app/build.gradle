@@ -89,7 +89,6 @@ dependencies {
     compile 'com.androidessence:recyclerviewcursoradapter:1.0.0'
     compile 'com.firebase:firebase-jobdispatcher:0.8.1'
     compile 'com.google.code.findbugs:jsr305:2.0.1'
-    compile 'com.android.support:support-v4:26.+'
     testCompile 'junit:junit:4.12'
 }
 
