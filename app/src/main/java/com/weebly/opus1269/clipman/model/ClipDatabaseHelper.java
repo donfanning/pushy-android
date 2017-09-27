@@ -42,7 +42,7 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
   private static final String SQL_CREATE_LABEL_MAP = "CREATE TABLE " +
     ClipContract.LabelMap.TABLE_NAME + " (" +
     ClipContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
-    ClipContract.LabelMap.COL_CLIP_TEXT + TEXT +
+    ClipContract.LabelMap.COL_CLIP_TEXT + TEXT + "," +
     ClipContract.LabelMap.COL_LABEL_NAME + TEXT +
     " );";
 
