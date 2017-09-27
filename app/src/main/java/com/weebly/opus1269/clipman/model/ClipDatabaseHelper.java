@@ -69,6 +69,8 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
       // Add the Label and LabelMap tables
       db.execSQL(SQL_CREATE_LABEL);
       db.execSQL(SQL_CREATE_LABEL_MAP);
+
+      createExampleLabel(db);
     }
   }
 
@@ -128,5 +130,12 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
     time = time + 1;
     item.setDate(time);
     db.replace(ClipContract.Clip.TABLE_NAME, null, item.getContentValues());
+
+    createExampleLabel(db);
+  }
+
+  private void createExampleLabel(SQLiteDatabase db) {
+    final Label label = new Label("Example");
+    db.replace(ClipContract.Label.TABLE_NAME, null, label.getContentValues());
   }
 }
