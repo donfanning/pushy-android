@@ -30,18 +30,6 @@ public class ClipContract {
   private ClipContract() {
   }
 
-  static String getDefaultSortOrder() {
-    final String[] sorts =
-      App.getContext().getResources().getStringArray(R.array.sort_type_values);
-    return sorts[0];
-  }
-
-  public static String getSortOrder() {
-    final String[] sorts =
-      App.getContext().getResources().getStringArray(R.array.sort_type_values);
-    return sorts[Prefs.getSortType()];
-  }
-
   /** Inner class that defines the Clip table */
   public static class Clip implements BaseColumns {
     public static final Uri CONTENT_URI = Uri.parse(AUTHORITY_URI + "/clip");
@@ -60,6 +48,18 @@ public class ClipContract {
       ClipContract.Clip.COL_REMOTE,
       ClipContract.Clip.COL_DEVICE
     };
+
+    static String getDefaultSortOrder() {
+      final String[] sorts =
+        App.getContext().getResources().getStringArray(R.array.sort_type_clip_values);
+      return sorts[0];
+    }
+
+    public static String getSortOrder() {
+      final String[] sorts =
+        App.getContext().getResources().getStringArray(R.array.sort_type_clip_values);
+      return sorts[Prefs.getSortType()];
+    }
   }
 
   /** Inner class that defines the Label table */
@@ -72,6 +72,10 @@ public class ClipContract {
       ClipContract.Label.COL_NAME,
     };
     static final String TABLE_NAME = "label";
+
+    static String getDefaultSortOrder() {
+      return "LOWER(name) ASC";
+    }
   }
 
   /**
@@ -89,5 +93,9 @@ public class ClipContract {
       ClipContract.LabelMap.COL_LABEL_NAME,
     };
     static final String TABLE_NAME = "label_map";
+
+    static String getDefaultSortOrder() {
+      return "LOWER(label_name) ASC";
+    }
   }
 }

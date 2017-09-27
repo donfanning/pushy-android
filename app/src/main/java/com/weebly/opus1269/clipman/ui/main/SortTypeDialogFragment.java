@@ -58,7 +58,7 @@ public class SortTypeDialogFragment extends DialogFragment {
     // Use the Builder class for convenient dialog construction
     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     builder
-      .setSingleChoiceItems(R.array.sort_type_entries, selected, new DialogInterface.OnClickListener() {
+      .setSingleChoiceItems(R.array.sort_type_clips, selected, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
           Prefs.setSortType(which);

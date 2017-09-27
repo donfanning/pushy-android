@@ -266,21 +266,19 @@ public class ClipContentProvider extends ContentProvider {
       case CLIP:
         queryBuilder.setTables(ClipContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.getDefaultSortOrder();
+          newSortOrder = ClipContract.Clip.getDefaultSortOrder();
         }
         break;
       case LABEL:
         queryBuilder.setTables(ClipContract.Label.TABLE_NAME);
-        newSortOrder = null;
-        // TODO sort order for each table
-//        if (TextUtils.isEmpty(sortOrder)) {
-//          newSortOrder = ClipContract.getDefaultSortOrder();
-//        }
+        if (TextUtils.isEmpty(sortOrder)) {
+          newSortOrder = ClipContract.Label.getDefaultSortOrder();
+        }
         break;
       case CLIP_ID:
         queryBuilder.setTables(ClipContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.getDefaultSortOrder();
+          newSortOrder = ClipContract.Clip.getDefaultSortOrder();
         }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the
@@ -290,11 +288,9 @@ public class ClipContentProvider extends ContentProvider {
         break;
       case LABEL_ID:
         queryBuilder.setTables(ClipContract.Label.TABLE_NAME);
-        newSortOrder = null;
-        // TODO sort order for each table
-//        if (TextUtils.isEmpty(sortOrder)) {
-//          newSortOrder = ClipContract.getDefaultSortOrder();
-//        }
+        if (TextUtils.isEmpty(sortOrder)) {
+          newSortOrder = ClipContract.Label.getDefaultSortOrder();
+        }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the
         // _ID value. Then, append the value to the WHERE clause for

@@ -13,14 +13,14 @@
     <item>@string/ar_delete_favs</item>
   </string-array>
 
-  <!-- Related to sort dialog -->
+  <!-- Related to sorting -->
 
-  <string-array name="sort_type_entries">
+  <string-array name="sort_type_clips">
     <item>@string/ar_sort_type_date</item>
     <item>@string/ar_sort_type_text</item>
   </string-array>
 
-  <string-array name="sort_type_values">
+  <string-array name="sort_type_clip_values">
     <item>date DESC</item>
     <item>LOWER(text) ASC</item>
   </string-array>
