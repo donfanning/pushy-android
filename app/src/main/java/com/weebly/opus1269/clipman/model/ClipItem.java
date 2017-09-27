@@ -32,6 +32,9 @@ import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
 
 /**
  * This class represents the data for a single clipboard entry
@@ -43,12 +46,13 @@ public class ClipItem implements Serializable {
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
   private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
+
   private String mText;
   private DateTime mDate;
   private Boolean mFav;
-  // Is this a copy from another device
   private Boolean mRemote;
   private String mDevice;
+  private List<Label> mLabels;
 
   public ClipItem() {
     init();
@@ -235,13 +239,13 @@ public class ClipItem implements Serializable {
     return new DateTime(mDate.getMillis());
   }
 
+  void setDate(long date) {
+    mDate = new DateTime(date);
+  }
+
   @SuppressWarnings("unused")
   public void setDate(ReadableInstant date) {
     mDate = new DateTime(date.getMillis());
-  }
-
-  void setDate(long date) {
-    mDate = new DateTime(date);
   }
 
   public long getTime() {
@@ -402,5 +406,6 @@ public class ClipItem implements Serializable {
     mFav = false;
     mRemote = false;
     mDevice = Device.getMyName();
+    mLabels = new ArrayList<>(0);
   }
 }

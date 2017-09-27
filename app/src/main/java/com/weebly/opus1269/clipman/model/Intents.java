@@ -25,15 +25,6 @@ public class Intents {
   public static final String TYPE_DEVICE_UNREGISTERED = PATH + "deviceUnregistered";
   public static final String TYPE_DEVICE_REGISTER_ERROR = PATH + "deviceRegisterError";
 
-  // related to Labels
-  public static final String FILTER_LABELS = PATH + "filterLabels";
-  public static final String BUNDLE_LABELS = PATH + "bundleLabels";
-  public static final String ACTION_TYPE_LABELS = PATH + "actionTypeLabels";
-  public static final String TYPE_LABELS_UPDATED = PATH + "labelsUpdated";
-  public static final String TYPE_LABEL_ADDED = PATH + "labelAdded";
-  public static final String TYPE_LABEL_CHANGED = PATH + "labelChanged";
-  public static final String TYPE_LABEL_REMOVED = PATH + "labelRemoved";
-
   // related to Notifications
   static final String ACTION_DELETE_NOTIFICATION = PATH + "deleteNotification";
   static final String ACTION_EMAIL = PATH + "email";
@@ -48,6 +39,4 @@ public class Intents {
   static final String EXTRA_EMAIL_SUBJECT = PATH + "emailSubject";
   public static final String EXTRA_CLIP_ITEM = PATH + "clipItem";
   public static final String EXTRA_LAST_ERROR = PATH + "lastError";
-  public static final String EXTRA_LABEL = PATH + "label";
-  public static final String EXTRA_OLD_LABEL_NAME = PATH + "oldLabelName";
 }

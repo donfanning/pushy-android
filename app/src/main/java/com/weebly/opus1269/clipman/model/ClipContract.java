@@ -42,14 +42,13 @@ public class ClipContract {
     return sorts[Prefs.getSortType()];
   }
 
-  /* Inner class that defines the Clip table */
-  @SuppressWarnings({"PublicInnerClass", "StaticInheritance", "SuperClassHasFrequentlyUsedInheritors"})
+  /** Inner class that defines the Clip table */
   public static class Clip implements BaseColumns {
     public static final Uri CONTENT_URI = Uri.parse(AUTHORITY_URI + "/clip");
-    static final String TABLE_NAME = "clip";
     public static final String COL_TEXT = "text";
-    static final String COL_DATE = "date";
     public static final String COL_FAV = "fav";
+    static final String TABLE_NAME = "clip";
+    static final String COL_DATE = "date";
     static final String COL_REMOTE = "remote";
     static final String COL_DEVICE = "device";
 
@@ -61,6 +60,34 @@ public class ClipContract {
       ClipContract.Clip.COL_REMOTE,
       ClipContract.Clip.COL_DEVICE
     };
+  }
 
+  /** Inner class that defines the Label table */
+  public static class Label implements BaseColumns {
+    public static final Uri CONTENT_URI = Uri.parse(AUTHORITY_URI + "/label");
+    public static final String COL_NAME = "name";
+
+    public static final String[] FULL_PROJECTION = {
+      ClipContract.Label._ID,
+      ClipContract.Label.COL_NAME,
+    };
+    static final String TABLE_NAME = "label";
+  }
+
+  /**
+   * Inner class that defines mapping between {@link ClipItem} and {@link Label}
+   */
+  public static class LabelMap implements BaseColumns {
+    public static final Uri CONTENT_URI =
+      Uri.parse(AUTHORITY_URI + "/label_map");
+    public static final String COL_CLIP_TEXT = "clip_text";
+    public static final String COL_LABEL_NAME = "label_name";
+
+    public static final String[] FULL_PROJECTION = {
+      ClipContract.LabelMap._ID,
+      ClipContract.LabelMap.COL_CLIP_TEXT,
+      ClipContract.LabelMap.COL_LABEL_NAME,
+    };
+    static final String TABLE_NAME = "label_map";
   }
 }

@@ -39,12 +39,20 @@ public class ClipContentProvider extends ContentProvider {
   // used for the UriMatcher
   private static final int CLIP = 10;
   private static final int CLIP_ID = 20;
+  private static final int LABEL = 30;
+  private static final int LABEL_ID = 40;
+  private static final int LABEL_MAP = 50;
+  private static final int LABEL_MAP_ID = 60;
   private static final UriMatcher URI_MATCHER =
     new UriMatcher(UriMatcher.NO_MATCH);
 
   static {
     URI_MATCHER.addURI(ClipContract.AUTHORITY, "clip", CLIP);
     URI_MATCHER.addURI(ClipContract.AUTHORITY, "clip/#", CLIP_ID);
+    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label", LABEL);
+    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label/#", LABEL_ID);
+    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label_map", LABEL_MAP);
+    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label_map/#", LABEL_MAP_ID);
   }
 
   /**
@@ -91,6 +99,44 @@ public class ClipContentProvider extends ContentProvider {
     final ContentResolver resolver = context.getContentResolver();
     return resolver.insert(ClipContract.Clip.CONTENT_URI,
       item.getContentValues());
+  }
+
+  /**
+   * Add the contents of a {@link Label} to the database, if new
+   * @param context   a {@link Context}
+   * @param label  the {@link Label} to insert
+   * @return true if inserted
+   */
+  @NonNull
+  public static Boolean insert(Context context, Label label) {
+    if ((label == null) || TextUtils.isEmpty(label.getName())) {
+      return false;
+    }
+
+      // query for existence and skip insert if it does
+      final String[] projection = {ClipContract.Label.COL_NAME};
+      final String selection =
+        "(" + ClipContract.Label.COL_NAME + " == ? )";
+      final String[] selectionArgs = {label.getName()};
+
+      final Cursor cursor =
+        context.getContentResolver()
+          .query(ClipContract.Label.CONTENT_URI, projection,
+            selection, selectionArgs, null);
+      if (cursor.getCount() != 0) {
+        // already in database, we are done
+        cursor.close();
+        return false;
+
+      }
+      cursor.close();
+
+    // do it
+    final ContentResolver resolver = context.getContentResolver();
+    resolver.insert(ClipContract.Label.CONTENT_URI,
+      label.getContentValues());
+
+    return true;
   }
 
   public static int insert(Context context, ContentValues[] items) {
@@ -223,11 +269,32 @@ public class ClipContentProvider extends ContentProvider {
           newSortOrder = ClipContract.getDefaultSortOrder();
         }
         break;
+      case LABEL:
+        queryBuilder.setTables(ClipContract.Label.TABLE_NAME);
+        newSortOrder = null;
+        // TODO sort order for each table
+//        if (TextUtils.isEmpty(sortOrder)) {
+//          newSortOrder = ClipContract.getDefaultSortOrder();
+//        }
+        break;
       case CLIP_ID:
         queryBuilder.setTables(ClipContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
           newSortOrder = ClipContract.getDefaultSortOrder();
         }
+        // Because this URI was for a single row, the _ID value part is
+        // present. Get the last path segment from the URI; this is the
+        // _ID value. Then, append the value to the WHERE clause for
+        // the query
+        newSelection += "and _ID = " + uri.getLastPathSegment();
+        break;
+      case LABEL_ID:
+        queryBuilder.setTables(ClipContract.Label.TABLE_NAME);
+        newSortOrder = null;
+        // TODO sort order for each table
+//        if (TextUtils.isEmpty(sortOrder)) {
+//          newSortOrder = ClipContract.getDefaultSortOrder();
+//        }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the
         // _ID value. Then, append the value to the WHERE clause for
@@ -273,7 +340,11 @@ public class ClipContentProvider extends ContentProvider {
       case CLIP:
         table = ClipContract.Clip.TABLE_NAME;
         break;
+      case LABEL:
+        table = ClipContract.Label.TABLE_NAME;
+        break;
       case CLIP_ID:
+      case LABEL_ID:
         throw new IllegalArgumentException("Unsupported URI: " + uri);
       default:
         throw new IllegalArgumentException(UNKNOWN_URI + uri);

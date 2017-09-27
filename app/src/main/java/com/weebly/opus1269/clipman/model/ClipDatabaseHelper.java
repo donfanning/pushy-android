@@ -20,12 +20,12 @@ import com.weebly.opus1269.clipman.R;
  */
 public class ClipDatabaseHelper extends SQLiteOpenHelper {
   // If you change the database schema, you must increment the database version.
-  private static final int DATABASE_VERSION = 1;
+  private static final int DATABASE_VERSION = 2;
   private static final String DATABASE_NAME = "Clips.db";
 
   private static final String TEXT = " TEXT";
   private static final String INTEGER = " INTEGER";
-  private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " +
+  private static final String SQL_CREATE_CLIP = "CREATE TABLE " +
     ClipContract.Clip.TABLE_NAME + " (" +
     ClipContract.Clip._ID + " INTEGER PRIMARY KEY" + "," +
     ClipContract.Clip.COL_TEXT + TEXT + " UNIQUE " + "," +
@@ -34,9 +34,17 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
     ClipContract.Clip.COL_REMOTE + INTEGER + "," +
     ClipContract.Clip.COL_DEVICE + TEXT +
     " );";
-
-  private static final String SQL_DELETE_ENTRIES =
-    "DROP TABLE IF EXISTS " + ClipContract.Clip.TABLE_NAME;
+  private static final String SQL_CREATE_LABEL = "CREATE TABLE " +
+    ClipContract.Label.TABLE_NAME + " (" +
+    ClipContract.Label._ID + " INTEGER PRIMARY KEY" + "," +
+    ClipContract.Label.COL_NAME + TEXT +
+    " );";
+  private static final String SQL_CREATE_LABEL_MAP = "CREATE TABLE " +
+    ClipContract.LabelMap.TABLE_NAME + " (" +
+    ClipContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
+    ClipContract.LabelMap.COL_CLIP_TEXT + TEXT +
+    ClipContract.LabelMap.COL_LABEL_NAME + TEXT +
+    " );";
 
   private final Context mContext;
 
@@ -47,17 +55,21 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
 
   @Override
   public void onCreate(SQLiteDatabase db) {
-    db.execSQL(SQL_CREATE_ENTRIES);
+    // create the tables
+    db.execSQL(SQL_CREATE_CLIP);
+    db.execSQL(SQL_CREATE_LABEL);
+    db.execSQL(SQL_CREATE_LABEL_MAP);
 
     initDbRows(db);
   }
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    // This database is only a cache for online data, so its upgrade policy is
-    // to simply to discard the data and start over
-    db.execSQL(SQL_DELETE_ENTRIES);
-    onCreate(db);
+    if ((oldVersion == 1) && (newVersion == 2)) {
+      // Add the Label and LabelMap tables
+      db.execSQL(SQL_CREATE_LABEL);
+      db.execSQL(SQL_CREATE_LABEL_MAP);
+    }
   }
 
   @Override

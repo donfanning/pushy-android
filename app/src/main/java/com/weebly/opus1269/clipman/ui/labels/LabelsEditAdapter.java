@@ -18,8 +18,9 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
+import android.app.Activity;
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,16 +28,31 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
+import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.ClipContract;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.Labels;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 /**
- * Bridge between the RecyclerView and the {@link Labels} class
+ * Bridge between the RecyclerView and the DB
  */
-class LabelsEditAdapter extends RecyclerView.Adapter<LabelsEditAdapter.LabelViewHolder> {
+class LabelsEditAdapter extends RecyclerViewCursorAdapter<LabelsEditAdapter.LabelViewHolder> {
+
+  private final Activity mActivity;
+
+  LabelsEditAdapter(Activity activity) {
+    super(activity);
+
+    mActivity = activity;
+
+    // needed to allow animations to run
+    setHasStableIds(true);
+
+    setupCursorAdapter(null, 0, R.layout.label_edit_row, false);
+  }
 
   @Override
   public LabelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -52,10 +68,20 @@ class LabelsEditAdapter extends RecyclerView.Adapter<LabelsEditAdapter.LabelView
 
   @Override
   public void onBindViewHolder(LabelViewHolder holder, int position) {
+    // Move cursor to this position
+    mCursorAdapter.getCursor().moveToPosition(position);
+
+    // Set the ViewHolder
+    setViewHolder(holder);
+
+    // Bind this view
+    mCursorAdapter.bindView(null, mContext, mCursorAdapter.getCursor());
+
+    // color the icons
     tintIcons(holder);
 
-    // Get the data model based on position
-    final Label label = Labels.get(position);
+    // Get the data model from the holder
+    final Label label = holder.label;
 
     final EditText labelEditText = holder.labelEditText;
     labelEditText.setText(label.getName());
@@ -63,15 +89,16 @@ class LabelsEditAdapter extends RecyclerView.Adapter<LabelsEditAdapter.LabelView
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Labels.remove(label);
+          // TODO remove from database
         }
       }
     );
   }
 
   @Override
-  public int getItemCount() {
-    return Labels.getCount();
+  // needed to allow animations to run
+  public long getItemId(int position) {
+    return mCursorAdapter.getItemId(position);
   }
 
   /**
@@ -105,14 +132,14 @@ class LabelsEditAdapter extends RecyclerView.Adapter<LabelsEditAdapter.LabelView
       .withDrawable(R.drawable.ic_clear_black_24dp)
       .tint()
       .applyTo(holder.deleteButton);
-
-
   }
 
-  static class LabelViewHolder extends RecyclerView.ViewHolder {
+  static class LabelViewHolder extends RecyclerViewCursorViewHolder {
     final ImageView labelImage;
     final EditText labelEditText;
     final ImageButton deleteButton;
+    Label label;
+    long itemID;
 
     LabelViewHolder(View view) {
       super(view);
@@ -120,6 +147,15 @@ class LabelsEditAdapter extends RecyclerView.Adapter<LabelsEditAdapter.LabelView
       labelImage = view.findViewById(R.id.labelImage);
       labelEditText = view.findViewById(R.id.labelText);
       deleteButton = view.findViewById(R.id.deleteButton);
+    }
+
+    @Override
+    public void bindCursor(final Cursor cursor) {
+      label = new Label(cursor);
+
+      itemID = cursor.getLong(cursor.getColumnIndex(ClipContract.Label._ID));
+
+      labelEditText.setText(label.getName());
     }
   }
 }

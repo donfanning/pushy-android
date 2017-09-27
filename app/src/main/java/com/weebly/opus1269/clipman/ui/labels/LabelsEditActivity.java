@@ -7,27 +7,23 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Labels;
+import com.weebly.opus1269.clipman.model.ClipContract;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
-public class LabelsEditActivity extends BaseActivity {
+public class LabelsEditActivity extends BaseActivity implements
+  LoaderManager.LoaderCallbacks<Cursor> {
 
   /** Adapter used to display the list's data */
    private LabelsEditAdapter mAdapter = null;
-
-  /** Listens for {@link Labels} changes */
-  private BroadcastReceiver mReceiver = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -35,19 +31,16 @@ public class LabelsEditActivity extends BaseActivity {
 
     super.onCreate(savedInstanceState);
 
-    mReceiver = new LabelsBroadcastReceiver();
-
     setupRecyclerView();
+
+    // Prepare the loader. Either re-connect with an existing one,
+    // or start a new one.
+    getSupportLoaderManager().initLoader(0, null, this);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-
-    // Register mReceiver to receive Labels notifications.
-    LocalBroadcastManager.getInstance(this)
-      .registerReceiver(mReceiver,
-        new IntentFilter(Intents.FILTER_LABELS));
 
     mAdapter.notifyDataSetChanged();
   }
@@ -56,9 +49,41 @@ public class LabelsEditActivity extends BaseActivity {
   protected void onPause() {
     super.onPause();
 
-    // Unregister since the activity is not visible
-    LocalBroadcastManager.getInstance(this)
-      .unregisterReceiver(mReceiver);
+  }
+
+  @Override
+  public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+    // Retrieve all columns
+    final String[] projection = ClipContract.Label.FULL_PROJECTION;
+
+    String selection = "(" +
+      "(" + ClipContract.Label.COL_NAME + " NOTNULL) AND (" +
+      ClipContract.Label.COL_NAME + " != '' ))";
+
+    // Now create and return a CursorLoader that will take care of
+    // creating a Cursor for the data being displayed.
+    return new CursorLoader(
+      this,
+      ClipContract.Label.CONTENT_URI,
+      projection,
+      selection,
+      null,
+      null);
+  }
+
+  @Override
+  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    // Swap the new cursor in.  (The framework will take care of closing the
+    // old cursor once we return.)
+    mAdapter.swapCursor(cursor);
+  }
+
+  @Override
+  public void onLoaderReset(Loader<Cursor> loader) {
+    // This is called when the last Cursor provided to onLoadFinished()
+    // above is about to be closed.  We need to make sure we are no
+    // longer using it.
+    mAdapter.swapCursor(null);
   }
 
   /**
@@ -68,40 +93,9 @@ public class LabelsEditActivity extends BaseActivity {
     final RecyclerView recyclerView =
       findViewById(R.id.labelList);
     if (recyclerView != null) {
-      mAdapter = new LabelsEditAdapter();
+      mAdapter = new LabelsEditAdapter(this);
       recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
-  }
-
-  /**
-   * Inner class to handle notifications of {@link Labels} changes
-   */
-  class LabelsBroadcastReceiver extends BroadcastReceiver {
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_LABELS);
-      final String action = bundle.getString(Intents.ACTION_TYPE_LABELS);
-      if (action == null) {
-        return;
-      }
-
-      switch (action) {
-        case Intents.TYPE_LABELS_UPDATED:
-          mAdapter.notifyDataSetChanged();
-        case Intents.TYPE_LABEL_ADDED:
-          mAdapter.notifyDataSetChanged();
-          break;
-        case Intents.TYPE_LABEL_REMOVED:
-          mAdapter.notifyDataSetChanged();
-          break;
-        case Intents.TYPE_LABEL_CHANGED:
-          mAdapter.notifyDataSetChanged();
-          break;
-        default:
-          break;
-      }
     }
   }
 }

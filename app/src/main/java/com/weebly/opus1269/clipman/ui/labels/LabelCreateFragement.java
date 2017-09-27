@@ -25,7 +25,6 @@ import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.Labels;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
@@ -200,8 +199,8 @@ public class LabelCreateFragement extends Fragment implements
     if (!TextUtils.isEmpty(text)) {
       text = text.trim();
       if (text.length() > 0) {
-        Labels.add(new Label(text), true);
-        ret = true;
+        final Label label = new Label(text);
+        ret = label.save();
       }
     }
     return ret;

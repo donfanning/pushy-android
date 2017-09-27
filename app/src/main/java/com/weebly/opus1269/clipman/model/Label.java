@@ -7,7 +7,12 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
+
+import com.weebly.opus1269.clipman.app.App;
 
 import java.io.Serializable;
 
@@ -21,11 +26,15 @@ public class Label implements Serializable {
   @NonNull private String mName;
 
   public Label() {
-    mName = "Label name";
+    mName = "";
   }
 
   public Label(@NonNull String name) {
     mName = name;
+  }
+  public Label(Cursor cursor) {
+    int idx = cursor.getColumnIndex(ClipContract.Label.COL_NAME);
+    mName = cursor.getString(idx);
   }
 
   @NonNull public String getName() {
@@ -34,5 +43,24 @@ public class Label implements Serializable {
 
   public void setName(@NonNull String name) {
     mName = name;
+  }
+  
+  /**
+   * Get the Label as a {@link ContentValues object}
+   * @return Label as {@link ContentValues object}
+   */
+  public ContentValues getContentValues() {
+    final ContentValues cv = new ContentValues();
+    cv.put(ClipContract.Label.COL_NAME, mName);
+
+    return cv;
+  }
+  /**
+   * Save to database
+   * @return true if saved
+   */
+  public Boolean save() {
+    final Context context = App.getContext();
+    return ClipContentProvider.insert(context, this);
   }
 }
