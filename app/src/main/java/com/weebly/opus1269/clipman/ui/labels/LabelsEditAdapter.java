@@ -93,6 +93,8 @@ class LabelsEditAdapter extends RecyclerViewCursorAdapter<LabelsEditAdapter.Labe
         }
       }
     );
+
+    // TODO Handle changes to Label
   }
 
   @Override
