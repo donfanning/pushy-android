@@ -61,7 +61,6 @@ public class Prefs {
   private static final String PREF_SORT_TYPE = "prefSortType";
   private static final String PREF_DEVICE_REGISTERED = "prefDeviceRegistered";
   private static final String PREF_DEVICES = "prefDevices";
-  private static final String PREF_LABELS = "prefLabels";
   private static final String PREF_SN = "prefSN";
 
   private Prefs() {
@@ -254,14 +253,6 @@ public class Prefs {
 
   public static String getDevices() {
     return get(PREF_DEVICES, "");
-  }
-
-  public static void setLabels(String value) {
-    set(PREF_LABELS, value);
-  }
-
-  public static String getLabels() {
-    return get(PREF_LABELS, "");
   }
 
   static String getSN() {
