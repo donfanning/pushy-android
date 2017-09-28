@@ -18,7 +18,7 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.ClipDatabaseHelper;
+import com.weebly.opus1269.clipman.db.ClipsDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -43,7 +43,7 @@ public class App extends Application
   @SuppressLint("StaticFieldLeak")
   private static Context sContext = null;
   @SuppressLint("StaticFieldLeak")
-  private static ClipDatabaseHelper sClipDb = null;
+  private static ClipsDatabaseHelper sClipsDB = null;
 
   private static boolean sIsMainActivityVisible = false;
   private static boolean sIsDevicesActivityVisible = false;
@@ -62,8 +62,8 @@ public class App extends Application
     return sContext;
   }
 
-  public static ClipDatabaseHelper getDbHelper() {
-    return sClipDb;
+  public static ClipsDatabaseHelper getDbHelper() {
+    return sClipsDB;
   }
 
   public static boolean isMainActivityVisible() {
@@ -80,8 +80,8 @@ public class App extends Application
 
     sContext = this;
 
-    sClipDb = new ClipDatabaseHelper(sContext);
-    sClipDb.getWritableDatabase();
+    sClipsDB = new ClipsDatabaseHelper(sContext);
+    sClipsDB.getWritableDatabase();
 
     // make sure Prefs are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -145,10 +145,6 @@ public class App extends Application
   @Override
   public void onActivityDestroyed(Activity activity) {
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Public methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * These methods are part of a solution to the problem of screen

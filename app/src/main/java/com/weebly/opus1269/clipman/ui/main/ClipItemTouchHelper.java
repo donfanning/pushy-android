@@ -16,7 +16,7 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 
 /**
@@ -146,7 +146,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     private void undo() {
       final ContentValues cv = mClipItem.getContentValues();
-      mActivity.getContentResolver().insert(ClipContract.Clip.CONTENT_URI, cv);
+      mActivity.getContentResolver().insert(ClipsContract.Clip.CONTENT_URI, cv);
 
       if (mIsSelected) {
         // little hack to make sure item is selected if it was when deleted
@@ -163,8 +163,8 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     @Override
     protected Void doInBackground(Object... params) {
       final long id = (long) params[0];
-      final String selection = ClipContract.Clip._ID + "=" + id;
-      mActivity.getContentResolver().delete(ClipContract.Clip.CONTENT_URI, selection, null);
+      final String selection = ClipsContract.Clip._ID + "=" + id;
+      mActivity.getContentResolver().delete(ClipsContract.Clip.CONTENT_URI, selection, null);
 
       return null;
     }

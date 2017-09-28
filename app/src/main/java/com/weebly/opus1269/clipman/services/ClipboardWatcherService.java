@@ -19,14 +19,14 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.db.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipsContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.Notifications;
 
 /**
  * An app private {@link Service} to listen for changes to the clipboard,
- * persist them to storage using {@link ClipContentProvider} and push them to
+ * persist them to storage using {@link ClipsContentProvider} and push them to
  * registered fcm devices
  */
 public class ClipboardWatcherService extends Service implements

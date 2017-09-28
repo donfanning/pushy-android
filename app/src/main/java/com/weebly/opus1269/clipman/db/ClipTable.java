@@ -32,7 +32,7 @@ public enum ClipTable {
   public int insertClipItems(ContentValues[] clipCVs) {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
-    return resolver.bulkInsert(ClipContract.Clip.CONTENT_URI, clipCVs);
+    return resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
   }
 
   /**
@@ -44,17 +44,17 @@ public enum ClipTable {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    final String[] projection = ClipContract.Clip.FULL_PROJECTION;
+    final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
 
     // Select all non-favorites
-    String selection = "(" + ClipContract.Clip.COL_FAV + " == 0 " + ")";
+    String selection = "(" + ClipsContract.Clip.COL_FAV + " == 0 " + ")";
     if (includeFavs) {
       // select all favorites too
-      selection += " OR (" + ClipContract.Clip.COL_FAV + " == 1 )";
+      selection += " OR (" + ClipsContract.Clip.COL_FAV + " == 1 )";
     }
 
     final Cursor cursor = resolver.query(
-      ClipContract.Clip.CONTENT_URI,
+      ClipsContract.Clip.CONTENT_URI,
       projection,
       selection,
       null,
@@ -70,16 +70,16 @@ public enum ClipTable {
       while (cursor.moveToNext()) {
         //noinspection ObjectAllocationInLoop
         final ContentValues cv = new ContentValues();
-        cv.put(ClipContract.Clip.COL_TEXT,
-          cursor.getString(cursor.getColumnIndex(ClipContract.Clip.COL_TEXT)));
-        cv.put(ClipContract.Clip.COL_DATE,
-          cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_DATE)));
-        cv.put(ClipContract.Clip.COL_FAV,
-          cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_FAV)));
-        cv.put(ClipContract.Clip.COL_REMOTE,
-          cursor.getLong(cursor.getColumnIndex(ClipContract.Clip.COL_REMOTE)));
-        cv.put(ClipContract.Clip.COL_DEVICE,
-          cursor.getString(cursor.getColumnIndex(ClipContract.Clip.COL_DEVICE)));
+        cv.put(ClipsContract.Clip.COL_TEXT,
+          cursor.getString(cursor.getColumnIndex(ClipsContract.Clip.COL_TEXT)));
+        cv.put(ClipsContract.Clip.COL_DATE,
+          cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip.COL_DATE)));
+        cv.put(ClipsContract.Clip.COL_FAV,
+          cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip.COL_FAV)));
+        cv.put(ClipsContract.Clip.COL_REMOTE,
+          cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip.COL_REMOTE)));
+        cv.put(ClipsContract.Clip.COL_DEVICE,
+          cursor.getString(cursor.getColumnIndex(ClipsContract.Clip.COL_DEVICE)));
         array[count] = cv;
         count++;
       }
@@ -100,13 +100,13 @@ public enum ClipTable {
     final ContentResolver resolver = context.getContentResolver();
 
     // Select all non-favorites
-    String selection = "(" + ClipContract.Clip.COL_FAV + " == 0 " + ")";
+    String selection = "(" + ClipsContract.Clip.COL_FAV + " == 0 " + ")";
     if (deleteFavs) {
       // select all favorites too
-      selection = selection + " OR (" + ClipContract.Clip.COL_FAV + " == 1 )";
+      selection = selection + " OR (" + ClipsContract.Clip.COL_FAV + " == 1 )";
     }
 
-    return resolver.delete(ClipContract.Clip.CONTENT_URI, selection, null);
+    return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 
   /**
@@ -145,11 +145,11 @@ public enum ClipTable {
 
     // Select all non-favorites older than the calculated time
     final String selection =
-      "(" + ClipContract.Clip.COL_FAV + " == 0 " + ")" + " AND (" +
-        ClipContract.Clip.COL_DATE + " < " + deleteTime + ")";
+      "(" + ClipsContract.Clip.COL_FAV + " == 0 " + ")" + " AND (" +
+        ClipsContract.Clip.COL_DATE + " < " + deleteTime + ")";
 
     final ContentResolver resolver = context.getContentResolver();
-    return resolver.delete(ClipContract.Clip.CONTENT_URI, selection, null);
+    return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 
   /**
@@ -169,12 +169,12 @@ public enum ClipTable {
 
     if (onNewOnly) {
       // query for existence and skip insert if it does
-      final String[] projection = {ClipContract.Clip.COL_TEXT};
-      final String selection = "(" + ClipContract.Clip.COL_TEXT + " == ? )";
+      final String[] projection = {ClipsContract.Clip.COL_TEXT};
+      final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
       final String[] selectionArgs = {clipItem.getText()};
 
       final Cursor cursor =
-        resolver.query(ClipContract.Clip.CONTENT_URI, projection, selection,
+        resolver.query(ClipsContract.Clip.CONTENT_URI, projection, selection,
           selectionArgs, null);
       if (cursor == null) {
         return false;
@@ -201,7 +201,7 @@ public enum ClipTable {
    */
   private void insert(Context context, ClipItem item) {
     final ContentResolver resolver = context.getContentResolver();
-    resolver.insert(ClipContract.Clip.CONTENT_URI, item.getContentValues());
+    resolver.insert(ClipsContract.Clip.CONTENT_URI, item.getContentValues());
   }
 
 

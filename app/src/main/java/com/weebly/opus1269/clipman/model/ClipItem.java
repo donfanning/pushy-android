@@ -26,7 +26,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -75,17 +75,17 @@ public class ClipItem implements Serializable {
 
   public ClipItem(Cursor cursor) {
     init();
-    int idx = cursor.getColumnIndex(ClipContract.Clip.COL_TEXT);
+    int idx = cursor.getColumnIndex(ClipsContract.Clip.COL_TEXT);
     mText = cursor.getString(idx);
-    idx = cursor.getColumnIndex(ClipContract.Clip.COL_DATE);
+    idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DATE);
     mDate = new DateTime(cursor.getLong(idx));
-    idx = cursor.getColumnIndex(ClipContract.Clip.COL_FAV);
+    idx = cursor.getColumnIndex(ClipsContract.Clip.COL_FAV);
     final long fav = cursor.getLong(idx);
     mFav = fav != 0L;
-    idx = cursor.getColumnIndex(ClipContract.Clip.COL_REMOTE);
+    idx = cursor.getColumnIndex(ClipsContract.Clip.COL_REMOTE);
     final long remote = cursor.getLong(idx);
     mRemote = remote != 0L;
-    idx = cursor.getColumnIndex(ClipContract.Clip.COL_DEVICE);
+    idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DEVICE);
     mDevice = cursor.getString(idx);
     loadLabels();
   }
@@ -301,11 +301,11 @@ public class ClipItem implements Serializable {
     final long fav = mFav ? 1L : 0L;
     final long remote = mRemote ? 1L : 0L;
     final ContentValues cv = new ContentValues();
-    cv.put(ClipContract.Clip.COL_TEXT, mText);
-    cv.put(ClipContract.Clip.COL_DATE, mDate.getMillis());
-    cv.put(ClipContract.Clip.COL_FAV, fav);
-    cv.put(ClipContract.Clip.COL_REMOTE, remote);
-    cv.put(ClipContract.Clip.COL_DEVICE, mDevice);
+    cv.put(ClipsContract.Clip.COL_TEXT, mText);
+    cv.put(ClipsContract.Clip.COL_DATE, mDate.getMillis());
+    cv.put(ClipsContract.Clip.COL_FAV, fav);
+    cv.put(ClipsContract.Clip.COL_REMOTE, remote);
+    cv.put(ClipsContract.Clip.COL_DEVICE, mDevice);
 
     return cv;
   }
@@ -426,7 +426,7 @@ public class ClipItem implements Serializable {
     try {
       while (cursor.moveToNext()) {
         final int idx =
-          cursor.getColumnIndex(ClipContract.LabelMap.COL_LABEL_NAME);
+          cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
         final String name = cursor.getString(idx);
         mLabels.add(new Label(name));
       }

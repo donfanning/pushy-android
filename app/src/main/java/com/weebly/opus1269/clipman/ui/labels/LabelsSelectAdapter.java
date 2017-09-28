@@ -31,7 +31,7 @@ import android.widget.TextView;
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -189,7 +189,7 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
     public void bindCursor(final Cursor cursor) {
       label = new Label(cursor);
 
-      itemID = cursor.getLong(cursor.getColumnIndex(ClipContract.Label._ID));
+      itemID = cursor.getLong(cursor.getColumnIndex(ClipsContract.Label._ID));
 
       lastText.setText(label.getName());
     }

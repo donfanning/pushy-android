@@ -24,11 +24,9 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 
-/**
- * App private {@link ContentProvider} for the Clips.db
- */
-public class ClipContentProvider extends ContentProvider {
-  private static final String TAG = "ClipContentProvider";
+/** App private {@link ContentProvider} for the Clips.db */
+public class ClipsContentProvider extends ContentProvider {
+  private static final String TAG = "ClipsContentProvider";
 
   private static final String UNKNOWN_URI = "Unknown URI: ";
   private static final String UNSUPPORTED_URI = "Unsupported URI: ";
@@ -44,12 +42,12 @@ public class ClipContentProvider extends ContentProvider {
     new UriMatcher(UriMatcher.NO_MATCH);
 
   static {
-    URI_MATCHER.addURI(ClipContract.AUTHORITY, "clip", CLIP);
-    URI_MATCHER.addURI(ClipContract.AUTHORITY, "clip/#", CLIP_ID);
-    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label", LABEL);
-    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label/#", LABEL_ID);
-    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label_map", LABEL_MAP);
-    URI_MATCHER.addURI(ClipContract.AUTHORITY, "label_map/#", LABEL_MAP_ID);
+    URI_MATCHER.addURI(ClipsContract.AUTHORITY, "clip", CLIP);
+    URI_MATCHER.addURI(ClipsContract.AUTHORITY, "clip/#", CLIP_ID);
+    URI_MATCHER.addURI(ClipsContract.AUTHORITY, "label", LABEL);
+    URI_MATCHER.addURI(ClipsContract.AUTHORITY, "label/#", LABEL_ID);
+    URI_MATCHER.addURI(ClipsContract.AUTHORITY, "label_map", LABEL_MAP);
+    URI_MATCHER.addURI(ClipsContract.AUTHORITY, "label_map/#", LABEL_MAP_ID);
   }
 
   /** Context we are running in */
@@ -72,27 +70,27 @@ public class ClipContentProvider extends ContentProvider {
     final int uriType = URI_MATCHER.match(uri);
     switch (uriType) {
       case CLIP:
-        queryBuilder.setTables(ClipContract.Clip.TABLE_NAME);
+        queryBuilder.setTables(ClipsContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.Clip.getDefaultSortOrder();
+          newSortOrder = ClipsContract.Clip.getDefaultSortOrder();
         }
         break;
       case LABEL:
-        queryBuilder.setTables(ClipContract.Label.TABLE_NAME);
+        queryBuilder.setTables(ClipsContract.Label.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.Label.getDefaultSortOrder();
+          newSortOrder = ClipsContract.Label.getDefaultSortOrder();
         }
         break;
       case LABEL_MAP:
-        queryBuilder.setTables(ClipContract.LabelMap.TABLE_NAME);
+        queryBuilder.setTables(ClipsContract.LabelMap.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.LabelMap.getDefaultSortOrder();
+          newSortOrder = ClipsContract.LabelMap.getDefaultSortOrder();
         }
         break;
       case CLIP_ID:
-        queryBuilder.setTables(ClipContract.Clip.TABLE_NAME);
+        queryBuilder.setTables(ClipsContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.Clip.getDefaultSortOrder();
+          newSortOrder = ClipsContract.Clip.getDefaultSortOrder();
         }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the
@@ -101,9 +99,9 @@ public class ClipContentProvider extends ContentProvider {
         newSelection += "and _ID = " + uri.getLastPathSegment();
         break;
       case LABEL_ID:
-        queryBuilder.setTables(ClipContract.Label.TABLE_NAME);
+        queryBuilder.setTables(ClipsContract.Label.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.Label.getDefaultSortOrder();
+          newSortOrder = ClipsContract.Label.getDefaultSortOrder();
         }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the
@@ -112,9 +110,9 @@ public class ClipContentProvider extends ContentProvider {
         newSelection += "and _ID = " + uri.getLastPathSegment();
         break;
       case LABEL_MAP_ID:
-        queryBuilder.setTables(ClipContract.LabelMap.TABLE_NAME);
+        queryBuilder.setTables(ClipsContract.LabelMap.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipContract.LabelMap.getDefaultSortOrder();
+          newSortOrder = ClipsContract.LabelMap.getDefaultSortOrder();
         }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the
@@ -159,13 +157,13 @@ public class ClipContentProvider extends ContentProvider {
     final int uriType = URI_MATCHER.match(uri);
     switch (uriType) {
       case CLIP:
-        table = ClipContract.Clip.TABLE_NAME;
+        table = ClipsContract.Clip.TABLE_NAME;
         break;
       case LABEL:
-        table = ClipContract.Label.TABLE_NAME;
+        table = ClipsContract.Label.TABLE_NAME;
         break;
       case LABEL_MAP:
-        table = ClipContract.LabelMap.TABLE_NAME;
+        table = ClipsContract.LabelMap.TABLE_NAME;
         break;
       case CLIP_ID:
       case LABEL_ID:
@@ -203,7 +201,7 @@ public class ClipContentProvider extends ContentProvider {
       case CLIP:
         db.beginTransaction();
         for (final ContentValues value : values) {
-          final long id = db.insert(ClipContract.Clip.TABLE_NAME, null, value);
+          final long id = db.insert(ClipsContract.Clip.TABLE_NAME, null, value);
           if (id > 0) {
             insertCount++;
           }
@@ -234,39 +232,39 @@ public class ClipContentProvider extends ContentProvider {
     String id;
     switch (uriType) {
       case CLIP:
-        table = ClipContract.Clip.TABLE_NAME;
+        table = ClipsContract.Clip.TABLE_NAME;
         break;
       case CLIP_ID:
-        table = ClipContract.Clip.TABLE_NAME;
+        table = ClipsContract.Clip.TABLE_NAME;
         id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
-          newSelection = ClipContract.Clip._ID + "=" + id;
+          newSelection = ClipsContract.Clip._ID + "=" + id;
         } else {
-          newSelection = selection + ClipContract.Clip._ID + "=" + id;
+          newSelection = selection + ClipsContract.Clip._ID + "=" + id;
         }
         break;
       case LABEL:
-        table = ClipContract.Label.TABLE_NAME;
+        table = ClipsContract.Label.TABLE_NAME;
         break;
       case LABEL_ID:
-        table = ClipContract.Label.TABLE_NAME;
+        table = ClipsContract.Label.TABLE_NAME;
         id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
-          newSelection = ClipContract.Label._ID + "=" + id;
+          newSelection = ClipsContract.Label._ID + "=" + id;
         } else {
-          newSelection = selection + ClipContract.Label._ID + "=" + id;
+          newSelection = selection + ClipsContract.Label._ID + "=" + id;
         }
         break;
       case LABEL_MAP:
-        table = ClipContract.LabelMap.TABLE_NAME;
+        table = ClipsContract.LabelMap.TABLE_NAME;
         break;
       case LABEL_MAP_ID:
-        table = ClipContract.LabelMap.TABLE_NAME;
+        table = ClipsContract.LabelMap.TABLE_NAME;
         id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
-          newSelection = ClipContract.LabelMap._ID + "=" + id;
+          newSelection = ClipsContract.LabelMap._ID + "=" + id;
         } else {
-          newSelection = selection + ClipContract.LabelMap._ID + "=" + id;
+          newSelection = selection + ClipsContract.LabelMap._ID + "=" + id;
         }
         break;
       default:
@@ -298,42 +296,42 @@ public class ClipContentProvider extends ContentProvider {
     final int uriType = URI_MATCHER.match(uri);
     switch (uriType) {
       case CLIP:
-        table = ClipContract.Clip.TABLE_NAME;
+        table = ClipsContract.Clip.TABLE_NAME;
         break;
       case CLIP_ID:
-        table = ClipContract.Clip.TABLE_NAME;
+        table = ClipsContract.Clip.TABLE_NAME;
         id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
-          newSelection = ClipContract.Clip._ID + "=" + id;
+          newSelection = ClipsContract.Clip._ID + "=" + id;
         } else {
           newSelection = newSelection + " and " +
-            ClipContract.Clip._ID + "=" + id;
+            ClipsContract.Clip._ID + "=" + id;
         }
         break;
       case LABEL:
-        table = ClipContract.Label.TABLE_NAME;
+        table = ClipsContract.Label.TABLE_NAME;
         break;
       case LABEL_ID:
-        table = ClipContract.Label.TABLE_NAME;
+        table = ClipsContract.Label.TABLE_NAME;
         id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
-          newSelection = ClipContract.Label._ID + "=" + id;
+          newSelection = ClipsContract.Label._ID + "=" + id;
         } else {
           newSelection = newSelection + " and " +
-            ClipContract.Label._ID + "=" + id;
+            ClipsContract.Label._ID + "=" + id;
         }
         break;
       case LABEL_MAP:
-        table = ClipContract.LabelMap.TABLE_NAME;
+        table = ClipsContract.LabelMap.TABLE_NAME;
         break;
       case LABEL_MAP_ID:
-        table = ClipContract.LabelMap.TABLE_NAME;
+        table = ClipsContract.LabelMap.TABLE_NAME;
         id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
-          newSelection = ClipContract.LabelMap._ID + "=" + id;
+          newSelection = ClipsContract.LabelMap._ID + "=" + id;
         } else {
           newSelection = newSelection + " and " +
-            ClipContract.LabelMap._ID + "=" + id;
+            ClipsContract.LabelMap._ID + "=" + id;
         }
         break;
       default:

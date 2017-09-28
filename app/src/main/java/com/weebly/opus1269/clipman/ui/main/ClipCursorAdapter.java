@@ -16,10 +16,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
-import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorViewHolder;
+import com.androidessence.recyclerviewcursoradapter
+  .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -27,15 +28,14 @@ import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 /**
  * Bridge between the main RecyclerView and the Clips.db database
  */
-class ClipCursorAdapter extends RecyclerViewCursorAdapter<ClipCursorAdapter.ClipViewHolder> {
-
-  // The currently selected position in the list
-  private int mSelectedPos = 0;
-
-  // The database _ID of the selection list item
-  private long mSelectedItemID = -1L;
+class ClipCursorAdapter extends
+  RecyclerViewCursorAdapter<ClipCursorAdapter.ClipViewHolder> {
 
   private final MainActivity mActivity;
+  // The currently selected position in the list
+  private int mSelectedPos = 0;
+  // The database _ID of the selection list item
+  private long mSelectedItemID = -1L;
 
   ClipCursorAdapter(MainActivity activity) {
     super(activity);
@@ -48,16 +48,13 @@ class ClipCursorAdapter extends RecyclerViewCursorAdapter<ClipCursorAdapter.Clip
     setupCursorAdapter(null, 0, R.layout.clip_row, false);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Superclass overrides
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * Returns the ViewHolder to use for this adapter.
    */
   @Override
   public ClipViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    final View view = mCursorAdapter.newView(mContext, mCursorAdapter.getCursor(), parent);
+    final View view =
+      mCursorAdapter.newView(mContext, mCursorAdapter.getCursor(), parent);
     final ClipViewHolder holder = new ClipViewHolder(view);
 
     holder.itemView.setOnClickListener(mActivity.getClipLoaderManager());
@@ -103,10 +100,6 @@ class ClipCursorAdapter extends RecyclerViewCursorAdapter<ClipCursorAdapter.Clip
     return mCursorAdapter.getItemId(position);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Package private methods
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * We are a delegate for the savedInstanceState of the {@link MainActivity}
    * Here we are restoring the selected state
@@ -127,7 +120,7 @@ class ClipCursorAdapter extends RecyclerViewCursorAdapter<ClipCursorAdapter.Clip
 
     final Cursor cursor = mCursorAdapter.getCursor();
     if (cursor.moveToFirst()) {
-      final int colIndex = cursor.getColumnIndex(ClipContract.Clip._ID);
+      final int colIndex = cursor.getColumnIndex(ClipsContract.Clip._ID);
       while (!cursor.isAfterLast()) {
         if (cursor.getLong(colIndex) == itemID) {
           pos = cursor.getPosition();
@@ -168,10 +161,6 @@ class ClipCursorAdapter extends RecyclerViewCursorAdapter<ClipCursorAdapter.Clip
     setSelectedPos(getPosFromItemID(mSelectedItemID));
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * Color the Vector Drawables based on theme and fav state
    * @param holder ClipViewHolder
@@ -210,14 +199,9 @@ class ClipCursorAdapter extends RecyclerViewCursorAdapter<ClipCursorAdapter.Clip
       .applyToDrawableLeft(holder.favCheckBox);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // inner classes
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
    * ViewHolder inner class used to display the clip in the RecyclerView.
    */
-  @SuppressWarnings({"InstanceVariableNamingConvention", "PublicField", "PublicInnerClass"})
   static class ClipViewHolder extends RecyclerViewCursorViewHolder {
 
     final RelativeLayout clipBackground;
@@ -250,13 +234,14 @@ class ClipCursorAdapter extends RecyclerViewCursorAdapter<ClipCursorAdapter.Clip
     public void bindCursor(final Cursor cursor) {
       clipItem = new ClipItem(cursor);
 
-      itemID = cursor.getLong(cursor.getColumnIndex(ClipContract.Clip._ID));
+      itemID = cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip._ID));
 
       clipText.setText(clipItem.getText());
       favCheckBox.setChecked(clipItem.isFav());
 
       long time = clipItem.getTime();
-      final CharSequence value = AppUtils.getRelativeDisplayTime(clipItem.getDate());
+      final CharSequence value = AppUtils.getRelativeDisplayTime(clipItem
+        .getDate());
       dateText.setText(value);
       dateText.setTag(time);
     }

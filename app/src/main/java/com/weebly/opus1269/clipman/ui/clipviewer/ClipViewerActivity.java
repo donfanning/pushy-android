@@ -21,7 +21,7 @@ import android.view.View;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -213,10 +213,10 @@ public class ClipViewerActivity extends BaseActivity implements
       final ClipViewerFragment clipViewerFragment = getClipViewerFragment();
       final ClipItem clipItem = clipViewerFragment.getClipItemClone();
       final String text = DatabaseUtils.sqlEscapeString(clipItem.getText());
-      final String selection = ClipContract.Clip.COL_TEXT + '=' + text;
+      final String selection = ClipsContract.Clip.COL_TEXT + '=' + text;
 
       final int nRows = getContentResolver()
-        .delete(ClipContract.Clip.CONTENT_URI, selection, null);
+        .delete(ClipsContract.Clip.CONTENT_URI, selection, null);
 
       // save item for undo
       mUndoItem = getClipViewerFragment().getClipItemClone().getContentValues();
@@ -265,9 +265,9 @@ public class ClipViewerActivity extends BaseActivity implements
       final ClipViewerFragment clipViewerFragment = getClipViewerFragment();
       final ClipItem clipItem = clipViewerFragment.getClipItemClone();
       final String text = DatabaseUtils.sqlEscapeString(clipItem.getText());
-      final String selection = ClipContract.Clip.COL_TEXT + '=' + text;
+      final String selection = ClipsContract.Clip.COL_TEXT + '=' + text;
 
-      getContentResolver().delete(ClipContract.Clip.CONTENT_URI, selection, null);
+      getContentResolver().delete(ClipsContract.Clip.CONTENT_URI, selection, null);
       clipItem.save();
 
       return null;

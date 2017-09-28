@@ -15,7 +15,7 @@ import android.support.v4.content.Loader;
 
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 
 /**
  * This class manages most everything related to the main RecyclerView
@@ -34,17 +34,17 @@ class LabelLoaderManager implements
   @Override
   public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
     // Retrieve all columns
-    final String[] projection = ClipContract.Label.FULL_PROJECTION;
+    final String[] projection = ClipsContract.Label.FULL_PROJECTION;
 
     String selection = "((" +
-      ClipContract.Label.COL_NAME + " NOTNULL) AND (" +
-      ClipContract.Label.COL_NAME + " != '' ))";
+      ClipsContract.Label.COL_NAME + " NOTNULL) AND (" +
+      ClipsContract.Label.COL_NAME + " != '' ))";
 
     // Now create and return a CursorLoader that will take care of
     // creating a Cursor for the data being displayed.
     return new CursorLoader(
       App.getContext(),
-      ClipContract.Label.CONTENT_URI,
+      ClipsContract.Label.CONTENT_URI,
       projection,
       selection,
       null,

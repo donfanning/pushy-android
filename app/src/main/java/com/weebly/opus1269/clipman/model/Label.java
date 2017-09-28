@@ -11,7 +11,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.db.LabelTables;
 
 import java.io.Serializable;
@@ -32,7 +32,7 @@ public class Label implements Serializable {
   }
 
   public Label(Cursor cursor) {
-    int idx = cursor.getColumnIndex(ClipContract.Label.COL_NAME);
+    int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
     mName = cursor.getString(idx);
   }
 
@@ -51,7 +51,7 @@ public class Label implements Serializable {
    */
   public ContentValues getContentValues() {
     final ContentValues cv = new ContentValues();
-    cv.put(ClipContract.Label.COL_NAME, mName);
+    cv.put(ClipsContract.Label.COL_NAME, mName);
     return cv;
   }
 

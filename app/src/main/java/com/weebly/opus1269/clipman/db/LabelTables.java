@@ -38,14 +38,14 @@ public enum LabelTables {
     final ContentResolver resolver = context.getContentResolver();
 
     // query for existence and skip insert if it does
-    final String[] projection = {ClipContract.LabelMap.COL_LABEL_NAME};
+    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
     final String selection = "(" +
-      "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
-      "(" + ClipContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
+      "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
+      "(" + ClipsContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
       ")";
     final String[] selectionArgs = {label.getName(), clipItem.getText()};
 
-    final Cursor cursor = resolver.query(ClipContract.LabelMap.CONTENT_URI,
+    final Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
       projection, selection, selectionArgs, null);
     if (cursor == null) {
       return false;
@@ -61,9 +61,9 @@ public enum LabelTables {
 
     // insert into table
     final ContentValues cv = new ContentValues();
-    cv.put(ClipContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
-    cv.put(ClipContract.LabelMap.COL_LABEL_NAME, label.getName());
-    resolver.insert(ClipContract.LabelMap.CONTENT_URI, cv);
+    cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
+    cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
+    resolver.insert(ClipsContract.LabelMap.CONTENT_URI, cv);
 
     return true;
   }
@@ -85,16 +85,16 @@ public enum LabelTables {
 
     // update Label table
     ContentValues cv = new ContentValues();
-    cv.put(ClipContract.Label.COL_NAME, newLabel.getName());
-    String selection = "(" + ClipContract.Label.COL_NAME + " == ? )";
-    resolver.update(ClipContract.Label.CONTENT_URI, cv, selection,
+    cv.put(ClipsContract.Label.COL_NAME, newLabel.getName());
+    String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
+    resolver.update(ClipsContract.Label.CONTENT_URI, cv, selection,
       selectionArgs);
 
     // update LabelMap table
     cv = new ContentValues();
-    cv.put(ClipContract.LabelMap.COL_LABEL_NAME, newLabel.getName());
-    selection = "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? )";
-    resolver.update(ClipContract.LabelMap.CONTENT_URI, cv, selection,
+    cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, newLabel.getName());
+    selection = "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? )";
+    resolver.update(ClipsContract.LabelMap.CONTENT_URI, cv, selection,
       selectionArgs);
   }
 
@@ -113,12 +113,12 @@ public enum LabelTables {
     final ContentResolver resolver = context.getContentResolver();
 
     final String selection = "(" +
-      "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
-      "(" + ClipContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
+      "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
+      "(" + ClipsContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
       ")";
     final String[] selectionArgs = {label.getName(), clipItem.getText()};
 
-    resolver.delete(ClipContract.LabelMap.CONTENT_URI, selection,
+    resolver.delete(ClipsContract.LabelMap.CONTENT_URI, selection,
       selectionArgs);
   }
 
@@ -137,19 +137,19 @@ public enum LabelTables {
     final String[] selectionArgs = {label.getName()};
 
     // delete from Label table
-    String selection = "(" + ClipContract.Label.COL_NAME + " == ? )";
-    resolver.delete(ClipContract.Label.CONTENT_URI, selection, selectionArgs);
+    String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
+    resolver.delete(ClipsContract.Label.CONTENT_URI, selection, selectionArgs);
 
     // delete from LabelMap table
-    selection = "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? )";
-    resolver.delete(ClipContract.LabelMap.CONTENT_URI, selection,
+    selection = "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? )";
+    resolver.delete(ClipsContract.LabelMap.CONTENT_URI, selection,
       selectionArgs);
   }
 
   /**
    * Get a cursor that contains the label names for a {@link ClipItem}
    * @param clipItem clip to check
-   * @return cursor of ClipContract.LabelMap.COL_LABEL_NAME may be null
+   * @return cursor of ClipsContract.LabelMap.COL_LABEL_NAME may be null
    */
   @Nullable
   public Cursor getLabelNames(ClipItem clipItem) {
@@ -160,12 +160,12 @@ public enum LabelTables {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    final String[] projection = {ClipContract.LabelMap.COL_LABEL_NAME};
+    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
     final String selection =
-      "(" + ClipContract.LabelMap.COL_CLIP_TEXT + " == ? )";
+      "(" + ClipsContract.LabelMap.COL_CLIP_TEXT + " == ? )";
     final String[] selectionArgs = {clipItem.getText()};
 
-    return resolver.query(ClipContract.LabelMap.CONTENT_URI, projection,
+    return resolver.query(ClipsContract.LabelMap.CONTENT_URI, projection,
       selection, selectionArgs, null);
   }
 
@@ -182,12 +182,12 @@ public enum LabelTables {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    final String[] projection = {ClipContract.Label.COL_NAME};
-    final String selection = "(" + ClipContract.Label.COL_NAME + " == ? )";
+    final String[] projection = {ClipsContract.Label.COL_NAME};
+    final String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
     final String[] selectionArgs = {label.getName()};
 
     // query for existence and skip insert if it does
-    final Cursor cursor = resolver.query(ClipContract.Label.CONTENT_URI,
+    final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
       projection, selection, selectionArgs, null);
     if (cursor == null) {
       return false;
@@ -200,7 +200,7 @@ public enum LabelTables {
     cursor.close();
 
     // insert into db
-    resolver.insert(ClipContract.Label.CONTENT_URI, label.getContentValues());
+    resolver.insert(ClipsContract.Label.CONTENT_URI, label.getContentValues());
 
     return true;
   }

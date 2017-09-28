@@ -24,7 +24,7 @@ import android.view.View;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -47,34 +47,32 @@ class ClipLoaderManager implements
 
     setupRecyclerView();
 
-    // Prepare the loader. Either re-connect with an existing one, or start a new one.
+    // Prepare the loader. Either re-connect with an existing one, or start a
+    // new one.
     //noinspection ThisEscapedInObjectConstruction
     mMainActivity.getSupportLoaderManager().initLoader(0, null, this);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement LoaderManager.LoaderCallbacks<Cursor>
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     // Retrieve all columns
-    final String[] projection = ClipContract.Clip.FULL_PROJECTION;
+    final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
     final String queryString = mMainActivity.getQueryString();
 
     String selection = "(" +
-      "(" + ClipContract.Clip.COL_TEXT + " NOTNULL) AND (" +
-      ClipContract.Clip.COL_TEXT + " != '' )";
+      "(" + ClipsContract.Clip.COL_TEXT + " NOTNULL) AND (" +
+      ClipsContract.Clip.COL_TEXT + " != '' )";
 
     if (mMainActivity.getFavFilter()) {
       // filter by favorite setting selected
-      selection = selection + " AND (" + ClipContract.Clip.COL_FAV + " == 1 )";
+      selection = selection + " AND (" + ClipsContract.Clip.COL_FAV + " == 1 )";
     }
 
     String[] selectionArgs = null;
     if (!TextUtils.isEmpty(queryString)) {
       // filter by search query
-      selection = selection + " AND (" + ClipContract.Clip.COL_TEXT + " LIKE ? )";
+      selection = selection + " AND (" + ClipsContract.Clip.COL_TEXT + " LIKE" +
+        " ? )";
       selectionArgs = new String[1];
       selectionArgs[0] = "%" + queryString + "%";
 
@@ -85,11 +83,11 @@ class ClipLoaderManager implements
     // creating a Cursor for the data being displayed.
     return new CursorLoader(
       mMainActivity,
-      ClipContract.Clip.CONTENT_URI,
+      ClipsContract.Clip.CONTENT_URI,
       projection,
       selection,
       selectionArgs,
-      ClipContract.Clip.getSortOrder());
+      ClipsContract.Clip.getSortOrder());
   }
 
   @Override
@@ -119,7 +117,7 @@ class ClipLoaderManager implements
         }
         pos = Math.max(0, pos);
         data.moveToPosition(pos);
-        final int index = data.getColumnIndex(ClipContract.Clip._ID);
+        final int index = data.getColumnIndex(ClipsContract.Clip._ID);
         mAdapter.setSelectedItemID(data.getLong(index));
         mMainActivity.startOrUpdateClipViewer(new ClipItem(data));
       }
@@ -133,10 +131,6 @@ class ClipLoaderManager implements
     // longer using it.
     mAdapter.swapCursor(null);
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement View.OnClickListener
-  ///////////////////////////////////////////////////////////////////////////
 
   @Override
   public void onClick(View v) {
@@ -161,17 +155,9 @@ class ClipLoaderManager implements
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Package private methods
-  ///////////////////////////////////////////////////////////////////////////
-
   ClipCursorAdapter getAdapter() {
     return mAdapter;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   private void onItemViewClicked(ClipCursorAdapter.ClipViewHolder holder) {
     getAdapter().setSelectedItemID(holder.itemID);
@@ -181,12 +167,13 @@ class ClipLoaderManager implements
   private void onFavClicked(ClipCursorAdapter.ClipViewHolder holder) {
     final boolean checked = holder.favCheckBox.isChecked();
     final long fav = checked ? 1 : 0;
-    final Uri uri = ContentUris.withAppendedId(ClipContract.Clip.CONTENT_URI, holder.itemID);
+    final Uri uri = ContentUris.withAppendedId(ClipsContract.Clip
+      .CONTENT_URI, holder.itemID);
     final ContentValues cv = new ContentValues();
 
     holder.clipItem.setFav(checked);
 
-    cv.put(ClipContract.Clip.COL_FAV, fav);
+    cv.put(ClipsContract.Clip.COL_FAV, fav);
     mMainActivity.getContentResolver().update(uri, cv, null, null);
   }
 
@@ -218,9 +205,9 @@ class ClipLoaderManager implements
     recyclerView.setAdapter(mAdapter);
 
     // handle touch events on the RecyclerView
-    final ItemTouchHelper.Callback callback = new ClipItemTouchHelper(mMainActivity);
+    final ItemTouchHelper.Callback callback = new ClipItemTouchHelper
+      (mMainActivity);
     ItemTouchHelper helper = new ItemTouchHelper(callback);
     helper.attachToRecyclerView(recyclerView);
   }
-
 }

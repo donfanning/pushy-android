@@ -20,7 +20,7 @@ import com.weebly.opus1269.clipman.model.Label;
  * A helper class to manage the Clips.db database creation and version
  * management.
  */
-public class ClipDatabaseHelper extends SQLiteOpenHelper {
+public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   // If you change the database schema, you must increment the database version.
   private static final int DATABASE_VERSION = 2;
   private static final String DATABASE_NAME = "Clips.db";
@@ -28,29 +28,29 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
   private static final String TEXT = " TEXT";
   private static final String INTEGER = " INTEGER";
   private static final String SQL_CREATE_CLIP = "CREATE TABLE " +
-    ClipContract.Clip.TABLE_NAME + " (" +
-    ClipContract.Clip._ID + " INTEGER PRIMARY KEY" + "," +
-    ClipContract.Clip.COL_TEXT + TEXT + " UNIQUE " + "," +
-    ClipContract.Clip.COL_DATE + INTEGER + "," +
-    ClipContract.Clip.COL_FAV + INTEGER + "," +
-    ClipContract.Clip.COL_REMOTE + INTEGER + "," +
-    ClipContract.Clip.COL_DEVICE + TEXT +
+    ClipsContract.Clip.TABLE_NAME + " (" +
+    ClipsContract.Clip._ID + " INTEGER PRIMARY KEY" + "," +
+    ClipsContract.Clip.COL_TEXT + TEXT + " UNIQUE " + "," +
+    ClipsContract.Clip.COL_DATE + INTEGER + "," +
+    ClipsContract.Clip.COL_FAV + INTEGER + "," +
+    ClipsContract.Clip.COL_REMOTE + INTEGER + "," +
+    ClipsContract.Clip.COL_DEVICE + TEXT +
     " );";
   private static final String SQL_CREATE_LABEL = "CREATE TABLE " +
-    ClipContract.Label.TABLE_NAME + " (" +
-    ClipContract.Label._ID + " INTEGER PRIMARY KEY" + "," +
-    ClipContract.Label.COL_NAME + TEXT +
+    ClipsContract.Label.TABLE_NAME + " (" +
+    ClipsContract.Label._ID + " INTEGER PRIMARY KEY" + "," +
+    ClipsContract.Label.COL_NAME + TEXT +
     " );";
   private static final String SQL_CREATE_LABEL_MAP = "CREATE TABLE " +
-    ClipContract.LabelMap.TABLE_NAME + " (" +
-    ClipContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
-    ClipContract.LabelMap.COL_CLIP_TEXT + TEXT + "," +
-    ClipContract.LabelMap.COL_LABEL_NAME + TEXT +
+    ClipsContract.LabelMap.TABLE_NAME + " (" +
+    ClipsContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
+    ClipsContract.LabelMap.COL_CLIP_TEXT + TEXT + "," +
+    ClipsContract.LabelMap.COL_LABEL_NAME + TEXT +
     " );";
 
   private final Context mContext;
 
-  public ClipDatabaseHelper(Context context) {
+  public ClipsDatabaseHelper(Context context) {
     super(context, DATABASE_NAME, null, DATABASE_VERSION);
     mContext = context;
   }
@@ -92,7 +92,7 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
       (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
     ClipItem item = ClipItem.getFromClipboard(clipboard);
     if (item != null) {
-      db.replace(ClipContract.Clip.TABLE_NAME, null, item.getContentValues());
+      db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
     }
 
     // create some informative entries
@@ -103,41 +103,41 @@ public class ClipDatabaseHelper extends SQLiteOpenHelper {
     long time = item.getTime();
     time = time + 1;
     item.setDate(time);
-    db.replace(ClipContract.Clip.TABLE_NAME, null, item.getContentValues());
+    db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
     item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_4));
     item.setFav(false);
     time = time + 1;
     item.setDate(time);
-    db.replace(ClipContract.Clip.TABLE_NAME, null, item.getContentValues());
+    db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
     item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_3));
     item.setFav(true);
     time = time + 1;
     item.setDate(time);
-    db.replace(ClipContract.Clip.TABLE_NAME, null, item.getContentValues());
+    db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
     item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_2));
     item.setFav(true);
     time = time + 1;
     item.setDate(time);
-    db.replace(ClipContract.Clip.TABLE_NAME, null, item.getContentValues());
+    db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
     item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_1));
     item.setFav(true);
     time = time + 1;
     item.setDate(time);
-    db.replace(ClipContract.Clip.TABLE_NAME, null, item.getContentValues());
+    db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
     createExampleLabel(db);
   }
 
   private void createExampleLabel(SQLiteDatabase db) {
     final Label label = new Label("Example");
-    db.replace(ClipContract.Label.TABLE_NAME, null, label.getContentValues());
+    db.replace(ClipsContract.Label.TABLE_NAME, null, label.getContentValues());
   }
 }
