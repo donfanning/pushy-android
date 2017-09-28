@@ -267,7 +267,7 @@ public class Notifications {
 
     // Email support action
     final String emailSubject = context.getString(R.string.last_error);
-    String emailBody = Email.INSTANCE.getBody() + lastError + " \n" +
+    String emailBody = Email.INST.getBody() + lastError + " \n" +
       context.getString(R.string.email_error_info) + " \n \n";
 
     pendingIntent = NotificationReceiver
@@ -528,7 +528,7 @@ public class Notifications {
           intent.getStringExtra(Intents.EXTRA_EMAIL_BODY);
 
         // Send email
-        Email.INSTANCE.send(emailSubject, emailBody);
+        Email.INST.send(emailSubject, emailBody);
 
         cancelNotification(noteId);
       }

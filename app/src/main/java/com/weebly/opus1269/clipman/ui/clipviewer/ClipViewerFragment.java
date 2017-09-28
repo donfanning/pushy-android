@@ -27,44 +27,29 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
 import java.io.Serializable;
 import java.text.Collator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * A fragment containing a view of a ClipItem's text.
- */
+/** A fragment containing a view of a ClipItem's text. */
 public class ClipViewerFragment extends Fragment
   implements View.OnClickListener {
 
   private static final String STATE_CLIP_ITEM = "clip";
   private static final String STATE_CLIP_VIEWABLE = "viewable";
   private static final String STATE_CLIP_HIGHLIGHT = "highlight";
-
-  // Activities implement this to get notified of clip changes
-  public interface OnClipChanged {
-    void onClipChanged(ClipItem clipItem);
-  }
-
   private OnClipChanged mOnClipChanged = null;
-
-  /**
-   * saved instance state
-   */
-
-  // The clip we are viewing
+  /** The clip we are viewing */
   private ClipItem mClipItem = null;
-
-  // The text to be highlighted
+  /** The text to be highlighted */
   private String mHighlightText = "";
-
-  // Flag to indicate if we are viewable
-  // (as opposed to recreated from a savedInstanceState but will not be seen.
+  /**
+   * Flag to indicate if we are viewable (as opposed to recreated from a
+   * savedInstanceState but will not be seen.
+   */
   private boolean mIsViewable = true;
-
 
   /**
    * factory method to create new fragment
@@ -72,7 +57,8 @@ public class ClipViewerFragment extends Fragment
    * @param highlight text to highlight
    * @return new ClipViewerFragment
    */
-  public static ClipViewerFragment newInstance(Serializable item, String highlight) {
+  public static ClipViewerFragment newInstance(Serializable item, String
+    highlight) {
     final ClipViewerFragment fragment = new ClipViewerFragment();
 
     final Bundle args = new Bundle();
@@ -84,9 +70,20 @@ public class ClipViewerFragment extends Fragment
     return fragment;
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Superclass overrides
-  ///////////////////////////////////////////////////////////////////////////
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+
+    final Activity activity = getActivity();
+    // This makes sure that the container activity has implemented
+    // the callback interface. If not, it throws an exception
+    try {
+      mOnClipChanged = (OnClipChanged) activity;
+    } catch (final ClassCastException ignore) {
+      throw new ClassCastException(activity.getLocalClassName() +
+        " must implement OnClipChanged");
+    }
+  }
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -97,7 +94,8 @@ public class ClipViewerFragment extends Fragment
     // Check whether we're recreating a previously destroyed instance
     if (savedInstanceState != null) {
       // Restore value of members from saved state
-      mClipItem = (ClipItem) savedInstanceState.getSerializable(STATE_CLIP_ITEM);
+      mClipItem = (ClipItem) savedInstanceState.getSerializable
+        (STATE_CLIP_ITEM);
       mIsViewable = savedInstanceState.getBoolean(STATE_CLIP_VIEWABLE);
       mHighlightText = savedInstanceState.getString(STATE_CLIP_HIGHLIGHT);
     } else {
@@ -134,21 +132,6 @@ public class ClipViewerFragment extends Fragment
   }
 
   @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-
-    final Activity activity = getActivity();
-    // This makes sure that the container activity has implemented
-    // the callback interface. If not, it throws an exception
-    try {
-      mOnClipChanged = (OnClipChanged) activity;
-    } catch (final ClassCastException ignore) {
-      throw new ClassCastException(activity.getLocalClassName() +
-        " must implement OnClipChanged");
-    }
-  }
-
-  @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
@@ -181,18 +164,10 @@ public class ClipViewerFragment extends Fragment
     super.onSaveInstanceState(outState);
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement View.OnClickListener
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public void onClick(View v) {
     mClipItem.doShare(v);
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Public methods
-  ///////////////////////////////////////////////////////////////////////////
 
   public ClipItem getClipItemClone() {
     return new ClipItem(mClipItem);
@@ -200,7 +175,8 @@ public class ClipViewerFragment extends Fragment
 
   public void setClipItem(ClipItem clipItem) {
 
-    if (!Collator.getInstance().equals(clipItem.getText(), mClipItem.getText())) {
+    if (!Collator.getInstance().equals(clipItem.getText(), mClipItem.getText
+      ())) {
       // skip repaint if text is same
       final TextView textView = getActivity().findViewById(R.id.clipViewerText);
       if (textView != null) {
@@ -270,10 +246,6 @@ public class ClipViewerFragment extends Fragment
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
-
   private void setupRemoteDevice() {
     if (!mIsViewable) {
       return;
@@ -287,7 +259,8 @@ public class ClipViewerFragment extends Fragment
     if (mClipItem.isRemote() && !AppUtils.isDualPane()) {
       textView.setVisibility(View.VISIBLE);
       divider.setVisibility(View.VISIBLE);
-      textView.setText(getString(R.string.remote_device_fmt, mClipItem.getDevice()));
+      textView.setText(getString(R.string.remote_device_fmt, mClipItem
+        .getDevice()));
     } else {
       textView.setVisibility(View.GONE);
       divider.setVisibility(View.GONE);
@@ -310,6 +283,7 @@ public class ClipViewerFragment extends Fragment
 
   /**
    * Set the TextView text
+   * @param text text as Spannable
    */
   private void setText(Spannable text) {
     final TextView textView =
@@ -323,13 +297,18 @@ public class ClipViewerFragment extends Fragment
   }
 
   /**
-   * Setup selectable links for TextView
-   * autoLink is pretty buggy
+   * Setup selectable links for TextView autoLink is pretty buggy
+   * @param textView a text view
    */
   private void linkifyTextView(TextView textView) {
     // http://stackoverflow.com/a/16003280/4468645
     Linkify.addLinks(textView, Linkify.ALL);
     textView.setMovementMethod(ArrowKeyMovementMethod.getInstance());
     textView.setTextIsSelectable(true);
+  }
+
+  // Activities implement this to get notified of clip changes
+  public interface OnClipChanged {
+    void onClipChanged(ClipItem clipItem);
   }
 }

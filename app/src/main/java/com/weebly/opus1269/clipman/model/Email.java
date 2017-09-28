@@ -19,7 +19,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
  * Singleton for sending emails
  */
 public enum Email {
-  INSTANCE;
+  INST;
 
   /**
    * Support email address

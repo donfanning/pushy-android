@@ -49,10 +49,6 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   private String mNicknameKey;
   private String mMangageNotKey;
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Superclass overrides
-  ///////////////////////////////////////////////////////////////////////////
-
   @Override
   public void onCreatePreferencesFix(Bundle bundle, String rootKey) {
     // Load the preferences from an XML resource
@@ -70,15 +66,6 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
     setRingtoneSummary();
     setNicknameSummary();
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-
-    // stop listening for preference changes
-    PreferenceManager.getDefaultSharedPreferences(getContext())
-      .unregisterOnSharedPreferenceChangeListener(this);
   }
 
   @Override
@@ -160,9 +147,14 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement: SharedPreferences.OnSharedPreferenceChangeListener
-  ///////////////////////////////////////////////////////////////////////////
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    // stop listening for preference changes
+    PreferenceManager.getDefaultSharedPreferences(getContext())
+      .unregisterOnSharedPreferenceChangeListener(this);
+  }
 
   @Override
   public void
@@ -204,7 +196,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         Notifications.removeAll();
       }
     } else if (key.equals(keyReceive)) {
-      if (User.INSTANCE.isLoggedIn()) {
+      if (User.INST.isLoggedIn()) {
         if (Prefs.isAllowReceive()) {
           // register
           new RegistrationClient
@@ -220,13 +212,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     }
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Update the Ringtone summary text
-   */
+  /** Update the Ringtone summary text */
   private void setRingtoneSummary() {
     if (AppUtils.isOreoOrLater()) {
       return;
@@ -245,9 +231,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     preference.setSummary(title);
   }
 
-  /**
-   * Update the Nickname summary text
-   */
+  /** Update the Nickname summary text */
   private void setNicknameSummary() {
     final Preference preference = findPreference(mNicknameKey);
     String value = Prefs.getDeviceNickname();

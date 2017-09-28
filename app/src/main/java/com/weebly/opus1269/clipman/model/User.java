@@ -26,7 +26,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.Scopes;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth
+  .GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -51,43 +52,17 @@ import java.util.List;
  */
 
 public enum User {
-  INSTANCE;
+  INST;
 
   private static final String TAG = "User";
-
-  /**
-   * {@value}
-   */
   private static final String PREF_USER_ID = "prefUserId";
-  /**
-   * {@value}
-   */
   private static final String PREF_USER_NAME = "prefUserName";
-  /**
-   * {@value}
-   */
   private static final String PREF_USER_EMAIL = "prefUserEmail";
-  /**
-   * {@value}
-   */
   private static final String PREF_USER_PHOTO_URI = "prefUserPhotoUri";
-  /**
-   * {@value}
-   */
-  private static final String PREF_USER_PHOTO_ENCODED =
-    "prefUserPhotoEncoded";
-  /**
-   * {@value}
-   */
+  private static final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";
   private static final String PREF_USER_TYPE = "prefUserType";
-  /**
-   * {@value}
-   */
   private static final String PREF_USER_COVER_PHOTO_URI =
     "prefUserCoverPhotoUri";
-  /**
-   * {@value}
-   */
   private static final String PREF_USER_COVER_PHOTO_ENCODED =
     "prefUserCoverPhotoEncoded";
 
@@ -117,9 +92,7 @@ public enum User {
     new SetPhotosAsyncTask().execute();
   }
 
-  /**
-   * Remove information on current user
-   */
+  /** Remove information on current user */
   public void clear() {
     setId("");
     setName("");
@@ -137,40 +110,36 @@ public enum User {
     return !getId().isEmpty();
   }
 
-  private void setId(String value) {
-    Prefs.set(PREF_USER_ID, value);
-  }
-
   private String getId() {
     return Prefs.get(PREF_USER_ID, "");
   }
 
-  private void setName(String value) {
-    Prefs.set(PREF_USER_NAME, value);
+  private void setId(String value) {
+    Prefs.set(PREF_USER_ID, value);
   }
 
   public String getName() {
     return Prefs.get(PREF_USER_NAME, "");
   }
 
-  private void setEmail(String value) {
-    Prefs.set(PREF_USER_EMAIL, value);
+  private void setName(String value) {
+    Prefs.set(PREF_USER_NAME, value);
   }
 
   public String getEmail() {
     return Prefs.get(PREF_USER_EMAIL, "");
   }
 
-  private void setPhotoUri(String value) {
-    Prefs.set(PREF_USER_PHOTO_URI, value);
+  private void setEmail(String value) {
+    Prefs.set(PREF_USER_EMAIL, value);
   }
 
   private String getPhotoUri() {
     return Prefs.get(PREF_USER_PHOTO_URI, "");
   }
 
-  private void setPhotoBitmap(Bitmap bitmap) {
-    Prefs.set(PREF_USER_PHOTO_ENCODED, BitmapHelper.encodeBitmap(bitmap));
+  private void setPhotoUri(String value) {
+    Prefs.set(PREF_USER_PHOTO_URI, value);
   }
 
   private Bitmap getPhotoBitmap() {
@@ -178,8 +147,8 @@ public enum User {
       Prefs.get(PREF_USER_PHOTO_ENCODED, ""));
   }
 
-  private void setType(String value) {
-    Prefs.set(PREF_USER_TYPE, value);
+  private void setPhotoBitmap(Bitmap bitmap) {
+    Prefs.set(PREF_USER_PHOTO_ENCODED, BitmapHelper.encodeBitmap(bitmap));
   }
 
   @SuppressWarnings("unused")
@@ -187,22 +156,26 @@ public enum User {
     return Prefs.get(PREF_USER_TYPE, "com.google");
   }
 
-  private void setCoverPhotoUri(String value) {
-    Prefs.set(PREF_USER_COVER_PHOTO_URI, value);
+  private void setType(String value) {
+    Prefs.set(PREF_USER_TYPE, value);
   }
 
   private String getCoverPhotoUri() {
     return Prefs.get(PREF_USER_COVER_PHOTO_URI, "");
   }
 
-  private void setCoverPhotoBitmap(Bitmap bitmap) {
-    Prefs.set(PREF_USER_COVER_PHOTO_ENCODED,
-      BitmapHelper.encodeBitmap(bitmap));
+  private void setCoverPhotoUri(String value) {
+    Prefs.set(PREF_USER_COVER_PHOTO_URI, value);
   }
 
   private Bitmap getCoverPhotoBitmap() {
     return BitmapHelper.decodeBitmap(
       Prefs.get(PREF_USER_COVER_PHOTO_ENCODED, ""));
+  }
+
+  private void setCoverPhotoBitmap(Bitmap bitmap) {
+    Prefs.set(PREF_USER_COVER_PHOTO_ENCODED,
+      BitmapHelper.encodeBitmap(bitmap));
   }
 
   /**
@@ -303,10 +276,6 @@ public enum User {
 
     coverPhoto.setBackground(drawable);
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Inner Classes
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Inner class to handle loading of user avatar

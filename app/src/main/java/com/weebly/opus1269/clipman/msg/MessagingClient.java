@@ -81,9 +81,7 @@ public class MessagingClient extends Endpoint {
     }
   }
 
-  /**
-   * Notify of our addition
-   */
+  /** Notify of our addition */
   static void sendDeviceAdded() {
     if (notSignedIn() || !Prefs.isPushClipboard()) {
       return;
@@ -96,9 +94,7 @@ public class MessagingClient extends Endpoint {
     }
   }
 
-  /**
-   * Notify of our removal
-   */
+  /** Notify of our removal */
   public static void sendDeviceRemoved() {
     if (notSignedIn() || !Prefs.isPushClipboard()) {
       return;
@@ -111,9 +107,7 @@ public class MessagingClient extends Endpoint {
     }
   }
 
-  /**
-   * Ping others
-   */
+  /** Ping others */
   public static void sendPing() {
     if (notSignedIn() || !Prefs.isPushClipboard()) {
       return;
@@ -147,10 +141,6 @@ public class MessagingClient extends Endpoint {
       new MessagingAsyncTask().executeMe(data);
     }
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Get an authorized connection to the MessagingEndpoint
@@ -193,12 +183,8 @@ public class MessagingClient extends Endpoint {
     return data;
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Inner classes
-  ///////////////////////////////////////////////////////////////////////////
-
   /**
-   * AsyncTask to call gae Messaging Endpoint
+   * AsyncTask to call GAE Messaging Endpoint
    */
   private static class MessagingAsyncTask
     extends ThreadedAsyncTask<JSONObject, Void, EndpointRet> {
@@ -235,7 +221,7 @@ public class MessagingClient extends Endpoint {
           .send(regToken, jsonString, highPriority).execute();
         if (ret.getSuccess()) {
           Log.logD(TAG, "Message sent to server: " + mAction);
-          Analytics.INSTANCE.sent(mAction);
+          Analytics.INST.sent(mAction);
         } else {
           ret.setReason(
             Log.logE(TAG, ret.getReason(), ERROR_SEND));

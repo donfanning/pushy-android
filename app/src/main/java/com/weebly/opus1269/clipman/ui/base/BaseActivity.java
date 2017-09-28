@@ -87,7 +87,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
       actionBar.setDisplayHomeAsUpEnabled(mHomeUpEnabled);
     }
 
-    mTracker = Analytics.INSTANCE.getTracker();
+    mTracker = Analytics.INST.getTracker();
 
     // make sure Prefs are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);

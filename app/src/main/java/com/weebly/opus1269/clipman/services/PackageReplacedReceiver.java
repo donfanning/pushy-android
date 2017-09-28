@@ -23,7 +23,7 @@ public class PackageReplacedReceiver extends BroadcastReceiver {
       return;
     }
 
-    Analytics.INSTANCE.updated();
+    Analytics.INST.updated();
 
     setupClipboardWatcher();
   }

@@ -130,13 +130,13 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     if (device.getUniqueName().equals(Device.getMyUniqueName())) {
       // ignore our own messages
       return;
-    } else if (!User.INSTANCE.isLoggedIn()) {
+    } else if (!User.INST.isLoggedIn()) {
       // ignore if logged out
       return;
     }
 
     Log.logD(TAG, FCM_RECEIVED + action);
-    Analytics.INSTANCE.received(action);
+    Analytics.INST.received(action);
 
     switch (action) {
       case Msg.ACTION_MESSAGE:

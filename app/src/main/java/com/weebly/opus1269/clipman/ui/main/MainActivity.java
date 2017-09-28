@@ -585,13 +585,13 @@ public class MainActivity extends BaseActivity implements
 
     // set Devices menu state
     MenuItem menuItem = menu.findItem(R.id.nav_devices);
-    menuItem.setEnabled(User.INSTANCE.isLoggedIn());
+    menuItem.setEnabled(User.INST.isLoggedIn());
 
     // set Error Viewer menu state
     menuItem = menu.findItem(R.id.nav_error);
     menuItem.setEnabled(LastError.exists());
 
-    User.INSTANCE.setNavigationHeaderView(hView);
+    User.INST.setNavigationHeaderView(hView);
   }
 
   /**
@@ -601,7 +601,7 @@ public class MainActivity extends BaseActivity implements
     if (mOptionsMenu != null) {
       Boolean enabled = false;
       Integer alpha = 64;
-      if (User.INSTANCE.isLoggedIn() && Prefs.isPushClipboard()) {
+      if (User.INST.isLoggedIn() && Prefs.isPushClipboard()) {
         enabled = true;
         alpha = 255;
       }

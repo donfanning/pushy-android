@@ -21,7 +21,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
  * @see <a href="https://goo.gl/VUowF7">Android Analytics</a>
  */
 public enum Analytics {
-  INSTANCE;
+  INST;
 
   /**
    * Google Analytics tracking ID

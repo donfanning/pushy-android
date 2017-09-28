@@ -29,7 +29,7 @@ public class RefreshTokenJobService extends JobService {
   @Override
   public boolean onStartJob(JobParameters job) {
     Boolean ret = false;
-    if (User.INSTANCE.isLoggedIn()) {
+    if (User.INST.isLoggedIn()) {
       ret = true;
       // Make sure we have looper
       final Handler handler = new Handler(Looper.getMainLooper());
@@ -40,7 +40,7 @@ public class RefreshTokenJobService extends JobService {
           // Get updated InstanceID token.
           String refreshedToken = FirebaseInstanceId.getInstance().getToken();
           Log.logD(TAG, "Refreshed token: " + refreshedToken);
-          Analytics.INSTANCE.instanceIdRefreshed();
+          Analytics.INST.instanceIdRefreshed();
           final EndpointRet ret = RegistrationClient.register(refreshedToken);
           if (!ret.getSuccess()) {
             Log.logE(TAG, ret.getReason(), false);

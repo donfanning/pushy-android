@@ -97,7 +97,7 @@ public class RegistrationClient extends Endpoint {
       ret = regService.register(regToken).execute();
       if (ret.getSuccess()) {
         isRegistered = true;
-        Analytics.INSTANCE.registered();
+        Analytics.INST.registered();
       } else {
         ret.setReason(Log.logE(TAG, ret.getReason(), ERROR_REGISTER));
       }
@@ -110,10 +110,6 @@ public class RegistrationClient extends Endpoint {
 
     return ret;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   /**
    * Unregister with server
@@ -151,7 +147,7 @@ public class RegistrationClient extends Endpoint {
       final Registration regService = getRegistrationService(credential);
       ret = regService.unregister(regToken).execute();
       if (ret.getSuccess()) {
-        Analytics.INSTANCE.unregistered();
+        Analytics.INST.unregistered();
         isRegistered = false;
       } else {
         ret.setReason(Log.logE(TAG, ret.getReason(), ERROR_UNREGISTER));
@@ -185,13 +181,7 @@ public class RegistrationClient extends Endpoint {
     return builder.build();
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Inner Classes
-  ///////////////////////////////////////////////////////////////////////////
-
-  /**
-   * AsyncTask to register our with the server.
-   */
+  /** AsyncTask to register our with the server */
   public static class RegisterAsyncTask extends
     CustomAsyncTask<Void, Void, String> {
 
@@ -234,9 +224,7 @@ public class RegistrationClient extends Endpoint {
     }
   }
 
-  /**
-   * AsyncTask to unregister from server.
-   */
+  /** AsyncTask to unregister from server */
   public static class UnregisterAsyncTask extends
     CustomAsyncTask<Void, Void, String> {
 

@@ -133,7 +133,7 @@ public class SignInActivity extends BaseActivity implements
 
     updateView();
 
-    if (User.INSTANCE.isLoggedIn()) {
+    if (User.INST.isLoggedIn()) {
       attemptSilentSignIn();
     }
   }
@@ -196,7 +196,7 @@ public class SignInActivity extends BaseActivity implements
     final FirebaseUser user = mAuth.getCurrentUser();
     if ((user != null) && (mAccount != null)) {
       // set User
-      User.INSTANCE.set(mAccount);
+      User.INST.set(mAccount);
       updateView();
 
       if (!Prefs.isDeviceRegistered()) {
@@ -313,11 +313,11 @@ public class SignInActivity extends BaseActivity implements
       mErrorMessage = "";
       if (result.isSuccess()) {
         mAccount = result.getSignInAccount();
-        if (!User.INSTANCE.isLoggedIn()) {
+        if (!User.INST.isLoggedIn()) {
           // Authenticate with Firebase, also completes sign-in activities
           firebaseAuthWithGoogle();
         } else {
-          User.INSTANCE.set(mAccount);
+          User.INST.set(mAccount);
           updateView();
         }
       } else {
@@ -435,7 +435,7 @@ public class SignInActivity extends BaseActivity implements
 
   /** Remove all {@link User} info. */
   private void clearUser() {
-    User.INSTANCE.clear();
+    User.INST.clear();
     updateView();
   }
 
@@ -451,12 +451,12 @@ public class SignInActivity extends BaseActivity implements
       return;
     }
 
-    if (User.INSTANCE.isLoggedIn()) {
+    if (User.INST.isLoggedIn()) {
       signInView.setVisibility(View.GONE);
       signOutView.setVisibility(View.VISIBLE);
-      userNameView.setText(User.INSTANCE.getName());
+      userNameView.setText(User.INST.getName());
       emailView.setVisibility(View.VISIBLE);
-      emailView.setText(User.INSTANCE.getEmail());
+      emailView.setText(User.INST.getEmail());
     } else {
       signInView.setVisibility(View.VISIBLE);
       signOutView.setVisibility(View.GONE);

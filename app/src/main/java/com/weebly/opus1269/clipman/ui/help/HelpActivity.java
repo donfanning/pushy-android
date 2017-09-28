@@ -7,9 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.help;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.Menu;
@@ -18,9 +16,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Email;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -97,13 +93,13 @@ public class HelpActivity extends BaseActivity {
     switch (id) {
       case R.id.emailTranslate:
       case R.id.emailGeneral:
-        Email.INSTANCE.send((String) textView.getTag(), null);
+        Email.INST.send((String) textView.getTag(), null);
         break;
       case R.id.emailQuestion:
       case R.id.emailBug:
       case R.id.emailFeature:
-        final String body = Email.INSTANCE.getBody();
-        Email.INSTANCE.send((String) textView.getTag(), body);
+        final String body = Email.INST.getBody();
+        Email.INST.send((String) textView.getTag(), body);
         break;
       case R.id.githubIssue:
       case R.id.docApp:
