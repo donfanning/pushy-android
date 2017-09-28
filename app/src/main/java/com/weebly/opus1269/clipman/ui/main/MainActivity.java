@@ -164,7 +164,7 @@ public class MainActivity extends BaseActivity implements
 
     Notifications.removeClips();
 
-    // so relative dates get updated
+    // so relative dates and favorites get updated
     mLoaderManager.getAdapter().notifyDataSetChanged();
   }
 

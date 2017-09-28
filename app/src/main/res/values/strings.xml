@@ -218,8 +218,12 @@
   <string name="device_last_seen_fmt">Last seen - %s</string>
   <string name="remote_device_fmt">Source - %s</string>
 
-  <!-- Related to LabelsActivity -->
+  <!-- Related to Labels activities -->
   <string name="label_create_hint">Create new label</string>
+  <string name="label_delete_dialog_title">Delete label?</string>
+  <string name="label_delete_dialog_message"><![CDATA[
+        We\'ll delete this label and remove it from all of your Clipboard
+         items. Your items won\'t be deleted.]]></string>
 
   <!-- Related to notifications -->
   <string name="refresh_devices">Refreshing device list…</string>
@@ -307,7 +311,7 @@
   <string name="delete_all_question">Delete all items?</string>
   <string name="button_delete">DELETE</string>
   <string name="button_dismiss">DISMISS</string>
-  <string name="button_cancel">Cancel</string>
+  <string name="button_cancel">CANCEL</string>
   <string name="button_continue">CONTINUE</string>
   <string name="copyright" translatable="false">&#169;2017 Michael A Updike</string>
   <string name="version_fmt">Version %s</string>

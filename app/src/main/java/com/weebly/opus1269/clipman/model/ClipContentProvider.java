@@ -60,7 +60,7 @@ public class ClipContentProvider extends ContentProvider {
 
   /**
    * Get a cursor that contains the label names for a {@link ClipItem}
-   * @param context a context
+   * @param context  a context
    * @param clipItem clip to check
    * @return cursor of ClipContract.LabelMap.COL_LABEL_NAME
    */
@@ -273,6 +273,58 @@ public class ClipContentProvider extends ContentProvider {
   }
 
   /**
+   * Delete a {@link Label} from the Label and LabelMap tables
+   * @param context the context
+   * @param label   the label
+   */
+  public static void delete(Context context, Label label) {
+    if ((context == null) || (label == null)) {
+      return;
+    }
+
+    final ContentResolver resolver = context.getContentResolver();
+    final String[] selectionArgs = {label.getName()};
+
+    // delete from Label table
+    String selection = "(" + ClipContract.Label.COL_NAME + " == ? )";
+    resolver.delete(ClipContract.Label.CONTENT_URI, selection, selectionArgs);
+
+    // delete from LabelMap table
+    selection = "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? )";
+    resolver.delete(ClipContract.LabelMap.CONTENT_URI, selection,
+      selectionArgs);
+  }
+
+  /**
+   * Change a {@link Label} name in the Label and LabelMap tables
+   * @param context the context
+   * @param newLabel   new value
+   * @param oldLabel   current value
+   */
+  public static void change(Context context, Label newLabel, Label oldLabel) {
+    if ((context == null) || (newLabel == null) || (oldLabel == null)) {
+      return;
+    }
+
+    final ContentResolver resolver = context.getContentResolver();
+    final String[] selectionArgs = {oldLabel.getName()};
+
+    // update Label table
+    ContentValues cv = new ContentValues();
+    cv.put(ClipContract.Label.COL_NAME, newLabel.getName());
+    String selection = "(" + ClipContract.Label.COL_NAME + " == ? )";
+    resolver.update(ClipContract.Label.CONTENT_URI, cv, selection,
+      selectionArgs);
+
+    // update LabelMap table
+    cv = new ContentValues();
+    cv.put(ClipContract.LabelMap.COL_LABEL_NAME, newLabel.getName());
+    selection = "(" + ClipContract.LabelMap.COL_LABEL_NAME + " == ? )";
+    resolver.update(ClipContract.LabelMap.CONTENT_URI, cv, selection,
+      selectionArgs);
+  }
+
+  /**
    * Delete a {@link ClipItem} and {@link Label} from the LabelMap table
    * @param context  the context
    * @param clipItem the clip
@@ -286,8 +338,7 @@ public class ClipContentProvider extends ContentProvider {
     final String[] selectionArgs = {label.getName(), clipItem.getText()};
 
     final ContentResolver resolver = context.getContentResolver();
-    resolver.delete(ClipContract.LabelMap.CONTENT_URI, selection,
-      selectionArgs);
+    resolver.delete(ClipContract.LabelMap.CONTENT_URI, selection, selectionArgs);
   }
 
   /**
@@ -590,6 +641,7 @@ public class ClipContentProvider extends ContentProvider {
     final String table;
     String newSelection = selection;
 
+    String id;
     final int uriType = URI_MATCHER.match(uri);
     switch (uriType) {
       case CLIP:
@@ -597,12 +649,38 @@ public class ClipContentProvider extends ContentProvider {
         break;
       case CLIP_ID:
         table = ClipContract.Clip.TABLE_NAME;
-        final String id = uri.getLastPathSegment();
+        id = uri.getLastPathSegment();
         if (TextUtils.isEmpty(selection)) {
           newSelection = ClipContract.Clip._ID + "=" + id;
         } else {
           newSelection = newSelection + " and " +
             ClipContract.Clip._ID + "=" + id;
+        }
+        break;
+      case LABEL:
+        table = ClipContract.Label.TABLE_NAME;
+        break;
+      case LABEL_ID:
+        table = ClipContract.Label.TABLE_NAME;
+        id = uri.getLastPathSegment();
+        if (TextUtils.isEmpty(selection)) {
+          newSelection = ClipContract.Label._ID + "=" + id;
+        } else {
+          newSelection = newSelection + " and " +
+            ClipContract.Label._ID + "=" + id;
+        }
+        break;
+      case LABEL_MAP:
+        table = ClipContract.LabelMap.TABLE_NAME;
+        break;
+      case LABEL_MAP_ID:
+        table = ClipContract.LabelMap.TABLE_NAME;
+        id = uri.getLastPathSegment();
+        if (TextUtils.isEmpty(selection)) {
+          newSelection = ClipContract.LabelMap._ID + "=" + id;
+        } else {
+          newSelection = newSelection + " and " +
+            ClipContract.LabelMap._ID + "=" + id;
         }
         break;
       default:

@@ -30,7 +30,6 @@ import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 /**
  * Fragment to Create a new {@link Label}.
- * to handle interaction events.
  */
 public class LabelCreateFragement extends Fragment implements
   View.OnClickListener,
@@ -83,7 +82,7 @@ public class LabelCreateFragement extends Fragment implements
       getActivity().findViewById(R.id.addDoneButton);
     final String text = editable.toString();
     final boolean enabled = (TextUtils.getTrimmedLength(text) > 0);
-    setImageViewEnabled(doneButton, enabled);
+    DrawableHelper.setImageViewEnabled(doneButton, enabled);
   }
 
   @Override
@@ -118,7 +117,7 @@ public class LabelCreateFragement extends Fragment implements
     addText.addTextChangedListener(this);
     addText.setOnKeyListener(this);
 
-    setImageViewEnabled(addDoneButton, false);
+    DrawableHelper.setImageViewEnabled(addDoneButton, false);
 
     // tint icons
     if (Prefs.isLightTheme()) {
@@ -144,12 +143,6 @@ public class LabelCreateFragement extends Fragment implements
       .withDrawable(R.drawable.ic_done)
       .tint()
       .applyTo(addDoneButton);
-  }
-
-  private void setImageViewEnabled(ImageView button, boolean enabled) {
-    final int alpha = enabled ? 255 : 64;
-    button.setEnabled(enabled);
-    button.setImageAlpha(alpha);
   }
 
   private boolean addLabel(EditText editText) {
