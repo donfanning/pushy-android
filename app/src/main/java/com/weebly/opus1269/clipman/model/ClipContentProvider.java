@@ -530,7 +530,7 @@ public class ClipContentProvider extends ContentProvider {
     if (row != -1) {
       newUri = ContentUris.withAppendedId(uri, row);
 
-      Log.logD(TAG, "Added row from insert: " + row);
+      Log.logD(TAG, "Added row from insert: " + row + " in table: " + table);
 
       final ContentResolver resolver = getContext().getContentResolver();
       resolver.notifyChange(uri, null);
@@ -627,7 +627,7 @@ public class ClipContentProvider extends ContentProvider {
       newSelection,
       selectionArgs);
 
-    Log.logD(TAG, "Deleted rows: " + rowsDeleted);
+    Log.logD(TAG, "Deleted rows: " + rowsDeleted + " in table: " + table);
 
     final ContentResolver resolver = getContext().getContentResolver();
     resolver.notifyChange(uri, null);
@@ -698,7 +698,7 @@ public class ClipContentProvider extends ContentProvider {
     final ContentResolver resolver = getContext().getContentResolver();
     resolver.notifyChange(uri, null);
 
-    Log.logD(TAG, "Updated rows: " + rowsUpdated);
+    Log.logD(TAG, "Updated rows: " + rowsUpdated + " in table: " + table);
 
     return rowsUpdated;
   }
