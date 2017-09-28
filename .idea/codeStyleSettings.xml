@@ -90,6 +90,7 @@
           <option name="ENABLED" value="false" />
         </editorconfig>
         <codeStyleSettings language="JAVA">
+          <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
           <option name="BLANK_LINES_BEFORE_PACKAGE" value="1" />
           <indentOptions>
             <option name="INDENT_SIZE" value="2" />
