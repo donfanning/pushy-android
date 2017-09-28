@@ -40,6 +40,12 @@ public class DrawableHelper {
     mContext = context;
   }
 
+  public static void setImageViewEnabled(ImageView button, boolean enabled) {
+    final int alpha = enabled ? 255 : 64;
+    button.setEnabled(enabled);
+    button.setImageAlpha(alpha);
+  }
+
   public static DrawableHelper withContext(@NonNull Context context) {
     return new DrawableHelper(context);
   }
