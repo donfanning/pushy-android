@@ -34,18 +34,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
-import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorViewHolder;
+import com.androidessence.recyclerviewcursoradapter
+  .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.db.ClipContentProvider;
 import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-/**
- * Bridge between the RecyclerView and the DB
- */
+/** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
   RecyclerViewCursorAdapter<LabelsEditAdapter.LabelViewHolder> implements
   DialogInterface.OnClickListener {
@@ -132,7 +130,7 @@ class LabelsEditAdapter extends
             if (!text.equals(holder.label.getName())) {
               // update db
               Label newLabel = new Label(text);
-              ClipContentProvider.change(App.getContext(), newLabel, holder.label);
+              LabelTables.INST.change(newLabel, holder.label);
               DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
             }
           } else {
@@ -165,7 +163,7 @@ class LabelsEditAdapter extends
   public void onClick(DialogInterface dialogInterface, int which) {
     if ((which == DialogInterface.BUTTON_POSITIVE) && (mDeleteLabel != null)) {
       // remove Label from Label and LabelMap tables
-      ClipContentProvider.delete(mActivity, mDeleteLabel);
+      LabelTables.INST.delete(mDeleteLabel);
       mDeleteLabel = null;
     }
   }

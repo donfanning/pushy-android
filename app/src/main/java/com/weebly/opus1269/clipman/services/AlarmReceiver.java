@@ -11,7 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.weebly.opus1269.clipman.db.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipTable;
 
 /**
  * {@link BroadcastReceiver} that cleans up old entries in the database
@@ -20,6 +20,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    ClipContentProvider.deleteOldItems();
+    ClipTable.INST.deleteOldItems();
   }
 }

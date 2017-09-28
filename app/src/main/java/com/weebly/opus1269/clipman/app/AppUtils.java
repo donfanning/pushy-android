@@ -116,8 +116,8 @@ public class AppUtils {
   /**
    * Try to start an activity from another activity
    * @param activity starting activity
-   * @param intent Activity intent
-   * @param notify notify user on error if true
+   * @param intent   Activity intent
+   * @param notify   notify user on error if true
    * @return true if successful
    */
   public static boolean startActivity(Activity activity, Intent intent,
@@ -138,7 +138,7 @@ public class AppUtils {
   /**
    * Try to start an activity from another activity
    * @param activity starting activity
-   * @param intent Activity intent
+   * @param intent   Activity intent
    * @return true if successful
    */
   public static boolean startActivity(Activity activity, Intent intent) {
@@ -173,7 +173,7 @@ public class AppUtils {
    * @return true if successful
    */
   public static boolean startNewTaskActivity(Intent intent) {
-    return  startNewTaskActivity(intent, true);
+    return startNewTaskActivity(intent, true);
   }
 
   /**
@@ -266,6 +266,22 @@ public class AppUtils {
           DateUtils.FORMAT_ABBREV_ALL);
     }
     return value;
+  }
+
+  /**
+   * Is String null or all whitespace
+   * @param string string to check
+   */
+  public static boolean isWhitespace(String string) {
+    boolean ret = true;
+    if (string != null) {
+      for (int i = 0; i < string.length(); i++) {
+        if (!Character.isWhitespace(string.charAt(i))) {
+          ret = false;
+        }
+      }
+    }
+    return ret;
   }
 
   /**

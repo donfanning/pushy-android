@@ -21,8 +21,8 @@ import android.view.View;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.db.ClipContentProvider;
 import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -31,16 +31,13 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 import java.io.Serializable;
 
-/**
- * This Activity manages the display of the text of a {@link ClipItem}
- */
+/** This Activity manages the display of a {@link ClipItem} */
 
 public class ClipViewerActivity extends BaseActivity implements
   ClipViewerFragment.OnClipChanged {
 
   // item from last delete operation
   private ContentValues mUndoItem = null;
-
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +69,6 @@ public class ClipViewerActivity extends BaseActivity implements
   }
 
   @Override
-  protected void onPause() {
-
-    mUndoItem = null;
-
-    super.onPause();
-  }
-
-  @Override
   public boolean onCreateOptionsMenu(Menu menu) {
 
     mOptionsMenuID = R.menu.menu_clipviewer;
@@ -89,6 +78,28 @@ public class ClipViewerActivity extends BaseActivity implements
     setFavoriteMenuItem();
 
     return true;
+  }
+
+  @Override
+  protected boolean setQueryString(String queryString) {
+    boolean ret = false;
+    if (super.setQueryString(queryString)) {
+      final ClipViewerFragment fragment = getClipViewerFragment();
+      if (fragment != null) {
+        fragment.setHighlightText(mQueryString);
+        ret = true;
+      }
+    }
+
+    return ret;
+  }
+
+  @Override
+  protected void onPause() {
+
+    mUndoItem = null;
+
+    super.onPause();
   }
 
   @Override
@@ -123,32 +134,10 @@ public class ClipViewerActivity extends BaseActivity implements
   }
 
   @Override
-  protected boolean setQueryString(String queryString) {
-    boolean ret = false;
-    if (super.setQueryString(queryString)) {
-      final ClipViewerFragment fragment = getClipViewerFragment();
-      if (fragment != null) {
-        fragment.setHighlightText(mQueryString);
-        ret = true;
-      }
-    }
-
-    return ret;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Implement ClipViewerFragment.OnClipChanged
-  ///////////////////////////////////////////////////////////////////////////
-
-  @Override
   public void onClipChanged(ClipItem clipItem) {
     setFabVisibility(!TextUtils.isEmpty(clipItem.getText()));
     setTitle();
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Private methods
-  ///////////////////////////////////////////////////////////////////////////
 
   private void setTitle() {
     final ClipItem clipItem = getClipItemClone();
@@ -244,11 +233,14 @@ public class ClipViewerActivity extends BaseActivity implements
         snack.setAction("UNDO", new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            ClipContentProvider
-              .insertClipItems(ClipViewerActivity.this, new ContentValues[]{mUndoItem});
+            ClipTable.INST.insertClipItems(new ContentValues[]{mUndoItem});
           }
         })
           .addCallback(new Snackbar.Callback() {
+
+            @Override
+            public void onShown(Snackbar snackbar) {
+            }
 
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
@@ -256,10 +248,6 @@ public class ClipViewerActivity extends BaseActivity implements
               if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
                 finish();
               }
-            }
-
-            @Override
-            public void onShown(Snackbar snackbar) {
             }
           });
       }

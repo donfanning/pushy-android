@@ -30,7 +30,7 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -50,9 +50,7 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 
-/**
- * Top level Activity for the app
- */
+/** Top level Activity for the app */
 public class MainActivity extends BaseActivity implements
   NavigationView.OnNavigationItemSelectedListener,
   View.OnLayoutChangeListener,
@@ -320,9 +318,9 @@ public class MainActivity extends BaseActivity implements
   @Override
   public void onDeleteDialogPositiveClick(Boolean deleteFavs) {
     // save items for undo
-    mUndoItems = ClipContentProvider.getAll(this, deleteFavs);
+    mUndoItems = ClipTable.INST.getAll(deleteFavs);
 
-    final int nRows = ClipContentProvider.deleteAll(this, deleteFavs);
+    final int nRows = ClipTable.INST.deleteAll(deleteFavs);
 
     String message = nRows + getResources().getString(R.string.items_deleted);
     switch (nRows) {
@@ -342,7 +340,7 @@ public class MainActivity extends BaseActivity implements
       snack.setAction("UNDO", new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          ClipContentProvider.insertClipItems(MainActivity.this, mUndoItems);
+          ClipTable.INST.insertClipItems(mUndoItems);
         }
       }).addCallback(new Snackbar.Callback() {
 

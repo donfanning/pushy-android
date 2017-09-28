@@ -26,8 +26,9 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.ClipContentProvider;
 import com.weebly.opus1269.clipman.db.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipTable;
+import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 
 import org.joda.time.DateTime;
@@ -37,11 +38,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This class represents the data for a single clipboard entry
- */
+/** This class represents the data for a single clipboard entry */
 public class ClipItem implements Serializable {
-
   public static final String TEXT_PLAIN = "text/plain";
   private static final String TAG = "ClipItem";
   private static final String DESC_LABEL = "opus1269 was here";
@@ -100,16 +98,6 @@ public class ClipItem implements Serializable {
     mRemote = clipItem.isRemote();
     mDevice = clipItem.getDevice();
     loadLabels();
-  }
-
-  /**
-   * Does a {@link ClipItem} have text
-   * @param clipItem the clip
-   * @return true if the clip has no text
-   */
-  @NonNull
-  public static Boolean isEmpty(ClipItem clipItem) {
-    return (clipItem == null) || TextUtils.isEmpty(clipItem.getText());
   }
 
   /**
@@ -244,13 +232,13 @@ public class ClipItem implements Serializable {
     return new DateTime(mDate.getMillis());
   }
 
-  public void setDate(long date) {
-    mDate = new DateTime(date);
-  }
-
   @SuppressWarnings("unused")
   public void setDate(ReadableInstant date) {
     mDate = new DateTime(date.getMillis());
+  }
+
+  public void setDate(long date) {
+    mDate = new DateTime(date);
   }
 
   public long getTime() {
@@ -295,24 +283,15 @@ public class ClipItem implements Serializable {
     return false;
   }
 
-  public String[] getLabelNames() {
-    final String[] names = new String[mLabels.size()];
-    for (int i=0; i < mLabels.size(); i++) {
-      names[i] = mLabels.get(i).getName();
-    }
-    return names;
-  }
-
   public void addLabel(Label label) {
     mLabels.add(label);
-    ClipContentProvider.insert(App.getContext(), this, label);
+    LabelTables.INST.insert(this, label);
   }
 
   public void removeLabel(Label label) {
     mLabels.remove(label);
-    ClipContentProvider.delete(App.getContext(), this, label);
+    LabelTables.INST.delete(this, label);
   }
-
 
   /**
    * Get the ClipItem as a {@link ContentValues object}
@@ -402,8 +381,7 @@ public class ClipItem implements Serializable {
    */
   @NonNull
   private Boolean save(Boolean onNewOnly) {
-    final Context context = App.getContext();
-    return ClipContentProvider.insert(context, this, onNewOnly);
+    return ClipTable.INST.insert(this, onNewOnly);
   }
 
   /**
@@ -440,14 +418,16 @@ public class ClipItem implements Serializable {
    */
   private void loadLabels() {
     mLabels.clear();
-    final Cursor cursor =
-      ClipContentProvider.getLabelNames(App.getContext(), this);
+    final Cursor cursor = LabelTables.INST.getLabelNames(this);
+    if (cursor == null) {
+      return;
+    }
+
     try {
       while (cursor.moveToNext()) {
         final int idx =
           cursor.getColumnIndex(ClipContract.LabelMap.COL_LABEL_NAME);
         final String name = cursor.getString(idx);
-        Log.logD(TAG, "Label name: " + name);
         mLabels.add(new Label(name));
       }
     } finally {
