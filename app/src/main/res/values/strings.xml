@@ -170,6 +170,7 @@
     Map locations too:\n\n1600 Amphitheatre Parkway\nMountain View, CA 94043]]></string>
   <string name="default_clip_4">Tap the \u2661 to make it a favorite.</string>
   <string name="default_clip_5">Swipe \u261E to delete.</string>
+  <string name="default_clip_6">You can label items to categorize them.</string>
 
 
   <!-- Related to ErrorViewerActivity -->

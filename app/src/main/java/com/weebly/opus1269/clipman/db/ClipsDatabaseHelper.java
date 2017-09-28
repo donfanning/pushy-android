@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.db;
 
 import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -15,6 +16,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
+
+import org.joda.time.DateTime;
 
 /**
  * A helper class to manage the Clips.db database creation and version
@@ -72,7 +75,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
       db.execSQL(SQL_CREATE_LABEL);
       db.execSQL(SQL_CREATE_LABEL_MAP);
 
-      createExampleLabel(db);
+      createExampleLabel(db, DateTime.now().getMillis());
     }
   }
 
@@ -105,6 +108,10 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     item.setDate(time);
     db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
+    // create one with a label
+    time = time + 1;
+    createExampleLabel(db, time);
+
     item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_4));
     item.setFav(false);
@@ -132,12 +139,30 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     time = time + 1;
     item.setDate(time);
     db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
-
-    createExampleLabel(db);
   }
 
-  private void createExampleLabel(SQLiteDatabase db) {
+  /**
+   * Create a {@link Label} and attach to a new {@link ClipItem}
+   * @param db   Clips.db
+   * @param time creation time
+   */
+  private void createExampleLabel(SQLiteDatabase db, long time) {
+    // add new ClipItem
+    ClipItem clipItem = new ClipItem();
+    clipItem.setText(mContext.getString(R.string.default_clip_6));
+    clipItem.setFav(true);
+    clipItem.setDate(time);
+    db.replace(ClipsContract.Clip.TABLE_NAME, null, clipItem.getContentValues
+      ());
+
+    // add new Label - has to come after ClipItem here
     final Label label = new Label("Example");
     db.replace(ClipsContract.Label.TABLE_NAME, null, label.getContentValues());
+
+    // Attach Label to ClipItem
+    ContentValues cv = new ContentValues();
+    cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
+    cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
+    db.replace(ClipsContract.LabelMap.TABLE_NAME, null, cv);
   }
 }

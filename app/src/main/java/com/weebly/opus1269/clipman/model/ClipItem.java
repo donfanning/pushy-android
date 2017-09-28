@@ -142,7 +142,8 @@ public class ClipItem implements Serializable {
 
     ClipItem clipItem = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
-      clipItem = new ClipItem(String.valueOf(clipText));
+      clipItem = new ClipItem();
+      clipItem.setText(String.valueOf(clipText));
       clipItem.setFav(fav);
       clipItem.setRemote(remote);
       clipItem.setDevice(sourceDevice);
