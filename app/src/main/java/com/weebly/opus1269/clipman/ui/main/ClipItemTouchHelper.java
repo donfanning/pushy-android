@@ -16,7 +16,7 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.model.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 
 /**

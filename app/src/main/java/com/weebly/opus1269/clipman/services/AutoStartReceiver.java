@@ -13,7 +13,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.weebly.opus1269.clipman.model.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.Prefs;
 
 /**

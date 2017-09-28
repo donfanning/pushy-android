@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.model;
+package com.weebly.opus1269.clipman.db;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -24,10 +24,11 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.joda.time.DateTime;
-
-import java.util.ArrayList;
 
 /**
  * App private {@link ContentProvider} for the saved {@link ClipItem}
@@ -530,7 +531,8 @@ public class ClipContentProvider extends ContentProvider {
     if (row != -1) {
       newUri = ContentUris.withAppendedId(uri, row);
 
-      Log.logD(TAG, "Added row from insert: " + row + " in table: " + table);
+      Log.logD(TAG, "Inserted or updated row from insert: " + row + " in " +
+        "table: " + table);
 
       final ContentResolver resolver = getContext().getContentResolver();
       resolver.notifyChange(uri, null);

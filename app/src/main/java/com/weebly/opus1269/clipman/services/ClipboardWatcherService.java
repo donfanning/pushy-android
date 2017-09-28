@@ -18,9 +18,8 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.model.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.Notifications;

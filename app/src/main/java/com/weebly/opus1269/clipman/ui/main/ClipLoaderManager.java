@@ -24,7 +24,7 @@ import android.view.View;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Prefs;

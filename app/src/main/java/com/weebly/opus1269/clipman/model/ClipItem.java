@@ -26,13 +26,14 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipContract;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -243,7 +244,7 @@ public class ClipItem implements Serializable {
     return new DateTime(mDate.getMillis());
   }
 
-  void setDate(long date) {
+  public void setDate(long date) {
     mDate = new DateTime(date);
   }
 

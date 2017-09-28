@@ -19,7 +19,7 @@ import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;

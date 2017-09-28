@@ -18,7 +18,7 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.ClipDatabaseHelper;
+import com.weebly.opus1269.clipman.db.ClipDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
 import com.weebly.opus1269.clipman.model.Notifications;

@@ -13,6 +13,8 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.db.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipContract;
 
 import java.io.Serializable;
 

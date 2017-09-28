@@ -112,7 +112,7 @@ public class Prefs {
     return get(key, "");
   }
 
-  static String getDuration() {
+  public static String getDuration() {
     final Context context = App.getContext();
     final String key = context.getResources().getString(R.string.key_pref_duration);
     return get(key, DEF_DURATION);

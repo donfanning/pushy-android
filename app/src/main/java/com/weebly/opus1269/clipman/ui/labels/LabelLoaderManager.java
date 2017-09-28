@@ -15,7 +15,7 @@ import android.support.v4.content.Loader;
 
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.model.ClipContract;
+import com.weebly.opus1269.clipman.db.ClipContract;
 
 /**
  * This class manages most everything related to the main RecyclerView

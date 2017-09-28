@@ -89,7 +89,7 @@
 
     <!-- private to app -->
     <provider
-      android:name=".model.ClipContentProvider"
+      android:name=".db.ClipContentProvider"
       android:authorities="com.weebly.opus1269.clipman"
       android:enabled="true"
       android:exported="false" />

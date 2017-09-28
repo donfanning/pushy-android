@@ -30,7 +30,7 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.ClipContentProvider;
+import com.weebly.opus1269.clipman.db.ClipContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;

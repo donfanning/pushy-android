@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.model;
+package com.weebly.opus1269.clipman.db;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -13,6 +13,8 @@ import android.provider.BaseColumns;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 /**
  * The contract between the {@link ClipContentProvider} and applications.
@@ -35,10 +37,10 @@ public class ClipContract {
     public static final Uri CONTENT_URI = Uri.parse(AUTHORITY_URI + "/clip");
     public static final String COL_TEXT = "text";
     public static final String COL_FAV = "fav";
-    static final String TABLE_NAME = "clip";
-    static final String COL_DATE = "date";
-    static final String COL_REMOTE = "remote";
-    static final String COL_DEVICE = "device";
+    public static final String TABLE_NAME = "clip";
+    public static final String COL_DATE = "date";
+    public static final String COL_REMOTE = "remote";
+    public static final String COL_DEVICE = "device";
 
     public static final String[] FULL_PROJECTION = {
       ClipContract.Clip._ID,

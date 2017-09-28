@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.model;
+package com.weebly.opus1269.clipman.db;
 
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -13,6 +13,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.Label;
 
 /**
  * A helper class to manage the Clips.db database creation and version
