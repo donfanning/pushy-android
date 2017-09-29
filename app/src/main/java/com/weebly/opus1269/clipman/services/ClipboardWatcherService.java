@@ -107,7 +107,8 @@ public class ClipboardWatcherService extends Service implements
   @Nullable
   @Override
   public IBinder onBind(Intent intent) {
-    throw new UnsupportedOperationException("Unimplemented onBind method in: " + TAG);
+    throw new UnsupportedOperationException(
+      "Unimplemented onBind method in: " + TAG);
   }
 
   @Override
@@ -155,7 +156,8 @@ public class ClipboardWatcherService extends Service implements
   /**
    * AsyncTask to write to the Clip database
    */
-  private class StoreClipAsyncTask extends ThreadedAsyncTask<Boolean, Void, Void> {
+  private class StoreClipAsyncTask extends ThreadedAsyncTask<Boolean, Void,
+    Void> {
     final ClipItem mClipItem;
     boolean mResult;
 
