@@ -196,24 +196,34 @@ public class ClipsContentProvider extends ContentProvider {
     int insertCount = 0;
     final int uriType = URI_MATCHER.match(uri);
     final SQLiteDatabase db = App.getDbHelper().getWritableDatabase();
+    final String table;
 
     switch (uriType) {
       case CLIP:
-        db.beginTransaction();
-        for (final ContentValues value : values) {
-          final long id = db.insert(ClipsContract.Clip.TABLE_NAME, null, value);
-          if (id > 0) {
-            insertCount++;
-          }
-        }
-        db.setTransactionSuccessful();
-        db.endTransaction();
+        table = ClipsContract.Clip.TABLE_NAME;
+        break;
+      case LABEL:
+        table = ClipsContract.Label.TABLE_NAME;
+        break;
+      case LABEL_MAP:
+        table = ClipsContract.LabelMap.TABLE_NAME;
         break;
       default:
-        throw new IllegalArgumentException(UNKNOWN_URI + uri);
+        throw new IllegalArgumentException(UNSUPPORTED_URI + uri);
     }
 
-    Log.logD(TAG, "Bulk insert rows: " + insertCount);
+    db.beginTransaction();
+    for (final ContentValues value : values) {
+      final long id = db.insert(table, null,
+        value);
+      if (id > 0) {
+        insertCount++;
+      }
+    }
+    db.setTransactionSuccessful();
+    db.endTransaction();
+
+    Log.logD(TAG, "Bulk insert rows: " + insertCount + " into table: " + table);
 
     final ContentResolver resolver = mContext.getContentResolver();
     resolver.notifyChange(uri, null);

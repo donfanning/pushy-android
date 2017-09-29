@@ -23,6 +23,41 @@ public enum LabelTables {
   INST;
 
   /**
+   * Add the {@link Label} map for a group of {@link ClipItem} objects to the
+   * databse
+   * @param clipItems the items to add Labels for
+   * @return number of items added
+   */
+  public int insertLabelsMap(ClipItem[] clipItems) {
+    if (clipItems == null) {
+      return 0;
+    }
+
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    // get total number of ClipItem/Label entrie
+    int size = 0;
+    for (ClipItem clipItem : clipItems) {
+      size += clipItem.getLabels().size();
+    }
+
+    final ContentValues[] mapCVs = new ContentValues[size];
+    int count = 0;
+    for (ClipItem clipItem : clipItems) {
+      for (Label label : clipItem.getLabels()) {
+        ContentValues cv = new ContentValues();
+        cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
+        cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
+        mapCVs[count] = cv;
+        count++;
+      }
+    }
+
+    return resolver.bulkInsert(ClipsContract.LabelMap.CONTENT_URI, mapCVs);
+  }
+
+  /**
    * Add a {@link ClipItem} and {@link Label} to the LabelMap table
    * @param clipItem the clip
    * @param label    the label
@@ -91,11 +126,11 @@ public enum LabelTables {
       selectionArgs);
 
     // update LabelMap table
-    cv = new ContentValues();
-    cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, newLabel.getName());
-    selection = "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? )";
-    resolver.update(ClipsContract.LabelMap.CONTENT_URI, cv, selection,
-      selectionArgs);
+    //cv = new ContentValues();
+    //cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, newLabel.getName());
+    //selection = "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? )";
+    //resolver.update(ClipsContract.LabelMap.CONTENT_URI, cv, selection,
+    //  selectionArgs);
   }
 
   /**
@@ -123,7 +158,7 @@ public enum LabelTables {
   }
 
   /**
-   * Delete a {@link Label} from the Label and LabelMap tables
+   * Delete a {@link Label}
    * @param label the label
    */
   public void delete(Label label) {
@@ -139,11 +174,6 @@ public enum LabelTables {
     // delete from Label table
     String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
     resolver.delete(ClipsContract.Label.CONTENT_URI, selection, selectionArgs);
-
-    // delete from LabelMap table
-    selection = "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? )";
-    resolver.delete(ClipsContract.LabelMap.CONTENT_URI, selection,
-      selectionArgs);
   }
 
   /**

@@ -78,7 +78,7 @@ public class MainActivity extends BaseActivity implements
   /**
    * Items from last delete operation
    */
-  private ContentValues[] mUndoItems = null;
+  private ClipItem[] mUndoItems = null;
   /**
    * AppBar setting for fav filter
    */

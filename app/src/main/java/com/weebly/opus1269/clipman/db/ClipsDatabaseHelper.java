@@ -30,25 +30,38 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
 
   private static final String TEXT = " TEXT";
   private static final String INTEGER = " INTEGER";
+  private static final String UNIQUE = " UNIQUE";
+  private static final String NOT_NULL = " NOT NULL";
+
   private static final String SQL_CREATE_CLIP = "CREATE TABLE " +
     ClipsContract.Clip.TABLE_NAME + " (" +
     ClipsContract.Clip._ID + " INTEGER PRIMARY KEY" + "," +
-    ClipsContract.Clip.COL_TEXT + TEXT + " UNIQUE " + "," +
+    ClipsContract.Clip.COL_TEXT + TEXT + UNIQUE + "," +
     ClipsContract.Clip.COL_DATE + INTEGER + "," +
     ClipsContract.Clip.COL_FAV + INTEGER + "," +
     ClipsContract.Clip.COL_REMOTE + INTEGER + "," +
     ClipsContract.Clip.COL_DEVICE + TEXT +
     " );";
+
   private static final String SQL_CREATE_LABEL = "CREATE TABLE " +
     ClipsContract.Label.TABLE_NAME + " (" +
     ClipsContract.Label._ID + " INTEGER PRIMARY KEY" + "," +
-    ClipsContract.Label.COL_NAME + TEXT +
+    ClipsContract.Label.COL_NAME + TEXT + UNIQUE +
     " );";
+
   private static final String SQL_CREATE_LABEL_MAP = "CREATE TABLE " +
     ClipsContract.LabelMap.TABLE_NAME + " (" +
     ClipsContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
     ClipsContract.LabelMap.COL_CLIP_TEXT + TEXT + "," +
-    ClipsContract.LabelMap.COL_LABEL_NAME + TEXT +
+    ClipsContract.LabelMap.COL_LABEL_NAME + TEXT + "," +
+    " FOREIGN KEY (" + ClipsContract.LabelMap.COL_LABEL_NAME + ") " +
+    "REFERENCES " +
+    ClipsContract.Label.TABLE_NAME + "(" + ClipsContract.Label.COL_NAME + ")" +
+    " ON DELETE CASCADE" + " ON UPDATE CASCADE" + "," +
+    " FOREIGN KEY (" + ClipsContract.LabelMap.COL_CLIP_TEXT + ") " +
+    "REFERENCES " +
+    ClipsContract.Clip.TABLE_NAME + "(" + ClipsContract.Clip.COL_TEXT + ")" +
+    " ON DELETE CASCADE"  + " ON UPDATE CASCADE" +
     " );";
 
   private final Context mContext;
@@ -59,6 +72,12 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   }
 
   @Override
+  public void onConfigure(SQLiteDatabase db) {
+    super.onConfigure(db);
+    db.setForeignKeyConstraintsEnabled(true);
+  }
+
+  @Override
   public void onCreate(SQLiteDatabase db) {
     // create the tables
     db.execSQL(SQL_CREATE_CLIP);
@@ -66,12 +85,6 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     db.execSQL(SQL_CREATE_LABEL_MAP);
 
     initDbRows(db);
-  }
-
-  @Override
-  public void onConfigure(SQLiteDatabase db) {
-    super.onConfigure(db);
-    db.setForeignKeyConstraintsEnabled(true);
   }
 
   @Override
@@ -158,8 +171,8 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     clipItem.setText(mContext.getString(R.string.default_clip_6));
     clipItem.setFav(true);
     clipItem.setDate(time);
-    db.replace(ClipsContract.Clip.TABLE_NAME, null, clipItem.getContentValues
-      ());
+    db.replace(ClipsContract.Clip.TABLE_NAME, null,
+      clipItem.getContentValues());
 
     // add new Label - has to come after ClipItem here
     final Label label = new Label("Example");

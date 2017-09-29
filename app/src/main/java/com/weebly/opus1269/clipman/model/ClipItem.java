@@ -270,6 +270,10 @@ public class ClipItem implements Serializable {
     mDevice = device;
   }
 
+  public List<Label> getLabels() {
+    return mLabels;
+  }
+
   /**
    * Do we have the given label
    * @param label a label

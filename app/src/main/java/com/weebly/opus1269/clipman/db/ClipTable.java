@@ -16,31 +16,23 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.joda.time.DateTime;
+
+import java.util.List;
 
 /** Singleton to manage the Clips.db Clip table */
 public enum ClipTable {
   INST;
 
   /**
-   * Add a group of {@link ClipItem} objects to the databse
-   * @param clipCVs the items to add
-   * @return number of items added
-   */
-  public int insertClipItems(ContentValues[] clipCVs) {
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-    return resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
-  }
-
-  /**
    * Get the non-favorite and optionally favorite rows in the database
    * @param includeFavs flag to indicate if favorites should be retrieved too
-   * @return Array of {@link ContentValues}
+   * @return Array of {@link ClipItem} objects
    */
-  public ContentValues[] getAll(Boolean includeFavs) {
+  public ClipItem[] getAll(Boolean includeFavs) {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
@@ -60,27 +52,16 @@ public enum ClipTable {
       null,
       null);
     if (cursor == null) {
-      return new ContentValues[0];
+      return new ClipItem[0];
     }
 
-    final ContentValues[] array;
+    final ClipItem[] array;
     try {
-      array = new ContentValues[cursor.getCount()];
+      array = new ClipItem[cursor.getCount()];
       int count = 0;
       while (cursor.moveToNext()) {
         //noinspection ObjectAllocationInLoop
-        final ContentValues cv = new ContentValues();
-        cv.put(ClipsContract.Clip.COL_TEXT,
-          cursor.getString(cursor.getColumnIndex(ClipsContract.Clip.COL_TEXT)));
-        cv.put(ClipsContract.Clip.COL_DATE,
-          cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip.COL_DATE)));
-        cv.put(ClipsContract.Clip.COL_FAV,
-          cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip.COL_FAV)));
-        cv.put(ClipsContract.Clip.COL_REMOTE,
-          cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip.COL_REMOTE)));
-        cv.put(ClipsContract.Clip.COL_DEVICE,
-          cursor.getString(cursor.getColumnIndex(ClipsContract.Clip.COL_DEVICE)));
-        array[count] = cv;
+        array[count] = new ClipItem(cursor);
         count++;
       }
     } finally {
@@ -88,6 +69,97 @@ public enum ClipTable {
     }
 
     return array;
+  }
+
+  /**
+   * Add a {@link ClipItem} to the database
+   * @param clipItem the clip to add
+   */
+  public boolean insert(ClipItem clipItem) {
+    if (AppUtils.isWhitespace(clipItem.getText())) {
+      return false;
+    }
+
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    // add the ClipItem
+    resolver
+      .insert(ClipsContract.Clip.CONTENT_URI, clipItem.getContentValues());
+
+    // add the label map entries
+    List<Label> labels = clipItem.getLabels();
+    for (Label label : labels) {
+      LabelTables.INST.insert(clipItem, label);
+    }
+
+    return true;
+  }
+
+  /**
+   * Add a {@link ClipItem} optionally only if text is new
+   * @param clipItem  the {@link ClipItem} to insert
+   * @param onNewOnly if true, only insert if item text is new
+   * @return true if inserted
+   */
+  public boolean insert(ClipItem clipItem, boolean onNewOnly) {
+    if (AppUtils.isWhitespace(clipItem.getText())) {
+      return false;
+    }
+
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    if (onNewOnly) {
+      // query for existence and skip insert if it does
+      final String[] projection = {ClipsContract.Clip.COL_TEXT};
+      final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
+      final String[] selectionArgs = {clipItem.getText()};
+
+      final Cursor cursor =
+        resolver.query(ClipsContract.Clip.CONTENT_URI, projection, selection,
+          selectionArgs, null);
+      if (cursor == null) {
+        return false;
+      }
+      if (cursor.getCount() != 0) {
+        // already in database, we are done
+        cursor.close();
+        return false;
+
+      }
+      cursor.close();
+    }
+
+    // insert into table
+    return insert(clipItem);
+  }
+
+  /**
+   * Add a group of {@link ClipItem} objects to the databse
+   * @param clipItems the items to add
+   * @return number of items added
+   */
+  public int insertClipItems(ClipItem[] clipItems) {
+    if (clipItems == null) {
+      return 0;
+    }
+
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+    int ret;
+
+    // add the clips
+    final ContentValues[] clipCVs = new ContentValues[clipItems.length];
+    for (int i = 0; i < clipItems.length; i++) {
+      clipCVs[i] = clipItems[i].getContentValues();
+    }
+    ret = resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
+
+    // add the LabelMap
+    LabelTables.INST.insertLabelsMap(clipItems);
+
+    return ret;
   }
 
   /**
@@ -151,58 +223,5 @@ public enum ClipTable {
     final ContentResolver resolver = context.getContentResolver();
     return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
-
-  /**
-   * Add the contents of the ClipItem to the clipboard,
-   * optionally only if item text is new
-   * @param clipItem  the {@link ClipItem} to insert
-   * @param onNewOnly only insert if item text is not in database if true
-   * @return true if inserted
-   */
-  public boolean insert(ClipItem clipItem, boolean onNewOnly) {
-    if (AppUtils.isWhitespace(clipItem.getText())) {
-      return false;
-    }
-
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-
-    if (onNewOnly) {
-      // query for existence and skip insert if it does
-      final String[] projection = {ClipsContract.Clip.COL_TEXT};
-      final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
-      final String[] selectionArgs = {clipItem.getText()};
-
-      final Cursor cursor =
-        resolver.query(ClipsContract.Clip.CONTENT_URI, projection, selection,
-          selectionArgs, null);
-      if (cursor == null) {
-        return false;
-      }
-      if (cursor.getCount() != 0) {
-        // already in database, we are done
-        cursor.close();
-        return false;
-
-      }
-      cursor.close();
-    }
-
-    // insert into table
-    insert(context, clipItem);
-
-    return true;
-  }
-
-  /**
-   * Add a {@link ClipItem} to the database
-   * @param context the context
-   * @param item    the clip to add
-   */
-  private void insert(Context context, ClipItem item) {
-    final ContentResolver resolver = context.getContentResolver();
-    resolver.insert(ClipsContract.Clip.CONTENT_URI, item.getContentValues());
-  }
-
 
 }

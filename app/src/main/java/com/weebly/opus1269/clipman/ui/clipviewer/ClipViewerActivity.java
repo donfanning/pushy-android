@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.ui.clipviewer;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.DatabaseUtils;
 import android.os.Bundle;
@@ -37,7 +36,7 @@ public class ClipViewerActivity extends BaseActivity implements
   ClipViewerFragment.OnClipChanged {
 
   // item from last delete operation
-  private ContentValues mUndoItem = null;
+  private ClipItem mUndoItem = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -219,7 +218,7 @@ public class ClipViewerActivity extends BaseActivity implements
         .delete(ClipsContract.Clip.CONTENT_URI, selection, null);
 
       // save item for undo
-      mUndoItem = getClipViewerFragment().getClipItemClone().getContentValues();
+      mUndoItem = getClipViewerFragment().getClipItemClone();
 
       String message = getResources().getString(R.string.clip_deleted);
       if (nRows == 0) {
@@ -233,7 +232,7 @@ public class ClipViewerActivity extends BaseActivity implements
         snack.setAction("UNDO", new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            ClipTable.INST.insertClipItems(new ContentValues[]{mUndoItem});
+            ClipTable.INST.insert(mUndoItem);
           }
         })
           .addCallback(new Snackbar.Callback() {
