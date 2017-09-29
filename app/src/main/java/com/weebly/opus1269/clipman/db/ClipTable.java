@@ -110,25 +110,9 @@ public enum ClipTable {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    if (onNewOnly) {
-      // query for existence and skip insert if it does
-      final String[] projection = {ClipsContract.Clip.COL_TEXT};
-      final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
-      final String[] selectionArgs = {clipItem.getText()};
-
-      final Cursor cursor =
-        resolver.query(ClipsContract.Clip.CONTENT_URI, projection, selection,
-          selectionArgs, null);
-      if (cursor == null) {
-        return false;
-      }
-      if (cursor.getCount() != 0) {
-        // already in database, we are done
-        cursor.close();
-        return false;
-
-      }
-      cursor.close();
+    if (onNewOnly && exists(resolver, clipItem)) {
+      // already exists
+      return false;
     }
 
     // insert into table
@@ -224,4 +208,25 @@ public enum ClipTable {
     return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 
+  /**
+   * Does the ClipItem exist
+   * @param resolver to db
+   * @param clipItem clip to check
+   * @return if true, clip exists
+   */
+  private boolean exists(ContentResolver resolver, ClipItem clipItem) {
+    final String[] projection = {ClipsContract.Clip.COL_TEXT};
+    final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
+    final String[] selectionArgs = {clipItem.getText()};
+
+    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      // found it
+      cursor.close();
+      return true;
+    }
+    return false;
+  }
 }

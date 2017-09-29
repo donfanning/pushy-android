@@ -72,29 +72,17 @@ public enum LabelTables {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    // query for existence and skip insert if it does
-    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final String selection = "(" +
-      "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
-      "(" + ClipsContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
-      ")";
-    final String[] selectionArgs = {label.getName(), clipItem.getText()};
-
-    final Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
-      projection, selection, selectionArgs, null);
-    if (cursor == null) {
+    if (exists(resolver, clipItem, label)) {
+      // already in db
       return false;
     }
 
-    if (cursor.getCount() != 0) {
-      // already in database, we are done
-      cursor.close();
-      return false;
-
+    // insert Label into Label table if it doesn't exist
+    if (!exists(resolver, label)) {
+      insert(label);
     }
-    cursor.close();
 
-    // insert into table
+    // insert into LabelMap table
     final ContentValues cv = new ContentValues();
     cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
@@ -124,13 +112,6 @@ public enum LabelTables {
     String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
     resolver.update(ClipsContract.Label.CONTENT_URI, cv, selection,
       selectionArgs);
-
-    // update LabelMap table
-    //cv = new ContentValues();
-    //cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, newLabel.getName());
-    //selection = "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? )";
-    //resolver.update(ClipsContract.LabelMap.CONTENT_URI, cv, selection,
-    //  selectionArgs);
   }
 
   /**
@@ -212,6 +193,24 @@ public enum LabelTables {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
+    if (exists(resolver, label)) {
+      // already in db
+      return false;
+    }
+
+    // insert into db
+    resolver.insert(ClipsContract.Label.CONTENT_URI, label.getContentValues());
+
+    return true;
+  }
+
+  /**
+   * Does the Label exist in the Label tables
+   * @param resolver to db
+   * @param label    Label to check
+   * @return if true, Label exists
+   */
+  private boolean exists(ContentResolver resolver, Label label) {
     final String[] projection = {ClipsContract.Label.COL_NAME};
     final String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
     final String[] selectionArgs = {label.getName()};
@@ -219,19 +218,38 @@ public enum LabelTables {
     // query for existence and skip insert if it does
     final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
       projection, selection, selectionArgs, null);
-    if (cursor == null) {
-      return false;
-    }
-    if (cursor.getCount() > 0) {
-      // already in database, we are done
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      // found it
       cursor.close();
-      return false;
+      return true;
     }
-    cursor.close();
+    return false;
+  }
 
-    // insert into db
-    resolver.insert(ClipsContract.Label.CONTENT_URI, label.getContentValues());
+  /**
+   * Does the ClipItem annd Label exist in the LabelMap table
+   * @param resolver to db
+   * @param label    Label to check
+   * @return if true, already in db
+   */
+  private boolean exists(ContentResolver resolver, ClipItem clipItem,
+                         Label label) {
+    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
+    final String selection = "(" +
+      "(" + ClipsContract.LabelMap.COL_LABEL_NAME + " == ? ) AND " +
+      "(" + ClipsContract.LabelMap.COL_CLIP_TEXT + " == ? )" +
+      ")";
+    final String[] selectionArgs = {label.getName(), clipItem.getText()};
 
-    return true;
+    final Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      // found it
+      cursor.close();
+      return true;
+    }
+    return false;
   }
 }

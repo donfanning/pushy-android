@@ -22,6 +22,8 @@ import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -35,6 +37,7 @@ import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +47,7 @@ public class ClipItem implements Serializable {
   private static final String TAG = "ClipItem";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
+  private static final String LABELS_LABEL = "ClipItem Labels";
   private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
 
   private String mText;
@@ -131,14 +135,19 @@ public class ClipItem implements Serializable {
     Boolean remote = false;
     String sourceDevice = Device.getMyName();
     final ClipDescription desc = clipData.getDescription();
+
     // set fav state if the copy is from us
     final Boolean fav = parseFav(desc);
+
     // set remote state if this is a remote copy
     final String parse = parseRemote(desc);
     if (!parse.isEmpty()) {
       remote = true;
       sourceDevice = parse;
     }
+
+    // get any Labels
+    final List<Label> labels = parseLabels(desc);
 
     ClipItem clipItem = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
@@ -147,14 +156,13 @@ public class ClipItem implements Serializable {
       clipItem.setFav(fav);
       clipItem.setRemote(remote);
       clipItem.setDevice(sourceDevice);
+      clipItem.setLabels(labels);
     }
 
     return clipItem;
   }
 
-  /**
-   * Send the clipboard contents to our {@link Devices}
-   */
+  /** Send the clipboard contents to our {@link Devices} */
   public static void sendClipboardContents(View view) {
     final Context context = App.getContext();
     ClipboardManager clipboardManager =
@@ -221,6 +229,28 @@ public class ClipItem implements Serializable {
     return device;
   }
 
+  /**
+   * Parse the {@link ClipDescription} to get any labels
+   * @param desc The item's {@link ClipDescription}
+   * @return The List of labels
+   */
+  private static List<Label> parseLabels(ClipDescription desc) {
+    ArrayList<Label> list = new ArrayList<>(0);
+
+    final String label = (String) desc.getLabel();
+    if (!TextUtils.isEmpty(label) && label.contains(LABELS_LABEL)) {
+      final int idxStart = label.indexOf('\n' + LABELS_LABEL) +
+        LABELS_LABEL.length();
+      final int idxStop = label.indexOf('\n', idxStart);
+      final String labelString = label.substring(idxStart + 1, idxStop);
+      final Gson gson = new Gson();
+      final Type type = new TypeToken<ArrayList<Label>>() {
+      }.getType();
+      list = gson.fromJson(labelString, type);
+    }
+    return list;
+  }
+
   public String getText() {
     return mText;
   }
@@ -274,6 +304,10 @@ public class ClipItem implements Serializable {
     return mLabels;
   }
 
+  public void setLabels(List<Label> labels) {
+    mLabels = labels;
+  }
+
   /**
    * Do we have the given label
    * @param label a label
@@ -299,8 +333,8 @@ public class ClipItem implements Serializable {
   }
 
   /**
-   * Get the ClipItem as a {@link ContentValues object}
-   * @return ClipItem as {@link ContentValues object}
+   * Get as a {@link ContentValues object}
+   * @return value
    */
   public ContentValues getContentValues() {
     final long fav = mFav ? 1L : 0L;
@@ -315,33 +349,46 @@ public class ClipItem implements Serializable {
     return cv;
   }
 
-  /**
-   * Copy the ClipItem to the clipboard
-   */
+  /** Copy to the clipboard */
   public void copyToClipboard() {
-    // Make sure we have looper
     final Handler handler = new Handler(Looper.getMainLooper());
     handler.post(new Runnable() {
 
       @Override
       public void run() {
-        final ClipboardManager clipboard = (ClipboardManager) App
-          .getContext()
-          .getSystemService(Context.CLIPBOARD_SERVICE);
-        final long fav = mFav ? 1L : 0L;
+        final Context cntxt = App.getContext();
+        final ClipboardManager clipboard =
+          (ClipboardManager) cntxt.getSystemService(Context.CLIPBOARD_SERVICE);
 
-        // add a label with the fav value so we can maintain the state
-        CharSequence label =
-          DESC_LABEL + "[" + Long.toString(fav) + "]\n";
-        if (mRemote) {
-          // add label indicating this is from a remote device
-          label = label + REMOTE_DESC_LABEL + "(" + mDevice + ")";
-        }
-
-        final ClipData clip = ClipData.newPlainText(label, mText);
+        final ClipData clip = ClipData.newPlainText(buildClipLabel(), mText);
         clipboard.setPrimaryClip(clip);
       }
     });
+  }
+
+  /**
+   * Create a label with our state so we can restore it
+   * @return a parsable label with our state
+   */
+  private CharSequence buildClipLabel() {
+    final long fav = mFav ? 1L : 0L;
+
+    // add prefix and fav value
+    CharSequence label = DESC_LABEL + "[" + Long.toString(fav) + "]\n";
+
+    if (mRemote) {
+      // add label indicating this is from a remote device
+      label = label + REMOTE_DESC_LABEL + "(" + mDevice + ")\n";
+    }
+
+    if (mLabels.size() > 0) {
+      // add our labels
+      final Gson gson = new Gson();
+      final String labelsString = gson.toJson(mLabels);
+      label = label + LABELS_LABEL + labelsString + "\n";
+    }
+
+    return label;
   }
 
   /**
@@ -418,9 +465,7 @@ public class ClipItem implements Serializable {
     return ret;
   }
 
-  /**
-   * Get our {@link Label} names from the database
-   */
+  /** Get our {@link Label} names from the database */
   private void loadLabels() {
     mLabels.clear();
     final Cursor cursor = LabelTables.INST.getLabelNames(this);
@@ -440,9 +485,7 @@ public class ClipItem implements Serializable {
     }
   }
 
-  /**
-   * Initialize the members
-   */
+  /** Initialize the members */
   private void init() {
     mText = "";
     mDate = new DateTime();
