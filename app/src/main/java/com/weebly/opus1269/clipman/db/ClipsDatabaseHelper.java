@@ -109,17 +109,10 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
    * @param db the Clips.db database
    */
   private void initDbRows(SQLiteDatabase db) {
-    // create a row from the clipboard
-    final ClipboardManager clipboard =
-      (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-    ClipItem item = ClipItem.getFromClipboard(clipboard);
-    if (item != null) {
-      db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
-    }
 
     // create some informative entries
 
-    item = new ClipItem();
+    ClipItem item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_5));
     item.setFav(true);
     long time = item.getTime();
@@ -127,16 +120,16 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     item.setDate(time);
     db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
-    // create one with a label
-    time = time + 1;
-    createExampleLabel(db, time);
-
     item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_4));
     item.setFav(false);
     time = time + 1;
     item.setDate(time);
     db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
+
+    // create one with a label
+    time = time + 1;
+    createExampleLabel(db, time);
 
     item = new ClipItem();
     item.setText(mContext.getString(R.string.default_clip_3));
