@@ -69,6 +69,12 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   }
 
   @Override
+  public void onConfigure(SQLiteDatabase db) {
+    super.onConfigure(db);
+    db.setForeignKeyConstraintsEnabled(true);
+  }
+
+  @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     if ((oldVersion == 1) && (newVersion == 2)) {
       // Add the Label and LabelMap tables
