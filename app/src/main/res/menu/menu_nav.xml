@@ -19,6 +19,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
   <item
+    android:id="@+id/nav_clips"
+    android:enabled="true"
+    android:icon="@drawable/ic_notification"
+    android:title="@string/title_activity_main" />
+  <item
     android:id="@+id/nav_account"
     android:enabled="true"
     android:icon="@drawable/ic_account_circle_black_24dp"

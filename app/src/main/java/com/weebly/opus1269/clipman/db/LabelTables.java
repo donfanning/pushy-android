@@ -17,6 +17,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -170,14 +171,19 @@ public enum LabelTables {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    final String[] selectionArgs = {oldLabel.getName()};
-
     // update Label table
+    final String[] selectionArgs = {oldLabel.getName()};
+    final String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
     ContentValues cv = new ContentValues();
     cv.put(ClipsContract.Label.COL_NAME, newLabel.getName());
-    String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
     resolver.update(ClipsContract.Label.CONTENT_URI, cv, selection,
       selectionArgs);
+
+    // change Pref if it is us
+    final String labelFilter = Prefs.getLabelFilter();
+    if (labelFilter.equals(oldLabel.getName())) {
+      Prefs.setLabelFilter(newLabel.getName());
+    }
   }
 
   /**
@@ -216,11 +222,16 @@ public enum LabelTables {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    final String[] selectionArgs = {label.getName()};
-
     // delete from Label table
+    final String[] selectionArgs = {label.getName()};
     String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
     resolver.delete(ClipsContract.Label.CONTENT_URI, selection, selectionArgs);
+
+    // reset prefs if we deleted it
+    final String labelFilter = Prefs.getLabelFilter();
+    if (labelFilter.equals(label.getName())) {
+      Prefs.setLabelFilter("");
+    }
   }
 
   /**

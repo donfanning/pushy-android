@@ -90,6 +90,9 @@ public class App extends Application
     // reset fav filter
     Prefs.setFavFilter(false);
 
+    // reset label filter
+    Prefs.setLabelFilter("");
+
     // save version info. to the preferences database
     final PackageInfo pInfo;
     try {

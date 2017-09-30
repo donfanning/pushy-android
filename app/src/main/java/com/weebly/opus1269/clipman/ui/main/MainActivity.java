@@ -92,6 +92,7 @@ public class MainActivity extends BaseActivity implements
     super.onCreate(savedInstanceState);
 
     mFavFilter = Prefs.isFavFilter();
+    mLabelFilter = Prefs.getLabelFilter();
 
     // listen for preference changes
     PreferenceManager
@@ -135,6 +136,8 @@ public class MainActivity extends BaseActivity implements
     navigationView.setNavigationItemSelectedListener(this);
 
     handleIntent();
+
+    setTitle();
   }
 
   @Override
@@ -257,11 +260,19 @@ public class MainActivity extends BaseActivity implements
       case R.id.nav_labels_edit:
         startActivity(LabelsEditActivity.class);
         break;
-      case R.id.nav_labels_sub_menu:
+      case R.id.nav_clips:
+        if (!AppUtils.isWhitespace(mLabelFilter)) {
+          Prefs.setLabelFilter("");
+          startActivity(MainActivity.class);
+        }
+        break;
+      case Menu.NONE:
         // all Labels items
-        mLabelFilter = item.getTitle().toString();
-        // reload clips
-        getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+        final String label = item.getTitle().toString();
+        if (!label.equals(mLabelFilter)) {
+          Prefs.setLabelFilter(label);
+          startActivity(MainActivity.class);
+        }
         break;
       case R.id.nav_error:
         startActivity(ErrorViewerActivity.class);
@@ -502,23 +513,24 @@ public class MainActivity extends BaseActivity implements
         startActivity(SignInActivity.class);
       }
     });
-
   }
 
-  /**
-   * Set title based on currently selected clip row
-   */
+  /** Set title based on currently selected clip row */
   private void setTitle() {
-    final ClipItem clipItem = getClipItemClone();
+    String prefix = getString(R.string.title_activity_main);
+    if (!AppUtils.isWhitespace(mLabelFilter)) {
+      prefix = mLabelFilter;
+    }
     if (AppUtils.isDualPane()) {
+      final ClipItem clipItem = getClipItemClone();
       if (clipItem.isRemote()) {
-        setTitle(getString(R.string.title_activity_main_remote_fmt,
+        setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
           clipItem.getDevice()));
       } else {
-        setTitle(getString(R.string.title_activity_main_local));
+        setTitle(getString(R.string.title_activity_main_local_fmt, prefix));
       }
     } else {
-      setTitle(getString(R.string.app_name));
+      setTitle(prefix);
     }
   }
 
@@ -568,7 +580,8 @@ public class MainActivity extends BaseActivity implements
     menu.setGroupVisible(R.id.nav_group_labels, (labels.size() > 0));
     SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
     for (Label label : labels) {
-      final MenuItem labelItem = labelMenu.add(label.getName());
+      final MenuItem labelItem = labelMenu.add(R.id.nav_group_labels,
+        Menu.NONE, Menu.NONE, label.getName());
       labelItem.setIcon(R.drawable.ic_label);
     }
 

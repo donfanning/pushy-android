@@ -58,6 +58,7 @@ class ClipLoaderManager implements
     // Retrieve all columns
     final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
     final String queryString = mMainActivity.getQueryString();
+    final String labelFilter = mMainActivity.getLabelFilter();
 
     String selection = "(" +
       "(" + ClipsContract.Clip.COL_TEXT + " NOTNULL) AND (" +
@@ -71,8 +72,8 @@ class ClipLoaderManager implements
     String[] selectionArgs = null;
     if (!TextUtils.isEmpty(queryString)) {
       // filter by search query
-      selection = selection + " AND (" + ClipsContract.Clip.COL_TEXT + " LIKE" +
-        " ? )";
+      selection = selection + " AND (" + ClipsContract.Clip.COL_TEXT +
+        " LIKE ? )";
       selectionArgs = new String[1];
       selectionArgs[0] = "%" + queryString + "%";
 

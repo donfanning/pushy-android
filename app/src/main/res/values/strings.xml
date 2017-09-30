@@ -1,3 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+  <!ENTITY clips "Clips">
+  ]>
+
 <!--
   ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
   ~ Licensed under Apache 2.0
@@ -12,9 +17,9 @@
 
 
   <!-- Related to Activities -->
-  <string name="title_activity_main">@string/app_name</string>
-  <string name="title_activity_main_local">Pushy: Local clip</string>
-  <string name="title_activity_main_remote_fmt">Pushy: Remote clip - %s</string>
+  <string name="title_activity_main">&clips;</string>
+  <string name="title_activity_main_local_fmt">%s: Local clip</string>
+  <string name="title_activity_main_remote_fmt" formatted="false">%s: Remote clip - %s</string>
   <string name="title_activity_clip_viewer">Local clip</string>
   <string name="title_activity_clip_viewer_remote">Remote clip</string>
   <string name="title_activity_settings">Settings</string>
