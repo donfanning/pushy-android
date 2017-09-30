@@ -8,7 +8,6 @@
 package com.weebly.opus1269.clipman.ui.main;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -28,9 +27,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.widget.BaseAdapter;
-import android.widget.HeaderViewListAdapter;
-import android.widget.ListView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -67,30 +63,23 @@ public class MainActivity extends BaseActivity implements
   SortTypeDialogFragment.SortTypeDialogListener,
   SharedPreferences.OnSharedPreferenceChangeListener {
 
-  /**
-   * The currently selected position in the list,
-   * delegated to ClipCursorAdapter
-   */
+  /** The selected position in the list, delegated to ClipCursorAdapter */
   private static final String STATE_POS = "pos";
-  /**
-   * The database _ID of the selection list item,
-   * delegated to ClipCursorAdapter
-   */
+
+  /** The database _ID of the selected item, delegated to ClipCursorAdapter */
   private static final String STATE_ITEM_ID = "item_id";
 
-  /**
-   * Delegate for RecyclerView
-   */
+  /** Delegate for RecyclerView */
   private ClipLoaderManager mLoaderManager;
 
-  /**
-   * Items from last delete operation
-   */
+  /** Items from last delete operation */
   private ClipItem[] mUndoItems = null;
-  /**
-   * AppBar setting for fav filter
-   */
+
+  /** AppBar setting for fav filter */
   private Boolean mFavFilter = false;
+
+  /** Label filter */
+  private String mLabelFilter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +91,8 @@ public class MainActivity extends BaseActivity implements
 
     super.onCreate(savedInstanceState);
 
+    mFavFilter = Prefs.isFavFilter();
+
     // listen for preference changes
     PreferenceManager
       .getDefaultSharedPreferences(this)
@@ -112,14 +103,10 @@ public class MainActivity extends BaseActivity implements
 
     // Check whether we're recreating a previously destroyed instance
     if (savedInstanceState != null) {
-      // Restore value of members from saved state
       final int pos = savedInstanceState.getInt(STATE_POS);
       final long id = savedInstanceState.getLong(STATE_ITEM_ID);
-
       mLoaderManager.getAdapter().restoreSelection(pos, id);
     }
-
-    mFavFilter = Prefs.isFavFilter();
 
     setupNavigationView();
 
@@ -170,7 +157,7 @@ public class MainActivity extends BaseActivity implements
 
     Notifications.removeClips();
 
-    // so relative dates and favorites get updated
+    // so relative dates get updated
     mLoaderManager.getAdapter().notifyDataSetChanged();
   }
 
@@ -181,8 +168,6 @@ public class MainActivity extends BaseActivity implements
     mOptionsMenuID = R.menu.menu_main;
 
     ret = super.onCreateOptionsMenu(menu);
-
-    setPrefFavFilter(mFavFilter, false);
 
     updateOptionsMenu();
 
@@ -212,9 +197,6 @@ public class MainActivity extends BaseActivity implements
   protected void onPause() {
     super.onPause();
 
-    // save persistent state
-    Prefs.setFavFilter(mFavFilter);
-
     mUndoItems = null;
   }
 
@@ -232,8 +214,11 @@ public class MainActivity extends BaseActivity implements
         sendClipboardContents();
         break;
       case R.id.action_fav_filter:
-        // toggle
-        setPrefFavFilter(!mFavFilter, true);
+        mFavFilter = !mFavFilter;
+        Prefs.setFavFilter(mFavFilter);
+        updateOptionsMenu();
+        // reload clips
+        getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_delete:
         showDeleteDialog();
@@ -271,6 +256,11 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.nav_labels_edit:
         startActivity(LabelsEditActivity.class);
+        break;
+      case R.id.nav_labels_sub_menu:
+        // all Labels items
+        final String labelName = item.getTitle().toString();
+        // TODO handle filtering
         break;
       case R.id.nav_error:
         startActivity(ErrorViewerActivity.class);
@@ -545,37 +535,6 @@ public class MainActivity extends BaseActivity implements
   }
 
   /**
-   * Set UI state based on whether we are filtering by favorites
-   * @param prefFavFilter true if only showing favorites
-   * @param restart       if true, restart ClipLoader
-   */
-  private void setPrefFavFilter(boolean prefFavFilter, boolean restart) {
-    mFavFilter = prefFavFilter;
-
-    if (mOptionsMenu != null) {
-      final MenuItem menuItem =
-        mOptionsMenu.findItem(R.id.action_fav_filter);
-      int colorID;
-      if (mFavFilter) {
-        menuItem.setIcon(R.drawable.ic_favorite_black_24dp);
-        menuItem.setTitle(R.string.action_show_all);
-        colorID = R.color.red_500_translucent;
-      } else {
-        menuItem.setIcon(R.drawable.ic_favorite_border_black_24dp);
-        menuItem.setTitle(R.string.action_show_favs);
-        colorID = R.color.icons;
-      }
-
-      final int color = ContextCompat.getColor(this, colorID);
-      MenuTintHelper.colorMenuItem(menuItem, color, 255);
-    }
-
-    if (restart) {
-      getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
-    }
-  }
-
-  /**
    * Set Nav Header view
    */
   private void updateNavHeader() {
@@ -599,8 +558,10 @@ public class MainActivity extends BaseActivity implements
     menuItem = menu.findItem(R.id.nav_error);
     menuItem.setEnabled(LastError.exists());
 
-    SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
+    // Create Labels sub menu
     List<Label> labels = LabelTables.getLabels();
+    menu.setGroupVisible(R.id.nav_group_labels, (labels.size() > 0));
+    SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
     for (Label label : labels) {
       final MenuItem labelItem = labelMenu.add(label.getName());
       labelItem.setIcon(R.drawable.ic_label);
@@ -614,6 +575,8 @@ public class MainActivity extends BaseActivity implements
    */
   private void updateOptionsMenu() {
     if (mOptionsMenu != null) {
+
+      // enabled state of send button
       Boolean enabled = false;
       Integer alpha = 64;
       if (User.INST.isLoggedIn() && Prefs.isPushClipboard()) {
@@ -623,6 +586,22 @@ public class MainActivity extends BaseActivity implements
       final MenuItem sendItem = mOptionsMenu.findItem(R.id.action_send);
       MenuTintHelper.colorMenuItem(sendItem, null, alpha);
       sendItem.setEnabled(enabled);
+
+      // fav filter state
+      final MenuItem menuItem =
+        mOptionsMenu.findItem(R.id.action_fav_filter);
+      int colorID;
+      if (mFavFilter) {
+        menuItem.setIcon(R.drawable.ic_favorite_black_24dp);
+        menuItem.setTitle(R.string.action_show_all);
+        colorID = R.color.red_500_translucent;
+      } else {
+        menuItem.setIcon(R.drawable.ic_favorite_border_black_24dp);
+        menuItem.setTitle(R.string.action_show_favs);
+        colorID = R.color.icons;
+      }
+      final int color = ContextCompat.getColor(this, colorID);
+      MenuTintHelper.colorMenuItem(menuItem, color, 255);
     }
   }
 }

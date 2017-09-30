@@ -80,11 +80,15 @@ public class App extends Application
 
     sContext = this;
 
+    // initialize database
     sClipsDB = new ClipsDatabaseHelper(sContext);
     sClipsDB.getWritableDatabase();
 
     // make sure Prefs are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+    // reset fav filter
+    Prefs.setFavFilter(false);
 
     // save version info. to the preferences database
     final PackageInfo pInfo;
