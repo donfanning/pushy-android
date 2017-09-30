@@ -49,6 +49,7 @@ import com.weebly.opus1269.clipman.ui.help.HelpActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
+import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 
@@ -136,8 +137,6 @@ public class MainActivity extends BaseActivity implements
     navigationView.setNavigationItemSelectedListener(this);
 
     handleIntent();
-
-    setTitle();
   }
 
   @Override
@@ -154,7 +153,9 @@ public class MainActivity extends BaseActivity implements
   protected void onResume() {
     super.onResume();
 
-    updateNavHeader();
+    setTitle();
+
+    updateNavView();
 
     updateOptionsMenu();
 
@@ -222,6 +223,11 @@ public class MainActivity extends BaseActivity implements
         updateOptionsMenu();
         // reload clips
         getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+        break;
+      case R.id.action_labels:
+        final Intent intent = new Intent(this, LabelsSelectActivity.class);
+        intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
+        AppUtils.startActivity(this, intent);
         break;
       case R.id.action_delete:
         showDeleteDialog();
@@ -376,7 +382,7 @@ public class MainActivity extends BaseActivity implements
   public void
   onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if (key.equals(LastError.PREF_LAST_ERROR)) {
-      updateNavHeader();
+      updateNavView();
     }
   }
 
@@ -551,10 +557,8 @@ public class MainActivity extends BaseActivity implements
     return getClipViewerFragment().getClipItemClone();
   }
 
-  /**
-   * Set Nav Header view
-   */
-  private void updateNavHeader() {
+  /** Update Navigation Viewe */
+  private void updateNavView() {
     final NavigationView navigationView =
       findViewById(R.id.nav_view);
     if (navigationView == null) {
@@ -579,6 +583,7 @@ public class MainActivity extends BaseActivity implements
     List<Label> labels = LabelTables.getLabels();
     menu.setGroupVisible(R.id.nav_group_labels, (labels.size() > 0));
     SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
+    labelMenu.clear();
     for (Label label : labels) {
       final MenuItem labelItem = labelMenu.add(R.id.nav_group_labels,
         Menu.NONE, Menu.NONE, label.getName());
@@ -593,6 +598,12 @@ public class MainActivity extends BaseActivity implements
    */
   private void updateOptionsMenu() {
     if (mOptionsMenu != null) {
+
+      // Hide labels menu if not dual pane
+      if (!AppUtils.isDualPane()) {
+        MenuItem labelItem = mOptionsMenu.findItem(R.id.action_labels);
+        labelItem.setVisible(false);
+      }
 
       // enabled state of send button
       Boolean enabled = false;

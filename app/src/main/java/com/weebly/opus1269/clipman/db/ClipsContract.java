@@ -32,20 +32,22 @@ public class ClipsContract {
   /** Inner class that defines the Clip table */
   public static class Clip implements BaseColumns {
     public static final Uri CONTENT_URI = Uri.parse(AUTHORITY_URI + "/clip");
+    public static final Uri CONTENT_URI_JOIN = Uri.parse(AUTHORITY_URI +
+      "/clip_label_map_join");
+    public static final String TABLE_NAME = "clip";
     public static final String COL_TEXT = "text";
     public static final String COL_FAV = "fav";
     public static final String COL_DATE = "date";
     public static final String COL_REMOTE = "remote";
     public static final String COL_DEVICE = "device";
     public static final String[] FULL_PROJECTION = {
-      ClipsContract.Clip._ID,
+      TABLE_NAME + '.' + ClipsContract.Clip._ID,
       ClipsContract.Clip.COL_TEXT,
       ClipsContract.Clip.COL_DATE,
       ClipsContract.Clip.COL_FAV,
       ClipsContract.Clip.COL_REMOTE,
       ClipsContract.Clip.COL_DEVICE
     };
-    static final String TABLE_NAME = "clip";
 
     static String getDefaultSortOrder() {
       final String[] sorts =
@@ -64,13 +66,13 @@ public class ClipsContract {
 
   /** Inner class that defines the Label table */
   public static class Label implements BaseColumns {
+    public static final String TABLE_NAME = "label";
     public static final Uri CONTENT_URI = Uri.parse(AUTHORITY_URI + "/label");
     public static final String COL_NAME = "name";
     public static final String[] FULL_PROJECTION = {
       ClipsContract.Label._ID,
       ClipsContract.Label.COL_NAME,
     };
-    static final String TABLE_NAME = "label";
 
     static String getDefaultSortOrder() {
       return "LOWER(name) ASC";
@@ -83,6 +85,7 @@ public class ClipsContract {
   public static class LabelMap implements BaseColumns {
     public static final Uri CONTENT_URI =
       Uri.parse(AUTHORITY_URI + "/label_map");
+    public static final String TABLE_NAME = "label_map";
     public static final String COL_CLIP_ID = "clip_id";
     public static final String COL_LABEL_ID = "label_id";
     public static final String COL_CLIP_TEXT = "clip_text";
@@ -94,7 +97,6 @@ public class ClipsContract {
       ClipsContract.LabelMap.COL_CLIP_TEXT,
       ClipsContract.LabelMap.COL_LABEL_NAME,
     };
-    static final String TABLE_NAME = "label_map";
 
     static String getDefaultSortOrder() {
       return "LOWER(label_name) ASC";

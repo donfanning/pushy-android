@@ -181,6 +181,9 @@ public class Notifications {
       .getPendingIntent(Intents.ACTION_SHARE, id, clipItem);
     builder.addAction(R.drawable.ic_share, context.getString(R.string.action_share) + " ...", pendingIntent);
 
+    // clear label filter
+    Prefs.setLabelFilter("");
+
     final NotificationManager notificationManager = getManager();
     notificationManager.notify(id, builder.build());
   }

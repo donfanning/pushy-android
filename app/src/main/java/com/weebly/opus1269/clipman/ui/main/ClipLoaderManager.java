@@ -24,6 +24,7 @@ import android.view.View;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
@@ -55,7 +56,7 @@ class ClipLoaderManager implements
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    // Retrieve all columns
+    Uri Uri = ClipsContract.Clip.CONTENT_URI;
     final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
     final String queryString = mMainActivity.getQueryString();
     final String labelFilter = mMainActivity.getLabelFilter();
@@ -66,25 +67,33 @@ class ClipLoaderManager implements
 
     if (mMainActivity.getFavFilter()) {
       // filter by favorite setting selected
-      selection = selection + " AND (" + ClipsContract.Clip.COL_FAV + " == 1 )";
+      selection += " AND (" + ClipsContract.Clip.COL_FAV + " == 1 )";
     }
 
     String[] selectionArgs = null;
     if (!TextUtils.isEmpty(queryString)) {
       // filter by search query
-      selection = selection + " AND (" + ClipsContract.Clip.COL_TEXT +
+      selection += " AND (" + ClipsContract.Clip.COL_TEXT +
         " LIKE ? )";
       selectionArgs = new String[1];
       selectionArgs[0] = "%" + queryString + "%";
-
     }
-    selection = selection + ")";
+
+    if (!AppUtils.isWhitespace(labelFilter)) {
+      // speical Uri to fo JOIN
+      Uri = ClipsContract.Clip.CONTENT_URI_JOIN;
+      // filter by search query
+      selection += " AND (" + ClipsContract.LabelMap.COL_LABEL_NAME +
+        " == '" + labelFilter + "' )";
+    }
+
+    selection += ")";
 
     // Now create and return a CursorLoader that will take care of
     // creating a Cursor for the data being displayed.
     return new CursorLoader(
       mMainActivity,
-      ClipsContract.Clip.CONTENT_URI,
+      Uri,
       projection,
       selection,
       selectionArgs,
@@ -175,6 +184,7 @@ class ClipLoaderManager implements
     holder.clipItem.setFav(checked);
 
     cv.put(ClipsContract.Clip.COL_FAV, fav);
+    //ClipTable.INST.insert(holder.clipItem);
     mMainActivity.getContentResolver().update(uri, cv, null, null);
   }
 

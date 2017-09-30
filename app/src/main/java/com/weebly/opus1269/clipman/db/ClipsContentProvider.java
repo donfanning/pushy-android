@@ -23,6 +23,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 /** App private {@link ContentProvider} for the Clips.db */
 public class ClipsContentProvider extends ContentProvider {
@@ -38,6 +39,7 @@ public class ClipsContentProvider extends ContentProvider {
   private static final int LABEL_ID = 40;
   private static final int LABEL_MAP = 50;
   private static final int LABEL_MAP_ID = 60;
+  private static final int CLIP_LABEL_MAP_JOIN = 70;
   private static final UriMatcher URI_MATCHER =
     new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -48,6 +50,8 @@ public class ClipsContentProvider extends ContentProvider {
     URI_MATCHER.addURI(ClipsContract.AUTHORITY, "label/#", LABEL_ID);
     URI_MATCHER.addURI(ClipsContract.AUTHORITY, "label_map", LABEL_MAP);
     URI_MATCHER.addURI(ClipsContract.AUTHORITY, "label_map/#", LABEL_MAP_ID);
+    URI_MATCHER.addURI(ClipsContract.AUTHORITY, "clip_label_map_join",
+      CLIP_LABEL_MAP_JOIN);
   }
 
   /** Context we are running in */
@@ -63,6 +67,7 @@ public class ClipsContentProvider extends ContentProvider {
   public Cursor query(@NonNull Uri uri, String[] projection, String selection,
                       String[] selectionArgs, String sortOrder) {
 
+    Uri newUri = uri;
     String newSelection = selection;
     String newSortOrder = sortOrder;
     final SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
@@ -120,6 +125,21 @@ public class ClipsContentProvider extends ContentProvider {
         // the query
         newSelection += "and _ID = " + uri.getLastPathSegment();
         break;
+      case CLIP_LABEL_MAP_JOIN:
+        // special case for filtering by Label
+        final String table = ClipsContract.Clip.TABLE_NAME + " INNER JOIN " +
+          ClipsContract.LabelMap.TABLE_NAME + " ON " +
+          ClipsContract.Clip.TABLE_NAME + '.' +
+          ClipsContract.Clip._ID + " = " +
+          ClipsContract.LabelMap.TABLE_NAME + '.' +
+          ClipsContract.LabelMap.COL_CLIP_ID;
+        queryBuilder.setTables(table);
+        if (TextUtils.isEmpty(sortOrder)) {
+          newSortOrder = ClipsContract.Clip.getDefaultSortOrder();
+        }
+        // set to Clip Uri for notifications
+        newUri = ClipsContract.Clip.CONTENT_URI;
+         break;
       default:
         throw new IllegalArgumentException(UNKNOWN_URI + uri);
     }
@@ -137,7 +157,7 @@ public class ClipsContentProvider extends ContentProvider {
 
     // set notifier
     final ContentResolver resolver = mContext.getContentResolver();
-    cursor.setNotificationUri(resolver, uri);
+    cursor.setNotificationUri(resolver, newUri);
 
     return cursor;
   }
