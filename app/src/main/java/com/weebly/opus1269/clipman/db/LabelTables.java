@@ -35,7 +35,6 @@ public enum LabelTables {
     final ContentResolver resolver = context.getContentResolver();
 
     final String[] projection = {"*"};
-    //final String selection = "(" + ClipsContract.Label.COL_NAME + " == * )";
 
     // query for all
     final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
