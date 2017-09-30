@@ -69,6 +69,7 @@ public class ClipItem implements Serializable {
 
   public ClipItem(String text, ReadableInstant date, Boolean fav,
                   Boolean remote, String device) {
+    init();
     mText = text;
     mDate = new DateTime(date.getMillis());
     mFav = fav;
