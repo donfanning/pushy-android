@@ -259,8 +259,9 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.nav_labels_sub_menu:
         // all Labels items
-        final String labelName = item.getTitle().toString();
-        // TODO handle filtering
+        mLabelFilter = item.getTitle().toString();
+        // reload clips
+        getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.nav_error:
         startActivity(ErrorViewerActivity.class);
@@ -370,6 +371,10 @@ public class MainActivity extends BaseActivity implements
 
   Boolean getFavFilter() {
     return mFavFilter;
+  }
+
+  String getLabelFilter() {
+    return mLabelFilter;
   }
 
   String getQueryString() {

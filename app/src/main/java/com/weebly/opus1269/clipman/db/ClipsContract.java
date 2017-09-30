@@ -16,15 +16,13 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 
-/**
- * The contract between the {@link ClipsContentProvider} and applications.
- */
+/** The contract between the {@link ClipsContentProvider} and applications. */
 public class ClipsContract {
 
-  // The authority for the clip provider
+  /** The authority for the clip provider */
   static final String AUTHORITY = BuildConfig.APPLICATION_ID;
 
-  // A content:// style uri to the authority for the clip provider
+  /** A content:// style uri to the authority for the clip provider */
   private static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
 
   private ClipsContract() {
@@ -80,15 +78,19 @@ public class ClipsContract {
   }
 
   /**
-   * Inner class that defines mapping between {@link ClipItem} and {@link Label}
+   Inner class that defines mapping between {@link ClipItem} and {@link Label}
    */
   public static class LabelMap implements BaseColumns {
     public static final Uri CONTENT_URI =
       Uri.parse(AUTHORITY_URI + "/label_map");
+    public static final String COL_CLIP_ID = "clip_id";
+    public static final String COL_LABEL_ID = "label_id";
     public static final String COL_CLIP_TEXT = "clip_text";
     public static final String COL_LABEL_NAME = "label_name";
     public static final String[] FULL_PROJECTION = {
       ClipsContract.LabelMap._ID,
+      ClipsContract.LabelMap.COL_CLIP_ID,
+      ClipsContract.LabelMap.COL_LABEL_ID,
       ClipsContract.LabelMap.COL_CLIP_TEXT,
       ClipsContract.LabelMap.COL_LABEL_NAME,
     };

@@ -26,6 +26,32 @@ public enum LabelTables {
   INST;
 
   /**
+   * Get the Label row number
+   * @param label label to find
+   * @return table row, -1L if not found
+   */
+  public long getId(Label label) {
+    long ret = -1L;
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    final String[] projection = {ClipsContract.Label._ID};
+    final String selection = "(" + ClipsContract.Label.COL_NAME + " == ? )";
+    final String[] selectionArgs = {label.getName()};
+
+    final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      cursor.moveToNext();
+      ret = cursor.getLong(cursor.getColumnIndex(ClipsContract.Label._ID));
+      cursor.close();
+      return ret;
+    }
+    return ret;
+  }
+
+  /**
    * Get the labels
    * @return List of Labels
    */
@@ -82,6 +108,8 @@ public enum LabelTables {
     for (ClipItem clipItem : clipItems) {
       for (Label label : clipItem.getLabels()) {
         ContentValues cv = new ContentValues();
+        cv.put(ClipsContract.LabelMap.COL_CLIP_ID, ClipTable.INST.getId(clipItem));
+        cv.put(ClipsContract.LabelMap.COL_LABEL_ID, LabelTables.INST.getId(label));
         cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
         cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
         mapCVs[count] = cv;
@@ -119,8 +147,11 @@ public enum LabelTables {
 
     // insert into LabelMap table
     final ContentValues cv = new ContentValues();
+    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, ClipTable.INST.getId(clipItem));
+    cv.put(ClipsContract.LabelMap.COL_LABEL_ID, LabelTables.INST.getId(label));
     cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
+
     resolver.insert(ClipsContract.LabelMap.CONTENT_URI, cv);
 
     return true;

@@ -52,6 +52,8 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   private static final String SQL_CREATE_LABEL_MAP = "CREATE TABLE " +
     ClipsContract.LabelMap.TABLE_NAME + " (" +
     ClipsContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
+    ClipsContract.LabelMap.COL_CLIP_ID + INTEGER + "," +
+    ClipsContract.LabelMap.COL_LABEL_ID + INTEGER + "," +
     ClipsContract.LabelMap.COL_CLIP_TEXT + TEXT + "," +
     ClipsContract.LabelMap.COL_LABEL_NAME + TEXT + "," +
     " FOREIGN KEY (" + ClipsContract.LabelMap.COL_LABEL_NAME + ") " +
@@ -61,6 +63,14 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     " FOREIGN KEY (" + ClipsContract.LabelMap.COL_CLIP_TEXT + ") " +
     "REFERENCES " +
     ClipsContract.Clip.TABLE_NAME + "(" + ClipsContract.Clip.COL_TEXT + ")" +
+    " ON DELETE CASCADE" + " ON UPDATE CASCADE" + "," +
+    " FOREIGN KEY (" + ClipsContract.LabelMap.COL_LABEL_ID + ") " +
+    "REFERENCES " +
+    ClipsContract.Label.TABLE_NAME + "(" + ClipsContract.Label._ID + ")" +
+    " ON DELETE CASCADE" + " ON UPDATE CASCADE" + "," +
+    " FOREIGN KEY (" + ClipsContract.LabelMap.COL_CLIP_ID + ") " +
+    "REFERENCES " +
+    ClipsContract.Clip.TABLE_NAME + "(" + ClipsContract.Clip._ID + ")" +
     " ON DELETE CASCADE"  + " ON UPDATE CASCADE" +
     " );";
 
@@ -172,7 +182,10 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     db.replace(ClipsContract.Label.TABLE_NAME, null, label.getContentValues());
 
     // Attach Label to ClipItem
+    // TODO wont work on update
     ContentValues cv = new ContentValues();
+    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, 3L);
+    cv.put(ClipsContract.LabelMap.COL_LABEL_ID, 1L);
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
     cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
     db.replace(ClipsContract.LabelMap.TABLE_NAME, null, cv);

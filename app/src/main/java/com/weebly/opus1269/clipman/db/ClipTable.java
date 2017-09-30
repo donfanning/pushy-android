@@ -28,6 +28,32 @@ public enum ClipTable {
   INST;
 
   /**
+   * Get the ClipItem row number
+   * @param clipItem clip to check
+   * @return table row, -1L if not found
+   */
+  public long getId(ClipItem clipItem) {
+    long ret = -1L;
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    final String[] projection = {ClipsContract.Clip._ID};
+    final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
+    final String[] selectionArgs = {clipItem.getText()};
+
+    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      cursor.moveToNext();
+      ret = cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip._ID));
+      cursor.close();
+      return ret;
+    }
+    return ret;
+  }
+
+  /**
    * Get the non-favorite and optionally favorite rows in the database
    * @param includeFavs flag to indicate if favorites should be retrieved too
    * @return Array of {@link ClipItem} objects
@@ -107,10 +133,7 @@ public enum ClipTable {
       return false;
     }
 
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-
-    if (onNewOnly && exists(resolver, clipItem)) {
+    if (onNewOnly && exists(clipItem)) {
       // already exists
       return false;
     }
@@ -210,23 +233,11 @@ public enum ClipTable {
 
   /**
    * Does the ClipItem exist
-   * @param resolver to db
    * @param clipItem clip to check
    * @return if true, clip exists
    */
-  private boolean exists(ContentResolver resolver, ClipItem clipItem) {
-    final String[] projection = {ClipsContract.Clip.COL_TEXT};
-    final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
-    final String[] selectionArgs = {clipItem.getText()};
-
-    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
-      projection, selection, selectionArgs, null);
-
-    if ((cursor != null) && (cursor.getCount() > 0)) {
-      // found it
-      cursor.close();
-      return true;
-    }
-    return false;
+  private boolean exists(ClipItem clipItem) {
+    final long row = getId(clipItem);
+    return (row != -1L);
   }
 }
