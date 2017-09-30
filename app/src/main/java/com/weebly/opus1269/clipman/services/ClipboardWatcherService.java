@@ -27,7 +27,7 @@ import com.weebly.opus1269.clipman.model.Notifications;
 /**
  * An app private {@link Service} to listen for changes to the clipboard,
  * persist them to storage using {@link ClipsContentProvider} and push them to
- * registered fcm devices
+ * registered FCM devices
  */
 public class ClipboardWatcherService extends Service implements
   ClipboardManager.OnPrimaryClipChangedListener {
@@ -117,19 +117,16 @@ public class ClipboardWatcherService extends Service implements
   }
 
   /**
-   * Read the clipboard, then write to database asynchronously.
-   * DO NOT read clipboard in AsyncTask, you will regret it my boy.
-   * @param onNewOnly if true only update database if the current contents don't
-   *                  exit
+   * Read the clipboard and process the result based on what is there.
+   * @param onNewOnly if true only update database if text is new
    */
   private void processClipboard(boolean onNewOnly) {
-    final ClipItem clipItem =
-      ClipItem.getFromClipboard(mClipboard);
+    final ClipItem clipItem = ClipItem.getFromClipboard(mClipboard);
     final long now = System.currentTimeMillis();
     final long deltaTime = now - mLastTime;
     mLastTime = now;
 
-    if ((clipItem == null) || TextUtils.isEmpty(clipItem.getText())) {
+    if ((clipItem == null) || AppUtils.isWhitespace(clipItem.getText())) {
       mLastText = "";
       return;
     }
@@ -144,49 +141,33 @@ public class ClipboardWatcherService extends Service implements
       if (deltaTime > MIN_TIME_MILLIS) {
         // only handle identical local copies this fast
         // some apps (at least Chrome) write to clipboard twice.
-        new StoreClipAsyncTask(clipItem).executeMe(onNewOnly);
+        saveAndSend(clipItem, onNewOnly);
       }
     } else {
       // normal situation, fire away
-      new StoreClipAsyncTask(clipItem).executeMe(onNewOnly);
+      saveAndSend(clipItem, onNewOnly);
     }
     mLastText = clipItem.getText();
   }
 
   /**
-   * AsyncTask to write to the Clip database
+   * Save to db and send to remote devices
+   * @param clipItem item
+   * @param onNewOnly only save if the text doesn't exist
    */
-  private class StoreClipAsyncTask extends ThreadedAsyncTask<Boolean, Void,
-    Void> {
-    final ClipItem mClipItem;
-    boolean mResult;
-
-    StoreClipAsyncTask(ClipItem clipItem) {
-      mClipItem = clipItem;
+  private void saveAndSend(ClipItem clipItem, boolean onNewOnly) {
+    boolean saved;
+    if (onNewOnly) {
+      saved = clipItem.saveIfNew();
+    } else {
+      saved = clipItem.save();
     }
 
-    @Override
-    protected Void doInBackground(Boolean... params) {
-      final Boolean onNewOnly = params[0];
-      if (onNewOnly) {
-        mResult = mClipItem.saveIfNew();
-      } else {
-        mResult = mClipItem.save();
-      }
-      return null;
-    }
+    if (saved) {
+      Notifications.show(clipItem);
 
-    @Override
-    protected void onPostExecute(Void aVoid) {
-      super.onPostExecute(aVoid);
-      if (mResult) {
-        // display notification if requested by user
-        Notifications.show(mClipItem);
-
-        if (!mClipItem.isRemote() && Prefs.isAutoSend()) {
-          // send local copy to server for delivery
-          mClipItem.send();
-        }
+      if (!clipItem.isRemote() && Prefs.isAutoSend()) {
+        clipItem.send();
       }
     }
   }
