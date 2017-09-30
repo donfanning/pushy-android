@@ -18,9 +18,45 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Singleton to manage the Clips.db Label and LabelMap tables */
 public enum LabelTables {
   INST;
+
+  /**
+   * Get the labels
+   * @return List of Labels
+   */
+  public static List<Label> getLabels() {
+    final ArrayList<Label> list = new ArrayList<>(0);
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    final String[] projection = {"*"};
+    //final String selection = "(" + ClipsContract.Label.COL_NAME + " == * )";
+
+    // query for all
+    final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
+      projection, null, null, null);
+
+    if ((cursor == null) || (cursor.getCount() <= 0)) {
+      // no Labels
+      return list;
+    }
+
+    try {
+      while (cursor.moveToNext()) {
+        final int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
+        list.add(new Label(cursor.getString(idx)));
+      }
+    } finally {
+      cursor.close();
+    }
+
+    return list;
+  }
 
   /**
    * Add the {@link Label} map for a group of {@link ClipItem} objects to the

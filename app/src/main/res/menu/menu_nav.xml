@@ -32,21 +32,34 @@
     android:id="@+id/nav_labels_edit"
     android:enabled="true"
     android:icon="@drawable/ic_label"
-    android:title="@string/nav_labels" />
-  <item
-    android:id="@+id/nav_settings"
-    android:icon="@drawable/ic_settings_black_24dp"
-    android:title="@string/nav_settings" />
-  <item
-    android:id="@+id/nav_error"
-    android:icon="@drawable/ic_error"
-    android:title="@string/nav_error" />
-  <item
-    android:id="@+id/nav_help"
-    android:icon="@drawable/ic_help_black_24dp"
-    android:title="@string/nav_help" />
+    android:title="@string/nav_labels_manage" />
 
-  <group android:id="@+id/extras">
+  <group android:id="@+id/nav_group_labels">
+    <item
+      android:id="@+id/nav_labels_sub_menu"
+      android:enabled="true"
+      android:title="@string/nav_labels"
+      android:visible="true">
+      <menu></menu>
+    </item>
+  </group>
+
+  <group android:id="@+id/nav_group_settings_help">
+    <item
+      android:id="@+id/nav_settings"
+      android:icon="@drawable/ic_settings_black_24dp"
+      android:title="@string/nav_settings" />
+    <item
+      android:id="@+id/nav_error"
+      android:icon="@drawable/ic_error"
+      android:title="@string/nav_error" />
+    <item
+      android:id="@+id/nav_help"
+      android:icon="@drawable/ic_help_black_24dp"
+      android:title="@string/nav_help" />
+  </group>
+
+  <group android:id="@+id/nav_group_one_off">
     <item
       android:id="@+id/nav_chrome_extension"
       android:icon="@drawable/ic_extension_black_24dp"

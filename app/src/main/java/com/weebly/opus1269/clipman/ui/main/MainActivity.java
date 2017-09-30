@@ -26,14 +26,20 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
+import android.widget.BaseAdapter;
+import android.widget.HeaderViewListAdapter;
+import android.widget.ListView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipTable;
+import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -49,6 +55,8 @@ import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
+
+import java.util.List;
 
 /** Top level Activity for the app */
 public class MainActivity extends BaseActivity implements
@@ -590,6 +598,13 @@ public class MainActivity extends BaseActivity implements
     // set Error Viewer menu state
     menuItem = menu.findItem(R.id.nav_error);
     menuItem.setEnabled(LastError.exists());
+
+    SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
+    List<Label> labels = LabelTables.getLabels();
+    for (Label label : labels) {
+      final MenuItem labelItem = labelMenu.add(label.getName());
+      labelItem.setIcon(R.drawable.ic_label);
+    }
 
     User.INST.setNavigationHeaderView(hView);
   }
