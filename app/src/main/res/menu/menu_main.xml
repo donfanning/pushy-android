@@ -31,15 +31,15 @@
     app:showAsAction="ifRoom" />
 
   <item
-    android:id="@+id/action_sort"
-    android:icon="@drawable/ic_sort_black_24dp"
-    android:title="@string/action_sort"
-    app:showAsAction="ifRoom" />
-
-  <item
     android:id="@+id/action_labels"
     android:icon="@drawable/ic_label"
     android:title="@string/action_labels_select"
+    app:showAsAction="ifRoom" />
+
+  <item
+    android:id="@+id/action_sort"
+    android:icon="@drawable/ic_sort_black_24dp"
+    android:title="@string/action_sort"
     app:showAsAction="ifRoom" />
 
   <item
