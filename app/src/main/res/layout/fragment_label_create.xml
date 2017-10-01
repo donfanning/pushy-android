@@ -47,6 +47,7 @@
       android:layout_toStartOf="@+id/addDoneButton"
       android:hint="@string/label_create_hint"
       android:inputType="textCapWords"
+      android:imeOptions="actionDone"
       android:maxLength="32"
       android:maxLines="1"
       android:textAppearance="?attr/textAppearanceListItem"

@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,22 +17,22 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-/**
- * Fragment to Create a new {@link Label}.
- */
+/** Fragment to Create a new {@link Label} */
 public class LabelCreateFragement extends Fragment implements
+  TextView.OnEditorActionListener,
   View.OnClickListener,
-  View.OnKeyListener,
   TextWatcher {
 
   public LabelCreateFragement() {
@@ -59,21 +58,38 @@ public class LabelCreateFragement extends Fragment implements
   }
 
   @Override
+  public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+    if (textView.getId() == R.id.addText) {
+      if (id == EditorInfo.IME_ACTION_DONE) {
+        doneAction();
+        return true;
+      } else if (keyEvent != null) {
+        final int keyAction = keyEvent.getAction();
+        if (keyAction == KeyEvent.ACTION_DOWN) {
+          // eat it
+          return true;
+        } else if (keyAction == KeyEvent.ACTION_UP) {
+          doneAction();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
   public void onClick(View view) {
     if (view.getId() == R.id.addDoneButton) {
-      final EditText editText = getActivity().findViewById(R.id.addText);
-      addLabel(editText);
+      doneAction();
     }
   }
 
   @Override
-  public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+  public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
   }
 
   @Override
-  public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+  public void onTextChanged(CharSequence text, int i, int i1, int i2) {
   }
 
   @Override
@@ -83,24 +99,6 @@ public class LabelCreateFragement extends Fragment implements
     final String text = editable.toString();
     final boolean enabled = (TextUtils.getTrimmedLength(text) > 0);
     DrawableHelper.setImageViewEnabled(doneButton, enabled);
-  }
-
-  @Override
-  public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-    if (view.getId() == R.id.addText) {
-      if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) &&
-        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-        addLabel((EditText) view);
-        // dismiss keyboard
-        InputMethodManager imm = (InputMethodManager)
-          getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        return true;
-      }
-      return false;
-    }
-
-    return false;
   }
 
   private void setup(View rootView) {
@@ -113,9 +111,9 @@ public class LabelCreateFragement extends Fragment implements
     // listen for clicks
     addDoneButton.setOnClickListener(this);
 
-    // listen for text changes and key presses
+    // listen for text changes and actions
     addText.addTextChangedListener(this);
-    addText.setOnKeyListener(this);
+    addText.setOnEditorActionListener(this);
 
     DrawableHelper.setImageViewEnabled(addDoneButton, false);
 
@@ -145,16 +143,19 @@ public class LabelCreateFragement extends Fragment implements
       .applyTo(addDoneButton);
   }
 
-  private boolean addLabel(EditText editText) {
+  /** Handle label creation */
+  private boolean doneAction() {
     boolean ret = false;
+    final EditText editText = getActivity().findViewById(R.id.addText);
     String text = editText.getText().toString();
-    if (!TextUtils.isEmpty(text)) {
+    if (!AppUtils.isWhitespace(text)) {
       text = text.trim();
-      if (text.length() > 0) {
-        final Label label = new Label(text);
-        ret = label.save();
+      ret = new Label(text).save();
+      if (ret) {
+        editText.setText("");
       }
     }
     return ret;
   }
 }
+
