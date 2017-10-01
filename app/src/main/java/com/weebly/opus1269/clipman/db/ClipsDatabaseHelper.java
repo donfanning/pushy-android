@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.db;
 
-import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,10 +18,7 @@ import com.weebly.opus1269.clipman.model.Label;
 
 import org.joda.time.DateTime;
 
-/**
- * A helper class to manage the Clips.db database creation and version
- * management.
- */
+/** Manage access to and versioning of the Clips.db */
 public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   // If you change the database schema, you must increment the database version.
   private static final int DATABASE_VERSION = 2;
@@ -84,6 +80,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     db.execSQL(SQL_CREATE_LABEL);
     db.execSQL(SQL_CREATE_LABEL_MAP);
 
+    // add some descriptive entries
     initDbRows(db);
   }
 
@@ -94,6 +91,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
       db.execSQL(SQL_CREATE_LABEL);
       db.execSQL(SQL_CREATE_LABEL_MAP);
 
+      // show how the new Label feature works
       createExampleLabel(db, DateTime.now().getMillis());
     }
   }
@@ -104,8 +102,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   }
 
   /**
-   * Initialize the database with some app information and what is on the
-   * clipboard
+   * Initialize the database with some app information
    * @param db the Clips.db database
    */
   private void initDbRows(SQLiteDatabase db) {
@@ -171,7 +168,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     final Label label = new Label("Example");
     db.replace(ClipsContract.Label.TABLE_NAME, null, label.getContentValues());
 
-    // Attach Label to ClipItem
+    // Add to map table
     if (clipId != -1L) {
       ContentValues cv = new ContentValues();
       cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipId);
