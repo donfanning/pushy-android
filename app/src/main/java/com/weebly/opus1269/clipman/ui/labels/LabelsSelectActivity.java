@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
@@ -16,7 +17,7 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
-public class LabelsSelectActivity extends BaseActivity  {
+public class LabelsSelectActivity extends BaseActivity {
 
   /** Saved state for mClipItem */
   private static final String STATE_CLIP_ITEM = "clipItem";
@@ -34,6 +35,11 @@ public class LabelsSelectActivity extends BaseActivity  {
 
     super.onCreate(savedInstanceState);
 
+    final ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setHomeAsUpIndicator(R.drawable.ic_clear);
+    }
+
     if (savedInstanceState == null) {
       mClipItem =
         (ClipItem) getIntent().getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
@@ -46,6 +52,13 @@ public class LabelsSelectActivity extends BaseActivity  {
   }
 
   @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
+  }
+
+  @Override
   protected void onResume() {
     super.onResume();
 
@@ -53,21 +66,14 @@ public class LabelsSelectActivity extends BaseActivity  {
   }
 
   @Override
-  protected void onPause() {
-    super.onPause();
+  public boolean onSupportNavigateUp() {
+    // close this activity as opposed to navigating up
+    finish();
 
+    return false;
   }
 
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-
-    outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
-  }
-
-  ClipItem getClipItem() {
-    return mClipItem;
-  }
+  ClipItem getClipItem() {return mClipItem;}
 
   /**
    * Connect the {@link LabelsEditAdapter} to the {@link RecyclerView}

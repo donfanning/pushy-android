@@ -29,7 +29,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
-import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorViewHolder;
+import com.androidessence.recyclerviewcursoradapter
+  .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -40,7 +41,8 @@ import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 /**
  * Bridge between the RecyclerView and the DB
  */
-class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.LabelViewHolder> {
+class LabelsSelectAdapter extends
+  RecyclerViewCursorAdapter<LabelsSelectAdapter.LabelViewHolder> {
 
   private final LabelsSelectActivity mActivity;
 
@@ -115,8 +117,8 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
 
   }
 
+  /** needed to allow animations to run */
   @Override
-  // needed to allow animations to run
   public long getItemId(int position) {
     return mCursorAdapter.getItemId(position);
   }
@@ -124,7 +126,7 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
   /**
    * Add or remove a {@link Label} to our {@link ClipItem}
    * @param checked if true, add
-   * @param label label to add or remove
+   * @param label   label to add or remove
    */
   private void addOrRemoveLabel(boolean checked, Label label) {
     final ClipItem clipItem = mActivity.getClipItem();
@@ -154,18 +156,6 @@ class LabelsSelectAdapter extends RecyclerViewCursorAdapter<LabelsSelectAdapter.
       .withDrawable(R.drawable.ic_label)
       .tint()
       .applyTo(holder.labelImage);
-
-//    if (Prefs.isLightTheme()) {
-//      color = android.R.color.primary_text_light;
-//    } else {
-//      color = android.R.color.primary_text_dark;
-//    }
-//    DrawableHelper
-//      .withContext(context)
-//      .withColor(color)
-//      .withDrawable(R.drawable.ic_clear_black_24dp)
-//      .tint()
-//      .applyTo(holder.deleteButton);
   }
 
   static class LabelViewHolder extends RecyclerViewCursorViewHolder {

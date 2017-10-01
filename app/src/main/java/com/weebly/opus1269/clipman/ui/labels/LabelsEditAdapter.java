@@ -24,7 +24,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,12 +95,10 @@ class LabelsEditAdapter extends
     labelEditText.setText(holder.label.getName());
     labelEditText.addTextChangedListener(new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
-      }
+      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {}
 
       @Override
-      public void onTextChanged(CharSequence text, int i, int i1, int i2) {
-      }
+      public void onTextChanged(CharSequence text, int i, int i1, int i2) {}
 
       @Override
       public void afterTextChanged(Editable editable) {
@@ -152,8 +149,8 @@ class LabelsEditAdapter extends
     );
   }
 
+  /** needed to allow animations to run */
   @Override
-  // needed to allow animations to run
   public long getItemId(int position) {
     return mCursorAdapter.getItemId(position);
   }
@@ -195,14 +192,12 @@ class LabelsEditAdapter extends
     DrawableHelper
       .withContext(context)
       .withColor(color)
-      .withDrawable(R.drawable.ic_clear_black_24dp)
+      .withDrawable(R.drawable.ic_clear)
       .tint()
       .applyTo(holder.deleteButton);
   }
 
-  /**
-   * Display {@link AlertDialog} on {@link Label}
-   */
+  /** Display {@link AlertDialog} on {@link Label} delete */
   private void showDeleteDialog() {
     AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 
