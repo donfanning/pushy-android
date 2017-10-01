@@ -24,7 +24,6 @@ import android.view.View;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
@@ -176,15 +175,15 @@ class ClipLoaderManager implements
 
   private void onFavClicked(ClipCursorAdapter.ClipViewHolder holder) {
     final boolean checked = holder.favCheckBox.isChecked();
+
+    holder.clipItem.setFav(checked);
+
+    // update database
     final long fav = checked ? 1 : 0;
     final Uri uri = ContentUris.withAppendedId(ClipsContract.Clip
       .CONTENT_URI, holder.itemID);
     final ContentValues cv = new ContentValues();
-
-    holder.clipItem.setFav(checked);
-
     cv.put(ClipsContract.Clip.COL_FAV, fav);
-    //ClipTable.INST.insert(holder.clipItem);
     mMainActivity.getContentResolver().update(uri, cv, null, null);
   }
 
