@@ -422,9 +422,7 @@ public class MainActivity extends BaseActivity implements
     }
   }
 
-  /**
-   * Process intents we know about
-   */
+  /** Process intents we know about */
   private void handleIntent() {
     final Intent intent = getIntent();
     final String action = intent.getAction();
@@ -472,32 +470,24 @@ public class MainActivity extends BaseActivity implements
     AppUtils.startActivity(this, intent);
   }
 
-  /**
-   * Send the clipboard contents to our {@link Devices}
-   */
+  /** Send the clipboard contents to our {@link Devices} */
   private void sendClipboardContents() {
     ClipItem.sendClipboardContents(findViewById(R.id.fab));
   }
 
-  /**
-   * Show the {@link DeleteDialogFragment} for verifying delete all
-   */
+  /** Show the {@link DeleteDialogFragment} for verifying delete all */
   private void showDeleteDialog() {
     final DialogFragment dialog = new DeleteDialogFragment();
     dialog.show(getSupportFragmentManager(), "DeleteDialogFragment");
   }
 
-  /**
-   * Show the {@link SortTypeDialogFragment} for selecting list sort type
-   */
+  /** Show the {@link SortTypeDialogFragment} for selecting list sort type */
   private void showSortTypeDialog() {
     final DialogFragment dialog = new SortTypeDialogFragment();
     dialog.show(getSupportFragmentManager(), "SortTypeDialogFragment");
   }
 
-  /**
-   * Initialize the NavigationView
-   */
+  /** Initialize the NavigationView */
   private void setupNavigationView() {
     final NavigationView navigationView =
       findViewById(R.id.nav_view);
@@ -593,9 +583,7 @@ public class MainActivity extends BaseActivity implements
     User.INST.setNavigationHeaderView(hView);
   }
 
-  /**
-   * Set Option Menu icons enabled state
-   */
+  /** Set Option Menu icons enabled state */
   private void updateOptionsMenu() {
     if (mOptionsMenu != null) {
 
