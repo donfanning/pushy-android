@@ -37,6 +37,7 @@ import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.androidessence.recyclerviewcursoradapter
   .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.Label;
@@ -95,21 +96,17 @@ class LabelsEditAdapter extends
     labelEditText.setText(holder.label.getName());
     labelEditText.addTextChangedListener(new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence charSequence,
-                                    int i, int i1, int i2) {
-
+      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
       }
 
       @Override
-      public void onTextChanged(CharSequence charSequence,
-                                int i, int i1, int i2) {
-
+      public void onTextChanged(CharSequence text, int i, int i1, int i2) {
       }
 
       @Override
       public void afterTextChanged(Editable editable) {
         final String text = editable.toString();
-        if (TextUtils.isEmpty(text)) {
+        if (AppUtils.isWhitespace(text)) {
           // reset to current value
           holder.labelEditText.setText(holder.label.getName());
           DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
@@ -129,10 +126,12 @@ class LabelsEditAdapter extends
           if (text.length() > 0) {
             if (!text.equals(holder.label.getName())) {
               // update db
-              Label newLabel = new Label(text);
-              LabelTables.INST.change(newLabel, holder.label);
-              DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
+              LabelTables.INST.change(new Label(text), holder.label);
+              // update label
+              holder.label.setName(text);
             }
+            labelEditText.setText(holder.label.getName());
+            DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
           } else {
             // reset to orginal value
             labelEditText.setText(holder.label.getName());
