@@ -119,9 +119,9 @@ public class Notifications {
    * @param clipItem the {@link ClipItem} to display notification for
    */
   public static void show(ClipItem clipItem) {
-    if ((clipItem == null) ||
-      TextUtils.isEmpty(clipItem.getText()) ||
-      App.isMainActivityVisible() ||
+    final String labelFilter = Prefs.getLabelFilter();
+    if (ClipItem.isWhitespace(clipItem) ||
+      (App.isMainActivityVisible() && TextUtils.isEmpty(labelFilter)) ||
       (clipItem.isRemote() && !Prefs.isNotifyRemote()) ||
       (!clipItem.isRemote() && !Prefs.isNotifyLocal())) {
       return;
