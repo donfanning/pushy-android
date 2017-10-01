@@ -88,13 +88,11 @@ public class ClipsContract {
     public static final String TABLE_NAME = "label_map";
     public static final String COL_CLIP_ID = "clip_id";
     public static final String COL_LABEL_ID = "label_id";
-    public static final String COL_CLIP_TEXT = "clip_text";
     public static final String COL_LABEL_NAME = "label_name";
     public static final String[] FULL_PROJECTION = {
       ClipsContract.LabelMap._ID,
       ClipsContract.LabelMap.COL_CLIP_ID,
       ClipsContract.LabelMap.COL_LABEL_ID,
-      ClipsContract.LabelMap.COL_CLIP_TEXT,
       ClipsContract.LabelMap.COL_LABEL_NAME,
     };
 

@@ -54,15 +54,10 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     ClipsContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
     ClipsContract.LabelMap.COL_CLIP_ID + INTEGER + "," +
     ClipsContract.LabelMap.COL_LABEL_ID + INTEGER + "," +
-    ClipsContract.LabelMap.COL_CLIP_TEXT + TEXT + "," +
     ClipsContract.LabelMap.COL_LABEL_NAME + TEXT + "," +
     " FOREIGN KEY (" + ClipsContract.LabelMap.COL_LABEL_NAME + ") " +
     "REFERENCES " +
     ClipsContract.Label.TABLE_NAME + "(" + ClipsContract.Label.COL_NAME + ")" +
-    " ON DELETE CASCADE" + " ON UPDATE CASCADE" + "," +
-    " FOREIGN KEY (" + ClipsContract.LabelMap.COL_CLIP_TEXT + ") " +
-    "REFERENCES " +
-    ClipsContract.Clip.TABLE_NAME + "(" + ClipsContract.Clip.COL_TEXT + ")" +
     " ON DELETE CASCADE" + " ON UPDATE CASCADE" + "," +
     " FOREIGN KEY (" + ClipsContract.LabelMap.COL_LABEL_ID + ") " +
     "REFERENCES " +
@@ -187,7 +182,6 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     cv.put(ClipsContract.LabelMap.COL_CLIP_ID, 3L);
     cv.put(ClipsContract.LabelMap.COL_LABEL_ID, 1L);
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
-    cv.put(ClipsContract.LabelMap.COL_CLIP_TEXT, clipItem.getText());
     db.replace(ClipsContract.LabelMap.TABLE_NAME, null, cv);
   }
 }
