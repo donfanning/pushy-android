@@ -58,7 +58,7 @@
     android:layout_centerVertical="true"
     android:background="@android:color/transparent"
     android:contentDescription="@string/device_forget"
-    app:srcCompat="@drawable/ic_clear_black_24dp" />
+    app:srcCompat="@drawable/ic_clear" />
 
 </RelativeLayout>
 
