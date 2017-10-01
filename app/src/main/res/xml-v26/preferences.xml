@@ -74,7 +74,7 @@
       android:summary="@string/pref_desc_nickname_fmt"
       android:dialogTitle="@string/pref_title_nickname"
       android:hint="@string/pref_nickname_hint"
-      android:inputType="text"
+      android:inputType="textCapWords"
       android:maxLength="32"
       android:maxLines="1" />
 
