@@ -33,7 +33,7 @@
       android:layout_gravity="end"
       android:background="@android:color/transparent"
       android:contentDescription="@string/device_forget"
-      app:srcCompat="@drawable/ic_clear_black_24dp" />
+      app:srcCompat="@drawable/ic_clear" />
 
     <TextView
       android:id="@+id/deviceText"

@@ -33,10 +33,9 @@ import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-/**
- * Bridge between the Devices RecyclerView and the Devices class
- */
-class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
+/** Bridge between the Devices RecyclerView and the Devices class */
+class DevicesAdapter extends
+  RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
 
   @Override
   public DeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -60,16 +59,19 @@ class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolde
     final Device device = Devices.get(position);
 
     final String desc =
-      context.getString(R.string.device_nickname_fmt, device.getNickname()) + '\n' +
+      context.getString(R.string.device_nickname_fmt, device.getNickname()) +
+        '\n' +
         context.getString(R.string.device_model_fmt, device.getModel()) + '\n' +
         context.getString(R.string.device_SN_fmt, device.getSN()) + '\n' +
         context.getString(R.string.device_OS_fmt, device.getOS());
     final TextView deviceTextView = holder.deviceTextView;
     deviceTextView.setText(desc);
 
-    final CharSequence value = AppUtils.getRelativeDisplayTime(device.getLastSeen());
+    final CharSequence value =
+      AppUtils.getRelativeDisplayTime(device.getLastSeen());
     final TextView lastSeenTextView = holder.lastSeenTextView;
-    lastSeenTextView.setText(context.getString(R.string.device_last_seen_fmt, value));
+    lastSeenTextView.setText(context.getString(R.string.device_last_seen_fmt,
+      value));
 
     holder.forgetButton.setOnClickListener(
       new View.OnClickListener() {
@@ -82,9 +84,7 @@ class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolde
   }
 
   @Override
-  public int getItemCount() {
-    return Devices.getCount();
-  }
+  public int getItemCount() {return Devices.getCount();}
 
   /**
    * Color the Vector Drawables based on theme
@@ -103,7 +103,7 @@ class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolde
     DrawableHelper
       .withContext(context)
       .withColor(color)
-      .withDrawable(R.drawable.ic_clear_black_24dp)
+      .withDrawable(R.drawable.ic_clear)
       .tint()
       .applyTo(holder.forgetButton);
   }
