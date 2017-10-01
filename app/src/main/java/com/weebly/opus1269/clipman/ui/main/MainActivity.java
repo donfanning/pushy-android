@@ -84,7 +84,6 @@ public class MainActivity extends BaseActivity implements
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-
     mLayoutID = R.layout.activity_main;
 
     // We are the big dog, no need for this
@@ -205,6 +204,16 @@ public class MainActivity extends BaseActivity implements
   }
 
   @Override
+  public void onBackPressed() {
+    if (!TextUtils.isEmpty(mLabelFilter)) {
+      // if filtered, create unfiltered MainActivity on Back
+      Prefs.setLabelFilter("");
+      startActivity(MainActivity.class);
+      finish();
+    }
+  }
+
+  @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     boolean processed = true;
 
@@ -270,6 +279,7 @@ public class MainActivity extends BaseActivity implements
         if (!AppUtils.isWhitespace(mLabelFilter)) {
           Prefs.setLabelFilter("");
           startActivity(MainActivity.class);
+          finish();
         }
         break;
       case Menu.NONE:
@@ -278,6 +288,7 @@ public class MainActivity extends BaseActivity implements
         if (!label.equals(mLabelFilter)) {
           Prefs.setLabelFilter(label);
           startActivity(MainActivity.class);
+          finish();
         }
         break;
       case R.id.nav_error:
@@ -304,9 +315,7 @@ public class MainActivity extends BaseActivity implements
     return true;
   }
 
-  /**
-   * Set NavigationView header aspect ratio to 16:9
-   */
+  /** Set NavigationView header aspect ratio to 16:9 */
   @Override
   public void onLayoutChange(View v, int left, int top, int right, int bottom,
                              int oldLeft, int oldTop, int oldRight,
@@ -386,21 +395,13 @@ public class MainActivity extends BaseActivity implements
     }
   }
 
-  Boolean getFavFilter() {
-    return mFavFilter;
-  }
+  Boolean getFavFilter() {return mFavFilter;}
 
-  String getLabelFilter() {
-    return mLabelFilter;
-  }
+  String getLabelFilter() {return mLabelFilter;}
 
-  String getQueryString() {
-    return mQueryString;
-  }
+  String getQueryString() {return mQueryString;}
 
-  ClipLoaderManager getClipLoaderManager() {
-    return mLoaderManager;
-  }
+  ClipLoaderManager getClipLoaderManager() {return mLoaderManager;}
 
   /**
    * Start the {@link ClipViewerActivity}
