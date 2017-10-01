@@ -194,6 +194,15 @@ public class ClipItem implements Serializable {
   }
 
   /**
+   * Is a {@link ClipItem} all whitespace
+   * @param clipItem item
+   * @return true if null of whitespace
+   */
+  public static boolean isWhitespace(ClipItem clipItem) {
+    return (clipItem == null) || AppUtils.isWhitespace(clipItem.getText());
+  }
+
+  /**
    * Parse the fav state from the {@link ClipDescription}
    * @param desc The item's {@link ClipDescription}
    * @return The fav state
