@@ -53,15 +53,10 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     ClipsContract.LabelMap.TABLE_NAME + " (" +
     ClipsContract.LabelMap._ID + " INTEGER PRIMARY KEY" + "," +
     ClipsContract.LabelMap.COL_CLIP_ID + INTEGER + "," +
-    ClipsContract.LabelMap.COL_LABEL_ID + INTEGER + "," +
     ClipsContract.LabelMap.COL_LABEL_NAME + TEXT + "," +
     " FOREIGN KEY (" + ClipsContract.LabelMap.COL_LABEL_NAME + ") " +
     "REFERENCES " +
     ClipsContract.Label.TABLE_NAME + "(" + ClipsContract.Label.COL_NAME + ")" +
-    " ON DELETE CASCADE" + " ON UPDATE CASCADE" + "," +
-    " FOREIGN KEY (" + ClipsContract.LabelMap.COL_LABEL_ID + ") " +
-    "REFERENCES " +
-    ClipsContract.Label.TABLE_NAME + "(" + ClipsContract.Label._ID + ")" +
     " ON DELETE CASCADE" + " ON UPDATE CASCADE" + "," +
     " FOREIGN KEY (" + ClipsContract.LabelMap.COL_CLIP_ID + ") " +
     "REFERENCES " +
@@ -169,7 +164,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     clipItem.setText(mContext.getString(R.string.default_clip_6));
     clipItem.setFav(true);
     clipItem.setDate(time);
-    db.replace(ClipsContract.Clip.TABLE_NAME, null,
+    final long clipId = db.replace(ClipsContract.Clip.TABLE_NAME, null,
       clipItem.getContentValues());
 
     // add new Label - has to come after ClipItem here
@@ -177,11 +172,11 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     db.replace(ClipsContract.Label.TABLE_NAME, null, label.getContentValues());
 
     // Attach Label to ClipItem
-    // TODO wont work on update
-    ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, 3L);
-    cv.put(ClipsContract.LabelMap.COL_LABEL_ID, 1L);
-    cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
-    db.replace(ClipsContract.LabelMap.TABLE_NAME, null, cv);
+    if (clipId != -1L) {
+      ContentValues cv = new ContentValues();
+      cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipId);
+      cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
+      db.replace(ClipsContract.LabelMap.TABLE_NAME, null, cv);
+    }
   }
 }
