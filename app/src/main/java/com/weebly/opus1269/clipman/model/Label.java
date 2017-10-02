@@ -23,27 +23,35 @@ public class Label implements Serializable {
   @NonNull
   private String mName;
 
-  public Label() {
-    mName = "";
-  }
+  public Label() {mName = "";}
 
-  public Label(@NonNull String name) {
-    mName = name;
-  }
+  public Label(@NonNull String name) {mName = name;}
 
   public Label(Cursor cursor) {
     int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
     mName = cursor.getString(idx);
   }
 
-  @NonNull
-  public String getName() {
-    return mName;
+  @Override
+  public int hashCode() {return mName.hashCode();}
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Label label = (Label) o;
+
+    return mName.equals(label.mName);
   }
 
-  public void setName(@NonNull String name) {
-    mName = name;
-  }
+  @Override
+  public String toString() {return mName;}
+
+  @NonNull
+  public String getName() {return mName;}
+
+  public void setName(@NonNull String name) {mName = name;}
 
   /**
    * Get the Label as a {@link ContentValues object}
@@ -59,7 +67,5 @@ public class Label implements Serializable {
    * Save to database
    * @return true if saved
    */
-  public Boolean save() {
-    return LabelTables.INST.insert(this);
-  }
+  public Boolean save() {return LabelTables.INST.insert(this);}
 }

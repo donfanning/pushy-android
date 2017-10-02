@@ -574,7 +574,7 @@ public class MainActivity extends BaseActivity implements
     menuItem.setEnabled(LastError.exists());
 
     // Create Labels sub menu
-    List<Label> labels = LabelTables.getLabels();
+    List<Label> labels = LabelTables.INST.getLabels();
     menu.setGroupVisible(R.id.nav_group_labels, (labels.size() > 0));
     SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
     labelMenu.clear();

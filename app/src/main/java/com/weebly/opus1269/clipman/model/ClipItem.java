@@ -55,7 +55,7 @@ public class ClipItem implements Serializable {
   private Boolean mFav;
   private Boolean mRemote;
   private String mDevice;
-  private List<Label> mLabels;
+  private ClipLabels mLabels;
 
   public ClipItem() {
     init();
@@ -261,62 +261,31 @@ public class ClipItem implements Serializable {
     return list;
   }
 
-  public String getText() {
-    return mText;
-  }
+  public String getText() {return mText;}
 
-  public void setText(String text) {
-    mText = text;
-  }
+  public void setText(String text) {mText = text;}
 
-  public DateTime getDate() {
-    return new DateTime(mDate.getMillis());
-  }
+  public DateTime getDate() {return new DateTime(mDate.getMillis());}
 
-  @SuppressWarnings("unused")
-  public void setDate(ReadableInstant date) {
-    mDate = new DateTime(date.getMillis());
-  }
+  public void setDate(long date) {mDate = new DateTime(date);}
 
-  public void setDate(long date) {
-    mDate = new DateTime(date);
-  }
+  public long getTime() {return mDate.getMillis();}
 
-  public long getTime() {
-    return mDate.getMillis();
-  }
+  public boolean isFav() {return mFav;}
 
-  public boolean isFav() {
-    return mFav;
-  }
+  public void setFav(Boolean fav) {mFav = fav;}
 
-  public void setFav(Boolean fav) {
-    mFav = fav;
-  }
+  public boolean isRemote() {return mRemote;}
 
-  public boolean isRemote() {
-    return mRemote;
-  }
+  public void setRemote(Boolean remote) {mRemote = remote;}
 
-  public void setRemote(Boolean remote) {
-    mRemote = remote;
-  }
+  public String getDevice() {return mDevice;}
 
-  public String getDevice() {
-    return mDevice;
-  }
+  public void setDevice(String device) {mDevice = device;}
 
-  public void setDevice(String device) {
-    mDevice = device;
-  }
+  public List<Label> getLabels() {return mLabels.get();}
 
-  public List<Label> getLabels() {
-    return mLabels;
-  }
-
-  public void setLabels(List<Label> labels) {
-    mLabels = labels;
-  }
+  private void setLabels(List<Label> labels) {mLabels.add(labels);}
 
   /**
    * Do we have the given label
@@ -324,12 +293,7 @@ public class ClipItem implements Serializable {
    * @return true if we have label
    */
   public boolean hasLabel(Label label) {
-    for (Label label_ : mLabels) {
-      if (label_.getName().equals(label.getName())) {
-        return true;
-      }
-    }
-    return false;
+    return mLabels.contains(label);
   }
 
   public void addLabel(Label label) {
@@ -394,7 +358,7 @@ public class ClipItem implements Serializable {
     if (mLabels.size() > 0) {
       // add our labels
       final Gson gson = new Gson();
-      final String labelsString = gson.toJson(mLabels);
+      final String labelsString = gson.toJson(mLabels.get());
       label = label + LABELS_LABEL + labelsString + "\n";
     }
 
@@ -477,22 +441,7 @@ public class ClipItem implements Serializable {
 
   /** Get our {@link Label} names from the database */
   private void loadLabels() {
-    mLabels.clear();
-    final Cursor cursor = LabelTables.INST.getLabelNames(this);
-    if (cursor == null) {
-      return;
-    }
-
-    try {
-      while (cursor.moveToNext()) {
-        final int idx =
-          cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
-        final String name = cursor.getString(idx);
-        mLabels.add(new Label(name));
-      }
-    } finally {
-      cursor.close();
-    }
+    mLabels = ClipLabels.load(this);
   }
 
   /** Initialize the members */
@@ -502,6 +451,6 @@ public class ClipItem implements Serializable {
     mFav = false;
     mRemote = false;
     mDevice = Device.getMyName();
-    mLabels = new ArrayList<>(0);
+    mLabels = new ClipLabels();
   }
 }

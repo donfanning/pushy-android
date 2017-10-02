@@ -100,13 +100,13 @@ class ClipLoaderManager implements
   }
 
   @Override
-  public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
     // Swap the new cursor in.  (The framework will take care of closing the
     // old cursor once we return.)
-    mAdapter.swapCursor(data);
+    mAdapter.swapCursor(cursor);
 
-    if (data == null) {
+    if (cursor == null) {
       return;
     }
 
@@ -114,7 +114,7 @@ class ClipLoaderManager implements
       // Update the selected item and ClipViewer text.
       // Can't create a new fragment here.
       // see: http://goo.gl/IFQkPc
-      if (data.getCount() == 0) {
+      if (cursor.getCount() == 0) {
         mAdapter.setSelectedItemID(-1L);
         mMainActivity.startOrUpdateClipViewer(new ClipItem());
       } else {
@@ -125,10 +125,10 @@ class ClipLoaderManager implements
           pos = mAdapter.getPosFromItemID(mAdapter.getSelectedItemID());
         }
         pos = Math.max(0, pos);
-        data.moveToPosition(pos);
-        final int index = data.getColumnIndex(ClipsContract.Clip._ID);
-        mAdapter.setSelectedItemID(data.getLong(index));
-        mMainActivity.startOrUpdateClipViewer(new ClipItem(data));
+        cursor.moveToPosition(pos);
+        final int index = cursor.getColumnIndex(ClipsContract.Clip._ID);
+        mAdapter.setSelectedItemID(cursor.getLong(index));
+        mMainActivity.startOrUpdateClipViewer(new ClipItem(cursor));
       }
     }
   }
