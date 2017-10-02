@@ -197,13 +197,6 @@ public class MainActivity extends BaseActivity implements
   }
 
   @Override
-  protected void onPause() {
-    super.onPause();
-
-    mUndoItems = null;
-  }
-
-  @Override
   public void onBackPressed() {
     if (!TextUtils.isEmpty(mLabelFilter)) {
       // if filtered, create unfiltered MainActivity on Back
@@ -211,6 +204,13 @@ public class MainActivity extends BaseActivity implements
       startActivity(MainActivity.class);
       finish();
     }
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    mUndoItems = null;
   }
 
   @Override
@@ -343,9 +343,9 @@ public class MainActivity extends BaseActivity implements
   @Override
   public void onDeleteDialogPositiveClick(Boolean deleteFavs) {
     // save items for undo
-    mUndoItems = ClipTable.INST.getAll(deleteFavs);
+    mUndoItems = ClipTable.INST.getAll(deleteFavs, mLabelFilter);
 
-    final int nRows = ClipTable.INST.deleteAll(deleteFavs);
+    final int nRows = ClipTable.INST.deleteAll(deleteFavs, mLabelFilter);
 
     String message = nRows + getResources().getString(R.string.items_deleted);
     switch (nRows) {

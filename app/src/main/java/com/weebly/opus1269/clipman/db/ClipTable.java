@@ -11,6 +11,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -38,7 +39,7 @@ public enum ClipTable {
     final ContentResolver resolver = context.getContentResolver();
 
     final String[] projection = {ClipsContract.Clip._ID};
-    final String selection = "(" + ClipsContract.Clip.COL_TEXT + " == ? )";
+    final String selection = "(" + ClipsContract.Clip.COL_TEXT + " = ? )";
     final String[] selectionArgs = {clipItem.getText()};
 
     final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
@@ -54,25 +55,35 @@ public enum ClipTable {
   }
 
   /**
-   * Get the non-favorite and optionally favorite rows in the database
+   * Get all non-favorite and optionally favorite rows for a given {@link Label}
    * @param includeFavs flag to indicate if favorites should be retrieved too
+   * @param labelFilter label to filter on
    * @return Array of {@link ClipItem} objects
    */
-  public ClipItem[] getAll(Boolean includeFavs) {
+  public ClipItem[] getAll(Boolean includeFavs, String labelFilter) {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
+    Uri uri = ClipsContract.Clip.CONTENT_URI;
     final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
 
     // Select all non-favorites
-    String selection = "(" + ClipsContract.Clip.COL_FAV + " == 0 " + ")";
+    String selection = "(" + ClipsContract.Clip.COL_FAV + " = 0 )";
     if (includeFavs) {
       // select all favorites too
-      selection += " OR (" + ClipsContract.Clip.COL_FAV + " == 1 )";
+      selection += " OR (" + ClipsContract.Clip.COL_FAV + " = 1 )";
+    }
+
+    if (!AppUtils.isWhitespace(labelFilter)) {
+      // speical Uri to JOIN
+      uri = ClipsContract.Clip.CONTENT_URI_JOIN;
+      // filter by Label name
+      selection += " AND (" + ClipsContract.LabelMap.COL_LABEL_NAME +
+        " = '" + labelFilter + "' )";
     }
 
     final Cursor cursor = resolver.query(
-      ClipsContract.Clip.CONTENT_URI,
+      uri,
       projection,
       selection,
       null,
@@ -86,7 +97,6 @@ public enum ClipTable {
       array = new ClipItem[cursor.getCount()];
       int count = 0;
       while (cursor.moveToNext()) {
-        //noinspection ObjectAllocationInLoop
         array[count] = new ClipItem(cursor);
         count++;
       }
@@ -171,21 +181,53 @@ public enum ClipTable {
 
   /**
    * Delete all non-favorite and optionally favorite rows
-   * @param deleteFavs flag to indicate if favorites should be deleted
+   * for a given {@link Label}
+   * @param deleteFavs  flag to indicate if favorites should be deleted
+   * @param labelFilter label to filter on
    * @return Number of rows deleted
    */
-  public int deleteAll(Boolean deleteFavs) {
+  public int deleteAll(Boolean deleteFavs, String labelFilter) {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    // Select all non-favorites
-    String selection = "(" + ClipsContract.Clip.COL_FAV + " == 0 " + ")";
-    if (deleteFavs) {
-      // select all favorites too
-      selection = selection + " OR (" + ClipsContract.Clip.COL_FAV + " == 1 )";
+
+    String selection;
+    if (!AppUtils.isWhitespace(labelFilter)) {
+      final String CLIP = ClipsContract.Clip.TABLE_NAME;
+      final String CLIP_ID = ClipsContract.Clip._ID;
+      final String CLIP_FAV = ClipsContract.Clip.COL_FAV;
+      final String CLIP_DOT_ID = CLIP + "." + CLIP_ID;
+      final String CLIP_DOT_FAV = CLIP + "." + CLIP_FAV;
+      final String LBL = ClipsContract.LabelMap.TABLE_NAME;
+      final String LBL_CLIP_ID = ClipsContract.LabelMap.COL_CLIP_ID;
+      final String LBL_NAME = ClipsContract.LabelMap.COL_LABEL_NAME;
+      final String LBL_DOT_CLIP_ID = LBL + "." + LBL_CLIP_ID;
+      final String LBL_DOT_NAME = LBL + "." + LBL_NAME;
+
+      String innerSelect = " SELECT " + CLIP_DOT_ID + " FROM " + CLIP +
+        " INNER JOIN " + LBL + " ON " + CLIP_DOT_ID + " = " + LBL_DOT_CLIP_ID;
+
+      String innerWhere = " WHERE " + LBL_DOT_NAME + " = '" + labelFilter + "'";
+      if (!deleteFavs) {
+        // select non-favs only
+        innerWhere += " AND " + "( " + CLIP_DOT_FAV + " = 0 )";
+      }
+
+      selection = CLIP_ID + " IN ( " + innerSelect + innerWhere + " )";
+
+    } else {
+      // no Label filter
+      if (deleteFavs) {
+        // select all
+        selection = null;
+      } else {
+        // select non-favs only
+        selection = ClipsContract.Clip.COL_FAV + " = 0 ";
+      }
     }
 
-    return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
+    return resolver
+      .delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 
   /**
@@ -224,7 +266,7 @@ public enum ClipTable {
 
     // Select all non-favorites older than the calculated time
     final String selection =
-      "(" + ClipsContract.Clip.COL_FAV + " == 0 " + ")" + " AND (" +
+      "(" + ClipsContract.Clip.COL_FAV + " = 0 " + ")" + " AND (" +
         ClipsContract.Clip.COL_DATE + " < " + deleteTime + ")";
 
     final ContentResolver resolver = context.getContentResolver();

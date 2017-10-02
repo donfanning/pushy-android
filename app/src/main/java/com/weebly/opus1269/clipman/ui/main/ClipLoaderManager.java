@@ -55,7 +55,7 @@ class ClipLoaderManager implements
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    Uri Uri = ClipsContract.Clip.CONTENT_URI;
+    Uri uri = ClipsContract.Clip.CONTENT_URI;
     final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
     final String queryString = mMainActivity.getQueryString();
     final String labelFilter = mMainActivity.getLabelFilter();
@@ -66,7 +66,7 @@ class ClipLoaderManager implements
 
     if (mMainActivity.getFavFilter()) {
       // filter by favorite setting selected
-      selection += " AND (" + ClipsContract.Clip.COL_FAV + " == 1 )";
+      selection += " AND (" + ClipsContract.Clip.COL_FAV + " = 1 )";
     }
 
     String[] selectionArgs = null;
@@ -79,11 +79,11 @@ class ClipLoaderManager implements
     }
 
     if (!AppUtils.isWhitespace(labelFilter)) {
-      // speical Uri to fo JOIN
-      Uri = ClipsContract.Clip.CONTENT_URI_JOIN;
-      // filter by search query
+      // speical Uri to JOIN
+      uri = ClipsContract.Clip.CONTENT_URI_JOIN;
+      // filter by Label name
       selection += " AND (" + ClipsContract.LabelMap.COL_LABEL_NAME +
-        " == '" + labelFilter + "' )";
+        " = '" + labelFilter + "' )";
     }
 
     selection += ")";
@@ -92,7 +92,7 @@ class ClipLoaderManager implements
     // creating a Cursor for the data being displayed.
     return new CursorLoader(
       mMainActivity,
-      Uri,
+      uri,
       projection,
       selection,
       selectionArgs,
