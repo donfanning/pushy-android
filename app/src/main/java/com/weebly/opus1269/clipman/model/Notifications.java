@@ -31,6 +31,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
+import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 
@@ -241,11 +242,11 @@ public class Notifications {
     }
 
     final Context context = App.getContext();
-    final Intent intent = new Intent(context, MainActivity.class);
+    final Intent intent = new Intent(context, ErrorViewerActivity.class);
     intent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
 
     PendingIntent pendingIntent =
-      getPendingIntent(context, MainActivity.class, intent);
+      getPendingIntent(context, ErrorViewerActivity.class, intent);
 
     final int id = ID_ERROR;
     final int largeIcon = R.drawable.lic_error;

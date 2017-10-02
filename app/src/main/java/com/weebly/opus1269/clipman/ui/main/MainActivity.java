@@ -452,13 +452,6 @@ public class MainActivity extends BaseActivity implements
         intent.removeExtra(Intents.EXTRA_CLIP_ITEM);
         startOrUpdateClipViewer(item);
       }
-    } else if (intent.hasExtra(Intents.EXTRA_LAST_ERROR)) {
-      // from error notification
-      final LastError lastError =
-        (LastError) intent.getSerializableExtra(Intents.EXTRA_LAST_ERROR);
-      final Intent newIntent = new Intent(this, ErrorViewerActivity.class);
-      newIntent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
-      AppUtils.startActivity(this, newIntent);
     }
   }
 
