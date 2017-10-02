@@ -68,10 +68,12 @@ public enum ClipTable {
     final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
 
     // Select all non-favorites
-    String selection = "(" + ClipsContract.Clip.COL_FAV + " = 0 )";
+    String selection = "((" + ClipsContract.Clip.COL_FAV + " = 0 )";
     if (includeFavs) {
       // select all favorites too
-      selection += " OR (" + ClipsContract.Clip.COL_FAV + " = 1 )";
+      selection += " OR (" + ClipsContract.Clip.COL_FAV + " = 1 ))";
+    } else {
+      selection += ")";
     }
 
     if (!AppUtils.isWhitespace(labelFilter)) {
