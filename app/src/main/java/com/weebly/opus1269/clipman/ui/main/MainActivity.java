@@ -91,6 +91,16 @@ public class MainActivity extends BaseActivity implements
 
     super.onCreate(savedInstanceState);
 
+    final Intent intent = getIntent();
+    // peak at intent to see if we need to show a clip notification
+    if (intent.hasExtra(Intents.EXTRA_CLIP_ITEM)) {
+      final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
+      if (msgCt > 1) {
+        // we will show them, reset LabelFilter
+        Prefs.setLabelFilter("");
+      }
+    }
+
     mFavFilter = Prefs.isFavFilter();
     mLabelFilter = Prefs.getLabelFilter();
 

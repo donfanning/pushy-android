@@ -149,7 +149,8 @@ public class Notifications {
     final String titleText;
     if (clipItem.isRemote()) {
       largeIcon = R.drawable.lic_remote_copy;
-      titleText = context.getString(R.string.clip_notification_remote_fmt, clipItem.getDevice());
+      titleText = context
+        .getString(R.string.clip_notification_remote_fmt, clipItem.getDevice());
     } else {
       largeIcon = R.drawable.lic_local_copy;
       titleText = context.getString(R.string.clip_notification_local);
@@ -163,7 +164,11 @@ public class Notifications {
       .setWhen(clipItem.getTime());
 
     if (sClipItemCt > 1) {
-      builder.setSubText(context.getString(R.string.clip_notification_count_fmt, sClipItemCt)).setNumber(sClipItemCt);
+      final String text =
+        context.getString(R.string.clip_notification_count_fmt, sClipItemCt);
+      builder
+        .setSubText(text)
+        .setNumber(sClipItemCt);
     }
 
     // notification deleted (cleared, swiped, etc) action
@@ -175,15 +180,14 @@ public class Notifications {
     // Web Search action
     pendingIntent = NotificationReceiver
       .getPendingIntent(Intents.ACTION_SEARCH, id, clipItem);
-    builder.addAction(R.drawable.ic_search, context.getString(R.string.action_search), pendingIntent);
+    builder.addAction(R.drawable.ic_search,
+      context.getString(R.string.action_search), pendingIntent);
 
     // Share action
     pendingIntent = NotificationReceiver
       .getPendingIntent(Intents.ACTION_SHARE, id, clipItem);
-    builder.addAction(R.drawable.ic_share, context.getString(R.string.action_share) + " ...", pendingIntent);
-
-    // clear label filter
-    Prefs.setLabelFilter("");
+    builder.addAction(R.drawable.ic_share,
+      context.getString(R.string.action_share) + " ...", pendingIntent);
 
     final NotificationManager notificationManager = getManager();
     notificationManager.notify(id, builder.build());
@@ -455,8 +459,8 @@ public class Notifications {
       intent.setAction(action);
       intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
-      return PendingIntent
-        .getBroadcast(context, 12345, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+      return PendingIntent.getBroadcast(context, 12345, intent,
+        PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
