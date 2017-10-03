@@ -14,6 +14,8 @@
 
   <attr name="signInButtonsBackground" format="color" />
 
+  <attr name="labelItemBackground" format="reference" />
+
   <declare-styleable name="VectorDrawableTextView">
     <attr name="drawableLeftCompat" format="reference" />
     <attr name="drawableRightCompat" format="reference" />

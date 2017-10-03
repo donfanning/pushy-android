@@ -79,7 +79,7 @@
         android:layout_alignBottom="@+id/favCheckBox"
         android:layout_centerHorizontal="true"
         android:maxLines="1"
-        android:textAppearance="@android:style/TextAppearance.Small"
+        android:textAppearance="?attr/textAppearanceListItemSecondary"
         android:textColor="?android:textColorTertiary"
         android:textIsSelectable="false"
         tools:text="Test date" />

@@ -31,7 +31,6 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import java.io.Serializable;
 
 /** This Activity manages the display of a {@link ClipItem} */
-
 public class ClipViewerActivity extends BaseActivity implements
   ClipViewerFragment.OnClipChanged {
 
@@ -177,11 +176,47 @@ public class ClipViewerActivity extends BaseActivity implements
     setFavoriteMenuItem();
 
     // update database
-    new UpdateClipAsyncTask().executeMe();
+    ClipTable.INST.update(clipItem);
   }
 
   private void deleteItem() {
-    new DeleteClipAsyncTask().executeMe();
+    final ClipItem clipItem = getClipViewerFragment().getClipItemClone();
+
+    final boolean deleted = ClipTable.INST.delete(clipItem);
+
+    // save item for undo
+    mUndoItem = clipItem;
+
+    String message = getResources().getString(R.string.clip_deleted);
+    if (!deleted) {
+      message = getResources().getString(R.string.item_delete_empty);
+    }
+
+    final Snackbar snack =
+      Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
+
+    if (deleted) {
+      snack.setAction("UNDO", new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          ClipTable.INST.insert(mUndoItem);
+        }
+      }).addCallback(new Snackbar.Callback() {
+
+        @Override
+        public void onShown(Snackbar snackbar) {}
+
+        @Override
+        public void onDismissed(Snackbar snackbar, int event) {
+          mUndoItem = null;
+          if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
+            finish();
+          }
+        }
+      });
+    }
+
+    snack.show();
   }
 
   /**
@@ -202,74 +237,6 @@ public class ClipViewerActivity extends BaseActivity implements
       }
       final int color = ContextCompat.getColor(this, colorID);
       MenuTintHelper.colorMenuItem(menuItem, color, 255);
-    }
-  }
-
-  private class DeleteClipAsyncTask extends ThreadedAsyncTask<Void, Void, Void> {
-
-    @Override
-    protected Void doInBackground(Void... params) {
-      final ClipViewerFragment clipViewerFragment = getClipViewerFragment();
-      final ClipItem clipItem = clipViewerFragment.getClipItemClone();
-      final String text = DatabaseUtils.sqlEscapeString(clipItem.getText());
-      final String selection = ClipsContract.Clip.COL_TEXT + '=' + text;
-
-      final int nRows = getContentResolver()
-        .delete(ClipsContract.Clip.CONTENT_URI, selection, null);
-
-      // save item for undo
-      mUndoItem = getClipViewerFragment().getClipItemClone();
-
-      String message = getResources().getString(R.string.clip_deleted);
-      if (nRows == 0) {
-        message = getResources().getString(R.string.item_delete_empty);
-      }
-
-      final Snackbar snack =
-        Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
-
-      if (nRows > 0) {
-        snack.setAction("UNDO", new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            ClipTable.INST.insert(mUndoItem);
-          }
-        })
-          .addCallback(new Snackbar.Callback() {
-
-            @Override
-            public void onShown(Snackbar snackbar) {
-            }
-
-            @Override
-            public void onDismissed(Snackbar snackbar, int event) {
-              mUndoItem = null;
-              if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
-                finish();
-              }
-            }
-          });
-      }
-
-      snack.show();
-
-      return null;
-    }
-  }
-
-  private class UpdateClipAsyncTask extends ThreadedAsyncTask<Void, Void, Void> {
-
-    @Override
-    protected Void doInBackground(Void... params) {
-      final ClipViewerFragment clipViewerFragment = getClipViewerFragment();
-      final ClipItem clipItem = clipViewerFragment.getClipItemClone();
-      final String text = DatabaseUtils.sqlEscapeString(clipItem.getText());
-      final String selection = ClipsContract.Clip.COL_TEXT + '=' + text;
-
-      getContentResolver().delete(ClipsContract.Clip.CONTENT_URI, selection, null);
-      clipItem.save();
-
-      return null;
     }
   }
 }

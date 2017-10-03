@@ -43,6 +43,8 @@
 
     <item name="signInButtonsBackground">@color/grey_800</item>
 
+    <item name="labelItemBackground">@drawable/layout_border_light</item>
+
     <!-- selector for the selected clip_row -->
     <item name="clipRowSelector">@drawable/selector_clip_row_light</item>
 
@@ -59,6 +61,8 @@
     <item name="android:itemTextAppearance">@style/DarkTextAppearance</item>
 
     <item name="signInButtonsBackground">@color/grey_900</item>
+
+    <item name="labelItemBackground">@drawable/layout_border_dark</item>
 
     <!-- selector for the selected clip_row -->
     <item name="clipRowSelector">@drawable/selector_clip_row_dark</item>
@@ -144,6 +148,18 @@
     <item name="android:layout_marginBottom">1dp</item>
     <item name="android:layout_marginTop">1dp</item>
     <item name="android:layout_marginLeft">72dp</item>
+  </style>
+
+  <style name="LabelItemView">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:paddingTop">@dimen/label_item_padding</item>
+    <item name="android:paddingBottom">@dimen/label_item_padding</item>
+    <item name="android:paddingLeft">@dimen/label_item_padding</item>
+    <item name="android:paddingRight">@dimen/label_item_padding</item>
+    <item name="android:background">?attr/labelItemBackground</item>
+    <item name="android:textAppearance">?attr/textAppearanceListItemSecondary</item>
+    <item name="android:maxLines">1</item>
   </style>
 
   <style name="Divider">

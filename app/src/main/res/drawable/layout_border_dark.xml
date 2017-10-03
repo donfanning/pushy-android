@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+  <solid android:color="#1AFFFFFF"/>
+  <stroke android:width="2dip" android:color="#1AFFFFFF" />
+  <corners android:radius="5dip"/>
+  <padding android:left="0dip" android:top="0dip" android:right="0dip" android:bottom="0dip" />
+</shape>

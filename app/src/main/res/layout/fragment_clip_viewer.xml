@@ -7,45 +7,64 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/clipFragment"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:layout_marginBottom="@dimen/activity_vertical_margin"
-  android:layout_marginTop="@dimen/activity_vertical_margin"
-  android:layout_marginLeft="@dimen/activity_horizontal_margin"
-  android:layout_marginStart="@dimen/activity_horizontal_margin"
-  android:layout_marginRight="@dimen/activity_horizontal_margin"
   android:layout_marginEnd="@dimen/activity_horizontal_margin"
+  android:layout_marginLeft="@dimen/activity_horizontal_margin"
+  android:layout_marginRight="@dimen/activity_horizontal_margin"
+  android:layout_marginStart="@dimen/activity_horizontal_margin"
+  android:layout_marginTop="@dimen/activity_vertical_margin"
   android:orientation="vertical"
   tools:context=".ui.clipviewer.ClipViewerFragment">
 
   <LinearLayout
+    android:id="@+id/labelLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <include layout="@layout/label_clip_list" />
+
+    <View
+      style="@style/Divider"
+      android:layout_marginBottom="@dimen/activity_vertical_margin"
+      android:layout_marginTop="@dimen/activity_vertical_margin" />
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:id="@+id/remoteLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/labelLayout"
     android:orientation="vertical">
 
     <TextView
       android:id="@+id/remoteDevice"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:maxLines="2"
       android:textAppearance="?attr/textAppearanceListItem"
       android:textColor="?android:textColorTertiary"
-      android:maxLines="2"
       tools:text="Device: A device" />
 
     <View
-      style="@style/Divider"
       android:id="@+id/remoteDivider"
-      android:layout_marginTop="@dimen/activity_vertical_margin"
-      android:layout_marginBottom="@dimen/activity_vertical_margin" />
+      style="@style/Divider"
+      android:layout_marginBottom="@dimen/activity_vertical_margin"
+      android:layout_marginTop="@dimen/activity_vertical_margin" />
 
   </LinearLayout>
 
   <ScrollView
+    android:id="@+id/clipViewerScrollView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_below="@+id/remoteLayout"
     android:animateLayoutChanges="true"
     android:scrollbars="vertical">
 
@@ -59,4 +78,4 @@
 
   </ScrollView>
 
-</LinearLayout>
+</RelativeLayout>

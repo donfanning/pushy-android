@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<LinearLayout
+  android:id="@+id/labelList"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="horizontal"
+  android:clickable="true">
+
+</LinearLayout>

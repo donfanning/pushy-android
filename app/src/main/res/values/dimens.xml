@@ -26,7 +26,8 @@
 
   <dimen name="help_vertical_padding">12dp</dimen>
 
-  <dimen name="item_horizontal_margin">4dp</dimen>
+  <dimen name="label_item_horizontal_margin">8dp</dimen>
+  <dimen name="label_item_padding">4dp</dimen>
 
   <dimen name="zero_dp">0dp</dimen>
 

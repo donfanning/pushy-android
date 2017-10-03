@@ -9,10 +9,12 @@ package com.weebly.opus1269.clipman.ui.clipviewer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.view.ContextThemeWrapper;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.ArrowKeyMovementMethod;
@@ -21,15 +23,19 @@ import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 import java.io.Serializable;
 import java.text.Collator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,6 +138,15 @@ public class ClipViewerFragment extends Fragment
   }
 
   @Override
+  public void onResume() {
+    super.onResume();
+
+    setupLabels();
+
+    setupRemoteDevice();
+  }
+
+  @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
@@ -146,12 +161,16 @@ public class ClipViewerFragment extends Fragment
       setHighlightText(highlightText);
     }
 
-    setupRemoteDevice();
-
     final Activity activity = getActivity();
+
     final FloatingActionButton fab = activity.findViewById(R.id.fab);
     if (fab != null) {
       fab.setOnClickListener(this);
+    }
+
+    final LinearLayout labelList = activity.findViewById(R.id.labelList);
+    if (labelList != null) {
+      labelList.setOnClickListener(this);
     }
   }
 
@@ -166,7 +185,16 @@ public class ClipViewerFragment extends Fragment
 
   @Override
   public void onClick(View v) {
-    mClipItem.doShare(v);
+    final Activity activity = getActivity();
+    final View fab = activity.findViewById(R.id.fab);
+    final View labelList = activity.findViewById(R.id.labelList);
+    if (v == fab) {
+      mClipItem.doShare(v);
+    } else if (v == labelList) {
+      final Intent intent = new Intent(activity, LabelsSelectActivity.class);
+      intent.putExtra(Intents.EXTRA_CLIP_ITEM, mClipItem);
+      AppUtils.startActivity(activity, intent);
+    }
   }
 
   public ClipItem getClipItemClone() {
@@ -188,6 +216,8 @@ public class ClipViewerFragment extends Fragment
     }
 
     mClipItem = clipItem;
+
+    setupLabels();
 
     setupRemoteDevice();
 
@@ -251,10 +281,8 @@ public class ClipViewerFragment extends Fragment
       return;
     }
 
-    final TextView textView =
-      getActivity().findViewById(R.id.remoteDevice);
-    final View divider =
-      getActivity().findViewById(R.id.remoteDivider);
+    final TextView textView = getActivity().findViewById(R.id.remoteDevice);
+    final View divider = getActivity().findViewById(R.id.remoteDivider);
 
     if (mClipItem.isRemote() && !AppUtils.isDualPane()) {
       textView.setVisibility(View.VISIBLE);
@@ -264,6 +292,45 @@ public class ClipViewerFragment extends Fragment
     } else {
       textView.setVisibility(View.GONE);
       divider.setVisibility(View.GONE);
+    }
+  }
+
+  /** Add the View containing our {@link Label} items */
+  private void setupLabels() {
+    if (!mIsViewable) {
+      return;
+    }
+
+    final List<Label> labels = mClipItem.getLabels();
+
+    final LinearLayout labelLayout =
+      getActivity().findViewById(R.id.labelLayout);
+    if (labels.size() > 0) {
+      labelLayout.setVisibility(View.VISIBLE);
+    } else {
+      labelLayout.setVisibility(View.GONE);
+      return;
+    }
+
+    final LinearLayout labelList = getActivity().findViewById(R.id.labelList);
+    if(labelList.getChildCount() > 0) {
+      labelList.removeAllViews();
+    }
+
+    // to set margins
+    final LinearLayout.LayoutParams llp =
+      new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT);
+    // llp.setMargins(left, top, right, bottom);
+    llp.setMargins(0, 0, AppUtils.dp2px(getContext(), 8), 0);
+
+    for (Label label : labels) {
+      final ContextThemeWrapper wrapper =
+        new ContextThemeWrapper(getContext(), R.style.LabelItemView);
+      final TextView textView = new TextView(wrapper, null, 0);
+      textView.setText(label.getName());
+      textView.setLayoutParams(llp);
+      labelList.addView(textView);
     }
   }
 

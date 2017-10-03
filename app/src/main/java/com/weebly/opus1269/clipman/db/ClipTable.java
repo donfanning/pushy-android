@@ -39,7 +39,7 @@ public enum ClipTable {
     final ContentResolver resolver = context.getContentResolver();
 
     final String[] projection = {ClipsContract.Clip._ID};
-    final String selection = "(" + ClipsContract.Clip.COL_TEXT + " = ? )";
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
     final String[] selectionArgs = {clipItem.getText()};
 
     final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
@@ -132,6 +132,50 @@ public enum ClipTable {
     }
 
     return true;
+  }
+
+  /**
+   * Update an exiting {@link ClipItem} in the database
+   * @param clipItem the clip to update
+   */
+  public boolean update(ClipItem clipItem) {
+    if (AppUtils.isWhitespace(clipItem.getText())) {
+      return false;
+    }
+
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
+    final String[] selectionArgs = {clipItem.getText()};
+
+    // do it
+    resolver.update(ClipsContract.Clip.CONTENT_URI, clipItem.getContentValues(),
+        selection, selectionArgs);
+
+    return true;
+  }
+
+  /**
+   * Delete a {@link ClipItem} from the database
+   * @param clipItem the clip to delete
+   */
+  public boolean delete(ClipItem clipItem) {
+    if (AppUtils.isWhitespace(clipItem.getText())) {
+      return false;
+    }
+
+    final Context context = App.getContext();
+    final ContentResolver resolver = context.getContentResolver();
+
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
+    final String[] selectionArgs = {clipItem.getText()};
+
+    // delete the ClipItem
+    final int nRows =
+      resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, selectionArgs);
+
+    return (nRows == 1);
   }
 
   /**
