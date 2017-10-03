@@ -22,37 +22,9 @@ import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.joda.time.DateTime;
 
-import java.util.List;
-
 /** Singleton to manage the Clips.db Clip table */
 public enum ClipTable {
   INST;
-
-  /**
-   * Get the ClipItem row number
-   * @param clipItem clip to check
-   * @return table row, -1L if not found
-   */
-  public long getId(ClipItem clipItem) {
-    long ret = -1L;
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String[] projection = {ClipsContract.Clip._ID};
-    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
-    final String[] selectionArgs = {clipItem.getText()};
-
-    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
-      projection, selection, selectionArgs, null);
-
-    if ((cursor != null) && (cursor.getCount() > 0)) {
-      cursor.moveToNext();
-      ret = cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip._ID));
-      cursor.close();
-      return ret;
-    }
-    return ret;
-  }
 
   /**
    * Get all non-favorite and optionally favorite rows for a given {@link Label}
@@ -107,95 +79,6 @@ public enum ClipTable {
     }
 
     return array;
-  }
-
-  /**
-   * Add a {@link ClipItem} to the database
-   * @param clipItem the clip to add
-   */
-  public boolean insert(ClipItem clipItem) {
-    if (AppUtils.isWhitespace(clipItem.getText())) {
-      return false;
-    }
-
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-
-    // add the ClipItem
-    resolver
-      .insert(ClipsContract.Clip.CONTENT_URI, clipItem.getContentValues());
-
-    // add the label map entries
-    List<Label> labels = clipItem.getLabels();
-    for (Label label : labels) {
-      LabelTables.INST.insert(clipItem, label);
-    }
-
-    return true;
-  }
-
-  /**
-   * Update an exiting {@link ClipItem} in the database
-   * @param clipItem the clip to update
-   */
-  public boolean update(ClipItem clipItem) {
-    if (AppUtils.isWhitespace(clipItem.getText())) {
-      return false;
-    }
-
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
-    final String[] selectionArgs = {clipItem.getText()};
-
-    // do it
-    resolver.update(ClipsContract.Clip.CONTENT_URI, clipItem.getContentValues(),
-        selection, selectionArgs);
-
-    return true;
-  }
-
-  /**
-   * Delete a {@link ClipItem} from the database
-   * @param clipItem the clip to delete
-   */
-  public boolean delete(ClipItem clipItem) {
-    if (AppUtils.isWhitespace(clipItem.getText())) {
-      return false;
-    }
-
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
-    final String[] selectionArgs = {clipItem.getText()};
-
-    // delete the ClipItem
-    final int nRows =
-      resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, selectionArgs);
-
-    return (nRows == 1);
-  }
-
-  /**
-   * Add a {@link ClipItem} optionally only if text is new
-   * @param clipItem  the {@link ClipItem} to insert
-   * @param onNewOnly if true, only insert if item text is new
-   * @return true if inserted
-   */
-  public boolean insert(ClipItem clipItem, boolean onNewOnly) {
-    if (AppUtils.isWhitespace(clipItem.getText())) {
-      return false;
-    }
-
-    if (onNewOnly && exists(clipItem)) {
-      // already exists
-      return false;
-    }
-
-    // insert into table
-    return insert(clipItem);
   }
 
   /**
@@ -317,15 +200,5 @@ public enum ClipTable {
 
     final ContentResolver resolver = context.getContentResolver();
     return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
-  }
-
-  /**
-   * Does the ClipItem exist
-   * @param clipItem clip to check
-   * @return if true, clip exists
-   */
-  private boolean exists(ClipItem clipItem) {
-    final long row = getId(clipItem);
-    return (row != -1L);
   }
 }

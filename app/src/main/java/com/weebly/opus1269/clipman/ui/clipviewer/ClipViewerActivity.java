@@ -8,7 +8,6 @@
 package com.weebly.opus1269.clipman.ui.clipviewer;
 
 import android.content.Intent;
-import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -19,9 +18,6 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.db.ClipsContract;
-import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -176,20 +172,21 @@ public class ClipViewerActivity extends BaseActivity implements
     setFavoriteMenuItem();
 
     // update database
-    ClipTable.INST.update(clipItem);
+    clipItem.save();
   }
 
   private void deleteItem() {
     final ClipItem clipItem = getClipViewerFragment().getClipItemClone();
 
-    final boolean deleted = ClipTable.INST.delete(clipItem);
-
-    // save item for undo
-    mUndoItem = clipItem;
+    // delete from database
+    boolean deleted = clipItem.delete();
 
     String message = getResources().getString(R.string.clip_deleted);
     if (!deleted) {
       message = getResources().getString(R.string.item_delete_empty);
+    } else {
+      // save for undo
+      mUndoItem = clipItem;
     }
 
     final Snackbar snack =
@@ -199,7 +196,7 @@ public class ClipViewerActivity extends BaseActivity implements
       snack.setAction("UNDO", new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          ClipTable.INST.insert(mUndoItem);
+          mUndoItem.save();
         }
       }).addCallback(new Snackbar.Callback() {
 

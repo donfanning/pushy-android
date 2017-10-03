@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.ui.main;
 
-import android.content.ContentValues;
 import android.graphics.Canvas;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -15,22 +14,15 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
-import com.weebly.opus1269.clipman.db.ClipTable;
-import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 
-/**
- * Handle swipe to dismiss on the RecyclerView
- */
+/** Handle swipe to dismiss on the RecyclerView */
 class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
-  @SuppressWarnings("unused")
-  private static final String TAG = "ClipItemTouchHelper";
 
-  // Activity we are in
+  /** Activity we are in */
   private final MainActivity mActivity;
 
-  // Item that may be undone
+  /** Item to allow delete undo */
   private UndoItem mUndoItem;
 
   ClipItemTouchHelper(MainActivity activity) {
@@ -63,7 +55,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
       final int selectedPos = mActivity.getClipLoaderManager().getAdapter().getSelectedPos();
       mUndoItem = new UndoItem(holder.clipItem, selectedPos, holder.itemView.isSelected());
-      deleteRow(holder);
+      holder.clipItem.delete();
 
       final Snackbar snack = Snackbar
         .make(mActivity.findViewById(R.id.fab), R.string.deleted_1_item, Snackbar.LENGTH_LONG)
@@ -130,10 +122,6 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
       actionState, isCurrentlyActive);
   }
 
-  private void deleteRow(ClipCursorAdapter.ClipViewHolder holder) {
-    new DeleteAsyncTask().executeMe(holder.itemID);
-  }
-
   private class UndoItem {
     final int mPos;
     private final ClipItem mClipItem;
@@ -146,27 +134,13 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     }
 
     private void undo() {
-      ClipTable.INST.insert(mClipItem);
+      mClipItem.save();
 
       if (mIsSelected) {
         // little hack to make sure item is selected if it was when deleted
         mActivity.getClipLoaderManager().getAdapter().setSelectedItemID(-1L);
         mActivity.getClipLoaderManager().getAdapter().setSelectedPos(mPos);
       }
-    }
-  }
-
-  // inner class to handle deletes asynchronously
-  private class DeleteAsyncTask extends ThreadedAsyncTask<Object, Void, Void> {
-
-    @SuppressWarnings("OverloadedVarargsMethod")
-    @Override
-    protected Void doInBackground(Object... params) {
-      final long id = (long) params[0];
-      final String selection = ClipsContract.Clip._ID + "=" + id;
-      mActivity.getContentResolver().delete(ClipsContract.Clip.CONTENT_URI, selection, null);
-
-      return null;
     }
   }
 }

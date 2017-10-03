@@ -11,7 +11,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -57,45 +56,6 @@ public enum LabelTables {
   }
 
   /**
-   * Get the List of {@link Label} objects for a {@link ClipItem}
-   * @param clipItem clip to check
-   * @return List of Labels
-   */
-  @NonNull
-  public ArrayList<Label> getLabels(ClipItem clipItem) {
-    ArrayList<Label> list = new ArrayList<>(0);
-    if (ClipItem.isWhitespace(clipItem)) {
-      return list;
-    }
-
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final long id = ClipTable.INST.getId(clipItem);
-    final String selection = ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
-
-    Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
-      projection, selection, null, null);
-    if (cursor == null) {
-      return list;
-    }
-
-    try {
-      while (cursor.moveToNext()) {
-        final int idx =
-          cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
-        final String name = cursor.getString(idx);
-        list.add(new Label(name));
-      }
-    } finally {
-      cursor.close();
-    }
-    return list;
-
-  }
-
-  /**
    * Add the {@link Label} map for a group of {@link ClipItem} objects to the
    * databse
    * @param clipItems the items to add Labels for
@@ -121,7 +81,7 @@ public enum LabelTables {
       for (Label label : clipItem.getLabels()) {
         ContentValues cv = new ContentValues();
         cv.put(ClipsContract.LabelMap.COL_CLIP_ID,
-          ClipTable.INST.getId(clipItem));
+          clipItem.getId());
         cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
         mapCVs[count] = cv;
         count++;
@@ -158,7 +118,7 @@ public enum LabelTables {
 
     // insert into LabelMap table
     final ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, ClipTable.INST.getId(clipItem));
+    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId());
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
 
     resolver.insert(ClipsContract.LabelMap.CONTENT_URI, cv);
@@ -200,7 +160,7 @@ public enum LabelTables {
    * @param label    the label
    */
   public void delete(ClipItem clipItem, Label label) {
-    if (AppUtils.isWhitespace(clipItem.getText()) ||
+    if (ClipItem.isWhitespace(clipItem) ||
       AppUtils.isWhitespace(label.getName())) {
       return;
     }
@@ -208,7 +168,7 @@ public enum LabelTables {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    final long id = ClipTable.INST.getId(clipItem);
+    final long id = clipItem.getId();
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
       ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
@@ -297,7 +257,7 @@ public enum LabelTables {
   private boolean exists(ContentResolver resolver, ClipItem clipItem,
                          Label label) {
     final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final long id = ClipTable.INST.getId(clipItem);
+    final long id = clipItem.getId();
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
       ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
