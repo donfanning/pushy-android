@@ -55,7 +55,7 @@ public class ClipItem implements Serializable {
   private Boolean mFav;
   private Boolean mRemote;
   private String mDevice;
-  private ClipLabels mLabels;
+  private List<Label> mLabels;
 
   public ClipItem() {
     init();
@@ -283,9 +283,13 @@ public class ClipItem implements Serializable {
 
   public void setDevice(String device) {mDevice = device;}
 
-  public List<Label> getLabels() {return mLabels.get();}
+  public List<Label> getLabels() {
+    return mLabels;
+  }
 
-  private void setLabels(List<Label> labels) {mLabels.add(labels);}
+  public void setLabels(List<Label> labels) {
+    mLabels = labels;
+  }
 
   /**
    * Do we have the given label
@@ -358,7 +362,7 @@ public class ClipItem implements Serializable {
     if (mLabels.size() > 0) {
       // add our labels
       final Gson gson = new Gson();
-      final String labelsString = gson.toJson(mLabels.get());
+      final String labelsString = gson.toJson(mLabels);
       label = label + LABELS_LABEL + labelsString + "\n";
     }
 
@@ -441,7 +445,7 @@ public class ClipItem implements Serializable {
 
   /** Get our {@link Label} names from the database */
   private void loadLabels() {
-    mLabels = ClipLabels.load(this);
+    mLabels = LabelTables.INST.getLabels(this);
   }
 
   /** Initialize the members */
@@ -451,6 +455,6 @@ public class ClipItem implements Serializable {
     mFav = false;
     mRemote = false;
     mDevice = Device.getMyName();
-    mLabels = new ClipLabels();
+    mLabels = new ArrayList<>(0);
   }
 }
