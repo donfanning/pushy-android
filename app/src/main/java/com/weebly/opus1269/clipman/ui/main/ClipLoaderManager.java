@@ -7,8 +7,6 @@
 
 package com.weebly.opus1269.clipman.ui.main;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -177,14 +175,7 @@ class ClipLoaderManager implements
     final boolean checked = holder.favCheckBox.isChecked();
 
     holder.clipItem.setFav(checked);
-
-    // update database
-    final long fav = checked ? 1 : 0;
-    final Uri uri = ContentUris.withAppendedId(ClipsContract.Clip
-      .CONTENT_URI, holder.itemID);
-    final ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.Clip.COL_FAV, fav);
-    mMainActivity.getContentResolver().update(uri, cv, null, null);
+    holder.clipItem.save();
   }
 
   private void onCopyClicked(ClipCursorAdapter.ClipViewHolder holder) {

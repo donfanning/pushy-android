@@ -91,7 +91,7 @@ class LabelsSelectAdapter extends
     final boolean checked = mActivity.getClipItem().hasLabel(label);
     holder.checkBox.setChecked(checked);
 
-    final TextView textView = holder.lastText;
+    final TextView textView = holder.labelText;
     textView.setText(label.getName());
 
     holder.labelRow.setOnClickListener(
@@ -161,7 +161,7 @@ class LabelsSelectAdapter extends
   static class LabelViewHolder extends RecyclerViewCursorViewHolder {
     final RelativeLayout labelRow;
     final ImageView labelImage;
-    final TextView lastText;
+    final TextView labelText;
     final CheckBox checkBox;
     Label label;
     long itemID;
@@ -171,7 +171,7 @@ class LabelsSelectAdapter extends
 
       labelRow = view.findViewById(R.id.labelRow);
       labelImage = view.findViewById(R.id.labelImage);
-      lastText = view.findViewById(R.id.labelText);
+      labelText = view.findViewById(R.id.labelText);
       checkBox = view.findViewById(R.id.checkBox);
     }
 
@@ -181,7 +181,7 @@ class LabelsSelectAdapter extends
 
       itemID = cursor.getLong(cursor.getColumnIndex(ClipsContract.Label._ID));
 
-      lastText.setText(label.getName());
+      labelText.setText(label.getName());
     }
   }
 }

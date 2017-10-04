@@ -38,7 +38,6 @@ import com.androidessence.recyclerviewcursoradapter
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
-import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -122,9 +121,6 @@ class LabelsEditAdapter extends
           text = text.trim();
           if (text.length() > 0) {
             if (!text.equals(holder.label.getName())) {
-              // update db
-              LabelTables.INST.change(new Label(text), holder.label);
-              // update label
               holder.label.setName(text);
             }
             labelEditText.setText(holder.label.getName());
@@ -158,8 +154,8 @@ class LabelsEditAdapter extends
   @Override
   public void onClick(DialogInterface dialogInterface, int which) {
     if ((which == DialogInterface.BUTTON_POSITIVE) && (mDeleteLabel != null)) {
-      // remove Label from Label and LabelMap tables
-      LabelTables.INST.delete(mDeleteLabel);
+      // delete it
+      mDeleteLabel.delete();
       mDeleteLabel = null;
     }
   }
