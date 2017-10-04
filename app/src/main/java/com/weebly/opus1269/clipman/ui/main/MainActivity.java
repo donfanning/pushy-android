@@ -346,7 +346,7 @@ public class MainActivity extends BaseActivity implements
 
   @Override
   public void onClipChanged(ClipItem clipItem) {
-    setFabVisibility(!TextUtils.isEmpty(clipItem.getText()));
+    setFabVisibility(!ClipItem.isWhitespace(clipItem));
     setTitle();
   }
 

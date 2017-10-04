@@ -11,10 +11,12 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -163,7 +165,10 @@ public class ClipItem implements Serializable {
     return clipItem;
   }
 
-  /** Send the clipboard contents to our {@link Devices} */
+  /**
+   *  Send the clipboard contents to our {@link Devices}
+   *  @param view toast parent
+   */
   public static void sendClipboardContents(View view) {
     final Context context = App.getContext();
     ClipboardManager clipboardManager =
@@ -171,9 +176,8 @@ public class ClipItem implements Serializable {
     final ClipItem clipItem = getFromClipboard(clipboardManager);
     int id = R.string.clipboard_no_text;
 
-    if ((clipItem != null) && !TextUtils.isEmpty(clipItem.getText())) {
-
-      // save to DB
+    if (!ClipItem.isWhitespace(clipItem)) {
+      // save to database
       clipItem.saveIfNew();
 
       // send to registered devices , if possible
@@ -301,13 +305,17 @@ public class ClipItem implements Serializable {
   }
 
   public void addLabel(Label label) {
-    mLabels.add(label);
-    LabelTables.INST.insert(this, label);
+    if (!hasLabel(label)) {
+      mLabels.add(label);
+      LabelTables.INST.insert(this, label);
+    }
   }
 
   public void removeLabel(Label label) {
-    mLabels.remove(label);
-    LabelTables.INST.delete(this, label);
+    if (hasLabel(label)) {
+      mLabels.remove(label);
+      LabelTables.INST.delete(this, label);
+    }
   }
 
   /**
@@ -439,8 +447,10 @@ public class ClipItem implements Serializable {
     if (ClipItem.isWhitespace(this)) {
       return false;
     }
+    final long id = getId();
+    final boolean exists = (id != -1L);
 
-    if (onNewOnly && exists()) {
+    if (onNewOnly && exists) {
       // already exists
       return false;
     }
@@ -448,13 +458,20 @@ public class ClipItem implements Serializable {
     final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    // add the ClipItem
-    resolver.insert(ClipsContract.Clip.CONTENT_URI, getContentValues());
+    if (exists) {
+      // update
+      final Uri uri =
+        ContentUris.withAppendedId(ClipsContract.Clip.CONTENT_URI, id);
+      resolver.update(uri, getContentValues(), null, null);
+     } else {
+      // insert new
+      resolver.insert(ClipsContract.Clip.CONTENT_URI, getContentValues());
 
-    // add the label map entries
-    List<Label> labels = getLabels();
-    for (Label label : labels) {
-      LabelTables.INST.insert(this, label);
+      // add the label map entries
+      List<Label> labels = getLabels();
+      for (Label label : labels) {
+        LabelTables.INST.insert(this, label);
+      }
     }
 
     return true;
@@ -498,40 +515,8 @@ public class ClipItem implements Serializable {
     return (nRows == 1);
   }
 
-  /**
-   * Send to our devices
-   * @return true if sent
-   */
-  public Boolean send() {
-    Boolean ret = false;
-    if (User.INST.isLoggedIn() && Prefs.isPushClipboard()) {
-      ret = true;
-      MessagingClient.send(this);
-    }
-    return ret;
-  }
-
-  /** Initialize the members */
-  private void init() {
-    mText = "";
-    mDate = new DateTime();
-    mFav = false;
-    mRemote = false;
-    mDevice = Device.getMyName();
-    mLabels = new ArrayList<>(0);
-  }
-
-  /**
-   * Are we in the database
-   * @return if true, clip exists
-   */
-  private boolean exists() {
-    final long row = getId();
-    return (row != -1L);
-  }
-
   /** Get our {@link Label} names from the database */
-  private void loadLabels() {
+  public void loadLabels() {
     mLabels.clear();
 
     if (ClipItem.isWhitespace(this)) {
@@ -561,6 +546,29 @@ public class ClipItem implements Serializable {
     } finally {
       cursor.close();
     }
+  }
+
+  /**
+   * Send to our devices
+   * @return true if sent
+   */
+  public Boolean send() {
+    Boolean ret = false;
+    if (User.INST.isLoggedIn() && Prefs.isPushClipboard()) {
+      ret = true;
+      MessagingClient.send(this);
+    }
+    return ret;
+  }
+
+  /** Initialize the members */
+  private void init() {
+    mText = "";
+    mDate = new DateTime();
+    mFav = false;
+    mRemote = false;
+    mDevice = Device.getMyName();
+    mLabels = new ArrayList<>(0);
   }
 }
 

@@ -14,11 +14,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.db.ClipsContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -118,7 +116,7 @@ public class ClipboardWatcherService extends Service implements
 
   /**
    * Read the clipboard and process the result based on what is there.
-   * @param onNewOnly if true only update database if text is new
+   * @param onNewOnly if true, only update database if text is new
    */
   private void processClipboard(boolean onNewOnly) {
     final ClipItem clipItem = ClipItem.getFromClipboard(mClipboard);
@@ -126,13 +124,8 @@ public class ClipboardWatcherService extends Service implements
     final long deltaTime = now - mLastTime;
     mLastTime = now;
 
-    if ((clipItem == null) || AppUtils.isWhitespace(clipItem.getText())) {
-      mLastText = "";
-      return;
-    }
-
-    if (clipItem.isRemote()) {
-      // ignore remote clips - they were already saved to DB
+    if (ClipItem.isWhitespace(clipItem) || clipItem.isRemote()) {
+      // ignore empty or remote clips - remotes were saved by FCM listener
       mLastText = "";
       return;
     }
@@ -151,9 +144,9 @@ public class ClipboardWatcherService extends Service implements
   }
 
   /**
-   * Save to db and send to remote devices
-   * @param clipItem item
-   * @param onNewOnly only save if the text doesn't exist
+   * Optionally save to database and send to remote devices
+   * @param clipItem  item
+   * @param onNewOnly if true, only save if the text doesn't exist
    */
   private void saveAndSend(ClipItem clipItem, boolean onNewOnly) {
     boolean saved;

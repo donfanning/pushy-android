@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -129,7 +128,7 @@ public class ClipViewerActivity extends BaseActivity implements
 
   @Override
   public void onClipChanged(ClipItem clipItem) {
-    setFabVisibility(!TextUtils.isEmpty(clipItem.getText()));
+    setFabVisibility(!ClipItem.isWhitespace(clipItem));
     setTitle();
   }
 

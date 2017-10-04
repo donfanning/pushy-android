@@ -58,13 +58,13 @@ public class ClipViewerFragment extends Fragment
   private boolean mIsViewable = true;
 
   /**
-   * factory method to create new fragment
+   * Factory method to create new fragment
    * @param item      ClipItem to view
    * @param highlight text to highlight
    * @return new ClipViewerFragment
    */
-  public static ClipViewerFragment newInstance(Serializable item, String
-    highlight) {
+  public static ClipViewerFragment newInstance(Serializable item,
+                                               String highlight) {
     final ClipViewerFragment fragment = new ClipViewerFragment();
 
     final Bundle args = new Bundle();
@@ -197,12 +197,9 @@ public class ClipViewerFragment extends Fragment
     }
   }
 
-  public ClipItem getClipItemClone() {
-    return new ClipItem(mClipItem);
-  }
+  public ClipItem getClipItemClone() {return new ClipItem(mClipItem);}
 
   public void setClipItem(ClipItem clipItem) {
-
     if (!Collator.getInstance().equals(clipItem.getText(), mClipItem.getText
       ())) {
       // skip repaint if text is same
@@ -227,9 +224,10 @@ public class ClipViewerFragment extends Fragment
   Boolean copyToClipboard() {
     Boolean ret = false;
 
-    if (!TextUtils.isEmpty(mClipItem.getText())) {
+    if (!ClipItem.isWhitespace(mClipItem)) {
       mClipItem.setRemote(false);
-      setClipItem(mClipItem);
+      setupRemoteDevice();
+      mOnClipChanged.onClipChanged(mClipItem);
       mClipItem.copyToClipboard();
       ret = true;
       View view = getView();
@@ -295,12 +293,13 @@ public class ClipViewerFragment extends Fragment
     }
   }
 
-  /** Add the View containing our {@link Label} items */
+  /** Add the Views containing our {@link Label} items */
   private void setupLabels() {
     if (!mIsViewable) {
       return;
     }
 
+    mClipItem.loadLabels();
     final List<Label> labels = mClipItem.getLabels();
 
     final LinearLayout labelLayout =
@@ -322,7 +321,8 @@ public class ClipViewerFragment extends Fragment
       new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
         LinearLayout.LayoutParams.WRAP_CONTENT);
     // llp.setMargins(left, top, right, bottom);
-    llp.setMargins(0, 0, AppUtils.dp2px(getContext(), 8), 0);
+    final int rightMargin = AppUtils.dp2px(getContext(), 8);
+    llp.setMargins(0, 0, rightMargin, 0);
 
     for (Label label : labels) {
       final ContextThemeWrapper wrapper =

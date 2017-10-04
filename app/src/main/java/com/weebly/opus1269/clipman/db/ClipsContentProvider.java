@@ -23,7 +23,6 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.model.Prefs;
 
 /** App private {@link ContentProvider} for the Clips.db */
 public class ClipsContentProvider extends ContentProvider {
@@ -205,7 +204,7 @@ public class ClipsContentProvider extends ContentProvider {
         "table: " + table);
 
       final ContentResolver resolver = mContext.getContentResolver();
-      resolver.notifyChange(uri, null);
+      resolver.notifyChange(newUri, null);
     }
 
     return newUri;
