@@ -12,8 +12,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
+/** Activity for editing the List of {@link Label} items */
 public class LabelsEditActivity extends BaseActivity {
 
   /** Adapter used to display the list's data */
@@ -35,15 +37,7 @@ public class LabelsEditActivity extends BaseActivity {
     mAdapter.notifyDataSetChanged();
   }
 
-  @Override
-  protected void onPause() {
-    super.onPause();
-
-  }
-
-  /**
-   * Connect the {@link LabelsEditAdapter} to the {@link RecyclerView}
-   */
+  /** Connect the {@link LabelsEditAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView() {
     final RecyclerView recyclerView = findViewById(R.id.labelList);
     if (recyclerView != null) {

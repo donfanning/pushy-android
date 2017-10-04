@@ -45,7 +45,9 @@
       android:enabled="true"
       android:title="@string/nav_labels"
       android:visible="true">
-      <menu></menu>
+      <menu>
+
+      </menu>
     </item>
   </group>
 
