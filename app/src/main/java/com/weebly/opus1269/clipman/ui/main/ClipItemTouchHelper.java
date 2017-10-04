@@ -32,8 +32,10 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     mUndoItem = null;
   }
 
-  private static void drawBackground(RecyclerView.ViewHolder viewHolder, float dX, int actionState) {
-    final View backgroundView = ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipBackground;
+  private static void drawBackground(RecyclerView.ViewHolder viewHolder,
+                                     float dX, int actionState) {
+    final View backgroundView =
+      ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipBackground;
 
     if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
       //noinspection NumericCastThatLosesPrecision
@@ -42,23 +44,30 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
   }
 
   @Override
-  public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+  public boolean onMove(RecyclerView recyclerView,
+                        RecyclerView.ViewHolder viewHolder,
+                        RecyclerView.ViewHolder target) {
     // This is for drag and drop. We don't support this
     return false;
   }
 
   @Override
-  public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+  public void onSwiped(final RecyclerView.ViewHolder viewHolder,
+                       int direction) {
     if (direction == ItemTouchHelper.RIGHT) {
       // delete item
-      final ClipCursorAdapter.ClipViewHolder holder = (ClipCursorAdapter.ClipViewHolder) viewHolder;
+      final ClipCursorAdapter.ClipViewHolder holder =
+        (ClipCursorAdapter.ClipViewHolder) viewHolder;
 
-      final int selectedPos = mActivity.getClipLoaderManager().getAdapter().getSelectedPos();
-      mUndoItem = new UndoItem(holder.clipItem, selectedPos, holder.itemView.isSelected());
+      final int selectedPos =
+        mActivity.getClipLoaderManager().getAdapter().getSelectedPos();
+      mUndoItem = new UndoItem(holder.clipItem, selectedPos,
+        holder.itemView.isSelected());
       holder.clipItem.delete();
 
       final Snackbar snack = Snackbar
-        .make(mActivity.findViewById(R.id.fab), R.string.deleted_1_item, Snackbar.LENGTH_LONG)
+        .make(mActivity.findViewById(R.id.fab), R.string.deleted_1_item,
+          Snackbar.LENGTH_LONG)
         .setAction("UNDO", new View.OnClickListener() {
           @Override
           public void onClick(View v) {
@@ -75,22 +84,29 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
   /**
    * Delegate to the  ItemTouchUiUtil class so we can separate the itemView into
-   * a foreground and background view. http://developer.android.com/reference/android/support/v7/widget/helper/ItemTouchUIUtil.html
+   * a foreground and background view.
+   * @see <a href="https://goo.gl/Xuu1qm">ItemTouchUIUtil</a>
+   * @see <a href="https://stackoverflow.com/a/35667044/4468645">My answer</a>
    */
 
   @Override
-  public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+  public void onSelectedChanged(RecyclerView.ViewHolder viewHolder,
+                                int actionState) {
     if (viewHolder != null) {
-      final View foregroundView = ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
+      final View foregroundView =
+        ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
 
       getDefaultUIUtil().onSelected(foregroundView);
     }
   }
 
   @Override
-  public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-    final View backgroundView = ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipBackground;
-    final View foregroundView = ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
+  public void clearView(RecyclerView recyclerView,
+                        RecyclerView.ViewHolder viewHolder) {
+    final View backgroundView =
+      ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipBackground;
+    final View foregroundView =
+      ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
 
     // TODO: should animate out instead. how?
     backgroundView.setRight(0);
@@ -100,9 +116,11 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
   @Override
   public void onChildDraw(Canvas c, RecyclerView recyclerView,
-                          RecyclerView.ViewHolder viewHolder, float dX, float dY,
-                          int actionState, boolean isCurrentlyActive) {
-    final View foregroundView = ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
+                          RecyclerView.ViewHolder viewHolder,
+                          float dX, float dY, int actionState,
+                          boolean isCurrentlyActive) {
+    final View foregroundView =
+      ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
 
     drawBackground(viewHolder, dX, actionState);
 
@@ -112,9 +130,11 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
   @Override
   public void onChildDrawOver(Canvas c, RecyclerView recyclerView,
-                              RecyclerView.ViewHolder viewHolder, float dX, float dY,
-                              int actionState, boolean isCurrentlyActive) {
-    final View foregroundView = ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
+                              RecyclerView.ViewHolder viewHolder,
+                              float dX, float dY, int actionState,
+                              boolean isCurrentlyActive) {
+    final View foregroundView =
+      ((ClipCursorAdapter.ClipViewHolder) viewHolder).clipForeground;
 
     drawBackground(viewHolder, dX, actionState);
 
@@ -122,6 +142,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
       actionState, isCurrentlyActive);
   }
 
+  /** Represents a deleted item that can be undone */
   private class UndoItem {
     final int mPos;
     private final ClipItem mClipItem;
