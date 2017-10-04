@@ -1,0 +1,29 @@
+Monitor, store, and manage all text placed on the clipboard.
+
+Share your clipboard with the following devices using battery friendly push notifications:
+* Android phones and tablets
+* Any computer by using the companion Chrome Extension:
+https://chrome.google.com/webstore/detail/pushy-clipboard/jemdfhaheennfkehopbpkephjlednffd
+
+Mark favorite entries for easy access.
+
+Label entries to view by category.
+
+Share entries with other apps on your device.
+
+Perform Web searches on entries.
+
+
+PERMISSIONS:
+
+Starts service to monitor clipboard when your device is started
+Access the internet
+Wake your device to deliver push notifications
+
+
+Free and advertising free.
+I write software for fun and hope it benefits others.
+Please rate the app if you find it of value. Thank you.
+
+Open source code:
+https://github.com/Pushy-Clipboard/pushy-android
