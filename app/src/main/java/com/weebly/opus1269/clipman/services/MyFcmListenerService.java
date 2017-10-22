@@ -49,12 +49,8 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   /** {@value} */
   private static final String FCM_RECEIVED = "FCM message received: ";
   /** {@value} */
-  private static final String FCM_SENT = "FCM message sent: ";
-  /** {@value} */
   private static final String FCM_DELETED =
     "Messages from remote devices were deleted before they could be delivered";
-  /** {@value} */
-  private static final String FCM_SEND_ERROR = "Error sending FCM message: ";
   /** {@value} */
   private static final String FCM_MESSAGE_ERROR =
     "Unknown FCM message received: ";
