@@ -9,11 +9,8 @@ package com.weebly.opus1269.clipman.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.Application;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -23,7 +20,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.ClipsDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.services.DeleteOldClipsAlarmReceiver;
+import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.services.HeartbeatAlarmReceiver;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -39,8 +36,9 @@ import java.util.Set;
  * Extend the App class so we can get a {@link Context} anywhere
  * and perform some initialization
  */
-public class App extends Application
-  implements Application.ActivityLifecycleCallbacks {
+public class App extends Application implements
+  Application.ActivityLifecycleCallbacks,
+  SharedPreferences.OnSharedPreferenceChangeListener {
 
   private static final String TAG = "App";
 
@@ -120,7 +118,12 @@ public class App extends Application
     Notifications.initChannels(this);
 
     // Setup heartbeat alarm
-    HeartbeatAlarmReceiver.setAlarm();
+    HeartbeatAlarmReceiver.updateAlarm();
+
+    // listen for preference changes
+    PreferenceManager
+      .getDefaultSharedPreferences(getContext())
+      .registerOnSharedPreferenceChangeListener(this);
   }
 
   @Override
@@ -159,6 +162,23 @@ public class App extends Application
 
   @Override
   public void onActivityDestroyed(Activity activity) {
+  }
+
+  @Override
+  public void
+  onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    final String keyUserId = User.PREF_USER_ID;
+    final String keyReceive = getString(R.string.key_pref_receive_msg);
+    final String keyHeartbeat = getString(R.string.key_pref_heartbeat);
+
+    // update heartbeat on appropriate changes
+    if (key.equals(keyUserId)) {
+      HeartbeatAlarmReceiver.updateAlarm();
+    } else if (key.equals(keyReceive)) {
+      HeartbeatAlarmReceiver.updateAlarm();
+    } else if (key.equals(keyHeartbeat)) {
+      HeartbeatAlarmReceiver.updateAlarm();
+    }
   }
 
   /**

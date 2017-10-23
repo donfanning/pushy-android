@@ -55,7 +55,7 @@ public enum User {
   INST;
 
   private static final String TAG = "User";
-  private static final String PREF_USER_ID = "prefUserId";
+  public static final String PREF_USER_ID = "prefUserId";
   private static final String PREF_USER_NAME = "prefUserName";
   private static final String PREF_USER_EMAIL = "prefUserEmail";
   private static final String PREF_USER_PHOTO_URI = "prefUserPhotoUri";

@@ -27,9 +27,9 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
   private final static String TAG = "HeartbeatAlarmReceiver";
 
   /**
-   * Set the repeating alarm to send the heartbeat
+   * Set or cancel the repeating alarm to send the heartbeat
    */
-  public static void setAlarm() {
+  public static void updateAlarm() {
     final Context context = App.getContext();
     final AlarmManager alarmMgr =
       (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -52,10 +52,11 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    context.sendBroadcast(new Intent("com.google.android.intent.action" +
-      ".GTALK_HEARTBEAT"));
-    context.sendBroadcast(new Intent("com.google.android.intent.action" +
-      ".MCS_HEARTBEAT"));
+    Intent intnt =
+      new Intent("com.google.android.intent.action.GTALK_HEARTBEAT");
+    context.sendBroadcast(intnt);
+    intnt = new Intent("com.google.android.intent.action.MCS_HEARTBEAT");
+    context.sendBroadcast(intnt);
     Log.logD(TAG, "Sent heartbeat");
   }
 }
