@@ -84,10 +84,10 @@ dependencies {
     androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
         exclude group: "com.android.support", module: "support-annotations"
     })
-    compile 'joda-time:joda-time:2.9.2'
-    compile 'com.google.code.gson:gson:2.7'
+    compile 'joda-time:joda-time:2.9.9'
+    compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.androidessence:recyclerviewcursoradapter:1.0.0'
-    compile 'com.firebase:firebase-jobdispatcher:0.8.1'
+    compile 'com.firebase:firebase-jobdispatcher:0.8.4'
     compile 'com.google.code.findbugs:jsr305:2.0.1'
     testCompile 'junit:junit:4.12'
 }
