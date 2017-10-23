@@ -31,7 +31,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.people.v1.People;
+import com.google.api.services.people.v1.PeopleService;
 import com.google.api.services.people.v1.model.CoverPhoto;
 import com.google.api.services.people.v1.model.Person;
 import com.weebly.opus1269.clipman.R;
@@ -325,8 +325,8 @@ public enum User {
         GoogleAccountCredential.usingOAuth2(context, scopes);
       credential.setSelectedAccount(new Account(email, "com.google"));
 
-      People service =
-        new People.Builder(httpTransport, jsonFactory, credential)
+      PeopleService service =
+        new PeopleService.Builder(httpTransport, jsonFactory, credential)
           .setApplicationName(context.getString(R.string.app_name))
           .build();
 
