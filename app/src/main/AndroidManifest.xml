@@ -140,6 +140,15 @@
         android:resource="@xml/widget_info" />
     </receiver>
 
+    <receiver
+      android:name=".services.PackageReplacedReceiver"
+      android:enabled="true"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+      </intent-filter>
+    </receiver>
+
     <!--
      Register AnalyticsReceiver and AnalyticsService to support
      background dispatching on non-Google Play devices.
@@ -165,17 +174,13 @@
 
     <!-- private to app -->
     <receiver
-      android:name=".services.PackageReplacedReceiver"
+      android:name=".services.DeleteOldClipsAlarmReceiver"
       android:enabled="true"
-      android:exported="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-      </intent-filter>
-    </receiver>
+      android:exported="false" />
 
     <!-- private to app -->
     <receiver
-      android:name=".services.AlarmReceiver"
+      android:name=".services.HeartbeatAlarmReceiver"
       android:enabled="true"
       android:exported="false" />
 
@@ -190,6 +195,7 @@
         <action android:name="com.weebly.opus1269.clipman.SHARE_ACTION" />
       </intent-filter>
     </receiver>
+
   </application>
 
 </manifest>

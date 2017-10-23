@@ -27,6 +27,26 @@
 
   <!-- Related to preferences -->
 
+  <string-array name="pref_heartbeat_entries">
+    <item>@string/ar_heartbeat_one</item>
+    <item>@string/ar_heartbeat_two</item>
+    <item>@string/ar_heartbeat_three</item>
+    <item>@string/ar_heartbeat_four</item>
+    <item>@string/ar_heartbeat_five</item>
+    <item>@string/ar_heartbeat_ten</item>
+    <item>@string/ar_heartbeat_fifteen</item>
+  </string-array>
+
+  <string-array name="pref_heartbeat_values">
+    <item>@string/ar_heartbeat_one_value</item>
+    <item>@string/ar_heartbeat_two_value</item>
+    <item>@string/ar_heartbeat_three_value</item>
+    <item>@string/ar_heartbeat_four_value</item>
+    <item>@string/ar_heartbeat_five_value</item>
+    <item>@string/ar_heartbeat_ten_value</item>
+    <item>@string/ar_heartbeat_fifteen_value</item>
+  </string-array>
+
   <string-array name="pref_duration_entries">
     <item>@string/ar_duration_day</item>
     <item>@string/ar_duration_week</item>

@@ -96,6 +96,23 @@
   <string name="pref_desc_receive_msg">Receive messages from your registered devices</string>
   <string name="key_pref_receive_msg">receive_clipboard</string>
 
+  <string name="pref_title_heartbeat">Heartbeat interval</string>
+  <string name="key_pref_heartbeat">heartbeat</string>
+  <string name="ar_heartbeat_one">1 minute (max. battery usage)</string>
+  <string name="ar_heartbeat_two">2 minutes</string>
+  <string name="ar_heartbeat_three">3 minutes</string>
+  <string name="ar_heartbeat_four">4 minutes</string>
+  <string name="ar_heartbeat_five">5 minutes (recommended)</string>
+  <string name="ar_heartbeat_ten">10 minutes</string>
+  <string name="ar_heartbeat_fifteen">15 minutes</string>
+  <string name="ar_heartbeat_one_value" translatable="false">1</string>
+  <string name="ar_heartbeat_two_value" translatable="false">2</string>
+  <string name="ar_heartbeat_three_value" translatable="false">3</string>
+  <string name="ar_heartbeat_four_value" translatable="false">4</string>
+  <string name="ar_heartbeat_five_value" translatable="false">5</string>
+  <string name="ar_heartbeat_ten_value" translatable="false">10</string>
+  <string name="ar_heartbeat_fifteen_value" translatable="false">15</string>
+
   <string name="pref_title_priority_msg">High priority message</string>
   <string name="pref_desc_priority_msg">Wakes android devices for immediate delivery. Uses more battery.</string>
   <string name="key_pref_priority_msg">priority_clipboard</string>

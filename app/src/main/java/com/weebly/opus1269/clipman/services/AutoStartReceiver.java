@@ -38,7 +38,7 @@ public class AutoStartReceiver extends BroadcastReceiver {
   private static void setupDeleteOldAlarm(Context context) {
     final AlarmManager alarmMgr =
       (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-    final Intent intent = new Intent(context, AlarmReceiver.class);
+    final Intent intent = new Intent(context, DeleteOldClipsAlarmReceiver.class);
     final PendingIntent alarmIntent =
       PendingIntent.getBroadcast(context, 0, intent, 0);
 

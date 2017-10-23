@@ -9,8 +9,11 @@ package com.weebly.opus1269.clipman.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -20,6 +23,8 @@ import android.support.v7.preference.PreferenceManager;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.ClipsDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.services.DeleteOldClipsAlarmReceiver;
+import com.weebly.opus1269.clipman.services.HeartbeatAlarmReceiver;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
@@ -113,6 +118,9 @@ public class App extends Application
 
     // Initialize the Notification Channels
     Notifications.initChannels(this);
+
+    // Setup heartbeat alarm
+    HeartbeatAlarmReceiver.setAlarm();
   }
 
   @Override

@@ -71,64 +71,71 @@ public class Prefs {
 
   public static boolean isMonitorClipboard() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_monitor_clipboard);
+    final String key =
+      context.getResources().getString(R.string.key_pref_monitor_clipboard);
     return get(key, true);
   }
 
   public static boolean isMonitorStartup() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_monitor_startup);
+    final String key =
+      context.getResources().getString(R.string.key_pref_monitor_startup);
     return get(key, true);
   }
 
   public static boolean isPushClipboard() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_push_msg);
+    final String key =
+      context.getResources().getString(R.string.key_pref_push_msg);
     return get(key, true);
   }
 
   public static boolean isAutoSend() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_auto_msg);
+    final String key =
+      context.getResources().getString(R.string.key_pref_auto_msg);
     return get(key, true);
   }
 
   public static boolean isAllowReceive() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_receive_msg);
+    final String key =
+      context.getResources().getString(R.string.key_pref_receive_msg);
     return get(key, true);
+  }
+
+  public static int getHeartbeat() {
+    final Context context = App.getContext();
+    final String key =
+      context.getResources().getString(R.string.key_pref_heartbeat);
+    return Integer.parseInt(get(key, "5"));
   }
 
   public static boolean isHighPriority() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_priority_msg);
+    final String key =
+      context.getResources().getString(R.string.key_pref_priority_msg);
     return get(key, true);
   }
 
   public static String getDeviceNickname() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_nickname);
+    final String key =
+      context.getResources().getString(R.string.key_pref_nickname);
     return get(key, "");
   }
 
   public static String getDuration() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_duration);
+    final String key =
+      context.getResources().getString(R.string.key_pref_duration);
     return get(key, DEF_DURATION);
   }
 
   private static String getTheme() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_theme);
+    final String key =
+      context.getResources().getString(R.string.key_pref_theme);
     return get(key, DEF_THEME);
   }
 
@@ -144,8 +151,8 @@ public class Prefs {
 
   public static boolean notNotifications() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_notifications);
+    final String key =
+      context.getResources().getString(R.string.key_pref_notifications);
     return !get(key, true);
   }
 
@@ -174,8 +181,8 @@ public class Prefs {
       return false;
     }
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_not_types);
+    final String key =
+      context.getResources().getString(R.string.key_pref_not_types);
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(context);
     final Set<String> values =
@@ -185,8 +192,8 @@ public class Prefs {
 
   static boolean isAudibleOnce() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_not_audible_once);
+    final String key =
+      context.getResources().getString(R.string.key_pref_not_audible_once);
     return get(key, true);
   }
 
@@ -202,15 +209,15 @@ public class Prefs {
 
   public static String getRingtone() {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_ringtone);
+    final String key =
+      context.getResources().getString(R.string.key_pref_ringtone);
     return get(key, DEF_RINGTONE);
   }
 
   public static void setRingtone(String value) {
     final Context context = App.getContext();
-    final String key = context.getResources().getString(R.string
-      .key_pref_ringtone);
+    final String key =
+      context.getResources().getString(R.string.key_pref_ringtone);
     set(key, value);
   }
 
@@ -338,7 +345,6 @@ public class Prefs {
     return preferences.getBoolean(key, defValue);
   }
 
-  @SuppressWarnings("SameParameterValue")
   private static int get(String key, int defValue) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(App.getContext());

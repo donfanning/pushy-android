@@ -16,7 +16,7 @@ import com.weebly.opus1269.clipman.db.ClipTable;
 /**
  * {@link BroadcastReceiver} that cleans up old entries in the database
  */
-public class AlarmReceiver extends BroadcastReceiver {
+public class DeleteOldClipsAlarmReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {

@@ -91,7 +91,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/transforms" />
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
-      <excludeFolder url="file://$MODULE_DIR$/build/reports" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
     <orderEntry type="jdk" jdkName="Android API 26 Platform" jdkType="Android SDK" />
@@ -126,12 +125,12 @@
     <orderEntry type="library" exported="" name="google-http-client-android-1.22.0" level="project" />
     <orderEntry type="library" exported="" name="support-core-ui-26.1.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-client-android-1.22.0" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.8.2" level="project" />
     <orderEntry type="library" exported="" name="support-media-compat-26.1.0" level="project" />
     <orderEntry type="library" exported="" name="preference-v14-26.1.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-auth-11.4.0" level="project" />
     <orderEntry type="library" exported="" name="messaging-v1-1.22.0-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="play-services-auth-api-phone-11.4.0" level="project" />
-    <orderEntry type="library" exported="" name="joda-time-2.9.2" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-26.1.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerviewcursoradapter-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="firebase-iid-11.4.0" level="project" />
@@ -140,15 +139,14 @@
     <orderEntry type="library" exported="" name="support-core-utils-26.1.0" level="project" />
     <orderEntry type="library" exported="" name="google-oauth-client-1.22.0" level="project" />
     <orderEntry type="library" exported="" name="firebase-auth-11.4.0" level="project" />
+    <orderEntry type="library" exported="" name="joda-time-2.9.9" level="project" />
     <orderEntry type="library" exported="" name="play-services-basement-11.4.0" level="project" />
     <orderEntry type="library" exported="" name="jsr305-2.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-11.4.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="espresso-core-2.2.2" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="rules-0.5" level="project" />
-    <orderEntry type="library" exported="" name="firebase-jobdispatcher-0.8.1" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-1.22.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="javax.inject-1" level="project" />
-    <orderEntry type="library" exported="" name="gson-2.7" level="project" />
     <orderEntry type="library" exported="" name="animated-vector-drawable-26.1.0" level="project" />
     <orderEntry type="library" exported="" name="runtime-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="google-http-client-jackson2-1.22.0" level="project" />
@@ -160,6 +158,7 @@
     <orderEntry type="library" exported="" name="preference-v7-26.1.0" level="project" />
     <orderEntry type="library" exported="" name="google-api-services-people-v1-rev4-1.22.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="junit-4.12" level="project" />
+    <orderEntry type="library" exported="" name="firebase-jobdispatcher-0.8.4" level="project" />
     <orderEntry type="library" exported="" name="preference-v7-26.1.0.0" level="project" />
     <orderEntry type="library" exported="" name="registration-v1-1.22.0-SNAPSHOT-sources" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-11.4.0" level="project" />
