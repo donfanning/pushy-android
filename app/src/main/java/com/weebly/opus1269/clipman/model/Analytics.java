@@ -23,11 +23,16 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 public enum Analytics {
   INST;
 
+  public static final String CAT_UI = "ui";
+  public static final String UI_TOGGLE = "toggle";
+  public static final String UI_LIST = "listSelect";
+  public static final String UI_MULTI_LIST = "multiListSelect";
+  public static final String UI_EDIT_TEXT = "editText";
+
   /**
    * Google Analytics tracking ID
    */
   private static final String TRACKING_ID = "UA-61314754-3";
-
   private static final String CAT_APP = "app";
   private static final String CAT_MSG = "message";
   private static final String CAT_REG = "register";
@@ -63,26 +68,37 @@ public enum Analytics {
   }
 
   /**
-   * Error event
-   * @param label  Event label
+   * Generic event
+   * @param screen Source screen
+   * @param cat    Event category
    * @param action Event action
+   * @param label  Event label
    */
-  public void error(String label, String action) {
-    getTracker().setScreenName(NO_SCREEN);
+  public void event(String screen, String cat, String action, String label) {
+    getTracker().setScreenName(screen);
     getTracker().send(new HitBuilders.EventBuilder()
-      .setCategory(CAT_ERROR)
+      .setCategory(cat)
       .setAction(action)
       .setLabel(label)
       .build());
   }
 
   /**
-   * Exception
-   * @param message   Error message
-   * @param exception Exception
+   * Error event
+   * @param action Event action
+   * @param label  Event label
    */
-  public void exception(String message, Exception exception) {
-    String msg = "Exception caught: ";
+  public void error(String action, String label) {
+    event(NO_SCREEN, CAT_ERROR, action, label);
+  }
+
+  /**
+   * Exception event
+   * @param exception Exception
+   * @param message   Error message
+   */
+  public void exception(Exception exception, String message) {
+    String msg = "Caught: ";
     if (!TextUtils.isEmpty(message)) {
       msg += message;
       msg += "\n";
@@ -95,15 +111,9 @@ public enum Analytics {
       .build());
   }
 
-  /**
-   * App updated
-   */
+  /** App updated */
   public void updated() {
-    getTracker().setScreenName(NO_SCREEN);
-    getTracker().send(new HitBuilders.EventBuilder()
-      .setCategory(CAT_APP)
-      .setAction(UPDATED)
-      .build());
+    event(NO_SCREEN, CAT_APP, UPDATED, Prefs.getVersionName());
   }
 
   /**
@@ -111,12 +121,7 @@ public enum Analytics {
    * @param label message type
    */
   public void sent(String label) {
-    getTracker().setScreenName(NO_SCREEN);
-    getTracker().send(new HitBuilders.EventBuilder()
-      .setCategory(CAT_MSG)
-      .setAction(SENT)
-      .setLabel(label)
-      .build());
+    event(NO_SCREEN, CAT_MSG, SENT, label);
   }
 
   /**
@@ -124,44 +129,21 @@ public enum Analytics {
    * @param label message type
    */
   public void received(String label) {
-    getTracker().setScreenName(NO_SCREEN);
-    getTracker().send(new HitBuilders.EventBuilder()
-      .setCategory(CAT_MSG)
-      .setAction(RECEIVED)
-      .setLabel(label)
-      .build());
+    event(NO_SCREEN, CAT_MSG, RECEIVED, label);
   }
 
-  /**
-   * Device registered event.
-   */
+  /** Device registered event */
   public void registered() {
-    getTracker().setScreenName(NO_SCREEN);
-    getTracker().send(new HitBuilders.EventBuilder()
-      .setCategory(CAT_REG)
-      .setAction(REGISTERED)
-      .build());
+    event(NO_SCREEN, CAT_REG, REGISTERED, "");
   }
 
-  /**
-   * Device unregistered event.
-   */
+  /** Device unregistered event */
   public void unregistered() {
-    getTracker().setScreenName(NO_SCREEN);
-    getTracker().send(new HitBuilders.EventBuilder()
-      .setCategory(CAT_REG)
-      .setAction(UNREGISTERED)
-      .build());
+    event(NO_SCREEN, CAT_REG, UNREGISTERED, "");
   }
 
-  /**
-   * Firebase token refreshed.
-   */
+  /** Firebase token refreshed */
   public void instanceIdRefreshed() {
-    getTracker().setScreenName(NO_SCREEN);
-    getTracker().send(new HitBuilders.EventBuilder()
-      .setCategory(CAT_TOKEN)
-      .setAction(REFRESHED)
-      .build());
+    event(NO_SCREEN, CAT_TOKEN, REFRESHED, "");
   }
 }

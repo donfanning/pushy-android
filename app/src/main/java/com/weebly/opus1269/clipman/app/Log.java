@@ -56,7 +56,7 @@ public class Log {
 
     android.util.Log.e(MY_APP + tag, msg);
 
-    Analytics.INST.error(msg, tag);
+    Analytics.INST.error(tag, msg);
 
     // save last error
     final LastError lastError = new LastError(tag, title, message);
@@ -121,7 +121,7 @@ public class Log {
       msg += ": " + message;
     }
 
-    Analytics.INST.exception(msg, ex);
+    Analytics.INST.exception(ex, msg);
 
     android.util.Log.e(MY_APP + tag, msg);
     android.util.Log.e(MY_APP + tag, ex.toString());
