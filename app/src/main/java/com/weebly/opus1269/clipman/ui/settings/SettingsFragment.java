@@ -10,31 +10,39 @@ package com.weebly.opus1269.clipman.ui.settings;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v14.preference.MultiSelectListPreference;
+import android.support.v14.preference.SwitchPreference;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.takisoft.fix.support.v7.preference.EditTextPreference;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.RegistrationClient;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.model.Notifications;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
+
+import java.util.HashSet;
 
 /**
  * Fragment for app Preferences.
@@ -46,8 +54,6 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   private static final int REQUEST_CODE_ALERT_RINGTONE = 5;
 
   private String mRingtoneKey;
-  private String mNicknameKey;
-  private String mMangageNotKey;
 
   @Override
   public void onCreatePreferencesFix(Bundle bundle, String rootKey) {
@@ -59,10 +65,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       .getDefaultSharedPreferences(getContext())
       .registerOnSharedPreferenceChangeListener(this);
 
-    final Resources resources = getActivity().getResources();
-    mRingtoneKey = resources.getString(R.string.key_pref_ringtone);
-    mNicknameKey = resources.getString(R.string.key_pref_nickname);
-    mMangageNotKey = resources.getString(R.string.key_pref_manage_not);
+    mRingtoneKey = getString(R.string.key_pref_ringtone);
 
     setRingtoneSummary();
     setNicknameSummary();
@@ -119,7 +122,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
 
       return true;
-    } else if (mMangageNotKey.equals(key)) {
+    } else if (getString(R.string.key_pref_manage_not).equals(key)) {
       // Manage notifications for Android O and later
       Notifications.showNotificationSettings(getContext());
       return true;
@@ -132,15 +135,16 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     if ((requestCode == REQUEST_CODE_ALERT_RINGTONE) && (data != null)) {
       // Save the Ringtone preference
-      final Uri ringtone =
-        data.getParcelableExtra(
-          RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-      if (ringtone != null) {
-        Prefs.setRingtone(ringtone.toString());
-      } else {
-        // "Silent" was selected
-        Prefs.setRingtone("");
+      final Uri uri =
+        data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+      String ringTone = "";
+
+      if (uri != null) {
+        ringTone = uri.toString();
       }
+      Prefs.setRingtone(ringTone);
+      Analytics.INST.event(((BaseActivity)getActivity()).getTAG(),
+        Analytics.CAT_UI, Analytics.UI_LIST, "ringtone: " + ringTone);
       setRingtoneSummary();
     } else {
       super.onActivityResult(requestCode, resultCode, data);
@@ -158,7 +162,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   @Override
   public void
-  onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+  onSharedPreferenceChanged(SharedPreferences sp, String key) {
     final String keyNickname =
       getString(R.string.key_pref_nickname);
     final String keyMonitor =
@@ -171,6 +175,10 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       getString(R.string.key_pref_receive_msg);
     final Activity activity = getActivity();
 
+    // log event
+    logChange(sp, key);
+
+    // process changes
     if (key.equals(keyNickname)) {
       setNicknameSummary();
       MessagingClient.sendPing();
@@ -212,6 +220,41 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     }
   }
 
+  /**
+   * Log settings changes to Analytics
+   * @param sp
+   * @param key key of setting to log
+   */
+  private void logChange(SharedPreferences sp, String key) {
+    final Preference preference = findPreference(key);
+    final String TAG = ((BaseActivity) getActivity()).getTAG();
+    final String category = Analytics.CAT_UI;
+    String action = "";
+    String label = "";
+
+    // log events
+    if (preference instanceof SwitchPreferenceCompat) {
+      action = Analytics.UI_TOGGLE;
+      label = key + ": " + sp.getBoolean(key, false);
+    } else if (preference instanceof SwitchPreference) {
+      action = Analytics.UI_LIST;
+      label = key + ": " + sp.getBoolean(key, false);
+    } else if (preference instanceof ListPreference) {
+      action = Analytics.UI_LIST;
+      label = key + ": " + sp.getString(key, "");
+    } else if (preference instanceof MultiSelectListPreference) {
+      action = Analytics.UI_MULTI_LIST;
+      label = key + ": " + sp.getStringSet(key, new HashSet<String>(0));
+    } else if (preference instanceof EditTextPreference) {
+      action = Analytics.UI_EDIT_TEXT;
+      label = key + ": " + sp.getString(key, "");
+    }
+
+    if (!TextUtils.isEmpty(action)) {
+      Analytics.INST.event(TAG, category, action, label);
+    }
+  }
+
   /** Update the Ringtone summary text */
   private void setRingtoneSummary() {
     if (AppUtils.isOreoOrLater()) {
@@ -233,7 +276,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   /** Update the Nickname summary text */
   private void setNicknameSummary() {
-    final Preference preference = findPreference(mNicknameKey);
+    final Preference preference =
+      findPreference(getString(R.string.key_pref_nickname));
     String value = Prefs.getDeviceNickname();
     if (TextUtils.isEmpty(value)) {
       value = getResources().getString(R.string.pref_nickname_hint);
