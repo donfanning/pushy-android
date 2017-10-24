@@ -163,6 +163,13 @@ public abstract class BaseActivity extends AppCompatActivity implements
   }
 
   /**
+   * Get the TAG
+   */
+  public String getTAG() {
+    return TAG;
+  }
+
+  /**
    * Get the Fab view
    */
   public FloatingActionButton getFab() {
