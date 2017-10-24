@@ -29,14 +29,14 @@ public enum Analytics {
 
   public static final String CAT_UI = "ui";
   public static final String UI_TOGGLE = "toggle";
-  public static final String UI_IMAGE_VIEW = "imageButtom";
   public static final String UI_LIST = "listSelect";
   public static final String UI_MULTI_LIST = "multiListSelect";
-  public static final String UI_EDIT_TEXT = "editText";
+  public static final String UI_EDIT_TEXT = "textChanged";
   private static final String UI_CLICK = "click";
-  private static final String UI_BUTTON = "button";
-  private static final String UI_CHECKBOX = "checkbox";
-  private static final String UI_MENU = "menu";
+  private static final String UI_BUTTON = "buttonClicked";
+  private static final String UI_CHECKBOX = "checkBoxClicked";
+  private static final String UI_IMAGE_VIEW = "imageButtom";
+  private static final String UI_MENU = "menuSelect";
 
   /**
    * Google Analytics tracking ID
@@ -67,8 +67,7 @@ public enum Analytics {
    */
   synchronized public Tracker getTracker() {
     if (mTracker == null) {
-      GoogleAnalytics analytics =
-        GoogleAnalytics.getInstance(App.getContext());
+      GoogleAnalytics analytics = GoogleAnalytics.getInstance(App.getContext());
       // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
       mTracker = analytics.newTracker(TRACKING_ID);
       mTracker.setAppName(AppUtils.getApplicationName());
