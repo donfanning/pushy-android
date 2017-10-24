@@ -19,6 +19,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -48,6 +49,7 @@ public class DevicesActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
           doRefresh();
+          Analytics.INST.imageClick(TAG, "refreshDevices");
         }
       });
     }

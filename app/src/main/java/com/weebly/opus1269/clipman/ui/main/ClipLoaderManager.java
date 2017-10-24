@@ -23,6 +23,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -148,14 +149,19 @@ class ClipLoaderManager implements
       case R.id.clipRow:
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
         onItemViewClicked(holder);
+        Analytics.INST.click(mMainActivity.getTAG(), "clipItemRow");
         break;
       case R.id.favCheckBox:
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
         onFavClicked(holder);
+        final boolean checked = holder.favCheckBox.isChecked();
+        Analytics.INST.checkBoxClick(mMainActivity.getTAG(),
+          "clipItemFav: " + checked);
         break;
       case R.id.copyButton:
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
         onCopyClicked(holder);
+        Analytics.INST.imageClick(mMainActivity.getTAG(), "clipItemCopy");
         break;
       default:
         break;

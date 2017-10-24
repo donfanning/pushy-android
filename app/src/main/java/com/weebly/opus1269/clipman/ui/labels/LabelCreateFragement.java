@@ -25,8 +25,10 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 /** Fragment to Create a new {@link Label} */
@@ -81,6 +83,8 @@ public class LabelCreateFragement extends Fragment implements
   public void onClick(View view) {
     if (view.getId() == R.id.addDoneButton) {
       doneAction();
+      Analytics.INST.imageClick(((BaseActivity)getActivity()).getTAG(),
+        "addLabel");
     }
   }
 

@@ -17,6 +17,7 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -192,10 +193,11 @@ public class ClipViewerActivity extends BaseActivity implements
       Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
 
     if (deleted) {
-      snack.setAction("UNDO", new View.OnClickListener() {
+      snack.setAction(R.string.button_undo, new View.OnClickListener() {
         @Override
         public void onClick(View v) {
           mUndoItem.save();
+          Analytics.INST.imageClick(TAG, getString(R.string.button_undo));
         }
       }).addCallback(new Snackbar.Callback() {
 

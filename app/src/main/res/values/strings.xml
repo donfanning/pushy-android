@@ -336,6 +336,7 @@
   <string name="button_delete">DELETE</string>
   <string name="button_dismiss">DISMISS</string>
   <string name="button_cancel">CANCEL</string>
+  <string name="button_undo">UNDO</string>
   <string name="button_continue">CONTINUE</string>
   <string name="copyright" translatable="false">&#169;2017 Michael A Updike</string>
   <string name="version_fmt">Version %s</string>

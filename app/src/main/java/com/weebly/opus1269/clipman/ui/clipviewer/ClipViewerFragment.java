@@ -28,9 +28,11 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 import java.io.Serializable;
@@ -190,7 +192,10 @@ public class ClipViewerFragment extends Fragment
     final View labelList = activity.findViewById(R.id.labelList);
     if (v == fab) {
       mClipItem.doShare(v);
+      Analytics.INST.imageClick(((BaseActivity)activity).getTAG(),
+        "shareClipItem");
     } else if (v == labelList) {
+      Analytics.INST.click(((BaseActivity)activity).getTAG(), "showLabelList");
       final Intent intent = new Intent(activity, LabelsSelectActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, mClipItem);
       AppUtils.startActivity(activity, intent);

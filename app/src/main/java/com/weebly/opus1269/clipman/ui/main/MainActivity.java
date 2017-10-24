@@ -32,6 +32,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -227,6 +228,8 @@ public class MainActivity extends BaseActivity implements
   public boolean onOptionsItemSelected(MenuItem item) {
     boolean processed = true;
 
+    Analytics.INST.menuClick(TAG, item);
+
     final int id = item.getItemId();
     switch (id) {
       case R.id.home:
@@ -271,6 +274,8 @@ public class MainActivity extends BaseActivity implements
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     final int id = item.getItemId();
+
+    Analytics.INST.menuClick(TAG, item);
 
     switch (id) {
       case R.id.nav_account:
@@ -372,9 +377,10 @@ public class MainActivity extends BaseActivity implements
       Snackbar.make(findViewById(R.id.fab),
         message, Snackbar.LENGTH_LONG);
     if (nRows > 0) {
-      snack.setAction("UNDO", new View.OnClickListener() {
+      snack.setAction(R.string.button_undo, new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+          Analytics.INST.imageClick(getTAG(), getString(R.string.button_undo));
           ClipTable.INST.insertClipItems(mUndoItems);
         }
       }).addCallback(new Snackbar.Callback() {

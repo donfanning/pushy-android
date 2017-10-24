@@ -39,6 +39,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -217,15 +218,19 @@ public class SignInActivity extends BaseActivity implements
   @Override
   public void onClick(View v) {
     mErrorMessage = "";
+
     switch (v.getId()) {
       case R.id.sign_in_button:
         onSignInClicked();
+        Analytics.INST.buttonClick(TAG, v);
         break;
       case R.id.sign_out_button:
         onSignOutClicked();
+        Analytics.INST.buttonClick(TAG, v);
         break;
       case R.id.revoke_access_button:
         onRevokeAccessClicked();
+        Analytics.INST.buttonClick(TAG, v);
         break;
       default:
         break;

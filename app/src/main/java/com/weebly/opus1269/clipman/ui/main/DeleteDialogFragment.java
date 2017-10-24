@@ -17,11 +17,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.Analytics;
 
 /**
  * Modal dialog to delete all items in the main clip list
  */
 public class DeleteDialogFragment extends DialogFragment {
+  private static final String TAG = "DeleteDialogFragment";
 
   // Flag to indicate if the favorite items should be deleted as well
   private Boolean mDeleteFavs = false;
@@ -61,6 +63,7 @@ public class DeleteDialogFragment extends DialogFragment {
       .setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
+          Analytics.INST.buttonClick(TAG, ((AlertDialog)dialog).getButton(which));
           // tell the listener to delete the items
           mListener.onDeleteDialogPositiveClick(mDeleteFavs);
         }
@@ -69,6 +72,7 @@ public class DeleteDialogFragment extends DialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
           // User cancelled the dialog
+          Analytics.INST.buttonClick(TAG, ((AlertDialog)dialog).getButton(which));
           dialog.cancel();
         }
       });

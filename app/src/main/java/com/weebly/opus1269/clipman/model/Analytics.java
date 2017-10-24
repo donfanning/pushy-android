@@ -9,6 +9,10 @@ package com.weebly.opus1269.clipman.model;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
@@ -25,14 +29,20 @@ public enum Analytics {
 
   public static final String CAT_UI = "ui";
   public static final String UI_TOGGLE = "toggle";
+  public static final String UI_IMAGE_VIEW = "imageButtom";
   public static final String UI_LIST = "listSelect";
   public static final String UI_MULTI_LIST = "multiListSelect";
   public static final String UI_EDIT_TEXT = "editText";
+  private static final String UI_CLICK = "click";
+  private static final String UI_BUTTON = "button";
+  private static final String UI_CHECKBOX = "checkbox";
+  private static final String UI_MENU = "menu";
 
   /**
    * Google Analytics tracking ID
    */
   private static final String TRACKING_ID = "UA-61314754-3";
+
   private static final String CAT_APP = "app";
   private static final String CAT_MSG = "message";
   private static final String CAT_REG = "register";
@@ -75,12 +85,82 @@ public enum Analytics {
    * @param label  Event label
    */
   public void event(String screen, String cat, String action, String label) {
-    getTracker().setScreenName(screen);
-    getTracker().send(new HitBuilders.EventBuilder()
+    final HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
+
+    builder
       .setCategory(cat)
-      .setAction(action)
-      .setLabel(label)
-      .build());
+      .setAction(action);
+
+    if (!TextUtils.isEmpty(label)) {
+      builder.setLabel(label);
+    }
+
+    getTracker().setScreenName(screen);
+    getTracker().send(builder.build());
+  }
+
+  /**
+   * Generic event
+   * @param screen Source screen
+   * @param cat    Event category
+   * @param action Event action
+   */
+  public void event(String screen, String cat, String action) {
+    event(screen, cat, action, null);
+  }
+
+  /**
+   * Generic click even
+   * @param screen Source screen
+   * @param label  description
+   */
+  public void click(String screen, String label) {
+    event(screen, Analytics.CAT_UI, Analytics.UI_CLICK, label);
+  }
+
+  /**
+   * Button clicked event
+   * @param screen Source screen
+   * @param view   Source screen
+   */
+  public void buttonClick(String screen, View view) {
+    if (view instanceof Button) {
+      final String label = ((Button) view).getText().toString();
+      event(screen, Analytics.CAT_UI, Analytics.UI_BUTTON, label);
+    }
+  }
+
+  /**
+   * Button clicked event
+   * @param screen Source screen
+   * @param item   Source screen
+   */
+  public void menuClick(String screen, MenuItem item) {
+    final String label;
+    if (item.getItemId() == Menu.NONE) {
+      label = "label";
+    } else {
+      label = item.getTitle().toString();
+    }
+    event(screen, Analytics.CAT_UI, Analytics.UI_MENU, label);
+  }
+
+  /**
+   * ImageView clicked event
+   * @param screen Source screen
+   * @param label  description
+   */
+  public void imageClick(String screen, String label) {
+    event(screen, Analytics.CAT_UI, Analytics.UI_IMAGE_VIEW, label);
+  }
+
+  /**
+   * CheckboxView clicked event
+   * @param screen Source screen
+   * @param label  description
+   */
+  public void checkBoxClick(String screen, String label) {
+    event(screen, Analytics.CAT_UI, Analytics.UI_CHECKBOX, label);
   }
 
   /**
@@ -134,16 +214,16 @@ public enum Analytics {
 
   /** Device registered event */
   public void registered() {
-    event(NO_SCREEN, CAT_REG, REGISTERED, "");
+    event(NO_SCREEN, CAT_REG, REGISTERED);
   }
 
   /** Device unregistered event */
   public void unregistered() {
-    event(NO_SCREEN, CAT_REG, UNREGISTERED, "");
+    event(NO_SCREEN, CAT_REG, UNREGISTERED);
   }
 
   /** Firebase token refreshed */
   public void instanceIdRefreshed() {
-    event(NO_SCREEN, CAT_TOKEN, REFRESHED, "");
+    event(NO_SCREEN, CAT_TOKEN, REFRESHED);
   }
 }

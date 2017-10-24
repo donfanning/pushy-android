@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -78,6 +79,7 @@ class DevicesAdapter extends
         @Override
         public void onClick(View v) {
           Devices.remove(device);
+          Analytics.INST.imageClick("DevicesActivity", "removeDevice");
         }
       }
     );

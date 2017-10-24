@@ -33,6 +33,7 @@ import com.androidessence.recyclerviewcursoradapter
   .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.ClipsContract;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -98,6 +99,7 @@ class LabelsSelectAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+          Analytics.INST.click(mActivity.getTAG(), "selectLabel");
           holder.checkBox.toggle();
           final boolean checked = holder.checkBox.isChecked();
           addOrRemoveLabel(checked, label);
@@ -111,6 +113,8 @@ class LabelsSelectAdapter extends
         public void onClick(View v) {
           final boolean checked = holder.checkBox.isChecked();
           addOrRemoveLabel(checked, label);
+          Analytics.INST.checkBoxClick(mActivity.getTAG(),
+            "selectLabel: " + checked);
         }
       }
     );

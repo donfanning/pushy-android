@@ -14,6 +14,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 
 /** Handle swipe to dismiss on the RecyclerView */
@@ -68,9 +69,11 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
       final Snackbar snack = Snackbar
         .make(mActivity.findViewById(R.id.fab), R.string.deleted_1_item,
           Snackbar.LENGTH_LONG)
-        .setAction("UNDO", new View.OnClickListener() {
+        .setAction(R.string.button_undo, new View.OnClickListener() {
           @Override
           public void onClick(View v) {
+            Analytics.INST.imageClick(mActivity.getTAG(),
+              mActivity.getString(R.string.button_undo));
             if (mUndoItem != null) {
               mUndoItem.undo();
               mUndoItem = null;

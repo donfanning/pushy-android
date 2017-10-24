@@ -18,7 +18,6 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -38,8 +37,10 @@ import com.androidessence.recyclerviewcursoradapter
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 /** Bridge between the RecyclerView and the database */
@@ -48,12 +49,15 @@ class LabelsEditAdapter extends
   DialogInterface.OnClickListener {
 
   /** Our activity */
-  private final Activity mActivity;
+  private final BaseActivity mActivity;
+
+  /** Our delete dialog */
+  private AlertDialog mDialog;
 
   /** Label that may be deleted */
   private Label mDeleteLabel;
 
-  LabelsEditAdapter(Activity activity) {
+  LabelsEditAdapter(BaseActivity activity) {
     super(activity);
 
     mActivity = activity;
@@ -138,6 +142,7 @@ class LabelsEditAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+          Analytics.INST.imageClick(mActivity.getTAG(), "deleteLabel");
           mDeleteLabel = holder.label;
           showDeleteDialog();
         }
@@ -155,7 +160,8 @@ class LabelsEditAdapter extends
   public void onClick(DialogInterface dialogInterface, int which) {
     if ((which == DialogInterface.BUTTON_POSITIVE) && (mDeleteLabel != null)) {
       // delete it
-      mDeleteLabel.delete();
+      Analytics.INST.buttonClick(mActivity.getTAG(),
+        mDialog.getButton(which));
       mDeleteLabel = null;
     }
   }
@@ -203,8 +209,8 @@ class LabelsEditAdapter extends
       .setPositiveButton(R.string.button_delete, this)
       .setNegativeButton(R.string.button_cancel, this);
 
-    AlertDialog dialog = builder.create();
-    dialog.show();
+    mDialog = builder.create();
+    mDialog.show();
   }
 
   static class LabelViewHolder extends RecyclerViewCursorViewHolder {
