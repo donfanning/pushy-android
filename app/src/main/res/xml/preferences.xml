@@ -5,8 +5,7 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:custom="http://schemas.android.com/apk/res-auto" >
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
   <PreferenceCategory
     android:title="@string/pref_cat_title_clipboard"
@@ -71,7 +70,7 @@
     android:title="@string/pref_cat_title_general"
     android:key="@string/key_pref_cat_general">
 
-    <EditTextPreference
+    <com.takisoft.fix.support.v7.preference.EditTextPreference
       android:defaultValue=""
       android:key="@string/key_pref_nickname"
       android:title="@string/pref_title_nickname"
@@ -132,4 +131,4 @@
 
   </PreferenceCategory>
 
-</PreferenceScreen>
+</android.support.v7.preference.PreferenceScreen>
