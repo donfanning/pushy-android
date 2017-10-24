@@ -17,27 +17,26 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Email;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.ui.views.VectorDrawableTextView;
 
-/**
- * This Activity handles the display of help & feedback about the app
- */
+/** This Activity handles the display of help & feedback */
 public class HelpActivity extends BaseActivity {
 
+  /** Version dialog */
   private DialogFragment mDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-
     mLayoutID = R.layout.activity_help;
 
     super.onCreate(savedInstanceState);
 
-    TextView release = findViewById(R.id.docRelease);
+    final TextView release = findViewById(R.id.docRelease);
     release.setTag(getResources()
       .getString(R.string.help_doc_releas_tag_fmt,
         Prefs.getVersionName()));
@@ -78,16 +77,22 @@ public class HelpActivity extends BaseActivity {
         break;
     }
 
+    if (processed) {
+      Analytics.INST.menuClick(TAG, item);
+    }
+
     return processed || super.onOptionsItemSelected(item);
   }
 
   /**
-   * Handle click on Help and feedback items
+   * Handle click on the Help and feedback items
    * @param v the TextView that was clicked
    */
   public void onItemClicked(View v) {
 
     final TextView textView = (TextView) v;
+
+    Analytics.INST.click(TAG, textView.getText().toString());
 
     final int id = v.getId();
     switch (id) {
@@ -116,17 +121,13 @@ public class HelpActivity extends BaseActivity {
     }
   }
 
-  /**
-   * Show the {@link VersionDialogFragment}
-   */
+  /** Show the {@link VersionDialogFragment} */
   private void showVersionDialog() {
     mDialog = new VersionDialogFragment();
     mDialog.show(getSupportFragmentManager(), "VersionDialogFragment");
   }
 
-  /**
-   * color the LeftDrawables in all our {@link VectorDrawableTextView} views
-   */
+  /** Color the LeftDrawables for our {@link VectorDrawableTextView} views */
   private void tintLeftDrawables() {
 
     int color;
@@ -168,10 +169,10 @@ public class HelpActivity extends BaseActivity {
   /**
    * Color the leftDrawable in a {@link VectorDrawableTextView}
    * @param drawableHelper helper class
-   * @param idView         id of VectorDrawableTextView
+   * @param viewId         id of VectorDrawableTextView
    */
-  private void tintLeftDrawable(DrawableHelper drawableHelper, int idView) {
-    final TextView textView = findViewById(idView);
+  private void tintLeftDrawable(DrawableHelper drawableHelper, int viewId) {
+    final TextView textView = findViewById(viewId);
     if (textView != null) {
       Drawable drawable = drawableHelper.get();
       textView.setCompoundDrawablesWithIntrinsicBounds(

@@ -163,6 +163,10 @@ public class SignInActivity extends BaseActivity implements
         break;
     }
 
+    if (processed) {
+      Analytics.INST.menuClick(TAG, item);
+    }
+
     return processed || super.onOptionsItemSelected(item);
   }
 

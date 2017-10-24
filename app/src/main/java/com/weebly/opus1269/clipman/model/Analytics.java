@@ -136,11 +136,14 @@ public enum Analytics {
    * @param item   Source screen
    */
   public void menuClick(String screen, MenuItem item) {
-    final String label;
+    String label = "";
     if (item.getItemId() == Menu.NONE) {
       label = "label";
     } else {
-      label = item.getTitle().toString();
+      final CharSequence title = item.getTitle();
+      if (title != null) {
+        label = title.toString();
+      }
     }
     event(screen, Analytics.CAT_UI, Analytics.UI_MENU, label);
   }

@@ -16,23 +16,22 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Email;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 
+/** This Activity manages the {@link LastError} */
 public class ErrorViewerActivity extends BaseActivity
   implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-  /**
-   * The latest error
-   */
+  /** The latest error */
   private LastError mLastError;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-
     mLayoutID = R.layout.activity_error_viewer;
 
     super.onCreate(savedInstanceState);
@@ -99,6 +98,10 @@ public class ErrorViewerActivity extends BaseActivity
         break;
     }
 
+    if (processed) {
+      Analytics.INST.menuClick(TAG, item);
+    }
+
     return processed || super.onOptionsItemSelected(item);
   }
 
@@ -112,9 +115,7 @@ public class ErrorViewerActivity extends BaseActivity
     }
   }
 
-  /**
-   * Set all the {@link TextView} components
-   */
+  /** Set all the {@link TextView} components */
   private void updateText() {
     TextView title = findViewById(R.id.title);
     TextView time = findViewById(R.id.time);
@@ -134,9 +135,7 @@ public class ErrorViewerActivity extends BaseActivity
     }
   }
 
-  /**
-   * Set enabled state of menu items
-   */
+  /** Set enabled state of menu items */
   private void updateOptionsMenu() {
     if (mOptionsMenu != null) {
       Boolean enabled = false;
@@ -146,11 +145,11 @@ public class ErrorViewerActivity extends BaseActivity
         alpha = 255;
       }
 
-      MenuItem delteItem = mOptionsMenu.findItem(R.id.action_delete);
-      MenuTintHelper.colorMenuItem(delteItem, null, alpha);
-      delteItem.setEnabled(enabled);
+      final MenuItem deleteItem = mOptionsMenu.findItem(R.id.action_delete);
+      MenuTintHelper.colorMenuItem(deleteItem, null, alpha);
+      deleteItem.setEnabled(enabled);
 
-      MenuItem emailItem = mOptionsMenu.findItem(R.id.action_email);
+      final MenuItem emailItem = mOptionsMenu.findItem(R.id.action_email);
       MenuTintHelper.colorMenuItem(emailItem, null, alpha);
       emailItem.setEnabled(enabled);
     }

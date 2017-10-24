@@ -228,8 +228,6 @@ public class MainActivity extends BaseActivity implements
   public boolean onOptionsItemSelected(MenuItem item) {
     boolean processed = true;
 
-    Analytics.INST.menuClick(TAG, item);
-
     final int id = item.getItemId();
     switch (id) {
       case R.id.home:
@@ -266,6 +264,10 @@ public class MainActivity extends BaseActivity implements
       default:
         processed = false;
         break;
+    }
+
+    if (processed) {
+      Analytics.INST.menuClick(TAG, item);
     }
 
     return processed || super.onOptionsItemSelected(item);
@@ -521,7 +523,7 @@ public class MainActivity extends BaseActivity implements
     });
   }
 
-  /** Set title based on currently selected clip row */
+  /** Set title based on currently selected {@link ClipItem} */
   private void setTitle() {
     String prefix = getString(R.string.title_activity_main);
     if (!AppUtils.isWhitespace(mLabelFilter)) {
@@ -540,24 +542,18 @@ public class MainActivity extends BaseActivity implements
     }
   }
 
-  /**
-   * get our fragment
-   * @return A fragment
-   */
+  /** Get our {@link ClipViewerFragment} */
   private ClipViewerFragment getClipViewerFragment() {
     return (ClipViewerFragment) getSupportFragmentManager()
       .findFragmentById(R.id.clip_viewer_container);
   }
 
-  /**
-   * Get copy of currently selected clip row
-   * @return A new {@link ClipItem}
-   */
+  /** Get copy of currently selected {@link ClipItem} */
   private ClipItem getClipItemClone() {
     return getClipViewerFragment().getClipItemClone();
   }
 
-  /** Update Navigation Viewe */
+  /** Update the Navigation View */
   private void updateNavView() {
     final NavigationView navigationView =
       findViewById(R.id.nav_view);

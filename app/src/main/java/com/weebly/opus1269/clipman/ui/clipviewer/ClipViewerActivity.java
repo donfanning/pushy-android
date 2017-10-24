@@ -30,12 +30,11 @@ import java.io.Serializable;
 public class ClipViewerActivity extends BaseActivity implements
   ClipViewerFragment.OnClipChanged {
 
-  // item from last delete operation
+  /** Item from last delete operation */
   private ClipItem mUndoItem = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-
     mLayoutID = R.layout.activity_clip_viewer;
 
     super.onCreate(savedInstanceState);
@@ -64,7 +63,6 @@ public class ClipViewerActivity extends BaseActivity implements
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-
     mOptionsMenuID = R.menu.menu_clipviewer;
 
     super.onCreateOptionsMenu(menu);
@@ -90,7 +88,6 @@ public class ClipViewerActivity extends BaseActivity implements
 
   @Override
   protected void onPause() {
-
     mUndoItem = null;
 
     super.onPause();
@@ -114,14 +111,18 @@ public class ClipViewerActivity extends BaseActivity implements
         AppUtils.performWebSearch(getClipItemClone().getText());
         break;
       case R.id.action_copy:
-        copyItem();
+        copyClipItem();
         break;
       case R.id.action_delete:
-        deleteItem();
+        deleteClipItem();
         break;
       default:
         processed = false;
         break;
+    }
+
+    if (processed) {
+      Analytics.INST.menuClick(TAG, item);
     }
 
     return processed || super.onOptionsItemSelected(item);
@@ -133,6 +134,7 @@ public class ClipViewerActivity extends BaseActivity implements
     setTitle();
   }
 
+  /** Set Activity title based on current {@link ClipItem} contents */
   private void setTitle() {
     final ClipItem clipItem = getClipItemClone();
     if (clipItem.isRemote()) {
@@ -151,31 +153,16 @@ public class ClipViewerActivity extends BaseActivity implements
     return getClipViewerFragment().getClipItemClone();
   }
 
-  private void copyItem() {
+  /** Copy the {@link ClipItem} to the clipboard */
+  private void copyClipItem() {
     ClipViewerFragment clipViewerFragment = getClipViewerFragment();
     if (clipViewerFragment != null) {
       clipViewerFragment.copyToClipboard();
     }
   }
 
-  private void toggleFavorite() {
-    ClipViewerFragment clipViewerFragment = getClipViewerFragment();
-    ClipItem clipItem = clipViewerFragment.getClipItemClone();
-
-    // toggle
-    clipItem.setFav(!clipItem.isFav());
-
-    // let fragment know
-    clipViewerFragment.setClipItem(clipItem);
-
-    // update MenuItem
-    setFavoriteMenuItem();
-
-    // update database
-    clipItem.save();
-  }
-
-  private void deleteItem() {
+  /** Delete the {@link ClipItem} from the db */
+  private void deleteClipItem() {
     final ClipItem clipItem = getClipViewerFragment().getClipItemClone();
 
     // delete from database
@@ -217,22 +204,33 @@ public class ClipViewerActivity extends BaseActivity implements
     snack.show();
   }
 
-  /**
-   * Set the favorite {@link MenuItem}
-   * {@link android.graphics.drawable.Drawable}
-   */
+  /** Toggle the favortie state of the {@link ClipItem} */
+  private void toggleFavorite() {
+    ClipViewerFragment clipViewerFragment = getClipViewerFragment();
+    ClipItem clipItem = clipViewerFragment.getClipItemClone();
+
+    clipItem.setFav(!clipItem.isFav());
+
+    // let fragment know
+    clipViewerFragment.setClipItem(clipItem);
+
+    // update MenuItem
+    setFavoriteMenuItem();
+
+    // update database
+    clipItem.save();
+  }
+
+  /** Set the favorite {@link MenuItem} appearence */
   private void setFavoriteMenuItem() {
-    MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
+    final MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
 
     if (menuItem != null) {
-      int colorID;
-      if (getClipViewerFragment().getClipItemClone().isFav()) {
-        menuItem.setIcon(R.drawable.ic_favorite_black_24dp);
-        colorID = R.color.red_500_translucent;
-      } else {
-        menuItem.setIcon(R.drawable.ic_favorite_border_black_24dp);
-        colorID = R.color.icons;
-      }
+      final boolean isFav = getClipItemClone().isFav();
+      final int colorID = isFav ? R.color.red_500_translucent : R.color.icons;
+      final int icon = isFav ? R.drawable.ic_favorite_black_24dp :
+        R.drawable.ic_favorite_border_black_24dp;
+      menuItem.setIcon(icon);
       final int color = ContextCompat.getColor(this, colorID);
       MenuTintHelper.colorMenuItem(menuItem, color, 255);
     }
