@@ -160,9 +160,9 @@ class LabelsEditAdapter extends
   public void onClick(DialogInterface dialogInterface, int which) {
     if ((which == DialogInterface.BUTTON_POSITIVE) && (mDeleteLabel != null)) {
       // delete it
-      Analytics.INST.buttonClick(mActivity.getTAG(),
-        mDialog.getButton(which));
+      mDeleteLabel.delete();
       mDeleteLabel = null;
+      Analytics.INST.buttonClick(mActivity.getTAG(), mDialog.getButton(which));
     }
   }
 
