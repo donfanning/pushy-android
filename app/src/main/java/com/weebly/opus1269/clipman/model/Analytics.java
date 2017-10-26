@@ -35,7 +35,7 @@ public enum Analytics {
   private static final String UI_CLICK = "click";
   private static final String UI_BUTTON = "buttonClicked";
   private static final String UI_CHECKBOX = "checkBoxClicked";
-  private static final String UI_IMAGE_VIEW = "imageButtom";
+  private static final String UI_IMAGE_VIEW = "imageButtonClicked";
   private static final String UI_MENU = "menuSelect";
 
   /**
