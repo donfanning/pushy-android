@@ -16,11 +16,9 @@ import android.support.v4.content.Loader;
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.ClipsContract;
+import com.weebly.opus1269.clipman.model.Label;
 
-/**
- * This class manages most everything related to the main RecyclerView
- */
-
+/** This class manages an adpater for {@link Label} items */
 class LabelLoaderManager implements
   LoaderManager.LoaderCallbacks<Cursor> {
 
