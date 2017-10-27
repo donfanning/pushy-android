@@ -25,9 +25,7 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-/**
- * Bridge between the main RecyclerView and the Clips.db database
- */
+/** Bridge between the main RecyclerView and the Clips.db database */
 class ClipCursorAdapter extends
   RecyclerViewCursorAdapter<ClipCursorAdapter.ClipViewHolder> {
 
@@ -48,9 +46,7 @@ class ClipCursorAdapter extends
     setupCursorAdapter(null, 0, R.layout.clip_row, false);
   }
 
-  /**
-   * Returns the ViewHolder to use for this adapter.
-   */
+  /** Returns the ViewHolder to use for this adapter. */
   @Override
   public ClipViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     final View view =
@@ -60,6 +56,7 @@ class ClipCursorAdapter extends
     holder.itemView.setOnClickListener(mActivity.getClipLoaderManager());
     holder.favCheckBox.setOnClickListener(mActivity.getClipLoaderManager());
     holder.copyButton.setOnClickListener(mActivity.getClipLoaderManager());
+    holder.labelButton.setOnClickListener(mActivity.getClipLoaderManager());
 
     return holder;
   }
@@ -111,6 +108,7 @@ class ClipCursorAdapter extends
     mSelectedItemID = id;
   }
 
+  /** Get position in view from db PK */
   int getPosFromItemID(long itemID) {
     int pos = -1;
 
@@ -193,22 +191,27 @@ class ClipCursorAdapter extends
 
     DrawableHelper
       .withContext(mActivity)
+      .withColor(color)
+      .withDrawable(R.drawable.ic_label_outline)
+      .tint()
+      .applyTo(holder.labelButton);
+
+    DrawableHelper
+      .withContext(mActivity)
       .withColor(colorFav)
       .withDrawable(drawableFav)
       .tint()
       .applyToDrawableLeft(holder.favCheckBox);
   }
 
-  /**
-   * ViewHolder inner class used to display the clip in the RecyclerView.
-   */
+  /** ViewHolder inner class used to display the clip in the RecyclerView. */
   static class ClipViewHolder extends RecyclerViewCursorViewHolder {
-
     final RelativeLayout clipBackground;
     final RelativeLayout clipForeground;
     final CheckBox favCheckBox;
     final TextView dateText;
     final ImageButton copyButton;
+    final ImageButton labelButton;
     final TextView clipText;
     ClipItem clipItem;
     long itemID;
@@ -222,26 +225,26 @@ class ClipCursorAdapter extends
       dateText = view.findViewById(R.id.dateText);
       clipText = view.findViewById(R.id.clipText);
       copyButton = view.findViewById(R.id.copyButton);
+      labelButton = view.findViewById(R.id.labelButton);
       clipItem = null;
       itemID = -1L;
 
       itemView.setTag(this);
       favCheckBox.setTag(this);
       copyButton.setTag(this);
+      labelButton.setTag(this);
     }
 
     @Override
     public void bindCursor(final Cursor cursor) {
       clipItem = new ClipItem(cursor);
-
       itemID = cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip._ID));
-
       clipText.setText(clipItem.getText());
       favCheckBox.setChecked(clipItem.isFav());
 
       long time = clipItem.getTime();
-      final CharSequence value = AppUtils.getRelativeDisplayTime(clipItem
-        .getDate());
+      final CharSequence value =
+        AppUtils.getRelativeDisplayTime(clipItem.getDate());
       dateText.setText(value);
       dateText.setTag(time);
     }

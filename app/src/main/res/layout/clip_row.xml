@@ -110,15 +110,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/favCheckBox"
+        android:layout_toLeftOf="@+id/labelButton"
+        android:layout_toStartOf="@+id/labelButton"
         android:ellipsize="end"
         android:lines="2"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_vertical_margin"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_vertical_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textIsSelectable="false"
         tools:text="Test clip text\nTest clip text\nTest clip text\n http://www.cnn.com Test clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\n" />
+
+      <ImageButton
+        android:id="@+id/labelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/copyButton"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="@dimen/row_image_vertical_margin"
+        android:layout_marginTop="@dimen/row_image_vertical_margin"
+        android:layout_marginRight="@dimen/zero_dp"
+        android:layout_marginEnd="@dimen/zero_dp"
+        android:paddingBottom="@dimen/row_image_vertical_margin"
+        android:paddingTop="@dimen/row_image_vertical_margin"
+        android:paddingLeft="@dimen/row_image_horizontal_margin"
+        android:paddingStart="@dimen/row_image_horizontal_margin"
+        android:paddingRight="@dimen/row_image_horizontal_margin"
+        android:paddingEnd="@dimen/row_image_horizontal_margin"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/content_copy"
+        android:gravity="center_vertical"
+        app:srcCompat="@drawable/ic_label_outline" />
 
     </RelativeLayout>
 

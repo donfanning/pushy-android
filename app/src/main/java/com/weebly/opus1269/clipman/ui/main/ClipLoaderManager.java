@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.main;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,7 +27,9 @@ import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 /**
  * This class manages most everything related to the main RecyclerView
@@ -162,6 +165,15 @@ class ClipLoaderManager implements
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
         onCopyClicked(holder);
         Analytics.INST.imageClick(mMainActivity.getTAG(), "clipItemCopy");
+        break;
+      case R.id.labelButton:
+        holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
+        final Intent intent =
+          new Intent(mMainActivity, LabelsSelectActivity.class);
+        intent.putExtra(Intents.EXTRA_CLIP_ITEM, holder.clipItem);
+        AppUtils.startActivity(mMainActivity, intent);
+        Analytics.INST.imageClick(mMainActivity.getTAG(),
+          "clipItemLabels");
         break;
       default:
         break;
