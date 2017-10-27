@@ -312,6 +312,12 @@ public class ClipsContentProvider extends ContentProvider {
     final ContentResolver resolver = mContext.getContentResolver();
     resolver.notifyChange(uri, null);
 
+    if ((uriType == LABEL_MAP) || (uriType == LABEL_MAP_ID)) {
+      // also force Clip table change in case deleted label is in
+      // current MainActivity view
+      resolver.notifyChange(ClipsContract.Clip.CONTENT_URI, null);
+    }
+
     return rowsDeleted;
   }
 
