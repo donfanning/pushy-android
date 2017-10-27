@@ -11,10 +11,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Prefs;
 
+/**
+ * This {@link BroadcastReceiver} starts the {@link ClipboardWatcherService}
+ * and adds a daily alarm to delete old ClipItems when our app is updated
+ */
 public class PackageReplacedReceiver extends BroadcastReceiver {
+  private static final String TAG = "PackageReplacedReceiver";
 
   @Override
   public void onReceive(Context context, Intent intent) {
@@ -23,17 +28,12 @@ public class PackageReplacedReceiver extends BroadcastReceiver {
       return;
     }
 
+    Log.logD(TAG, "onReceive");
+
     Analytics.INST.updated();
 
-    setupClipboardWatcher();
-  }
+    ClipboardWatcherService.startService(true);
 
-  /**
-   * Start service to monitor Clipboard for changes
-   */
-  private static void setupClipboardWatcher() {
-    if (Prefs.isMonitorClipboard()) {
-      ClipboardWatcherService.startService(true);
-    }
+    DeleteOldClipsAlarmReceiver.initialize(TAG, context);
   }
 }

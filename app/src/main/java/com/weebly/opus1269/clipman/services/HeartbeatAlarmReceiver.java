@@ -33,6 +33,11 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
     final Context context = App.getContext();
     final AlarmManager alarmMgr =
       (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    if (alarmMgr == null) {
+      Log.logE(TAG,
+        "Failed to start or cancel " + TAG + ", null AlarmManager");
+      return;
+    }
     final Intent intent = new Intent(context, HeartbeatAlarmReceiver.class);
     final PendingIntent alarmIntent = PendingIntent.getBroadcast(context,
       Intents.HEARTBEAT_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -57,6 +62,6 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
     context.sendBroadcast(intnt);
     intnt = new Intent("com.google.android.intent.action.MCS_HEARTBEAT");
     context.sendBroadcast(intnt);
-    Log.logD(TAG, "Sent heartbeat");
+    Log.logD(TAG, "onReceive, Sent heartbeat");
   }
 }

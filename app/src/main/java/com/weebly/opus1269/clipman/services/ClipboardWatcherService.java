@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipsContentProvider;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -31,8 +32,11 @@ public class ClipboardWatcherService extends Service implements
   ClipboardManager.OnPrimaryClipChangedListener {
   private static final String TAG = "ClipboardWatcherService";
 
-  /** {@link Intent} extra to indicate if service is starting on boot */
-  private static final String EXTRA_ON_BOOT = "on_boot";
+  /**
+   * {@link Intent} extra to indicate if service should process clipboard on
+   * start
+   */
+  private static final String EXTRA_NO_PROCESS_ON_START = "noProcessOnStart";
 
   /** The fastest we will process identical local copies {@value} */
   private static final long MIN_TIME_MILLIS = 200;
@@ -48,16 +52,16 @@ public class ClipboardWatcherService extends Service implements
 
   /**
    * Start ourselves
-   * @param onBoot true if called on device boot
+   * @param noProcessOnStart true if we should not process clipboard on start
    */
   @TargetApi(26)
-  public static void startService(Boolean onBoot) {
+  public static void startService(Boolean noProcessOnStart) {
     if (Prefs.isMonitorClipboard()
       && !AppUtils.isMyServiceRunning(ClipboardWatcherService.class)) {
       // only start if the user has allowed it and we are not running
       final Context context = App.getContext();
       final Intent intent = new Intent(context, ClipboardWatcherService.class);
-      intent.putExtra(EXTRA_ON_BOOT, onBoot);
+      intent.putExtra(EXTRA_NO_PROCESS_ON_START, noProcessOnStart);
       if (AppUtils.isOreoOrLater()) {
         context.startForegroundService(intent);
       } else {
@@ -84,14 +88,17 @@ public class ClipboardWatcherService extends Service implements
     mLastTime = System.currentTimeMillis();
 
     if (intent != null) {
-      final boolean onBoot = intent.getBooleanExtra(EXTRA_ON_BOOT, false);
-      if (!onBoot) {
-        // don't process on boot
+      final boolean noProcessOnStart =
+        intent.getBooleanExtra(EXTRA_NO_PROCESS_ON_START, false);
+      if (!noProcessOnStart) {
         processClipboard(true);
       }
     } else {
       processClipboard(true);
     }
+
+
+    Log.logD(TAG, "started");
 
     return super.onStartCommand(intent, flags, startId);
   }

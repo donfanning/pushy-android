@@ -7,14 +7,11 @@
 
 package com.weebly.opus1269.clipman.services;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.weebly.opus1269.clipman.db.ClipTable;
-import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.app.Log;
 
 /**
  * This {@link BroadcastReceiver} starts the {@link ClipboardWatcherService} at
@@ -23,32 +20,7 @@ import com.weebly.opus1269.clipman.model.Prefs;
  * Requires Intent.ACTION_BOOT_COMPLETED
  */
 public class AutoStartReceiver extends BroadcastReceiver {
-
-  /** Start service to monitor Clipboard for changes */
-  private static void setupClipboardWatcher() {
-    if (Prefs.isMonitorStartup()) {
-      ClipboardWatcherService.startService(true);
-    }
-  }
-
-  /**
-   * Add daily alarm to cleanup database of old entries
-   * @param context a Context
-   */
-  private static void setupDeleteOldAlarm(Context context) {
-    final AlarmManager alarmMgr =
-      (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-    final Intent intent = new Intent(context, DeleteOldClipsAlarmReceiver.class);
-    final PendingIntent alarmIntent =
-      PendingIntent.getBroadcast(context, 0, intent, 0);
-
-    // setup daily alarm
-    alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-      AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, alarmIntent);
-
-    // run now
-    ClipTable.INST.deleteOldItems();
-  }
+  private static final String TAG = "AutoStartReceiver";
 
   @Override
   public void onReceive(Context context, Intent intent) {
@@ -56,8 +28,10 @@ public class AutoStartReceiver extends BroadcastReceiver {
       return;
     }
 
-    setupClipboardWatcher();
+    Log.logD(TAG, "onReceive");
 
-    setupDeleteOldAlarm(context);
+    ClipboardWatcherService.startService(true);
+
+    DeleteOldClipsAlarmReceiver.initialize(TAG, context);
   }
 }
