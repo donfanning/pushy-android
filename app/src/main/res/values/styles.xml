@@ -54,7 +54,7 @@
   <!-- Dark application theme. -->
   <style name="AppThemeDark" parent="AppThemeDark.NoActionBar">
 
-    <item name="colorAccent">@color/accent</item>
+    <item name="colorAccent">@color/deep_teal_200</item>
 
     <!-- for the overflow menu -->
     <item name="android:itemBackground">@color/grey_800</item>
