@@ -46,7 +46,6 @@ public class Prefs {
   private final String NOTIFY_DEVICE_REMOVED;
   private final String NOTIFY_ERROR;
 
-  private final String[] DEF_NOTIFY_VALUES;
   public final Set<String> DEF_NOTIFICATIONS;
 
   // Preferences that are not set through the SettingsActivity
@@ -72,7 +71,7 @@ public class Prefs {
     NOTIFY_DEVICE_REMOVED =
       mContext.getString(R.string.ar_not_dev_removed_value);
     NOTIFY_ERROR = mContext.getString(R.string.ar_not_error_value);
-    DEF_NOTIFY_VALUES = mContext.getResources()
+    final String[] DEF_NOTIFY_VALUES = mContext.getResources()
       .getStringArray(R.array.pref_not_types_default_values);
     DEF_NOTIFICATIONS = new HashSet<>(Arrays.asList(DEF_NOTIFY_VALUES));
   }
