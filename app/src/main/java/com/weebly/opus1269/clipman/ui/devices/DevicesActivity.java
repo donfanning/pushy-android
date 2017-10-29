@@ -93,7 +93,7 @@ public class DevicesActivity extends BaseActivity {
     final RecyclerView recyclerView =
       findViewById(R.id.deviceList);
     if (recyclerView != null) {
-      mAdapter = new DevicesAdapter();
+      mAdapter = new DevicesAdapter(this);
       recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }

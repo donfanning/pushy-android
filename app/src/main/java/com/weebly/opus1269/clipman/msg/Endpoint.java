@@ -61,7 +61,7 @@ abstract class Endpoint {
    * @return true if not signed in
    */
   static boolean notSignedIn() {
-    if (!User.INST.isLoggedIn()) {
+    if (!User.INST(App.getContext()).isLoggedIn()) {
       Log.logD(TAG, Msg.ERROR_NOT_SIGNED_IN);
       return true;
     }

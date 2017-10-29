@@ -569,7 +569,7 @@ public class MainActivity extends BaseActivity implements
 
     // set Devices menu state
     MenuItem menuItem = menu.findItem(R.id.nav_devices);
-    menuItem.setEnabled(User.INST.isLoggedIn());
+    menuItem.setEnabled(User.INST(this).isLoggedIn());
 
     // set Error Viewer menu state
     menuItem = menu.findItem(R.id.nav_error);
@@ -586,7 +586,7 @@ public class MainActivity extends BaseActivity implements
       labelItem.setIcon(R.drawable.ic_label);
     }
 
-    User.INST.setNavigationHeaderView(hView);
+    User.INST(this).setNavigationHeaderView(hView);
   }
 
   /** Set Option Menu icons enabled state */
@@ -602,7 +602,7 @@ public class MainActivity extends BaseActivity implements
       // enabled state of send button
       Boolean enabled = false;
       Integer alpha = 64;
-      if (User.INST.isLoggedIn() && Prefs.INST(this).isPushClipboard()) {
+      if (User.INST(this).isLoggedIn() && Prefs.INST(this).isPushClipboard()) {
         enabled = true;
         alpha = 255;
       }

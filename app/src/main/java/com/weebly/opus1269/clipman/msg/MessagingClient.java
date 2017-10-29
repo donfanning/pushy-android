@@ -239,7 +239,7 @@ public class MessagingClient extends Endpoint {
         // remove device notification
         // SignInActivity will be notified that it can now
         // unregister and sign-out
-        Devices.notifyMyDeviceRemoved();
+        Devices.INST(App.getContext()).notifyMyDeviceRemoved();
       }
     }
   }

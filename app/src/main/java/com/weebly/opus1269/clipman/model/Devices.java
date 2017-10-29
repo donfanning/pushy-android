@@ -18,14 +18,16 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.weebly.opus1269.clipman.app.App;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -35,23 +37,44 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Static Class to manage the collection of registered {@link Device} objects.
+ * Singleton to manage the collection of registered {@link Device} objects.
  * Register a {@link LocalBroadcastManager} with
  * Intents.FILTER_DEVICES to be notified of changes.
  */
 public class Devices {
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static Devices sInstance;
 
-  @SuppressWarnings("StaticNonFinalField")
-  private static List<Device> sDevices = load();
+  /** Global Application Context */
+  private final Context mContext;
 
-  private Devices() {
+  /** {@link Device} list */
+  private List<Device> sDevices = load();
+
+  private Devices(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+    sDevices = load();
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static Devices INST(@NonNull Context context) {
+    synchronized (Devices.class) {
+      if (sInstance == null) {
+        sInstance = new Devices(context);
+      }
+      return sInstance;
+    }
   }
 
   /**
    * Save list to persistant storage
    * @param broadcast broadcast result to listeners if true
    */
-  private static void save(Boolean broadcast) {
+  private void save(Boolean broadcast) {
     final Comparator<Device> cmp = new Comparator<Device>() {
       @Override
       public int compare(Device lhs, Device rhs) {
@@ -66,7 +89,7 @@ public class Devices {
     // persist
     final Gson gson = new Gson();
     final String devicesString = gson.toJson(sDevices);
-    Prefs.INST(App.getContext()).setDevices(devicesString);
+    Prefs.INST(mContext).setDevices(devicesString);
 
     if (broadcast) {
       // let listeners know
@@ -78,8 +101,8 @@ public class Devices {
    * Load list from persistant storage
    * @return List<Device> the list of {@link Device} objects
    */
-  private static List<Device> load() {
-    final String devicesString = Prefs.INST(App.getContext()).getDevices();
+  private List<Device> load() {
+    final String devicesString = Prefs.INST(mContext).getDevices();
 
     if (devicesString.isEmpty()) {
       sDevices = new ArrayList<>(0);
@@ -97,7 +120,7 @@ public class Devices {
    * @param dev       The {@link Device} to add or update
    * @param broadcast broadcast result to listeners if true
    */
-  public static void add(Device dev, Boolean broadcast) {
+  public void add(Device dev, Boolean broadcast) {
     if (dev != null) {
       int i = 0;
       for (final Device device : sDevices) {
@@ -119,7 +142,7 @@ public class Devices {
    * Remove the given {@link Device}
    * @param dev The {@link Device} to remove
    */
-  public static void remove(Device dev) {
+  public void remove(Device dev) {
     if (dev != null) {
       for (final Iterator<Device> i = sDevices.iterator(); i.hasNext(); ) {
         final Device device = i.next();
@@ -135,7 +158,7 @@ public class Devices {
   /**
    * Remove all devices
    */
-  static void clear() {
+  void clear() {
     sDevices.clear();
     save(true);
   }
@@ -143,7 +166,7 @@ public class Devices {
   /**
    * Notify listeners that our {@link Device} was removed
    */
-  public static void notifyMyDeviceRemoved() {
+  public void notifyMyDeviceRemoved() {
     clear();
     _sendBroadcast(Intents.TYPE_DEVICE_REMOVED);
   }
@@ -151,14 +174,14 @@ public class Devices {
   /**
    * Notify listeners that our {@link Device} was registered
    */
-  public static void notifyMyDeviceRegistered() {
+  public void notifyMyDeviceRegistered() {
     _sendBroadcast(Intents.TYPE_DEVICE_REGISTERED);
   }
 
   /**
    * Notify listeners that our {@link Device} was unregistered
    */
-  public static void notifyMyDeviceUnregistered() {
+  public void notifyMyDeviceUnregistered() {
     clear();
     _sendBroadcast(Intents.TYPE_DEVICE_UNREGISTERED);
   }
@@ -167,7 +190,7 @@ public class Devices {
    * Notify listeners that registration failed
    * @param message error message
    */
-  public static void notifyMyDeviceRegisterError(String message) {
+  public void notifyMyDeviceRegisterError(String message) {
     clear();
     _sendBroadcast(Intents.TYPE_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
       message);
@@ -178,7 +201,7 @@ public class Devices {
    * @param pos Position in list
    * @return A {@link Device}
    */
-  public static Device get(int pos) {
+  public Device get(int pos) {
     return sDevices.get(pos);
   }
 
@@ -186,7 +209,7 @@ public class Devices {
    * Get the number of {@link Device} objects in the list
    * @return the number of {@link Device} objects in the list
    */
-  public static int getCount() {
+  public int getCount() {
     return sDevices.size();
   }
 
@@ -196,8 +219,8 @@ public class Devices {
    * @param extra      extra String info type
    * @param extraValue value of extra
    */
-  private static void _sendBroadcast(String action, String extra,
-                                     String extraValue) {
+  private void _sendBroadcast(String action, String extra,
+                              String extraValue) {
     final Intent intent = new Intent(Intents.FILTER_DEVICES);
     final Bundle bundle = new Bundle();
     bundle.putString(Intents.ACTION_TYPE_DEVICES, action);
@@ -206,7 +229,7 @@ public class Devices {
     }
     intent.putExtra(Intents.BUNDLE_DEVICES, bundle);
     LocalBroadcastManager
-      .getInstance(App.getContext())
+      .getInstance(mContext)
       .sendBroadcast(intent);
   }
 
@@ -214,7 +237,7 @@ public class Devices {
    * Broadcast changes to listeners
    * @param action the type of the change
    */
-  private static void _sendBroadcast(String action) {
+  private void _sendBroadcast(String action) {
     _sendBroadcast(action, "", "");
   }
 }

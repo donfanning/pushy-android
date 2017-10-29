@@ -214,12 +214,12 @@ public class RegistrationClient extends Endpoint {
       if (mActivity != null) {
         if (!TextUtils.isEmpty(error)) {
           // notifiy listeners
-          Devices.notifyMyDeviceRegisterError(error);
+          Devices.INST(mActivity).notifyMyDeviceRegisterError(error);
         } else {
           // let others know we are here
           MessagingClient.sendDeviceAdded();
           // notifiy listeners
-          Devices.notifyMyDeviceRegistered();
+          Devices.INST(mActivity).notifyMyDeviceRegistered();
         }
       } else {
         Log.logE(TAG, NO_ACTIVITY, false);
@@ -260,7 +260,7 @@ public class RegistrationClient extends Endpoint {
       super.onPostExecute(error);
 
       // SignInActivity will be notified that it can now sign-out
-      Devices.notifyMyDeviceUnregistered();
+      Devices.INST(App.getContext()).notifyMyDeviceUnregistered();
     }
   }
 }

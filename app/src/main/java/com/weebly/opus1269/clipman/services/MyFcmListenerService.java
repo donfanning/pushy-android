@@ -126,7 +126,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     if (device.getUniqueName().equals(Device.getMyUniqueName())) {
       // ignore our own messages
       return;
-    } else if (!User.INST.isLoggedIn()) {
+    } else if (!User.INST(this).isLoggedIn()) {
       // ignore if logged out
       return;
     }
@@ -137,28 +137,28 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     switch (action) {
       case Msg.ACTION_MESSAGE:
         // normal message, save and copy to clipboard
-        Devices.add(device, false);
+        Devices.INST(this).add(device, false);
         saveClipItem(data, device);
         break;
       case Msg.ACTION_PING:
         // We were pinged
-        Devices.add(device, true);
+        Devices.INST(this).add(device, true);
         MessagingClient.sendPingResponse(data.get(Msg.SRC_REG_ID));
         break;
       case Msg.ACTION_PING_RESPONSE:
         // Device responded to a ping
-        Devices.add(device, true);
+        Devices.INST(this).add(device, true);
         Log.logD(TAG, device.getDisplayName() +
           " told me he is around.");
         break;
       case Msg.ACTION_DEVICE_ADDED:
         // A new device was added
-        Devices.add(device, true);
+        Devices.INST(this).add(device, true);
         Notifications.show(action, device.getDisplayName());
         break;
       case Msg.ACTION_DEVICE_REMOVED:
         // A device was removed
-        Devices.remove(device);
+        Devices.INST(this).remove(device);
         Notifications.show(action, device.getDisplayName());
         break;
       default:

@@ -29,7 +29,7 @@ public class RefreshTokenJobService extends JobService {
   @Override
   public boolean onStartJob(JobParameters job) {
     Boolean ret = false;
-    if (User.INST.isLoggedIn()) {
+    if (User.INST(this).isLoggedIn()) {
       ret = true;
       // Make sure we have looper
       final Handler handler = new Handler(Looper.getMainLooper());

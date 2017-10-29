@@ -167,7 +167,7 @@ public class App extends Application implements
   @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    final String keyUserId = User.PREF_USER_ID;
+    final String keyUserId = User.INST(sContext).PREF_USER_ID;
     final String keyReceive = getString(R.string.key_pref_receive_msg);
     final String keyHeartbeat = getString(R.string.key_pref_heartbeat);
 

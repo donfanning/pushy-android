@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.settings;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Ringtone;
@@ -163,17 +164,13 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sp, String key) {
-    final String keyNickname =
-      getString(R.string.key_pref_nickname);
-    final String keyMonitor =
-      getString(R.string.key_pref_monitor_clipboard);
-    final String keyTheme =
-      getString(R.string.key_pref_theme);
-    final String keyNotifications =
-      getString(R.string.key_pref_notifications);
-    final String keyReceive =
-      getString(R.string.key_pref_receive_msg);
+    final Context context = getContext();
     final Activity activity = getActivity();
+    final String keyNickname = getString(R.string.key_pref_nickname);
+    final String keyMonitor = getString(R.string.key_pref_monitor_clipboard);
+    final String keyTheme = getString(R.string.key_pref_theme);
+    final String keyNotifications = getString(R.string.key_pref_notifications);
+    final String keyReceive = getString(R.string.key_pref_receive_msg);
 
     // log event
     logChange(sp, key);
@@ -184,7 +181,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       MessagingClient.sendPing();
     } else if (key.equals(keyMonitor)) {
       // start or stop clipboard service as needed
-      if (Prefs.INST(getContext()).isMonitorClipboard()) {
+      if (Prefs.INST(context).isMonitorClipboard()) {
         ClipboardWatcherService.startService(false);
       } else {
         final Intent intent =
@@ -199,13 +196,13 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         .addNextIntent(activity.getIntent())
         .startActivities();
     } else if (key.equals(keyNotifications)) {
-      if (Prefs.INST(getContext()).notNotifications()) {
+      if (Prefs.INST(context).notNotifications()) {
         // remove any currently displayed Notifications
         Notifications.removeAll();
       }
     } else if (key.equals(keyReceive)) {
-      if (User.INST.isLoggedIn()) {
-        if (Prefs.INST(getContext()).isAllowReceive()) {
+      if (User.INST(context).isLoggedIn()) {
+        if (Prefs.INST(context).isAllowReceive()) {
           // register
           new RegistrationClient
             .RegisterAsyncTask(getActivity(), null)
@@ -222,7 +219,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   /**
    * Log settings changes to Analytics
-   * @param sp
+   * @param sp default preferences
    * @param key key of setting to log
    */
   private void logChange(SharedPreferences sp, String key) {

@@ -32,11 +32,21 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
 class DevicesAdapter extends
   RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
+
+  /** Our activity */
+  private final BaseActivity mActivity;
+
+  DevicesAdapter(BaseActivity activity) {
+    super();
+
+    mActivity = activity;
+  }
 
   @Override
   public DeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -57,7 +67,7 @@ class DevicesAdapter extends
     tintIcons(holder);
 
     // Get the data model based on position
-    final Device device = Devices.get(position);
+    final Device device = Devices.INST(mActivity).get(position);
 
     final String desc =
       context.getString(R.string.device_nickname_fmt, device.getNickname()) +
@@ -78,7 +88,7 @@ class DevicesAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Devices.remove(device);
+          Devices.INST(mActivity).remove(device);
           Analytics.INST.imageClick("DevicesActivity", "removeDevice");
         }
       }
@@ -86,7 +96,7 @@ class DevicesAdapter extends
   }
 
   @Override
-  public int getItemCount() {return Devices.getCount();}
+  public int getItemCount() {return Devices.INST(mActivity).getCount();}
 
   /**
    * Color the Vector Drawables based on theme

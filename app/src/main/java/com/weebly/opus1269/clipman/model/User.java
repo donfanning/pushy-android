@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.model;
 
 import android.accounts.Account;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
@@ -35,7 +36,6 @@ import com.google.api.services.people.v1.PeopleService;
 import com.google.api.services.people.v1.model.CoverPhoto;
 import com.google.api.services.people.v1.model.Person;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.ui.helpers.BitmapHelper;
@@ -50,20 +50,43 @@ import java.util.List;
  * Singleton representing the current User.
  * Data backed by {@link android.support.v4.content.SharedPreferencesCompat}
  */
-public enum User {
-  INST;
+public class User {
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static User sInstance;
 
-  private static final String TAG = "User";
-  public static final String PREF_USER_ID = "prefUserId";
-  private static final String PREF_USER_NAME = "prefUserName";
-  private static final String PREF_USER_EMAIL = "prefUserEmail";
-  private static final String PREF_USER_PHOTO_URI = "prefUserPhotoUri";
-  private static final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";
-  private static final String PREF_USER_TYPE = "prefUserType";
-  private static final String PREF_USER_COVER_PHOTO_URI =
-    "prefUserCoverPhotoUri";
-  private static final String PREF_USER_COVER_PHOTO_ENCODED =
+  public final String PREF_USER_ID = "prefUserId";
+
+  /** Global Application Context */
+  private final Context mContext;
+
+  private final String TAG = "User";
+  private final String PREF_USER_NAME = "prefUserName";
+  private final String PREF_USER_EMAIL = "prefUserEmail";
+  private final String PREF_USER_PHOTO_URI = "prefUserPhotoUri";
+  private final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";
+  private final String PREF_USER_TYPE = "prefUserType";
+  private final String PREF_USER_COVER_PHOTO_URI = "prefUserCoverPhotoUri";
+  private final String PREF_USER_COVER_PHOTO_ENCODED =
     "prefUserCoverPhotoEncoded";
+
+
+  private User(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static User INST(@NonNull Context context) {
+    synchronized (User.class) {
+      if (sInstance == null) {
+        sInstance = new User(context);
+      }
+      return sInstance;
+    }
+  }
 
   /**
    * Save information on current user
@@ -102,7 +125,7 @@ public enum User {
     setCoverPhotoBitmap(null);
 
     // clear Devices list
-    Devices.clear();
+    Devices.INST(mContext).clear();
   }
 
   public boolean isLoggedIn() {
@@ -110,70 +133,71 @@ public enum User {
   }
 
   private String getId() {
-    return Prefs.INST(App.getContext()).get(PREF_USER_ID, "");
+    return Prefs.INST(mContext).get(PREF_USER_ID, "");
   }
 
   private void setId(String value) {
-    Prefs.INST(App.getContext()).set(PREF_USER_ID, value);
+    Prefs.INST(mContext).set(PREF_USER_ID, value);
   }
 
   public String getName() {
-    return Prefs.INST(App.getContext()).get(PREF_USER_NAME, "");
+    return Prefs.INST(mContext).get(PREF_USER_NAME, "");
   }
 
   private void setName(String value) {
-    Prefs.INST(App.getContext()).set(PREF_USER_NAME, value);
+    Prefs.INST(mContext).set(PREF_USER_NAME, value);
   }
 
   public String getEmail() {
-    return Prefs.INST(App.getContext()).get(PREF_USER_EMAIL, "");
+    return Prefs.INST(mContext).get(PREF_USER_EMAIL, "");
   }
 
   private void setEmail(String value) {
-    Prefs.INST(App.getContext()).set(PREF_USER_EMAIL, value);
+    Prefs.INST(mContext).set(PREF_USER_EMAIL, value);
   }
 
   private String getPhotoUri() {
-    return Prefs.INST(App.getContext()).get(PREF_USER_PHOTO_URI, "");
+    return Prefs.INST(mContext).get(PREF_USER_PHOTO_URI, "");
   }
 
   private void setPhotoUri(String value) {
-    Prefs.INST(App.getContext()).set(PREF_USER_PHOTO_URI, value);
+    Prefs.INST(mContext).set(PREF_USER_PHOTO_URI, value);
   }
 
   private Bitmap getPhotoBitmap() {
     return BitmapHelper.decodeBitmap(
-      Prefs.INST(App.getContext()).get(PREF_USER_PHOTO_ENCODED, ""));
+      Prefs.INST(mContext).get(PREF_USER_PHOTO_ENCODED, ""));
   }
 
   private void setPhotoBitmap(Bitmap bitmap) {
-    Prefs.INST(App.getContext()).set(PREF_USER_PHOTO_ENCODED, BitmapHelper.encodeBitmap(bitmap));
+    Prefs.INST(mContext).set(PREF_USER_PHOTO_ENCODED,
+      BitmapHelper.encodeBitmap(bitmap));
   }
 
   @SuppressWarnings("unused")
   public String getType() {
-    return Prefs.INST(App.getContext()).get(PREF_USER_TYPE, "com.google");
+    return Prefs.INST(mContext).get(PREF_USER_TYPE, "com.google");
   }
 
   private void setType(String value) {
-    Prefs.INST(App.getContext()).set(PREF_USER_TYPE, value);
+    Prefs.INST(mContext).set(PREF_USER_TYPE, value);
   }
 
   private String getCoverPhotoUri() {
-    return Prefs.INST(App.getContext()).get(PREF_USER_COVER_PHOTO_URI, "");
+    return Prefs.INST(mContext).get(PREF_USER_COVER_PHOTO_URI, "");
   }
 
   private void setCoverPhotoUri(String value) {
-    Prefs.INST(App.getContext()).set(PREF_USER_COVER_PHOTO_URI, value);
+    Prefs.INST(mContext).set(PREF_USER_COVER_PHOTO_URI, value);
   }
 
   private Bitmap getCoverPhotoBitmap() {
     return BitmapHelper.decodeBitmap(
-      Prefs.INST(App.getContext()).get(PREF_USER_COVER_PHOTO_ENCODED, ""));
+      Prefs.INST(mContext).get(PREF_USER_COVER_PHOTO_ENCODED, ""));
   }
 
   private void setCoverPhotoBitmap(Bitmap bitmap) {
-    Prefs.INST(App.getContext()).set(PREF_USER_COVER_PHOTO_ENCODED,
+    Prefs.INST(mContext).set(PREF_USER_COVER_PHOTO_ENCODED,
       BitmapHelper.encodeBitmap(bitmap));
   }
 
@@ -206,34 +230,35 @@ public enum User {
     final ImageView personPhoto =
       hView.findViewById(R.id.personPhoto);
 
-    if (isLoggedIn()) {
-      final Bitmap bitmap = getPhotoBitmap();
-      final boolean dark = Prefs.INST(App.getContext()).isDarkTheme();
-      if (bitmap != null) {
-        // user has a photo
-        final RoundedBitmapDrawable bg =
-          RoundedBitmapDrawableFactory.create(
-            hView.getResources(), bitmap);
-        bg.setCircular(true);
-        if (dark) {
-          final int color = ContextCompat.getColor(
-            hView.getContext(), R.color.darkener);
-          bg.setColorFilter(color, PorterDuff.Mode.DARKEN);
-        }
-        personPhoto.setImageDrawable(bg);
-      } else {
-        if (dark) {
-          personPhoto.setImageResource(
-            R.drawable.ic_account_circle_white_24dp);
-        } else {
-          personPhoto.setImageResource(
-            R.drawable.ic_account_circle_black_24dp);
-        }
-        personPhoto.setImageAlpha(200);
-      }
-    } else {
+    if (!isLoggedIn()) {
       personPhoto.setImageResource(R.mipmap.ic_launcher);
       setPhotoBitmap(null);
+      return;
+    }
+
+    final Bitmap bitmap = getPhotoBitmap();
+    final boolean dark = Prefs.INST(mContext).isDarkTheme();
+    if (bitmap != null) {
+      // user has a photo
+      final RoundedBitmapDrawable bg =
+        RoundedBitmapDrawableFactory.create(
+          hView.getResources(), bitmap);
+      bg.setCircular(true);
+      if (dark) {
+        final int color = ContextCompat.getColor(
+          hView.getContext(), R.color.darkener);
+        bg.setColorFilter(color, PorterDuff.Mode.DARKEN);
+      }
+      personPhoto.setImageDrawable(bg);
+    } else {
+      if (dark) {
+        personPhoto.setImageResource(
+          R.drawable.ic_account_circle_white_24dp);
+      } else {
+        personPhoto.setImageResource(
+          R.drawable.ic_account_circle_black_24dp);
+      }
+      personPhoto.setImageAlpha(200);
     }
   }
 
@@ -241,7 +266,7 @@ public enum User {
     final LinearLayout coverPhoto =
       hView.findViewById(R.id.navHeader);
     final Bitmap bitmap = getCoverPhotoBitmap();
-    final boolean dark = Prefs.INST(App.getContext()).isDarkTheme();
+    final boolean dark = Prefs.INST(mContext).isDarkTheme();
     final Drawable drawable;
 
     if (isLoggedIn()) {
@@ -254,20 +279,20 @@ public enum User {
       } else {
         // no cover, use default background
         if (dark) {
-          drawable = ContextCompat.getDrawable(App.getContext(),
+          drawable = ContextCompat.getDrawable(mContext,
             R.drawable.side_nav_bar_dark);
         } else {
-          drawable = ContextCompat.getDrawable(App.getContext(),
+          drawable = ContextCompat.getDrawable(mContext,
             R.drawable.side_nav_bar);
         }
       }
     } else {
       // no cover, use default background
       if (dark) {
-        drawable = ContextCompat.getDrawable(App.getContext(),
+        drawable = ContextCompat.getDrawable(mContext,
           R.drawable.side_nav_bar_dark);
       } else {
-        drawable = ContextCompat.getDrawable(App.getContext(),
+        drawable = ContextCompat.getDrawable(mContext,
           R.drawable.side_nav_bar);
       }
       setCoverPhotoBitmap(null);
@@ -310,7 +335,7 @@ public enum User {
       final HttpTransport httpTransport = new NetHttpTransport();
       final JacksonFactory jsonFactory = new JacksonFactory();
       Person userProfile = null;
-      final Context context = App.getContext();
+      final Context context = mContext;
       final String email = getEmail();
       final Collection<String> scopes =
         new ArrayList<>(Collections.singletonList(Scopes.PROFILE));
