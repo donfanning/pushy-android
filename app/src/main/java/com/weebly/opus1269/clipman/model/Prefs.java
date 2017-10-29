@@ -292,6 +292,7 @@ public class Prefs {
     set(PREF_DEVICES, value);
   }
 
+  /** Get Serial number. Create if not set */
   String getSN() {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -301,17 +302,25 @@ public class Prefs {
       // already set
       sN = preferences.getString(PREF_SN, "");
     } else {
-      // generate unique serial number for life of install at least
-      // TODO may need to replace at some point
-      sN = Build.SERIAL;
-      if (sN.isEmpty() || (sN.equals("unknown"))) {
-        // unknown is what emulators return
-        sN = AppUtils.getRandomString();
-      }
-      // set now. will never change unless uninstalled
-      set(PREF_SN, sN);
+      setSN();
+      sN = preferences.getString(PREF_SN, "");
     }
     return sN;
+  }
+
+  /** Set Serial number to unique value */
+  void setSN() {
+    String sN;
+
+    // generate unique serial number for life of install at least
+    // TODO may need to replace at some point
+    sN = Build.SERIAL;
+    if (sN.isEmpty() || (sN.equals("unknown"))) {
+      // unknown is what emulators return
+      sN = AppUtils.getRandomString();
+    }
+    // set now. will never change unless re-installed
+    set(PREF_SN, sN);
   }
 
   void set(String key, String value) {
