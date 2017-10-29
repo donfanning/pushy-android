@@ -60,7 +60,7 @@ public class Log {
 
     // save last error
     final LastError lastError = new LastError(tag, title, message);
-    if (notify && Prefs.isNotifyError()) {
+    if (notify && Prefs.INST(App.getContext()).isNotifyError()) {
       // notify user
       Notifications.show(lastError);
     }
@@ -128,7 +128,7 @@ public class Log {
 
     // save last error
     final LastError lastError = new LastError(tag, title, message, ex);
-    if (notify && Prefs.isNotifyError()) {
+    if (notify && Prefs.INST(App.getContext()).isNotifyError()) {
       Notifications.show(lastError);
     }
 

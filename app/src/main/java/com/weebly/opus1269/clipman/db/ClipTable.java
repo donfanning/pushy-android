@@ -166,7 +166,7 @@ public enum ClipTable {
   public int deleteOldItems() {
     final Context context = App.getContext();
 
-    final String value = Prefs.getDuration();
+    final String value = Prefs.INST(context).getDuration();
     if (value.equals(context.getString(R.string.ar_duration_forever))) {
       return 0;
     }

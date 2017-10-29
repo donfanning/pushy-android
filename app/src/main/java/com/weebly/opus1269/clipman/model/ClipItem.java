@@ -183,9 +183,9 @@ public class ClipItem implements Serializable {
       // send to registered devices , if possible
       if (!User.INST.isLoggedIn()) {
         id = R.string.err_not_signed_in;
-      } else if (!Prefs.isDeviceRegistered()) {
+      } else if (!Prefs.INST(context).isDeviceRegistered()) {
         id = R.string.err_not_registered;
-      } else if (!Prefs.isPushClipboard()) {
+      } else if (!Prefs.INST(context).isPushClipboard()) {
         id = R.string.err_no_push;
       } else if (clipItem.send()) {
         id = R.string.clipboard_sent;
@@ -553,8 +553,9 @@ public class ClipItem implements Serializable {
    * @return true if sent
    */
   public Boolean send() {
+    final Context context = App.getContext();
     Boolean ret = false;
-    if (User.INST.isLoggedIn() && Prefs.isPushClipboard()) {
+    if (User.INST.isLoggedIn() && Prefs.INST(context).isPushClipboard()) {
       ret = true;
       MessagingClient.send(this);
     }

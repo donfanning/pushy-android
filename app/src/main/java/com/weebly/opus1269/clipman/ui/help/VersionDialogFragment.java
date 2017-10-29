@@ -36,7 +36,8 @@ public class VersionDialogFragment extends DialogFragment {
 
     // set version name
     TextView version = view.findViewById(R.id.version);
-    version.setText(getResources().getString(R.string.version_fmt, Prefs.getVersionName()));
+    version.setText(getResources().getString(R.string.version_fmt,
+      Prefs.INST(getContext()).getVersionName()));
 
     // linkify license
     // http://stackoverflow.com/a/16003280/4468645

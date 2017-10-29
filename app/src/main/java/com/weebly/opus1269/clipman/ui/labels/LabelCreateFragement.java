@@ -122,7 +122,7 @@ public class LabelCreateFragement extends Fragment implements
     DrawableHelper.setImageViewEnabled(addDoneButton, false);
 
     // tint icons
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(getContext()).isLightTheme()) {
       color = R.color.deep_teal_500;
     } else {
       color = R.color.deep_teal_200;
@@ -134,7 +134,7 @@ public class LabelCreateFragement extends Fragment implements
       .tint()
       .applyTo(addImage);
 
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(getContext()).isLightTheme()) {
       color = android.R.color.primary_text_light;
     } else {
       color = android.R.color.primary_text_dark;

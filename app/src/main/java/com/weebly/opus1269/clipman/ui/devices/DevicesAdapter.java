@@ -96,7 +96,7 @@ class DevicesAdapter extends
     final Context context = holder.forgetButton.getContext();
     final int color;
 
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(context).isLightTheme()) {
       color = android.R.color.primary_text_light;
     } else {
       color = android.R.color.primary_text_dark;

@@ -19,6 +19,7 @@
 package com.weebly.opus1269.clipman.msg;
 
 import android.app.Activity;
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -60,6 +61,7 @@ public class RegistrationClient extends Endpoint {
    * @return getSuccess() false on error
    */
   public static EndpointRet register(String idToken) {
+    final Context context = App.getContext();
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
     ret.setReason(Msg.ERROR_UNKNOWN);
@@ -68,11 +70,11 @@ public class RegistrationClient extends Endpoint {
       Log.logD(TAG, "Not signed in.");
       ret.setSuccess(true);
       return ret;
-    } else if (Prefs.isDeviceRegistered()) {
+    } else if (Prefs.INST(context).isDeviceRegistered()) {
       Log.logD(TAG, "Already registered.");
       ret.setSuccess(true);
       return ret;
-    } else if (!Prefs.isAllowReceive()) {
+    } else if (!Prefs.INST(context).isAllowReceive()) {
       Log.logD(TAG, "User doesn't want to receive messasges.");
       ret.setSuccess(true);
       return ret;
@@ -105,7 +107,7 @@ public class RegistrationClient extends Endpoint {
       ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex,
         ERROR_REGISTER));
     } finally {
-      Prefs.setDeviceRegistered(isRegistered);
+      Prefs.INST(context).setDeviceRegistered(isRegistered);
     }
 
     return ret;
@@ -116,6 +118,7 @@ public class RegistrationClient extends Endpoint {
    * @return getSuccess() false on error
    */
   private static EndpointRet unregister() {
+    final Context context = App.getContext();
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
     ret.setReason(Msg.ERROR_UNKNOWN);
@@ -123,7 +126,7 @@ public class RegistrationClient extends Endpoint {
     if (notSignedIn()) {
       ret.setSuccess(true);
       return ret;
-    } else if (!Prefs.isDeviceRegistered()) {
+    } else if (!Prefs.INST(context).isDeviceRegistered()) {
       Log.logE(TAG, Msg.ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
       ret.setSuccess(true);
       return ret;
@@ -156,7 +159,7 @@ public class RegistrationClient extends Endpoint {
       ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex,
         ERROR_UNREGISTER));
     } finally {
-      Prefs.setDeviceRegistered(isRegistered);
+      Prefs.INST(context).setDeviceRegistered(isRegistered);
     }
 
     return ret;
@@ -238,7 +241,7 @@ public class RegistrationClient extends Endpoint {
       // unregister with the server - blocks
       EndpointRet ret = RegistrationClient.unregister();
       if (!ret.getSuccess()) {
-        Prefs.setDeviceRegistered(false);
+        Prefs.INST(App.getContext()).setDeviceRegistered(false);
         try {
           // delete in case user logs into different account - blocks
           FirebaseInstanceId.getInstance().deleteInstanceId();

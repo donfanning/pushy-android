@@ -174,7 +174,7 @@ class LabelsEditAdapter extends
     final Context context = holder.labelImage.getContext();
     int color;
 
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(mContext).isLightTheme()) {
       color = R.color.deep_teal_500;
     } else {
       color = R.color.deep_teal_200;
@@ -186,7 +186,7 @@ class LabelsEditAdapter extends
       .tint()
       .applyTo(holder.labelImage);
 
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(mContext).isLightTheme()) {
       color = android.R.color.primary_text_light;
     } else {
       color = android.R.color.primary_text_dark;

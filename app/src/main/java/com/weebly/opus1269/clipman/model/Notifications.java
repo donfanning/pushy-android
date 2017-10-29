@@ -120,17 +120,17 @@ public class Notifications {
    * @param clipItem the {@link ClipItem} to display notification for
    */
   public static void show(ClipItem clipItem) {
-    final String labelFilter = Prefs.getLabelFilter();
+    final Context context = App.getContext();
+    final String labelFilter = Prefs.INST(context).getLabelFilter();
     if (ClipItem.isWhitespace(clipItem) ||
       (App.isMainActivityVisible() && TextUtils.isEmpty(labelFilter)) ||
-      (clipItem.isRemote() && !Prefs.isNotifyRemote()) ||
-      (!clipItem.isRemote() && !Prefs.isNotifyLocal())) {
+      (clipItem.isRemote() && !Prefs.INST(context).isNotifyRemote()) ||
+      (!clipItem.isRemote() && !Prefs.INST(context).isNotifyLocal())) {
       return;
     }
 
     final String clipText = clipItem.getText();
     final int id = ID_COPY;
-    final Context context = App.getContext();
 
     // keep track of number of new items
     sClipItemCt++;
@@ -199,15 +199,15 @@ public class Notifications {
    * @param device remote device
    */
   public static void show(String action, CharSequence device) {
+    final Context context = App.getContext();
     final Boolean isAdded = action.equals(Msg.ACTION_DEVICE_ADDED);
     if (TextUtils.isEmpty(action) || TextUtils.isEmpty(device) ||
       App.isDevicesActivityVisible() ||
-      (isAdded && !Prefs.isNotifyDeviceAdded()) ||
-      (!isAdded && !Prefs.isNotifyDeviceRemoved())) {
+      (isAdded && !Prefs.INST(context).isNotifyDeviceAdded()) ||
+      (!isAdded && !Prefs.INST(context).isNotifyDeviceRemoved())) {
       return;
     }
 
-    final Context context = App.getContext();
     final Intent intent = new Intent(context, DevicesActivity.class);
 
     final PendingIntent pendingIntent =
@@ -240,12 +240,12 @@ public class Notifications {
    * @param lastError error message
    */
   public static void show(LastError lastError) {
+    final Context context = App.getContext();
     final String message = lastError.getMessage();
-    if (TextUtils.isEmpty(message) || !Prefs.isNotifyError()) {
+    if (TextUtils.isEmpty(message) || !Prefs.INST(context).isNotifyError()) {
       return;
     }
 
-    final Context context = App.getContext();
     final Intent intent = new Intent(context, ErrorViewerActivity.class);
     intent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
 
@@ -404,11 +404,11 @@ public class Notifications {
       .setTicker(titleText)
       .setColor(ContextCompat.getColor(context, R.color.primary))
       .setShowWhen(true)
-      .setOnlyAlertOnce(Prefs.isAudibleOnce())
+      .setOnlyAlertOnce(Prefs.INST(context).isAudibleOnce())
       .setAutoCancel(true);
 
     if (!AppUtils.isOreoOrLater()) {
-      final Uri sound = Prefs.getNotificationSound();
+      final Uri sound = Prefs.INST(context).getNotificationSound();
       if (sound != null) {
         builder.setSound(sound);
       }

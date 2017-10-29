@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -67,11 +68,12 @@ public enum Analytics {
    */
   synchronized public Tracker getTracker() {
     if (mTracker == null) {
-      GoogleAnalytics analytics = GoogleAnalytics.getInstance(App.getContext());
+      final Context context = App.getContext();
+      GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
       // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
       mTracker = analytics.newTracker(TRACKING_ID);
       mTracker.setAppName(AppUtils.getApplicationName());
-      mTracker.setAppVersion(Prefs.getVersionName());
+      mTracker.setAppVersion(Prefs.INST(context).getVersionName());
     }
     return mTracker;
   }
@@ -193,9 +195,12 @@ public enum Analytics {
       .build());
   }
 
-  /** App updated */
-  public void updated() {
-    event(NO_SCREEN, CAT_APP, UPDATED, Prefs.getVersionName());
+  /**
+   * App updated
+   * @param context
+   */
+  public void updated(Context context) {
+    event(NO_SCREEN, CAT_APP, UPDATED, Prefs.INST(context).getVersionName());
   }
 
   /**

@@ -91,10 +91,10 @@ public class App extends Application implements
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
     // reset fav filter
-    Prefs.setFavFilter(false);
+    Prefs.INST(sContext).setFavFilter(false);
 
     // reset label filter
-    Prefs.setLabelFilter("");
+    Prefs.INST(sContext).setLabelFilter("");
 
     // save version info. to the preferences database
     final PackageInfo pInfo;
@@ -105,8 +105,8 @@ public class App extends Application implements
       updatePreferences(pInfo.versionCode);
 
       // save current version
-      Prefs.setVersionName(pInfo.versionName);
-      Prefs.setVersionCode(pInfo.versionCode);
+      Prefs.INST(sContext).setVersionName(pInfo.versionName);
+      Prefs.INST(sContext).setVersionCode(pInfo.versionCode);
     } catch (final PackageManager.NameNotFoundException ex) {
       Log.logEx(TAG, "Version info not found: " + ex.getMessage(), ex, false);
     }
@@ -243,7 +243,7 @@ public class App extends Application implements
    */
   private void updatePreferences(final int versionCode) {
     Log.logD(TAG, "updatePreferences called");
-    final int oldVersionCode = Prefs.getVersionCode();
+    final int oldVersionCode = Prefs.INST(sContext).getVersionCode();
 
     if ((oldVersionCode == 0) || (versionCode == oldVersionCode)) {
       Log.logD(TAG, "no change needed");
@@ -257,7 +257,7 @@ public class App extends Application implements
       final String key = getString(R.string.key_pref_not_types);
       final String errorValue = getString(R.string.ar_not_error_value);
       final Set<String> values =
-        preferences.getStringSet(key, Prefs.DEF_NOTIFICATIONS);
+        preferences.getStringSet(key, Prefs.INST(sContext).DEF_NOTIFICATIONS);
       if (!values.contains(errorValue)) {
         // add the error notification
         values.add(errorValue);

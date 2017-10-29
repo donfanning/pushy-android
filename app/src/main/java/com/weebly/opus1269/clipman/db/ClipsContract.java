@@ -60,7 +60,7 @@ public class ClipsContract {
       final String[] sorts =
         App.getContext().getResources().getStringArray(R.array
           .sort_type_clip_values);
-      return sorts[Prefs.getSortType()];
+      return sorts[Prefs.INST(App.getContext()).getSortType()];
     }
   }
 

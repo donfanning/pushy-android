@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
 import org.joda.time.DateTime;
@@ -53,7 +54,8 @@ public class LastError implements Serializable {
    * @return LastError from storage
    */
   public static LastError get() {
-    final String json = Prefs.get(PREF_LAST_ERROR, "");
+    final String json =
+      Prefs.INST(App.getContext()).get(PREF_LAST_ERROR, "");
 
     if (json.isEmpty()) {
       return new LastError();
@@ -156,7 +158,7 @@ public class LastError implements Serializable {
   private void persist() {
     final Gson gson = new Gson();
     final String asString = gson.toJson(this);
-    Prefs.set(PREF_LAST_ERROR, asString);
+    Prefs.INST(App.getContext()).set(PREF_LAST_ERROR, asString);
   }
 
   public String getTag() {

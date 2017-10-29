@@ -66,7 +66,7 @@ public class Devices {
     // persist
     final Gson gson = new Gson();
     final String devicesString = gson.toJson(sDevices);
-    Prefs.setDevices(devicesString);
+    Prefs.INST(App.getContext()).setDevices(devicesString);
 
     if (broadcast) {
       // let listeners know
@@ -79,7 +79,7 @@ public class Devices {
    * @return List<Device> the list of {@link Device} objects
    */
   private static List<Device> load() {
-    final String devicesString = Prefs.getDevices();
+    final String devicesString = Prefs.INST(App.getContext()).getDevices();
 
     if (devicesString.isEmpty()) {
       sDevices = new ArrayList<>(0);

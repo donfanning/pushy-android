@@ -57,7 +57,7 @@ public class MessagingClient extends Endpoint {
    * @param clipItem - contents to send
    */
   public static void send(ClipItem clipItem) {
-    if (notSignedIn() || !Prefs.isPushClipboard()) {
+    if (notSignedIn() || !Prefs.INST(App.getContext()).isPushClipboard()) {
       return;
     }
 
@@ -83,7 +83,7 @@ public class MessagingClient extends Endpoint {
 
   /** Notify of our addition */
   static void sendDeviceAdded() {
-    if (notSignedIn() || !Prefs.isPushClipboard()) {
+    if (notSignedIn() || !Prefs.INST(App.getContext()).isPushClipboard()) {
       return;
     }
 
@@ -96,7 +96,7 @@ public class MessagingClient extends Endpoint {
 
   /** Notify of our removal */
   public static void sendDeviceRemoved() {
-    if (notSignedIn() || !Prefs.isPushClipboard()) {
+    if (notSignedIn() || !Prefs.INST(App.getContext()).isPushClipboard()) {
       return;
     }
 
@@ -109,7 +109,7 @@ public class MessagingClient extends Endpoint {
 
   /** Ping others */
   public static void sendPing() {
-    if (notSignedIn() || !Prefs.isPushClipboard()) {
+    if (notSignedIn() || !Prefs.INST(App.getContext()).isPushClipboard()) {
       return;
     }
 
@@ -124,7 +124,7 @@ public class MessagingClient extends Endpoint {
    * @param srcRegId source of ping
    */
   public static void sendPingResponse(String srcRegId) {
-    if (notSignedIn() || !Prefs.isPushClipboard()) {
+    if (notSignedIn() || !Prefs.INST(App.getContext()).isPushClipboard()) {
       return;
     }
 
@@ -216,7 +216,8 @@ public class MessagingClient extends Endpoint {
 
         // call server
         final String regToken = getRegToken();
-        final Boolean highPriority = Prefs.isHighPriority();
+        final Boolean highPriority =
+          Prefs.INST(App.getContext()).isHighPriority();
         ret = msgService
           .send(regToken, jsonString, highPriority).execute();
         if (ret.getSuccess()) {

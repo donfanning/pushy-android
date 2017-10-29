@@ -50,7 +50,6 @@ import java.util.List;
  * Singleton representing the current User.
  * Data backed by {@link android.support.v4.content.SharedPreferencesCompat}
  */
-
 public enum User {
   INST;
 
@@ -111,70 +110,70 @@ public enum User {
   }
 
   private String getId() {
-    return Prefs.get(PREF_USER_ID, "");
+    return Prefs.INST(App.getContext()).get(PREF_USER_ID, "");
   }
 
   private void setId(String value) {
-    Prefs.set(PREF_USER_ID, value);
+    Prefs.INST(App.getContext()).set(PREF_USER_ID, value);
   }
 
   public String getName() {
-    return Prefs.get(PREF_USER_NAME, "");
+    return Prefs.INST(App.getContext()).get(PREF_USER_NAME, "");
   }
 
   private void setName(String value) {
-    Prefs.set(PREF_USER_NAME, value);
+    Prefs.INST(App.getContext()).set(PREF_USER_NAME, value);
   }
 
   public String getEmail() {
-    return Prefs.get(PREF_USER_EMAIL, "");
+    return Prefs.INST(App.getContext()).get(PREF_USER_EMAIL, "");
   }
 
   private void setEmail(String value) {
-    Prefs.set(PREF_USER_EMAIL, value);
+    Prefs.INST(App.getContext()).set(PREF_USER_EMAIL, value);
   }
 
   private String getPhotoUri() {
-    return Prefs.get(PREF_USER_PHOTO_URI, "");
+    return Prefs.INST(App.getContext()).get(PREF_USER_PHOTO_URI, "");
   }
 
   private void setPhotoUri(String value) {
-    Prefs.set(PREF_USER_PHOTO_URI, value);
+    Prefs.INST(App.getContext()).set(PREF_USER_PHOTO_URI, value);
   }
 
   private Bitmap getPhotoBitmap() {
     return BitmapHelper.decodeBitmap(
-      Prefs.get(PREF_USER_PHOTO_ENCODED, ""));
+      Prefs.INST(App.getContext()).get(PREF_USER_PHOTO_ENCODED, ""));
   }
 
   private void setPhotoBitmap(Bitmap bitmap) {
-    Prefs.set(PREF_USER_PHOTO_ENCODED, BitmapHelper.encodeBitmap(bitmap));
+    Prefs.INST(App.getContext()).set(PREF_USER_PHOTO_ENCODED, BitmapHelper.encodeBitmap(bitmap));
   }
 
   @SuppressWarnings("unused")
   public String getType() {
-    return Prefs.get(PREF_USER_TYPE, "com.google");
+    return Prefs.INST(App.getContext()).get(PREF_USER_TYPE, "com.google");
   }
 
   private void setType(String value) {
-    Prefs.set(PREF_USER_TYPE, value);
+    Prefs.INST(App.getContext()).set(PREF_USER_TYPE, value);
   }
 
   private String getCoverPhotoUri() {
-    return Prefs.get(PREF_USER_COVER_PHOTO_URI, "");
+    return Prefs.INST(App.getContext()).get(PREF_USER_COVER_PHOTO_URI, "");
   }
 
   private void setCoverPhotoUri(String value) {
-    Prefs.set(PREF_USER_COVER_PHOTO_URI, value);
+    Prefs.INST(App.getContext()).set(PREF_USER_COVER_PHOTO_URI, value);
   }
 
   private Bitmap getCoverPhotoBitmap() {
     return BitmapHelper.decodeBitmap(
-      Prefs.get(PREF_USER_COVER_PHOTO_ENCODED, ""));
+      Prefs.INST(App.getContext()).get(PREF_USER_COVER_PHOTO_ENCODED, ""));
   }
 
   private void setCoverPhotoBitmap(Bitmap bitmap) {
-    Prefs.set(PREF_USER_COVER_PHOTO_ENCODED,
+    Prefs.INST(App.getContext()).set(PREF_USER_COVER_PHOTO_ENCODED,
       BitmapHelper.encodeBitmap(bitmap));
   }
 
@@ -209,7 +208,7 @@ public enum User {
 
     if (isLoggedIn()) {
       final Bitmap bitmap = getPhotoBitmap();
-      final boolean dark = Prefs.isDarkTheme();
+      final boolean dark = Prefs.INST(App.getContext()).isDarkTheme();
       if (bitmap != null) {
         // user has a photo
         final RoundedBitmapDrawable bg =
@@ -242,7 +241,7 @@ public enum User {
     final LinearLayout coverPhoto =
       hView.findViewById(R.id.navHeader);
     final Bitmap bitmap = getCoverPhotoBitmap();
-    final boolean dark = Prefs.isDarkTheme();
+    final boolean dark = Prefs.INST(App.getContext()).isDarkTheme();
     final Drawable drawable;
 
     if (isLoggedIn()) {

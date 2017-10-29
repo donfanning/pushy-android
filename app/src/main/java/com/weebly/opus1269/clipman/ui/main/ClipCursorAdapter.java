@@ -168,7 +168,7 @@ class ClipCursorAdapter extends
     final int drawableFav;
     final int colorFav;
 
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(mContext).isLightTheme()) {
       color = android.R.color.primary_text_light;
     } else {
       color = android.R.color.primary_text_dark;

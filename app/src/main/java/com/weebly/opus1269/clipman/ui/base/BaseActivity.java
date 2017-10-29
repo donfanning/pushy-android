@@ -207,7 +207,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
    * Apply the user selected theme
    */
   private void setTheme() {
-    if (Prefs.isDarkTheme()) {
+    if (Prefs.INST(this).isDarkTheme()) {
       this.setTheme(R.style.AppThemeDark);
     } else {
       this.setTheme(R.style.AppThemeLight);

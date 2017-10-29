@@ -56,10 +56,10 @@ public class ClipboardWatcherService extends Service implements
    */
   @TargetApi(26)
   public static void startService(Boolean noProcessOnStart) {
-    if (Prefs.isMonitorClipboard()
+    final Context context = App.getContext();
+    if (Prefs.INST(context).isMonitorClipboard()
       && !AppUtils.isMyServiceRunning(ClipboardWatcherService.class)) {
       // only start if the user has allowed it and we are not running
-      final Context context = App.getContext();
       final Intent intent = new Intent(context, ClipboardWatcherService.class);
       intent.putExtra(EXTRA_NO_PROCESS_ON_START, noProcessOnStart);
       if (AppUtils.isOreoOrLater()) {
@@ -166,7 +166,7 @@ public class ClipboardWatcherService extends Service implements
     if (saved) {
       Notifications.show(clipItem);
 
-      if (!clipItem.isRemote() && Prefs.isAutoSend()) {
+      if (!clipItem.isRemote() && Prefs.INST(this).isAutoSend()) {
         clipItem.send();
       }
     }

@@ -54,14 +54,14 @@ public class SortTypeDialogFragment extends DialogFragment {
   @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    final int selected = Prefs.getSortType();
+    final int selected = Prefs.INST(getContext()).getSortType();
     // Use the Builder class for convenient dialog construction
     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     builder
       .setSingleChoiceItems(R.array.sort_type_clips, selected, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          Prefs.setSortType(which);
+          Prefs.INST(getContext()).setSortType(which);
           // tell the listener something was elected
           mListener.onSortTypeSelected();
           dialog.dismiss();

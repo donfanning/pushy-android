@@ -103,7 +103,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
         Settings.System.DEFAULT_NOTIFICATION_URI);
 
-      final String existingValue = Prefs.getRingtone();
+      final String existingValue = Prefs.INST(getContext()).getRingtone();
       if (existingValue != null) {
         if (existingValue.isEmpty()) {
           // Select "Silent"
@@ -142,7 +142,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       if (uri != null) {
         ringTone = uri.toString();
       }
-      Prefs.setRingtone(ringTone);
+      Prefs.INST(getContext()).setRingtone(ringTone);
       Analytics.INST.event(((BaseActivity)getActivity()).getTAG(),
         Analytics.CAT_UI, Analytics.UI_LIST, "ringtone: " + ringTone);
       setRingtoneSummary();
@@ -184,7 +184,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       MessagingClient.sendPing();
     } else if (key.equals(keyMonitor)) {
       // start or stop clipboard service as needed
-      if (Prefs.isMonitorClipboard()) {
+      if (Prefs.INST(getContext()).isMonitorClipboard()) {
         ClipboardWatcherService.startService(false);
       } else {
         final Intent intent =
@@ -199,13 +199,13 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         .addNextIntent(activity.getIntent())
         .startActivities();
     } else if (key.equals(keyNotifications)) {
-      if (Prefs.notNotifications()) {
+      if (Prefs.INST(getContext()).notNotifications()) {
         // remove any currently displayed Notifications
         Notifications.removeAll();
       }
     } else if (key.equals(keyReceive)) {
       if (User.INST.isLoggedIn()) {
-        if (Prefs.isAllowReceive()) {
+        if (Prefs.INST(getContext()).isAllowReceive()) {
           // register
           new RegistrationClient
             .RegisterAsyncTask(getActivity(), null)
@@ -261,7 +261,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       return;
     }
     final Preference preference = findPreference(mRingtoneKey);
-    final String value = Prefs.getRingtone();
+    final String value = Prefs.INST(getContext()).getRingtone();
     final String title;
     if (TextUtils.isEmpty(value)) {
       title = getString(R.string.key_pref_ringtone_silent);
@@ -278,7 +278,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   private void setNicknameSummary() {
     final Preference preference =
       findPreference(getString(R.string.key_pref_nickname));
-    String value = Prefs.getDeviceNickname();
+    String value = Prefs.INST(getContext()).getDeviceNickname();
     if (TextUtils.isEmpty(value)) {
       value = getResources().getString(R.string.pref_nickname_hint);
     }

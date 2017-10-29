@@ -7,198 +7,209 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Static getters and setters for preferences */
+/** Singleton to manage preferencses */
 public class Prefs {
 
-  private static final String DEF_THEME =
-    App.getContext().getString(R.string.ar_theme_light_value);
-  private static final String DEF_DURATION =
-    App.getContext().getString(R.string.ar_duration_forever_value);
-  private static final String DEF_RINGTONE =
-    Settings.System.DEFAULT_NOTIFICATION_URI.toString();
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static Prefs sIntstance;
+
+  /** Global Application Context */
+  private final Context mContext;
+
+  private final String DEF_THEME;
+  private final String DEF_DURATION;
+  private final String DEF_RINGTONE;
 
   // app notification types
-  private static final String NOTIFY_REMOTE_COPY =
-    App.getContext().getString(R.string.ar_not_remote_value);
-  private static final String NOTIFY_LOCAL_COPY =
-    App.getContext().getString(R.string.ar_not_local_value);
-  private static final String NOTIFY_DEVICE_ADDED =
-    App.getContext().getString(R.string.ar_not_dev_added_value);
-  private static final String NOTIFY_DEVICE_REMOVED =
-    App.getContext().getString(R.string.ar_not_dev_removed_value);
-  private static final String NOTIFY_ERROR =
-    App.getContext().getString(R.string.ar_not_error_value);
+  private final String NOTIFY_REMOTE_COPY;
+  private final String NOTIFY_LOCAL_COPY;
+  private final String NOTIFY_DEVICE_ADDED;
+  private final String NOTIFY_DEVICE_REMOVED;
+  private final String NOTIFY_ERROR;
 
-  private static final String[] DEF_NOTIFY_VALUES =
-    App.getContext().getResources().getStringArray(
-      R.array.pref_not_types_default_values);
-  public static final Set<String> DEF_NOTIFICATIONS =
-    new HashSet<>(Arrays.asList(DEF_NOTIFY_VALUES));
+  private final String[] DEF_NOTIFY_VALUES;
+  public final Set<String> DEF_NOTIFICATIONS;
 
   // Preferences that are not set through the SettingsActivity
-  private static final String PREF_VERSION_NAME = "prefVersionName";
-  private static final String PREF_VERSION_CODE = "prefVersionCode";
-  private static final String PREF_FAV_FILTER = "prefFavFilter";
-  private static final String PREF_LABEL_FILTER = "preflabelFilter";
-  private static final String PREF_SORT_TYPE = "prefSortType";
-  private static final String PREF_DEVICE_REGISTERED = "prefDeviceRegistered";
-  private static final String PREF_DEVICES = "prefDevices";
-  private static final String PREF_SN = "prefSN";
+  private final String PREF_VERSION_NAME = "prefVersionName";
+  private final String PREF_VERSION_CODE = "prefVersionCode";
+  private final String PREF_FAV_FILTER = "prefFavFilter";
+  private final String PREF_LABEL_FILTER = "preflabelFilter";
+  private final String PREF_SORT_TYPE = "prefSortType";
+  private final String PREF_DEVICE_REGISTERED = "prefDeviceRegistered";
+  private final String PREF_DEVICES = "prefDevices";
+  private final String PREF_SN = "prefSN";
 
-  private Prefs() {
+
+  private Prefs(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+
+    DEF_THEME = mContext.getString(R.string.ar_theme_light_value);
+    DEF_DURATION = mContext.getString(R.string.ar_duration_forever_value);
+    DEF_RINGTONE = Settings.System.DEFAULT_NOTIFICATION_URI.toString();
+    NOTIFY_REMOTE_COPY = mContext.getString(R.string.ar_not_remote_value);
+    NOTIFY_LOCAL_COPY = mContext.getString(R.string.ar_not_local_value);
+    NOTIFY_DEVICE_ADDED = mContext.getString(R.string.ar_not_dev_added_value);
+    NOTIFY_DEVICE_REMOVED =
+      mContext.getString(R.string.ar_not_dev_removed_value);
+    NOTIFY_ERROR = mContext.getString(R.string.ar_not_error_value);
+    DEF_NOTIFY_VALUES = mContext.getResources()
+      .getStringArray(R.array.pref_not_types_default_values);
+    DEF_NOTIFICATIONS = new HashSet<>(Arrays.asList(DEF_NOTIFY_VALUES));
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static Prefs INST(@NonNull Context context) {
+    synchronized (Prefs.class) {
+      if (sIntstance == null) {
+        sIntstance = new Prefs(context);
+      }
+      return sIntstance;
+    }
   }
 
   ///////////////////////////////////////////////////////////////////////////
   // Set from UI
   ///////////////////////////////////////////////////////////////////////////
 
-  public static boolean isMonitorClipboard() {
-    final Context context = App.getContext();
+
+  public boolean isMonitorStartup() {
     final String key =
-      context.getResources().getString(R.string.key_pref_monitor_clipboard);
+      mContext.getString(R.string.key_pref_monitor_startup);
     return get(key, true);
   }
 
-  public static boolean isMonitorStartup() {
-    final Context context = App.getContext();
+  public boolean isMonitorClipboard() {
     final String key =
-      context.getResources().getString(R.string.key_pref_monitor_startup);
+      mContext.getString(R.string.key_pref_monitor_clipboard);
     return get(key, true);
   }
 
-  public static boolean isPushClipboard() {
-    final Context context = App.getContext();
+  public boolean isPushClipboard() {
     final String key =
-      context.getResources().getString(R.string.key_pref_push_msg);
+      mContext.getString(R.string.key_pref_push_msg);
     return get(key, true);
   }
 
-  public static boolean isAutoSend() {
-    final Context context = App.getContext();
+  public boolean isAutoSend() {
     final String key =
-      context.getResources().getString(R.string.key_pref_auto_msg);
+      mContext.getString(R.string.key_pref_auto_msg);
     return get(key, true);
   }
 
-  public static boolean isAllowReceive() {
-    final Context context = App.getContext();
+  public boolean isAllowReceive() {
     final String key =
-      context.getResources().getString(R.string.key_pref_receive_msg);
+      mContext.getString(R.string.key_pref_receive_msg);
     return get(key, true);
   }
 
-  public static int getHeartbeat() {
-    final Context context = App.getContext();
+  public int getHeartbeat() {
     final String key =
-      context.getResources().getString(R.string.key_pref_heartbeat);
+      mContext.getString(R.string.key_pref_heartbeat);
     return Integer.parseInt(get(key, "5"));
   }
 
-  public static boolean isHighPriority() {
-    final Context context = App.getContext();
+  public boolean isHighPriority() {
     final String key =
-      context.getResources().getString(R.string.key_pref_priority_msg);
+      mContext.getString(R.string.key_pref_priority_msg);
     return get(key, true);
   }
 
-  public static String getDeviceNickname() {
-    final Context context = App.getContext();
+  public String getDeviceNickname() {
     final String key =
-      context.getResources().getString(R.string.key_pref_nickname);
+      mContext.getString(R.string.key_pref_nickname);
     return get(key, "");
   }
 
-  public static String getDuration() {
-    final Context context = App.getContext();
+  public String getDuration() {
     final String key =
-      context.getResources().getString(R.string.key_pref_duration);
+      mContext.getString(R.string.key_pref_duration);
     return get(key, DEF_DURATION);
   }
 
-  private static String getTheme() {
-    final Context context = App.getContext();
+  private String getTheme() {
     final String key =
-      context.getResources().getString(R.string.key_pref_theme);
+      mContext.getString(R.string.key_pref_theme);
     return get(key, DEF_THEME);
   }
 
-  public static boolean isDarkTheme() {
-    final Context context = App.getContext();
-    return context.getString(R.string.ar_theme_dark_value).equals(getTheme());
+  public boolean isDarkTheme() {
+    return mContext.getString(R.string.ar_theme_dark_value).equals(getTheme());
   }
 
-  public static boolean isLightTheme() {
-    final Context context = App.getContext();
-    return context.getString(R.string.ar_theme_light_value).equals(getTheme());
+  public boolean isLightTheme() {
+    return mContext.getString(R.string.ar_theme_light_value).equals(getTheme());
   }
 
-  public static boolean notNotifications() {
-    final Context context = App.getContext();
+  public boolean notNotifications() {
     final String key =
-      context.getResources().getString(R.string.key_pref_notifications);
+      mContext.getString(R.string.key_pref_notifications);
     return !get(key, true);
   }
 
-  static boolean isNotifyLocal() {
+  boolean isNotifyLocal() {
     return isNotifyEnabled(NOTIFY_LOCAL_COPY);
   }
 
-  static boolean isNotifyRemote() {
+  boolean isNotifyRemote() {
     return isNotifyEnabled(NOTIFY_REMOTE_COPY);
   }
 
-  static boolean isNotifyDeviceAdded() {
+  boolean isNotifyDeviceAdded() {
     return isNotifyEnabled(NOTIFY_DEVICE_ADDED);
   }
 
-  static boolean isNotifyDeviceRemoved() {
+  boolean isNotifyDeviceRemoved() {
     return isNotifyEnabled(NOTIFY_DEVICE_REMOVED);
   }
 
-  public static boolean isNotifyError() {
+  public boolean isNotifyError() {
     return isNotifyEnabled(NOTIFY_ERROR);
   }
 
-  private static boolean isNotifyEnabled(String value) {
+  private boolean isNotifyEnabled(String value) {
     if (notNotifications()) {
       return false;
     }
-    final Context context = App.getContext();
     final String key =
-      context.getResources().getString(R.string.key_pref_not_types);
+      mContext.getString(R.string.key_pref_not_types);
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(context);
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     final Set<String> values =
       preferences.getStringSet(key, DEF_NOTIFICATIONS);
     return values.contains(value);
   }
 
-  static boolean isAudibleOnce() {
-    final Context context = App.getContext();
+  boolean isAudibleOnce() {
     final String key =
-      context.getResources().getString(R.string.key_pref_not_audible_once);
+      mContext.getString(R.string.key_pref_not_audible_once);
     return get(key, true);
   }
 
   @Nullable
-  static Uri getNotificationSound() {
+  Uri getNotificationSound() {
     Uri ret = null;
     final String value = getRingtone();
     if (!TextUtils.isEmpty(value)) {
@@ -207,85 +218,83 @@ public class Prefs {
     return ret;
   }
 
-  public static String getRingtone() {
-    final Context context = App.getContext();
+  public String getRingtone() {
     final String key =
-      context.getResources().getString(R.string.key_pref_ringtone);
+      mContext.getString(R.string.key_pref_ringtone);
     return get(key, DEF_RINGTONE);
   }
 
-  public static void setRingtone(String value) {
-    final Context context = App.getContext();
+  public void setRingtone(String value) {
     final String key =
-      context.getResources().getString(R.string.key_pref_ringtone);
+      mContext.getString(R.string.key_pref_ringtone);
     set(key, value);
+  }
+
+  @SuppressWarnings("unused")
+  public String getVersionName() {
+    return get(PREF_VERSION_NAME, "");
   }
 
   ///////////////////////////////////////////////////////////////////////////
   // Not set from Settings UI
   ///////////////////////////////////////////////////////////////////////////
 
-  @SuppressWarnings("unused")
-  public static String getVersionName() {
-    return get(PREF_VERSION_NAME, "");
-  }
-
-  public static void setVersionName(String value) {
+  public void setVersionName(String value) {
     set(PREF_VERSION_NAME, value);
   }
 
   @SuppressWarnings("unused")
-  public static int getVersionCode() {
+  public int getVersionCode() {
     return get(PREF_VERSION_CODE, 0);
   }
 
-  public static void setVersionCode(int value) {
+  public void setVersionCode(int value) {
     set(PREF_VERSION_CODE, value);
   }
 
-  public static int getSortType() {
+  public int getSortType() {
     return get(PREF_SORT_TYPE, 0);
   }
 
-  public static void setSortType(int value) {
+  public void setSortType(int value) {
     set(PREF_SORT_TYPE, value);
   }
 
-  public static boolean isFavFilter() {
+  public boolean isFavFilter() {
     return get(PREF_FAV_FILTER, false);
   }
 
-  public static void setFavFilter(Boolean value) {
+  public void setFavFilter(Boolean value) {
     set(PREF_FAV_FILTER, value);
   }
 
-  public static String getLabelFilter() {
+  public String getLabelFilter() {
     return get(PREF_LABEL_FILTER, "");
   }
 
-  public static void setLabelFilter(String value) {
+  public void setLabelFilter(String value) {
     set(PREF_LABEL_FILTER, value);
   }
 
-  public static boolean isDeviceRegistered() {
+  public boolean isDeviceRegistered() {
     return get(PREF_DEVICE_REGISTERED, false);
   }
 
-  public static void setDeviceRegistered(Boolean value) {
+  public void setDeviceRegistered(Boolean value) {
     set(PREF_DEVICE_REGISTERED, value);
   }
 
-  public static String getDevices() {
+  public String getDevices() {
     return get(PREF_DEVICES, "");
   }
 
-  public static void setDevices(String value) {
+  public void setDevices(String value) {
     set(PREF_DEVICES, value);
   }
 
-  static String getSN() {
+  String getSN() {
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     String sN;
 
     if (preferences.contains(PREF_SN)) {
@@ -305,49 +314,49 @@ public class Prefs {
     return sN;
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Setter and getter helpers
-  ///////////////////////////////////////////////////////////////////////////
-
-  static void set(String key, String value) {
+  void set(String key, String value) {
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     preferences.edit()
       .putString(key, value)
       .apply();
   }
 
-  private static void set(String key, boolean value) {
+  ///////////////////////////////////////////////////////////////////////////
+  // Setter and getter helpers
+  ///////////////////////////////////////////////////////////////////////////
+
+  private void set(String key, boolean value) {
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     preferences.edit()
       .putBoolean(key, value)
       .apply();
   }
 
-  private static void set(String key, int value) {
+  private void set(String key, int value) {
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     preferences.edit()
       .putInt(key, value)
       .apply();
   }
 
-  static String get(String key, String defValue) {
+  String get(String key, String defValue) {
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     return preferences.getString(key, defValue);
   }
 
-  private static boolean get(String key, boolean defValue) {
+  private boolean get(String key, boolean defValue) {
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     return preferences.getBoolean(key, defValue);
   }
 
-  private static int get(String key, int defValue) {
+  private int get(String key, int defValue) {
     final SharedPreferences preferences =
-      PreferenceManager.getDefaultSharedPreferences(App.getContext());
+      PreferenceManager.getDefaultSharedPreferences(mContext);
     return preferences.getInt(key, defValue);
   }
 }

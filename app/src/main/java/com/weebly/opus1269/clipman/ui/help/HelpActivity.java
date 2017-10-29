@@ -39,7 +39,7 @@ public class HelpActivity extends BaseActivity {
     final TextView release = findViewById(R.id.docRelease);
     release.setTag(getResources()
       .getString(R.string.help_doc_releas_tag_fmt,
-        Prefs.getVersionName()));
+        Prefs.INST(this).getVersionName()));
 
     // color the TextView icons
     tintLeftDrawables();
@@ -131,7 +131,7 @@ public class HelpActivity extends BaseActivity {
   private void tintLeftDrawables() {
 
     int color;
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(this).isLightTheme()) {
       color = R.color.deep_teal_500;
     } else {
       color = R.color.deep_teal_200;

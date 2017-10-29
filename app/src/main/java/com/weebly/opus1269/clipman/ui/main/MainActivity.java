@@ -98,12 +98,12 @@ public class MainActivity extends BaseActivity implements
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt > 1) {
         // we will show them, reset LabelFilter
-        Prefs.setLabelFilter("");
+        Prefs.INST(this).setLabelFilter("");
       }
     }
 
-    mFavFilter = Prefs.isFavFilter();
-    mLabelFilter = Prefs.getLabelFilter();
+    mFavFilter = Prefs.INST(this).isFavFilter();
+    mLabelFilter = Prefs.INST(this).getLabelFilter();
 
     // listen for preference changes
     PreferenceManager
@@ -211,7 +211,7 @@ public class MainActivity extends BaseActivity implements
   public void onBackPressed() {
     if (!TextUtils.isEmpty(mLabelFilter)) {
       // if filtered, create unfiltered MainActivity on Back
-      Prefs.setLabelFilter("");
+      Prefs.INST(this).setLabelFilter("");
       startActivity(MainActivity.class);
       finish();
     }
@@ -239,7 +239,7 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.action_fav_filter:
         mFavFilter = !mFavFilter;
-        Prefs.setFavFilter(mFavFilter);
+        Prefs.INST(this).setFavFilter(mFavFilter);
         updateOptionsMenu();
         // reload clips
         getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
@@ -294,7 +294,7 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.nav_clips:
         if (!AppUtils.isWhitespace(mLabelFilter)) {
-          Prefs.setLabelFilter("");
+          Prefs.INST(this).setLabelFilter("");
           startActivity(MainActivity.class);
           finish();
         }
@@ -303,7 +303,7 @@ public class MainActivity extends BaseActivity implements
         // all Labels items
         final String label = item.getTitle().toString();
         if (!label.equals(mLabelFilter)) {
-          Prefs.setLabelFilter(label);
+          Prefs.INST(this).setLabelFilter(label);
           startActivity(MainActivity.class);
           finish();
         }
@@ -602,7 +602,7 @@ public class MainActivity extends BaseActivity implements
       // enabled state of send button
       Boolean enabled = false;
       Integer alpha = 64;
-      if (User.INST.isLoggedIn() && Prefs.isPushClipboard()) {
+      if (User.INST.isLoggedIn() && Prefs.INST(this).isPushClipboard()) {
         enabled = true;
         alpha = 255;
       }

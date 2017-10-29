@@ -149,7 +149,7 @@ class LabelsSelectAdapter extends
     final Context context = holder.labelImage.getContext();
     int color;
 
-    if (Prefs.isLightTheme()) {
+    if (Prefs.INST(mContext).isLightTheme()) {
       color = R.color.deep_teal_500;
     } else {
       color = R.color.deep_teal_200;

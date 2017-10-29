@@ -41,9 +41,9 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
     final Intent intent = new Intent(context, HeartbeatAlarmReceiver.class);
     final PendingIntent alarmIntent = PendingIntent.getBroadcast(context,
       Intents.HEARTBEAT_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    final long interval = Prefs.getHeartbeat() * 60 * 1000;
+    final long interval = Prefs.INST(context).getHeartbeat() * 60 * 1000;
 
-    if (User.INST.isLoggedIn() && Prefs.isAllowReceive()) {
+    if (User.INST.isLoggedIn() && Prefs.INST(context).isAllowReceive()) {
       // setup Heartbeat alarm
       alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
         interval, interval, alarmIntent);

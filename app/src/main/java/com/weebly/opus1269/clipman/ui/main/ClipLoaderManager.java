@@ -200,7 +200,7 @@ class ClipLoaderManager implements
     holder.clipItem.setRemote(false);
     holder.clipItem.setDevice(Device.getMyName());
     holder.clipItem.copyToClipboard();
-    if (!Prefs.isMonitorClipboard()) {
+    if (!Prefs.INST(mMainActivity).isMonitorClipboard()) {
       final Context context = App.getContext();
       AppUtils.showMessage(mMainActivity.getFab(),
         context.getString(R.string.clipboard_copy));

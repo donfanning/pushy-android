@@ -204,7 +204,7 @@ public class SignInActivity extends BaseActivity implements
       User.INST.set(mAccount);
       updateView();
 
-      if (!Prefs.isDeviceRegistered()) {
+      if (!Prefs.INST(this).isDeviceRegistered()) {
         // now register with server
         setProgressMessage(getString(R.string.registering));
         new RegistrationClient
@@ -354,8 +354,8 @@ public class SignInActivity extends BaseActivity implements
    */
   private void handleSigningOut(Boolean revoke) {
     mIsRevoke = revoke;
-    if (Prefs.isDeviceRegistered()) {
-      if (Prefs.isPushClipboard()) {
+    if (Prefs.INST(this).isDeviceRegistered()) {
+      if (Prefs.INST(this).isPushClipboard()) {
         // also handles unregister and sign-out
         showProgress(getString(R.string.signing_out));
         MessagingClient.sendDeviceRemoved();

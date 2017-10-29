@@ -51,9 +51,9 @@ public class Label implements Serializable {
       selectionArgs);
 
     // change labelFilter Pref if it is us
-    final String labelFilter = Prefs.getLabelFilter();
+    final String labelFilter = Prefs.INST(context).getLabelFilter();
     if (labelFilter.equals(mName)) {
-      Prefs.setLabelFilter(name);
+      Prefs.INST(context).setLabelFilter(name);
     }
 
     mName = name;
@@ -125,9 +125,9 @@ public class Label implements Serializable {
     resolver.delete(ClipsContract.Label.CONTENT_URI, selection, selectionArgs);
 
     // reset labelFilter Pref if we deleted it
-    final String labelFilter = Prefs.getLabelFilter();
+    final String labelFilter = Prefs.INST(context).getLabelFilter();
     if (labelFilter.equals(mName)) {
-      Prefs.setLabelFilter("");
+      Prefs.INST(context).setLabelFilter("");
     }
 
     return true;

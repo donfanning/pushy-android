@@ -21,6 +21,7 @@ package com.weebly.opus1269.clipman.model;
 import android.os.Build;
 import android.text.TextUtils;
 
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
 import org.joda.time.DateTime;
@@ -51,7 +52,7 @@ public class Device {
 
   public static Device getMyDevice() {
     return new Device(getMyModel(), getMySN(), getMyOS(),
-      Prefs.getDeviceNickname());
+      Prefs.INST(App.getContext()).getDeviceNickname());
   }
 
   public static String getMyName() {
@@ -62,7 +63,7 @@ public class Device {
     return myName;
   }
 
-  public static String getMyModel() {
+  static String getMyModel() {
     String value;
     final String manufacturer = Build.MANUFACTURER;
     final String model = Build.MODEL;
@@ -79,7 +80,7 @@ public class Device {
   }
 
   private static String getMySN() {
-    return Prefs.getSN();
+    return Prefs.INST(App.getContext()).getSN();
   }
 
   private static String getMyOS() {
@@ -87,7 +88,7 @@ public class Device {
   }
 
   private static String getMyNickname() {
-    return Prefs.getDeviceNickname();
+    return Prefs.INST(App.getContext()).getDeviceNickname();
   }
 
   public static String getMyUniqueName() {
