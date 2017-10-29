@@ -13,5 +13,4 @@
   android:layout_gravity="bottom|end"
   android:layout_margin="@dimen/fab_margin"
   android:tint="@color/icons"
-  app:srcCompat="@drawable/ic_share_black_24dp"
-  app:backgroundTint="@color/deep_teal_700" />
+  app:srcCompat="@drawable/ic_share_black_24dp" />
