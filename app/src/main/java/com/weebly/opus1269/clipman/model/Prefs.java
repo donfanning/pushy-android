@@ -30,7 +30,7 @@ public class Prefs {
 
   // OK, because mContext is the global Application context
   @SuppressLint("StaticFieldLeak")
-  private static Prefs sIntstance;
+  private static Prefs sInstance;
 
   /** Global Application Context */
   private final Context mContext;
@@ -82,10 +82,10 @@ public class Prefs {
    */
   public static Prefs INST(@NonNull Context context) {
     synchronized (Prefs.class) {
-      if (sIntstance == null) {
-        sIntstance = new Prefs(context);
+      if (sInstance == null) {
+        sInstance = new Prefs(context);
       }
-      return sIntstance;
+      return sInstance;
     }
   }
 
