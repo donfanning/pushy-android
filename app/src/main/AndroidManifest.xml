@@ -16,6 +16,9 @@
   <application
     android:name=".app.App"
     android:allowBackup="true"
+    android:fullBackupOnly="true"
+    android:fullBackupContent="@xml/my_backup_rules"
+    android:backupAgent=".model.MyBackupAgent"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
     android:supportsRtl="true"
