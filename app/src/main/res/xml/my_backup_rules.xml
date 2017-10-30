@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<full-backup-content>
+  <include domain="sharedpref" path="com.weebly.opus1269.clipman_preferences.xml"/>
+  <include domain="sharedpref" path="_has_set_default_values.xml"/>
+  <include domain="database" path="Clips.db"/>
+</full-backup-content>
