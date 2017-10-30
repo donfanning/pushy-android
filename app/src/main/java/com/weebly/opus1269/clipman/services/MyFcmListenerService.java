@@ -24,7 +24,6 @@ import android.os.SystemClock;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -83,7 +82,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     super.onCreate();
 
     // start if needed
-    ClipboardWatcherService.startService(false);
+    ClipboardWatcherService.startService(this, false);
   }
 
   /**
@@ -173,7 +172,8 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   @Override
   public void onDeletedMessages() {
     super.onDeletedMessages();
-    final String msg = App.getContext().getString(R.string.fcm_deleted_message);
+    final String msg =
+      this.getApplicationContext().getString(R.string.fcm_deleted_message);
     Log.logE(TAG, msg, FCM_DELETED);
   }
 }

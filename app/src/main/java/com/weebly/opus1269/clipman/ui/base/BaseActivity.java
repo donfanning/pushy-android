@@ -107,7 +107,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
     super.onResume();
 
     // start if needed
-    ClipboardWatcherService.startService(false);
+    ClipboardWatcherService.startService(this, false);
 
     mTracker.setScreenName(TAG);
     mTracker.send(new HitBuilders.ScreenViewBuilder().build());

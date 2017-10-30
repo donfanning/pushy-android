@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 /**
  * This {@link BroadcastReceiver} starts the {@link ClipboardWatcherService} at
@@ -28,10 +29,14 @@ public class AutoStartReceiver extends BroadcastReceiver {
       return;
     }
 
+    final Context appContext = context.getApplicationContext();
+
     Log.logD(TAG, "onReceive");
 
-    ClipboardWatcherService.startService(true);
+    if (Prefs.INST(appContext).isMonitorStartup()) {
+      ClipboardWatcherService.startService(appContext, true);
+    }
 
-    DeleteOldClipsAlarmReceiver.initialize(TAG, context);
+    DeleteOldClipsAlarmReceiver.initialize(TAG, appContext);
   }
 }

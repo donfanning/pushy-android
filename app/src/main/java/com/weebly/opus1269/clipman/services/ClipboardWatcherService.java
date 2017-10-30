@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipsContentProvider;
@@ -52,11 +51,11 @@ public class ClipboardWatcherService extends Service implements
 
   /**
    * Start ourselves
+   * @param context a context
    * @param noProcessOnStart true if we should not process clipboard on start
    */
   @TargetApi(26)
-  public static void startService(Boolean noProcessOnStart) {
-    final Context context = App.getContext();
+  public static void startService(Context context, Boolean noProcessOnStart) {
     if (Prefs.INST(context).isMonitorClipboard()
       && !AppUtils.isMyServiceRunning(ClipboardWatcherService.class)) {
       // only start if the user has allowed it and we are not running

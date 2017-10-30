@@ -182,7 +182,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     } else if (key.equals(keyMonitor)) {
       // start or stop clipboard service as needed
       if (Prefs.INST(context).isMonitorClipboard()) {
-        ClipboardWatcherService.startService(false);
+        ClipboardWatcherService.startService(getContext(), false);
       } else {
         final Intent intent =
           new Intent(activity, ClipboardWatcherService.class);

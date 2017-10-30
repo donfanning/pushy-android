@@ -28,12 +28,14 @@ public class PackageReplacedReceiver extends BroadcastReceiver {
       return;
     }
 
+    final Context appContext = context.getApplicationContext();
+
     Log.logD(TAG, "onReceive");
 
-    Analytics.INST.updated(context);
+    Analytics.INST.updated(appContext);
 
-    ClipboardWatcherService.startService(true);
+    ClipboardWatcherService.startService(appContext, true);
 
-    DeleteOldClipsAlarmReceiver.initialize(TAG, context);
+    DeleteOldClipsAlarmReceiver.initialize(TAG, appContext);
   }
 }

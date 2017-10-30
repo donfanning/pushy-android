@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.ui.main;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,7 +20,6 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -201,9 +199,8 @@ class ClipLoaderManager implements
     holder.clipItem.setDevice(Device.getMyName());
     holder.clipItem.copyToClipboard();
     if (!Prefs.INST(mMainActivity).isMonitorClipboard()) {
-      final Context context = App.getContext();
       AppUtils.showMessage(mMainActivity.getFab(),
-        context.getString(R.string.clipboard_copy));
+        mMainActivity.getString(R.string.clipboard_copy));
     }
   }
 
