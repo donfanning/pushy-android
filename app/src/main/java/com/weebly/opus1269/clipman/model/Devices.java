@@ -93,7 +93,7 @@ public class Devices {
 
     if (broadcast) {
       // let listeners know
-      _sendBroadcast(Intents.TYPE_UPDATE_DEVICES);
+      sendBroadcast(Intents.TYPE_UPDATE_DEVICES);
     }
   }
 
@@ -168,14 +168,14 @@ public class Devices {
    */
   public void notifyMyDeviceRemoved() {
     clear();
-    _sendBroadcast(Intents.TYPE_DEVICE_REMOVED);
+    sendBroadcast(Intents.TYPE_DEVICE_REMOVED);
   }
 
   /**
    * Notify listeners that our {@link Device} was registered
    */
   public void notifyMyDeviceRegistered() {
-    _sendBroadcast(Intents.TYPE_DEVICE_REGISTERED);
+    sendBroadcast(Intents.TYPE_DEVICE_REGISTERED);
   }
 
   /**
@@ -183,7 +183,7 @@ public class Devices {
    */
   public void notifyMyDeviceUnregistered() {
     clear();
-    _sendBroadcast(Intents.TYPE_DEVICE_UNREGISTERED);
+    sendBroadcast(Intents.TYPE_DEVICE_UNREGISTERED);
   }
 
   /**
@@ -192,7 +192,7 @@ public class Devices {
    */
   public void notifyMyDeviceRegisterError(String message) {
     clear();
-    _sendBroadcast(Intents.TYPE_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
+    sendBroadcast(Intents.TYPE_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
       message);
   }
 
@@ -219,8 +219,8 @@ public class Devices {
    * @param extra      extra String info type
    * @param extraValue value of extra
    */
-  private void _sendBroadcast(String action, String extra,
-                              String extraValue) {
+  private void sendBroadcast(String action, String extra,
+                             String extraValue) {
     final Intent intent = new Intent(Intents.FILTER_DEVICES);
     final Bundle bundle = new Bundle();
     bundle.putString(Intents.ACTION_TYPE_DEVICES, action);
@@ -237,7 +237,7 @@ public class Devices {
    * Broadcast changes to listeners
    * @param action the type of the change
    */
-  private void _sendBroadcast(String action) {
-    _sendBroadcast(action, "", "");
+  private void sendBroadcast(String action) {
+    sendBroadcast(action, "", "");
   }
 }
