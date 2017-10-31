@@ -79,7 +79,7 @@ class ClipCursorAdapter extends
     // color the icons
     tintIcons(holder);
 
-    if (AppUtils.isDualPane()) {
+    if (AppUtils.isDualPane(mContext)) {
       // set selected state of the view
       if (getSelectedPos() == position) {
         if (!holder.itemView.isSelected()) {

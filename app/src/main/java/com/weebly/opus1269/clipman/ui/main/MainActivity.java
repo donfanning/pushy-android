@@ -122,7 +122,7 @@ public class MainActivity extends BaseActivity implements
 
     setupNavigationView();
 
-    if (AppUtils.isDualPane()) {
+    if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
       final ClipViewerFragment fragment =
         ClipViewerFragment.newInstance(new ClipItem(), "");
@@ -133,17 +133,15 @@ public class MainActivity extends BaseActivity implements
 
     setFabVisibility(false);
 
-    final DrawerLayout drawer =
-      findViewById(R.id.drawer_layout);
+    final DrawerLayout drawer = findViewById(R.id.drawer_layout);
     final Toolbar toolbar = findViewById(R.id.toolbar);
-    final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-      this, drawer, toolbar,
-      R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+    final ActionBarDrawerToggle toggle =
+      new ActionBarDrawerToggle(this, drawer, toolbar,
+        R.string.navigation_drawer_open, R.string.navigation_drawer_close);
     drawer.addDrawerListener(toggle);
     toggle.syncState();
 
-    final NavigationView navigationView =
-      findViewById(R.id.nav_view);
+    final NavigationView navigationView = findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
 
     handleIntent();
@@ -352,7 +350,7 @@ public class MainActivity extends BaseActivity implements
   }
 
   @Override
-  public void onClipChanged(ClipItem clipItem) {
+  public void clipChanged(ClipItem clipItem) {
     setFabVisibility(!ClipItem.isWhitespace(clipItem));
     setTitle();
   }
@@ -427,7 +425,7 @@ public class MainActivity extends BaseActivity implements
    * @param clipItem item to display
    */
   void startOrUpdateClipViewer(ClipItem clipItem) {
-    if (AppUtils.isDualPane()) {
+    if (AppUtils.isDualPane(this)) {
       final ClipViewerFragment fragment = getClipViewerFragment();
       if (fragment != null) {
         fragment.setClipItem(clipItem);
@@ -529,7 +527,7 @@ public class MainActivity extends BaseActivity implements
     if (!AppUtils.isWhitespace(mLabelFilter)) {
       prefix = mLabelFilter;
     }
-    if (AppUtils.isDualPane()) {
+    if (AppUtils.isDualPane(this)) {
       final ClipItem clipItem = getClipItemClone();
       if (clipItem.isRemote()) {
         setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
@@ -594,7 +592,7 @@ public class MainActivity extends BaseActivity implements
     if (mOptionsMenu != null) {
 
       // Hide labels menu if not dual pane
-      if (!AppUtils.isDualPane()) {
+      if (!AppUtils.isDualPane(this)) {
         MenuItem labelItem = mOptionsMenu.findItem(R.id.action_labels);
         labelItem.setVisible(false);
       }

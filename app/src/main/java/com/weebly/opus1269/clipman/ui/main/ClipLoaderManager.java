@@ -110,7 +110,7 @@ class ClipLoaderManager implements
       return;
     }
 
-    if (AppUtils.isDualPane()) {
+    if (AppUtils.isDualPane(mMainActivity)) {
       // Update the selected item and ClipViewer text.
       // Can't create a new fragment here.
       // see: http://goo.gl/IFQkPc

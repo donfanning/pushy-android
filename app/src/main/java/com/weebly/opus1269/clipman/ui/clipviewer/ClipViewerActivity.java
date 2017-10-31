@@ -40,7 +40,7 @@ public class ClipViewerActivity extends BaseActivity implements
     super.onCreate(savedInstanceState);
 
     // check if dual pane mode is active. if yes, finish this activity
-    if (AppUtils.isDualPane()) {
+    if (AppUtils.isDualPane(this)) {
       finish();
       return;
     }
@@ -129,7 +129,7 @@ public class ClipViewerActivity extends BaseActivity implements
   }
 
   @Override
-  public void onClipChanged(ClipItem clipItem) {
+  public void clipChanged(ClipItem clipItem) {
     setFabVisibility(!ClipItem.isWhitespace(clipItem));
     setTitle();
   }

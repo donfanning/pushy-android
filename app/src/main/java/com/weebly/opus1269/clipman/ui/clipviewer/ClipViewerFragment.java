@@ -14,12 +14,12 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.view.ContextThemeWrapper;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.ArrowKeyMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.util.Linkify;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,18 +41,24 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** A fragment containing a view of a ClipItem's text. */
+/** A fragment to view a {@link ClipItem} */
 public class ClipViewerFragment extends Fragment
   implements View.OnClickListener {
 
+  // saved state
   private static final String STATE_CLIP_ITEM = "clip";
   private static final String STATE_CLIP_VIEWABLE = "viewable";
   private static final String STATE_CLIP_HIGHLIGHT = "highlight";
+
+  /** The Activity that has implemented our interface */
   private OnClipChanged mOnClipChanged = null;
+
   /** The clip we are viewing */
   private ClipItem mClipItem = null;
+
   /** The text to be highlighted */
   private String mHighlightText = "";
+
   /**
    * Flag to indicate if we are viewable (as opposed to recreated from a
    * savedInstanceState but will not be seen.
@@ -101,7 +107,6 @@ public class ClipViewerFragment extends Fragment
 
     // Check whether we're recreating a previously destroyed instance
     if (savedInstanceState != null) {
-      // Restore value of members from saved state
       mClipItem = (ClipItem) savedInstanceState.getSerializable
         (STATE_CLIP_ITEM);
       mIsViewable = savedInstanceState.getBoolean(STATE_CLIP_VIEWABLE);
@@ -111,7 +116,8 @@ public class ClipViewerFragment extends Fragment
       mHighlightText = "";
       mIsViewable = true;
     }
-    mOnClipChanged.onClipChanged(mClipItem);
+
+    mOnClipChanged.clipChanged(mClipItem);
   }
 
   @Override
@@ -137,15 +143,6 @@ public class ClipViewerFragment extends Fragment
     setText(mClipItem.getText());
 
     return rootView;
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-
-    setupLabels();
-
-    setupRemoteDevice();
   }
 
   @Override
@@ -177,6 +174,15 @@ public class ClipViewerFragment extends Fragment
   }
 
   @Override
+  public void onResume() {
+    super.onResume();
+
+    setupLabels();
+
+    setupRemoteDevice();
+  }
+
+  @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
     outState.putString(STATE_CLIP_HIGHLIGHT, mHighlightText);
@@ -190,20 +196,27 @@ public class ClipViewerFragment extends Fragment
     final Activity activity = getActivity();
     final View fab = activity.findViewById(R.id.fab);
     final View labelList = activity.findViewById(R.id.labelList);
+    final String TAG = ((BaseActivity) activity).getTAG();
     if (v == fab) {
       mClipItem.doShare(v);
-      Analytics.INST.imageClick(((BaseActivity)activity).getTAG(),
-        "shareClipItem");
+      Analytics.INST.imageClick(TAG, "shareClipItem");
     } else if (v == labelList) {
-      Analytics.INST.click(((BaseActivity)activity).getTAG(), "showLabelList");
+      Analytics.INST.click(TAG, "showLabelList");
       final Intent intent = new Intent(activity, LabelsSelectActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, mClipItem);
       AppUtils.startActivity(activity, intent);
     }
   }
 
-  public ClipItem getClipItemClone() {return new ClipItem(mClipItem);}
+  /** Get a shallow copy of our ClipItem */
+  public ClipItem getClipItemClone() {
+    return new ClipItem(mClipItem);
+  }
 
+  /**
+   * Set our ClipItem
+   * @param clipItem a ClipItem
+   */
   public void setClipItem(ClipItem clipItem) {
     if (!Collator.getInstance().equals(clipItem.getText(), mClipItem.getText
       ())) {
@@ -223,23 +236,19 @@ public class ClipViewerFragment extends Fragment
 
     setupRemoteDevice();
 
-    mOnClipChanged.onClipChanged(mClipItem);
+    mOnClipChanged.clipChanged(mClipItem);
   }
 
-  Boolean copyToClipboard() {
-    Boolean ret = false;
-
+  /** Copy our ClipItem to the Clipboard */
+  void copyToClipboard() {
     if (!ClipItem.isWhitespace(mClipItem)) {
       mClipItem.setRemote(false);
       setupRemoteDevice();
-      mOnClipChanged.onClipChanged(mClipItem);
+      mOnClipChanged.clipChanged(mClipItem);
       mClipItem.copyToClipboard();
-      ret = true;
       View view = getView();
       AppUtils.showMessage(view, getString(R.string.clipboard_copy));
     }
-
-    return ret;
   }
 
   /**
@@ -270,7 +279,6 @@ public class ClipViewerFragment extends Fragment
       while (m.find()) {
         final int start = m.start();
         final int stop = start + length;
-        //noinspection ObjectAllocationInLoop
         spanText.setSpan(new BackgroundColorSpan(color), start, stop,
           Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
@@ -279,6 +287,7 @@ public class ClipViewerFragment extends Fragment
     }
   }
 
+  /** Set the source view if we are from a Remote Device */
   private void setupRemoteDevice() {
     if (!mIsViewable) {
       return;
@@ -287,7 +296,7 @@ public class ClipViewerFragment extends Fragment
     final TextView textView = getActivity().findViewById(R.id.remoteDevice);
     final View divider = getActivity().findViewById(R.id.remoteDivider);
 
-    if (mClipItem.isRemote() && !AppUtils.isDualPane()) {
+    if (mClipItem.isRemote() && !AppUtils.isDualPane(getContext())) {
       textView.setVisibility(View.VISIBLE);
       divider.setVisibility(View.VISIBLE);
       textView.setText(getString(R.string.remote_device_fmt, mClipItem
@@ -317,7 +326,7 @@ public class ClipViewerFragment extends Fragment
     }
 
     final LinearLayout labelList = getActivity().findViewById(R.id.labelList);
-    if(labelList.getChildCount() > 0) {
+    if (labelList.getChildCount() > 0) {
       labelList.removeAllViews();
     }
 
@@ -341,6 +350,7 @@ public class ClipViewerFragment extends Fragment
 
   /**
    * Set the TextView text
+   * @param text text to be linkified
    */
   private void setText(String text) {
     final TextView textView =
@@ -369,7 +379,7 @@ public class ClipViewerFragment extends Fragment
   }
 
   /**
-   * Setup selectable links for TextView autoLink is pretty buggy
+   * Setup selectable links for TextView. AutoLink is pretty buggy
    * @param textView a text view
    */
   private void linkifyTextView(TextView textView) {
@@ -379,8 +389,8 @@ public class ClipViewerFragment extends Fragment
     textView.setTextIsSelectable(true);
   }
 
-  // Activities implement this to get notified of clip changes
+  /** Activities implement this to get notified of clip changes */
   public interface OnClipChanged {
-    void onClipChanged(ClipItem clipItem);
+    void clipChanged(ClipItem clipItem);
   }
 }

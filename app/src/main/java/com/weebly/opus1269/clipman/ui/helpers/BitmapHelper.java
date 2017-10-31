@@ -14,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -111,17 +112,19 @@ public class BitmapHelper {
 
   @SuppressWarnings("unused")
   public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
-    Drawable drawable = AppCompatDrawableManager.get().getDrawable(context, drawableId);
-    if (!AppUtils.isLollipopOrLater()) {
-      drawable = (DrawableCompat.wrap(drawable)).mutate();
+    Bitmap bitmap = null;
+    Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
+    if (drawable != null) {
+      if (!AppUtils.isLollipopOrLater()) {
+        drawable = (DrawableCompat.wrap(drawable)).mutate();
+      }
+
+      bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+        drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+      Canvas canvas = new Canvas(bitmap);
+      drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+      drawable.draw(canvas);
     }
-
-    Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-      drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-    Canvas canvas = new Canvas(bitmap);
-    drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-    drawable.draw(canvas);
-
     return bitmap;
   }
 

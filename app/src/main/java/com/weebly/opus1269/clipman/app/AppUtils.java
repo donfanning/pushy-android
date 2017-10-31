@@ -86,8 +86,8 @@ public class AppUtils {
    * Check if the MainActivity is in dual pane mode
    * @return boolean
    */
-  public static boolean isDualPane() {
-    return App.getContext().getResources().getBoolean(R.bool.dual_pane);
+  public static boolean isDualPane(Context context) {
+    return context.getResources().getBoolean(R.bool.dual_pane);
   }
 
   /**
