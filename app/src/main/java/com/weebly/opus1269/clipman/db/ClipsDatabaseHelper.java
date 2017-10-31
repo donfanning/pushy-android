@@ -27,7 +27,6 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   private static final String TEXT = " TEXT";
   private static final String INTEGER = " INTEGER";
   private static final String UNIQUE = " UNIQUE";
-  private static final String NOT_NULL = " NOT NULL";
 
   private static final String SQL_CREATE_CLIP = "CREATE TABLE " +
     ClipsContract.Clip.TABLE_NAME + " (" +

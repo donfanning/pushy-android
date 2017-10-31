@@ -36,7 +36,6 @@ import com.androidessence.recyclerviewcursoradapter
   .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -218,7 +217,6 @@ class LabelsEditAdapter extends
     final EditText labelEditText;
     final ImageButton deleteButton;
     Label label;
-    long itemID;
 
     LabelViewHolder(View view) {
       super(view);
@@ -231,9 +229,6 @@ class LabelsEditAdapter extends
     @Override
     public void bindCursor(final Cursor cursor) {
       label = new Label(cursor);
-
-      itemID = cursor.getLong(cursor.getColumnIndex(ClipsContract.Label._ID));
-
       labelEditText.setText(label.getName());
     }
   }

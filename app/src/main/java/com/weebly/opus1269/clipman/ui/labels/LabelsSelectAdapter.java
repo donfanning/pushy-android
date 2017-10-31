@@ -32,7 +32,6 @@ import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
 import com.androidessence.recyclerviewcursoradapter
   .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
@@ -168,7 +167,6 @@ class LabelsSelectAdapter extends
     final TextView labelText;
     final CheckBox checkBox;
     Label label;
-    long itemID;
 
     LabelViewHolder(View view) {
       super(view);
@@ -182,9 +180,6 @@ class LabelsSelectAdapter extends
     @Override
     public void bindCursor(final Cursor cursor) {
       label = new Label(cursor);
-
-      itemID = cursor.getLong(cursor.getColumnIndex(ClipsContract.Label._ID));
-
       labelText.setText(label.getName());
     }
   }

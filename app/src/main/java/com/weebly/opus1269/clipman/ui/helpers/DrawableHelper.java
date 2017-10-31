@@ -29,6 +29,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
  * @version 18/01/2016
  * @since 18/01/2016
  */
+@SuppressWarnings("unused")
 public class DrawableHelper {
   @NonNull
   private final Context mContext;

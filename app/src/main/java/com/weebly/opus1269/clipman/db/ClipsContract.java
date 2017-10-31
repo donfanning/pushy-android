@@ -88,6 +88,7 @@ public class ClipsContract {
     public static final String TABLE_NAME = "label_map";
     public static final String COL_CLIP_ID = "clip_id";
     public static final String COL_LABEL_NAME = "label_name";
+    @SuppressWarnings("unused")
     public static final String[] FULL_PROJECTION = {
       ClipsContract.LabelMap._ID,
       ClipsContract.LabelMap.COL_CLIP_ID,
