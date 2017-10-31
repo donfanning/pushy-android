@@ -126,10 +126,12 @@ public class App extends Application implements
       .registerOnSharedPreferenceChangeListener(this);
   }
 
+  // unused
   @Override
   public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
   }
 
+  // unused
   @Override
   public void onActivityStarted(Activity activity) {
   }
