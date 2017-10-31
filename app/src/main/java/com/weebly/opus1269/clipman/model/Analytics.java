@@ -197,7 +197,7 @@ public enum Analytics {
 
   /**
    * App updated
-   * @param context
+   * @param context a context
    */
   public void updated(Context context) {
     event(NO_SCREEN, CAT_APP, UPDATED, Prefs.INST(context).getVersionName());
