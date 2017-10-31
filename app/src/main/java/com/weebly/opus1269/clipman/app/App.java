@@ -126,13 +126,13 @@ public class App extends Application implements
       .registerOnSharedPreferenceChangeListener(this);
   }
 
+  /** unused */
   @Override
-  // unused
   public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
   }
 
-  @Override
   /** unused */
+  @Override
   public void onActivityStarted(Activity activity) {
   }
 
@@ -154,14 +154,17 @@ public class App extends Application implements
     }
   }
 
+  /** unused */
   @Override
   public void onActivityStopped(Activity activity) {
   }
 
+  /** unused */
   @Override
   public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
   }
 
+  /** unused */
   @Override
   public void onActivityDestroyed(Activity activity) {
   }
