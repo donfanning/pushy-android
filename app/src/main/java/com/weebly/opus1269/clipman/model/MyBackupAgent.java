@@ -27,11 +27,13 @@ public class MyBackupAgent extends BackupAgent {
   @Override
   public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data,
                        ParcelFileDescriptor newState) throws IOException {
+    // only used by key/value backup
   }
 
   @Override
   public void onRestore(BackupDataInput data, int appVersionCode,
                         ParcelFileDescriptor newState) throws IOException {
+    // only used by key/value restore
   }
 
   @Override
