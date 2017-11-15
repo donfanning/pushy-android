@@ -207,6 +207,24 @@ public class ClipItem implements Serializable {
   }
 
   /**
+   * Get the label for the {@link ClipDescription}
+   * @param desc The item's {@link ClipDescription}
+   * @return true if null of whitespace
+   */
+  private static String getClipDescriptionLabel(ClipDescription desc) {
+    String ret = "";
+
+    if (desc != null) {
+      final CharSequence label = desc.getLabel();
+      if (label != null) {
+        ret = label.toString();
+      }
+    }
+
+    return ret;
+  }
+
+  /**
    * Parse the fav state from the {@link ClipDescription}
    * @param desc The item's {@link ClipDescription}
    * @return The fav state
@@ -214,7 +232,7 @@ public class ClipItem implements Serializable {
   private static boolean parseFav(ClipDescription desc) {
     boolean fav = false;
 
-    String label = (String) desc.getLabel();
+    String label = ClipItem.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(DESC_LABEL)) {
       final int index = label.indexOf('[');
       if (index != -1) {
@@ -234,7 +252,7 @@ public class ClipItem implements Serializable {
   private static String parseRemote(ClipDescription desc) {
     String device = "";
 
-    final String label = (String) desc.getLabel();
+    final String label = ClipItem.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(REMOTE_DESC_LABEL)) {
       final int idxStart = label.indexOf('(');
       final int idxStop = label.indexOf(')');
@@ -251,7 +269,7 @@ public class ClipItem implements Serializable {
   private static List<Label> parseLabels(ClipDescription desc) {
     ArrayList<Label> list = new ArrayList<>(0);
 
-    final String label = (String) desc.getLabel();
+    final String label = ClipItem.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(LABELS_LABEL)) {
       final int idxStart = label.indexOf('\n' + LABELS_LABEL) +
         LABELS_LABEL.length();
@@ -372,7 +390,9 @@ public class ClipItem implements Serializable {
           (ClipboardManager) cntxt.getSystemService(Context.CLIPBOARD_SERVICE);
 
         final ClipData clip = ClipData.newPlainText(buildClipLabel(), mText);
-        clipboard.setPrimaryClip(clip);
+        if (clipboard != null) {
+          clipboard.setPrimaryClip(clip);
+        }
       }
     });
   }
