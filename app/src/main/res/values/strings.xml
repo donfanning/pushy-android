@@ -37,6 +37,8 @@
   <!-- Related to Menus -->
   <string name="action_favorite">Toggle favorite</string>
   <string name="action_labels_select">Select labels</string>
+  <string name="action_pin">Pin favorites to top</string>
+  <string name="action_no_pin">Unpin favorites</string>
   <string name="action_show_favs">Show favorites</string>
   <string name="action_show_all">Show all</string>
   <string name="action_send">Send clipboard contents</string>

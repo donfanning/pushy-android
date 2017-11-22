@@ -7,12 +7,13 @@
 
 package com.weebly.opus1269.clipman.db;
 
+import android.content.Context;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 
@@ -49,18 +50,24 @@ public class ClipsContract {
       ClipsContract.Clip.COL_DEVICE
     };
 
-    static String getDefaultSortOrder() {
+    static String getDefaultSortOrder(Context context) {
       final String[] sorts =
-        App.getContext().getResources().getStringArray(R.array
+        context.getResources().getStringArray(R.array
           .sort_type_clip_values);
       return sorts[0];
     }
 
-    public static String getSortOrder() {
+    public static String getSortOrder(Context context) {
       final String[] sorts =
-        App.getContext().getResources().getStringArray(R.array
+        context.getResources().getStringArray(R.array
           .sort_type_clip_values);
-      return sorts[Prefs.INST(App.getContext()).getSortType()];
+      String ret = "";
+      if (Prefs.INST(context).isPinFav()) {
+        ret = "fav DESC, ";
+      }
+      ret += sorts[Prefs.INST(context).getSortType()];
+      Log.logD("ClipsContract", ret);
+      return ret;
     }
   }
 

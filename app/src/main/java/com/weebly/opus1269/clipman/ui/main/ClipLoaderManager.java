@@ -96,7 +96,7 @@ class ClipLoaderManager implements
       projection,
       selection,
       selectionArgs,
-      ClipsContract.Clip.getSortOrder());
+      ClipsContract.Clip.getSortOrder(mMainActivity));
   }
 
   @Override

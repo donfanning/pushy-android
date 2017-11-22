@@ -77,6 +77,9 @@ public class MainActivity extends BaseActivity implements
   /** Items from last delete operation */
   private ClipItem[] mUndoItems = null;
 
+  /** AppBar setting for pin favs */
+  private Boolean mPinFav = false;
+
   /** AppBar setting for fav filter */
   private Boolean mFavFilter = false;
 
@@ -102,6 +105,7 @@ public class MainActivity extends BaseActivity implements
       }
     }
 
+    mPinFav = Prefs.INST(this).isPinFav();
     mFavFilter = Prefs.INST(this).isFavFilter();
     mLabelFilter = Prefs.INST(this).getLabelFilter();
 
@@ -234,6 +238,13 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.action_send:
         sendClipboardContents();
+        break;
+      case R.id.action_pin:
+        mPinFav = !mPinFav;
+        Prefs.INST(this).setPinFav(mPinFav);
+        updateOptionsMenu();
+        // reload clips
+        getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_fav_filter:
         mFavFilter = !mFavFilter;
@@ -608,21 +619,34 @@ public class MainActivity extends BaseActivity implements
       MenuTintHelper.colorMenuItem(sendItem, null, alpha);
       sendItem.setEnabled(enabled);
 
+      // pin fav state
+      final MenuItem pinMenu =
+        mOptionsMenu.findItem(R.id.action_pin);
+      if (mPinFav) {
+        pinMenu.setIcon(R.drawable.ic_pin);
+        pinMenu.setTitle(R.string.action_no_pin);
+      } else {
+        pinMenu.setIcon(R.drawable.ic_no_pin);
+        pinMenu.setTitle(R.string.action_pin);
+      }
+      final int pinColor = ContextCompat.getColor(this, R.color.icons);
+      MenuTintHelper.colorMenuItem(pinMenu, pinColor, 255);
+
       // fav filter state
-      final MenuItem menuItem =
+      final MenuItem favFilterMenu =
         mOptionsMenu.findItem(R.id.action_fav_filter);
       int colorID;
       if (mFavFilter) {
-        menuItem.setIcon(R.drawable.ic_favorite_black_24dp);
-        menuItem.setTitle(R.string.action_show_all);
+        favFilterMenu.setIcon(R.drawable.ic_favorite_black_24dp);
+        favFilterMenu.setTitle(R.string.action_show_all);
         colorID = R.color.red_500_translucent;
       } else {
-        menuItem.setIcon(R.drawable.ic_favorite_border_black_24dp);
-        menuItem.setTitle(R.string.action_show_favs);
+        favFilterMenu.setIcon(R.drawable.ic_favorite_border_black_24dp);
+        favFilterMenu.setTitle(R.string.action_show_favs);
         colorID = R.color.icons;
       }
-      final int color = ContextCompat.getColor(this, colorID);
-      MenuTintHelper.colorMenuItem(menuItem, color, 255);
+      final int favFilterColor = ContextCompat.getColor(this, colorID);
+      MenuTintHelper.colorMenuItem(favFilterMenu, favFilterColor, 255);
     }
   }
 }

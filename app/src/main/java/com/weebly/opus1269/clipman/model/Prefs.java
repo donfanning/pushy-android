@@ -51,6 +51,7 @@ public class Prefs {
   // Preferences that are not set through the SettingsActivity
   private final String PREF_VERSION_NAME = "prefVersionName";
   private final String PREF_VERSION_CODE = "prefVersionCode";
+  private final String PREF_PIN_FAV = "prefPinFav";
   private final String PREF_FAV_FILTER = "prefFavFilter";
   private final String PREF_LABEL_FILTER = "preflabelFilter";
   private final String PREF_SORT_TYPE = "prefSortType";
@@ -257,6 +258,14 @@ public class Prefs {
 
   public void setSortType(int value) {
     set(PREF_SORT_TYPE, value);
+  }
+
+  public boolean isPinFav() {
+    return get(PREF_PIN_FAV, false);
+  }
+
+  public void setPinFav(Boolean value) {
+    set(PREF_PIN_FAV, value);
   }
 
   public boolean isFavFilter() {

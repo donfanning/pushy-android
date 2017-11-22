@@ -76,7 +76,7 @@ public class ClipsContentProvider extends ContentProvider {
       case CLIP:
         queryBuilder.setTables(ClipsContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipsContract.Clip.getDefaultSortOrder();
+          newSortOrder = ClipsContract.Clip.getDefaultSortOrder(mContext);
         }
         break;
       case LABEL:
@@ -94,7 +94,7 @@ public class ClipsContentProvider extends ContentProvider {
       case CLIP_ID:
         queryBuilder.setTables(ClipsContract.Clip.TABLE_NAME);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipsContract.Clip.getDefaultSortOrder();
+          newSortOrder = ClipsContract.Clip.getDefaultSortOrder(mContext);
         }
         // Because this URI was for a single row, the _ID value part is
         // present. Get the last path segment from the URI; this is the
@@ -134,7 +134,7 @@ public class ClipsContentProvider extends ContentProvider {
           ClipsContract.LabelMap.COL_CLIP_ID;
         queryBuilder.setTables(table);
         if (TextUtils.isEmpty(sortOrder)) {
-          newSortOrder = ClipsContract.Clip.getDefaultSortOrder();
+          newSortOrder = ClipsContract.Clip.getDefaultSortOrder(mContext);
         }
         // set to Clip Uri for notifications
         newUri = ClipsContract.Clip.CONTENT_URI;
