@@ -297,11 +297,8 @@
   <string name="signin_help_title">Sign-In Help</string>
   <string name="signin_help"><![CDATA[
         Sign-in is only required if you want to share items with your other devices.
-         Your email address is used only to guarantee that all messages go to a single account.
-        \n\n\"Revoke Access\" will remove access to this app
-         for all of your connected devices using this account name until you sign-in again.]]>
+         Your email address is used only to guarantee that all messages go to a single account.]]>
     </string>
-  <string name="revoke_err">"App revocation failed. Please try again later"</string>
   <string name="sign_out_err">"Sign-out failed. Please try again later"</string>
   <string name="sign_in_err">"Sign-in failed. Please try again later"</string>
   <string name="sign_in_err_firebase">"Sign-in to firebase failed"</string>
@@ -311,7 +308,6 @@
 
   <string name="play_services_error_fmt">Google Play Services Error: %i</string>
   <string name="sign_out">Sign Out</string>
-  <string name="disconnect">Revoke Access</string>
   <string name="desc_google_icon">Google Logo</string>
 
 

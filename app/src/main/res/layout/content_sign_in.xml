@@ -157,7 +157,7 @@
       android:layout_height="wrap_content"
       android:layout_centerHorizontal="true"
       android:layout_centerVertical="true"
-      android:orientation="horizontal"
+      android:orientation="vertical"
       android:paddingLeft="16dp"
       android:paddingRight="16dp"
       android:visibility="gone"
@@ -167,17 +167,10 @@
         android:id="@+id/sign_out_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:text="@string/sign_out"
+        android:layout_gravity="center"
         tools:ignore="ButtonStyle" />
 
-      <Button
-        android:id="@+id/revoke_access_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="@string/disconnect"
-        tools:ignore="ButtonStyle" />
     </LinearLayout>
 
   </RelativeLayout>

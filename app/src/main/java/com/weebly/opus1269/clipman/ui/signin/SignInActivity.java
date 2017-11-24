@@ -71,8 +71,6 @@ public class SignInActivity extends BaseActivity implements
   private FirebaseAuth mAuth = null;
   /** Receive {@link Devices} actions */
   private BroadcastReceiver mDevicesReceiver = null;
-  /** Flag to indicate if sign-out includes revocation of app access */
-  private boolean mIsRevoke = false;
 
   // saved state
   /** Flag to indicate if Google API connection failed */
@@ -232,10 +230,6 @@ public class SignInActivity extends BaseActivity implements
         onSignOutClicked();
         Analytics.INST.buttonClick(TAG, v);
         break;
-      case R.id.revoke_access_button:
-        onRevokeAccessClicked();
-        Analytics.INST.buttonClick(TAG, v);
-        break;
       default:
         break;
     }
@@ -279,12 +273,7 @@ public class SignInActivity extends BaseActivity implements
 
   /** SignOut button clicked */
   private void onSignOutClicked() {
-    handleSigningOut(false);
-  }
-
-  /** Revoke access button clicked */
-  private void onRevokeAccessClicked() {
-    handleSigningOut(true);
+    handleSigningOut();
   }
 
   /** Try to signin with cached credentials or cross-device single signin */
@@ -350,10 +339,8 @@ public class SignInActivity extends BaseActivity implements
 
   /**
    * All signout attempts come through here
-   * @param revoke - if true revoke access to app
    */
-  private void handleSigningOut(Boolean revoke) {
-    mIsRevoke = revoke;
+  private void handleSigningOut() {
     if (Prefs.INST(this).isDeviceRegistered()) {
       if (Prefs.INST(this).isPushClipboard()) {
         // also handles unregister and sign-out
@@ -364,11 +351,7 @@ public class SignInActivity extends BaseActivity implements
         doUnregister();
       }
     } else {
-      if (revoke) {
-        doRevoke();
-      } else {
-        doSignOut();
-      }
+      doSignOut();
     }
   }
 
@@ -382,7 +365,6 @@ public class SignInActivity extends BaseActivity implements
   private void setupButtons() {
     findViewById(R.id.sign_in_button).setOnClickListener(this);
     findViewById(R.id.sign_out_button).setOnClickListener(this);
-    findViewById(R.id.revoke_access_button).setOnClickListener(this);
 
     final SignInButton signInButton = findViewById(R.id.sign_in_button);
     if (signInButton != null) {
@@ -410,30 +392,6 @@ public class SignInActivity extends BaseActivity implements
       .enableAutoManage(this, this)
       .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
       .build();
-  }
-
-  /** Revoke access to app for this {@link User} */
-  void doRevoke() {
-    if (mGoogleApiClient.isConnected()) {
-      showProgress(getString(R.string.signing_out));
-      Auth.GoogleSignInApi
-        .revokeAccess(mGoogleApiClient)
-        .setResultCallback(
-          new ResultCallback<Status>() {
-            @Override
-            public void onResult(@NonNull Status status) {
-              if (status.isSuccess()) {
-                FirebaseAuth.getInstance().signOut();
-                clearUser();
-                dismissProgress();
-              } else {
-                revokeFailed(status.getStatusMessage());
-              }
-            }
-          });
-    } else {
-      revokeFailed(getString(R.string.error_connection));
-    }
   }
 
   /** Unregister with App Engine. This will also perform the sign-out */
@@ -525,17 +483,6 @@ public class SignInActivity extends BaseActivity implements
   }
 
   /**
-   * Revoke access failed for some reason
-   * @param error info. on failure
-   */
-  private void revokeFailed(String error) {
-    final String title = getString(R.string.revoke_err);
-    mErrorMessage = title + '\n' + error;
-    Log.logE(TAG, error, title);
-    dismissProgress();
-  }
-
-  /**
    * Display progress
    * @param message - message to display
    */
@@ -596,12 +543,9 @@ public class SignInActivity extends BaseActivity implements
           dismissProgress();
           break;
         case Intents.TYPE_DEVICE_UNREGISTERED:
-          // unregistered, now signout or revoke
-          if (mIsRevoke) {
-            doRevoke();
-          } else {
-            doSignOut();
-          }
+          // unregistered, now signout
+          doSignOut();
+          break;
         case Intents.TYPE_DEVICE_REGISTER_ERROR:
           // registration error
           mErrorMessage = bundle.getString(Intents.EXTRA_TEXT);
