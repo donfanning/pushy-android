@@ -22,9 +22,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -174,8 +172,8 @@ public class RegistrationClient extends Endpoint {
   private static Registration
   getRegistrationService(GoogleCredential credential) {
     final Registration.Builder builder =
-      new Registration.Builder(new NetHttpTransport(),
-        new AndroidJsonFactory(), credential);
+      new Registration.Builder(getNetHttpTransport(),
+        getAndroidJsonFactory(), credential);
 
     builder.setApplicationName(AppUtils.getApplicationName());
 

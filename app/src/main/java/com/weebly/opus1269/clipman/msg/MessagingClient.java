@@ -18,9 +18,7 @@
 
 package com.weebly.opus1269.clipman.msg;
 
-import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -149,8 +147,8 @@ public class MessagingClient extends Endpoint {
    */
   private static Messaging getMessagingService(GoogleCredential credential) {
     final Messaging.Builder builder =
-      new Messaging.Builder(new NetHttpTransport(),
-        new AndroidJsonFactory(), credential);
+      new Messaging.Builder(getNetHttpTransport(),
+        getAndroidJsonFactory(), credential);
 
     builder.setApplicationName(AppUtils.getApplicationName());
 

@@ -26,12 +26,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.app.App;
@@ -47,15 +47,17 @@ import java.util.concurrent.TimeUnit;
 abstract class Endpoint {
   private static final String TAG = "Endpoint";
 
-  /**
-   * Set to true to use local gae server - {@value}
-   */
+  /** Set to true to use local gae server - {@value} */
   private static final boolean USE_LOCAL_SERVER = false;
 
-  /**
-   * Network timeout in seconds - {@value}
-   */
+  /** Network timeout in seconds - {@value} */
   private static final int TIMEOUT = 60;
+
+  /** Global NetHttpTransport instance */
+  private static  NetHttpTransport sNetHttpTransport = null;
+
+  /** Global AndroidJacksonFactory instance */
+  private static AndroidJsonFactory sAndroidJsonFactory = null;
 
   /**
    * Determine if we are signed in
@@ -79,6 +81,28 @@ abstract class Endpoint {
       throw new IOException("Failed to get registration token.");
     }
     return ret;
+  }
+
+  /**
+   * Get shared NetHttpTransport
+   * @return regToken
+   */
+  static NetHttpTransport getNetHttpTransport() {
+    if (sNetHttpTransport == null) {
+      sNetHttpTransport = new NetHttpTransport();
+    }
+    return sNetHttpTransport;
+  }
+
+  /**
+   * Get shared AndroidJsonFactory
+   * @return regToken
+   */
+  static AndroidJsonFactory getAndroidJsonFactory() {
+    if (sAndroidJsonFactory == null) {
+      sAndroidJsonFactory = new AndroidJsonFactory();
+    }
+    return sAndroidJsonFactory;
   }
 
   /**
@@ -136,12 +160,10 @@ abstract class Endpoint {
   static GoogleCredential getCredential(String idToken) {
 
     // get credential for a server call
-    final NetHttpTransport transport = new NetHttpTransport();
-    final GoogleCredential.Builder credentialBuilder =
-      new GoogleCredential.Builder();
-    final GoogleCredential credential = credentialBuilder
-      .setTransport(transport)
-      .setJsonFactory(JacksonFactory.getDefaultInstance())
+    final GoogleCredential.Builder builder = new GoogleCredential.Builder();
+    final GoogleCredential credential = builder
+      .setTransport(getNetHttpTransport())
+      .setJsonFactory(getAndroidJsonFactory())
       .build();
 
     final String token;
