@@ -230,20 +230,18 @@ public class Prefs {
     set(key, value);
   }
 
-  @SuppressWarnings("unused")
-  public String getVersionName() {
-    return get(PREF_VERSION_NAME, "");
-  }
-
   ///////////////////////////////////////////////////////////////////////////
   // Not set from Settings UI
   ///////////////////////////////////////////////////////////////////////////
+
+  public String getVersionName() {
+    return get(PREF_VERSION_NAME, "");
+  }
 
   public void setVersionName(String value) {
     set(PREF_VERSION_NAME, value);
   }
 
-  @SuppressWarnings("unused")
   public int getVersionCode() {
     return get(PREF_VERSION_CODE, 0);
   }
@@ -331,6 +329,10 @@ public class Prefs {
     set(PREF_SN, sN);
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // Setter and getter helpers
+  ///////////////////////////////////////////////////////////////////////////
+
   void set(String key, String value) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -338,10 +340,6 @@ public class Prefs {
       .putString(key, value)
       .apply();
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Setter and getter helpers
-  ///////////////////////////////////////////////////////////////////////////
 
   private void set(String key, boolean value) {
     final SharedPreferences preferences =
