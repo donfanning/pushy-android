@@ -120,9 +120,13 @@ public class App extends Application implements
     // Setup heartbeat alarm
     HeartbeatAlarmReceiver.updateAlarm();
 
-    // listen for preference changes
+    // listen for shared preference changes
     PreferenceManager
-      .getDefaultSharedPreferences(getContext())
+      .getDefaultSharedPreferences(sContext)
+      .registerOnSharedPreferenceChangeListener(this);
+
+    // listen for user preference changes
+    sContext.getSharedPreferences(User.INST(sContext).PREFS_FILENAME, 0)
       .registerOnSharedPreferenceChangeListener(this);
   }
 

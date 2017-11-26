@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.model;
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
@@ -61,6 +62,7 @@ public class User {
   private final Context mContext;
 
   private final String TAG = "User";
+  public final String PREFS_FILENAME = "userPrefs";
   private final String PREF_USER_NAME = "prefUserName";
   private final String PREF_USER_EMAIL = "prefUserEmail";
   private final String PREF_USER_PHOTO_URI = "prefUserPhotoUri";
@@ -128,76 +130,90 @@ public class User {
     Devices.INST(mContext).clear();
   }
 
+  private String getPref(String key, String defValue) {
+    final SharedPreferences prefs =
+      mContext.getSharedPreferences(PREFS_FILENAME, 0);
+    return prefs.getString(key, defValue);
+  }
+
+  private void setPref(String key, String value) {
+    final SharedPreferences prefs =
+      mContext.getSharedPreferences(PREFS_FILENAME, 0);
+    prefs.edit()
+      .putString(key, value)
+      .apply();
+  }
+
   public boolean isLoggedIn() {
     return !getId().isEmpty();
   }
 
   private String getId() {
-    return Prefs.INST(mContext).get(PREF_USER_ID, "");
+    return getPref(PREF_USER_ID, "");
   }
 
   private void setId(String value) {
-    Prefs.INST(mContext).set(PREF_USER_ID, value);
+    setPref(PREF_USER_ID, value);
   }
 
   public String getName() {
-    return Prefs.INST(mContext).get(PREF_USER_NAME, "");
+    return getPref(PREF_USER_NAME, "");
   }
 
   private void setName(String value) {
-    Prefs.INST(mContext).set(PREF_USER_NAME, value);
+    setPref(PREF_USER_NAME, value);
   }
 
   public String getEmail() {
-    return Prefs.INST(mContext).get(PREF_USER_EMAIL, "");
+    return getPref(PREF_USER_EMAIL, "");
   }
 
   private void setEmail(String value) {
-    Prefs.INST(mContext).set(PREF_USER_EMAIL, value);
+    setPref(PREF_USER_EMAIL, value);
   }
 
   private String getPhotoUri() {
-    return Prefs.INST(mContext).get(PREF_USER_PHOTO_URI, "");
+    return getPref(PREF_USER_PHOTO_URI, "");
   }
 
   private void setPhotoUri(String value) {
-    Prefs.INST(mContext).set(PREF_USER_PHOTO_URI, value);
+    setPref(PREF_USER_PHOTO_URI, value);
   }
 
   private Bitmap getPhotoBitmap() {
     return BitmapHelper.decodeBitmap(
-      Prefs.INST(mContext).get(PREF_USER_PHOTO_ENCODED, ""));
+      getPref(PREF_USER_PHOTO_ENCODED, ""));
   }
 
   private void setPhotoBitmap(Bitmap bitmap) {
-    Prefs.INST(mContext).set(PREF_USER_PHOTO_ENCODED,
+    setPref(PREF_USER_PHOTO_ENCODED,
       BitmapHelper.encodeBitmap(bitmap));
   }
 
   @SuppressWarnings("unused")
   public String getType() {
-    return Prefs.INST(mContext).get(PREF_USER_TYPE, "com.google");
+    return getPref(PREF_USER_TYPE, "com.google");
   }
 
   private void setType(String value) {
-    Prefs.INST(mContext).set(PREF_USER_TYPE, value);
+    setPref(PREF_USER_TYPE, value);
   }
 
   private String getCoverPhotoUri() {
-    return Prefs.INST(mContext).get(PREF_USER_COVER_PHOTO_URI, "");
+    return getPref(PREF_USER_COVER_PHOTO_URI, "");
   }
 
   private void setCoverPhotoUri(String value) {
-    Prefs.INST(mContext).set(PREF_USER_COVER_PHOTO_URI, value);
+    setPref(PREF_USER_COVER_PHOTO_URI, value);
   }
 
   private Bitmap getCoverPhotoBitmap() {
     return BitmapHelper.decodeBitmap(
-      Prefs.INST(mContext).get(PREF_USER_COVER_PHOTO_ENCODED, ""));
+      getPref(PREF_USER_COVER_PHOTO_ENCODED, ""));
   }
 
   private void setCoverPhotoBitmap(Bitmap bitmap) {
-    Prefs.INST(mContext).set(PREF_USER_COVER_PHOTO_ENCODED,
+    setPref(PREF_USER_COVER_PHOTO_ENCODED,
       BitmapHelper.encodeBitmap(bitmap));
   }
 
@@ -223,7 +239,6 @@ public class User {
     // set icon and background of header
     setPersonAvatar(hView);
     setCoverPhoto(hView);
-
   }
 
   private void setPersonAvatar(@NonNull View hView) {
