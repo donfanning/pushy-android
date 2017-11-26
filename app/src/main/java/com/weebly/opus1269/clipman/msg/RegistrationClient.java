@@ -56,21 +56,22 @@ public class RegistrationClient extends Endpoint {
   }
 
   /**
-   * Register with server
-   * @param idToken - authorization token
+   * Register with server - Blocks
+   * @param idToken - authorization token or null
+   * @param refresh - true is refreshing exisitng token
    * @return getSuccess() false on error
    */
-  public static EndpointRet register(String idToken) {
+  public static EndpointRet register(String idToken, Boolean refresh) {
     final Context context = App.getContext();
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
     ret.setReason(Msg.ERROR_UNKNOWN);
 
-    if (notSignedIn()) {
+    if (!refresh && notSignedIn()) {
       Log.logD(TAG, "Not signed in.");
       ret.setSuccess(true);
       return ret;
-    } else if (Prefs.INST(context).isDeviceRegistered()) {
+    } else if (!refresh && Prefs.INST(context).isDeviceRegistered()) {
       Log.logD(TAG, "Already registered.");
       ret.setSuccess(true);
       return ret;
@@ -114,7 +115,7 @@ public class RegistrationClient extends Endpoint {
   }
 
   /**
-   * Unregister with server
+   * Unregister with server - Blocks
    * @return getSuccess() false on error
    */
   private static EndpointRet unregister() {
@@ -199,7 +200,7 @@ public class RegistrationClient extends Endpoint {
     protected String doInBackground(Void... params) {
       String error = "";
       // register device with the server - blocks
-      EndpointRet ret = RegistrationClient.register(mIdToken);
+      EndpointRet ret = RegistrationClient.register(mIdToken, false);
       if (!ret.getSuccess()) {
         error = ret.getReason();
       }

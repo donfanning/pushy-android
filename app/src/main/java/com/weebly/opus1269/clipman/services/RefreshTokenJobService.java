@@ -7,9 +7,6 @@
 
 package com.weebly.opus1269.clipman.services;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -17,7 +14,7 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backend.registration.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.msg.RegistrationClient;
 
 /**
@@ -28,25 +25,26 @@ public class RefreshTokenJobService extends JobService {
 
   @Override
   public boolean onStartJob(JobParameters job) {
+    Log.logD(TAG, "onStartJob");
     Boolean ret = false;
-    if (User.INST(this).isLoggedIn()) {
+    if (Prefs.INST(this).isDeviceRegistered()) {
       ret = true;
-      // Make sure we have looper
-      final Handler handler = new Handler(Looper.getMainLooper());
-      handler.post(new Runnable() {
-
+      Thread thread = new Thread(new Runnable() {
         @Override
         public void run() {
-          // Get updated InstanceID token.
-          String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-          Log.logD(TAG, "Refreshed token: " + refreshedToken);
-          Analytics.INST.instanceIdRefreshed();
-          final EndpointRet ret = RegistrationClient.register(refreshedToken);
+          String token = FirebaseInstanceId.getInstance().getToken();
+          Log.logD(TAG, "Refreshed token: " + token);
+          final EndpointRet ret =
+            RegistrationClient.register(null, true);
           if (!ret.getSuccess()) {
             Log.logE(TAG, ret.getReason(), false);
+          } else {
+            Log.logD(TAG, "Reregister success");
+            Analytics.INST.instanceIdRefreshed();
           }
         }
       });
+      thread.start();
     }
     return ret; // Answers the question: "Is there still work going on?"
   }

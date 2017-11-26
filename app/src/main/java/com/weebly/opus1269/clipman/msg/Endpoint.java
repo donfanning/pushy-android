@@ -38,6 +38,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.User;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,8 +73,12 @@ abstract class Endpoint {
    * Get InstanceId (regToken)
    * @return regToken
    */
-  static String getRegToken() {
-    return FirebaseInstanceId.getInstance().getToken();
+  static String getRegToken() throws IOException {
+    String ret = FirebaseInstanceId.getInstance().getToken();
+    if (ret == null) {
+      throw new IOException("Failed to get registration token.");
+    }
+    return ret;
   }
 
   /**
