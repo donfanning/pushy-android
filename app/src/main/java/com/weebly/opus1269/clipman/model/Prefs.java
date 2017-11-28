@@ -336,25 +336,19 @@ public class Prefs {
   void set(String key, String value) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
-    preferences.edit()
-      .putString(key, value)
-      .apply();
+    preferences.edit().putString(key, value).apply();
   }
 
   private void set(String key, boolean value) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
-    preferences.edit()
-      .putBoolean(key, value)
-      .apply();
+    preferences.edit().putBoolean(key, value).apply();
   }
 
   private void set(String key, int value) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
-    preferences.edit()
-      .putInt(key, value)
-      .apply();
+    preferences.edit().putInt(key, value).apply();
   }
 
   String get(String key, String defValue) {
@@ -373,6 +367,12 @@ public class Prefs {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
     return preferences.getInt(key, defValue);
+  }
+
+  void remove(String key) {
+    final SharedPreferences preferences =
+      PreferenceManager.getDefaultSharedPreferences(mContext);
+    preferences.edit().remove(key).apply();
   }
 }
 

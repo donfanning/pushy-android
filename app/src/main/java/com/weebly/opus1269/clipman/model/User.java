@@ -36,6 +36,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.people.v1.PeopleService;
 import com.google.api.services.people.v1.model.CoverPhoto;
 import com.google.api.services.people.v1.model.Person;
+import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
@@ -57,24 +58,19 @@ public class User {
   private static User sInstance;
 
   public final String PREF_USER_ID = "prefUserId";
-
+  public final String PREFS_FILENAME =
+    BuildConfig.APPLICATION_ID + ".userPrefs";
   /** Global Application Context */
   private final Context mContext;
-
   private final String TAG = "User";
-
-  public final String PREFS_FILENAME = "userPrefs";
   private final String COVER_FILENAME = "cover.png";
   private final String PHOTO_FILENAME = "photo.png";
 
   private final String PREF_USER_NAME = "prefUserName";
   private final String PREF_USER_EMAIL = "prefUserEmail";
   private final String PREF_USER_PHOTO_URI = "prefUserPhotoUri";
-  private final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";
   private final String PREF_USER_TYPE = "prefUserType";
   private final String PREF_USER_COVER_PHOTO_URI = "prefUserCoverPhotoUri";
-  private final String PREF_USER_COVER_PHOTO_ENCODED =
-    "prefUserCoverPhotoEncoded";
 
 
   private User(@NonNull Context context) {
@@ -132,6 +128,39 @@ public class User {
 
     // clear Devices list
     Devices.INST(mContext).clear();
+  }
+
+  /** Convert to own pref file */
+  public void convertPrefs() {
+    Log.logD(TAG, "Converting User preferences.");
+    final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";
+    final String PREF_USER_COVER_PHOTO_ENCODED = "prefUserCoverPhotoEncoded";
+    final Prefs prefs = Prefs.INST(mContext);
+
+    // transfer prefs
+    setId(prefs.get(PREF_USER_ID, ""));
+    setName(prefs.get(PREF_USER_NAME, ""));
+    setEmail(prefs.get(PREF_USER_EMAIL, ""));
+    setPhotoUri(prefs.get(PREF_USER_PHOTO_URI, ""));
+    setCoverPhotoUri(prefs.get(PREF_USER_COVER_PHOTO_URI, ""));
+
+    // save images
+    Bitmap bitmap;
+    bitmap =
+      BitmapHelper.decodeBitmap(prefs.get(PREF_USER_PHOTO_ENCODED, ""));
+    setPhotoBitmap(bitmap);
+    bitmap = BitmapHelper.decodeBitmap(
+      prefs.get(PREF_USER_COVER_PHOTO_ENCODED, ""));
+    setCoverPhotoBitmap(bitmap);
+
+    // remove old prefences
+    prefs.remove(PREF_USER_ID);
+    prefs.remove(PREF_USER_NAME);
+    prefs.remove(PREF_USER_EMAIL);
+    prefs.remove(PREF_USER_PHOTO_URI);
+    prefs.remove(PREF_USER_COVER_PHOTO_URI);
+    prefs.remove(PREF_USER_PHOTO_ENCODED);
+    prefs.remove(PREF_USER_COVER_PHOTO_ENCODED);
   }
 
   private String getPref(String key, String defValue) {

@@ -30,8 +30,8 @@ android {
         applicationId "com.weebly.opus1269.clipman"
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.sdkVersion
-        versionCode 222001
-        versionName "1.8.1"
+        versionCode 222002
+        versionName "1.8.2"
 
         vectorDrawables.useSupportLibrary = true
     }

@@ -87,7 +87,7 @@ public class App extends Application implements
     sClipsDB = new ClipsDatabaseHelper(sContext);
     sClipsDB.getWritableDatabase();
 
-    // make sure Prefs are initialized
+    // make sure Shared preferences are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
     // reset fav filter
@@ -275,6 +275,11 @@ public class App extends Application implements
           .apply();
         Log.logD(TAG, "enabled On Error notification value");
       }
+    }
+
+    if (oldVersionCode <= 222001) {
+      // switch to standalone prefs file for User info.
+      User.INST(sContext).convertPrefs();
     }
   }
 }
