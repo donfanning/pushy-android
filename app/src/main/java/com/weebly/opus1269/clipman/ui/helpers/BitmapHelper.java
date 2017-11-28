@@ -15,14 +15,17 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.util.Base64;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.Analytics;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -42,11 +45,10 @@ public class BitmapHelper {
   /**
    * Loads a Bitmap from the inter-webs, blocks
    * @param urlName path to Bitmap
-   * @return The Bitmap null on failure
+   * @return The Bitmap, null on failure
    */
-  public static
   @Nullable
-  Bitmap loadBitmap(String urlName) {
+  public static Bitmap loadBitmap(String urlName) {
     final URL url;
     Bitmap bitmap = null;
 
@@ -74,6 +76,79 @@ public class BitmapHelper {
       }
     }
     return bitmap;
+  }
+
+  /**
+   * Save to internal storage as .png files
+   * @param context  a context
+   * @param filename name of file
+   * @param bitmap   Bitmap to save
+   */
+  public static void savePNG(Context context, String filename, Bitmap bitmap) {
+    FileOutputStream fileOutputStream = null;
+    try {
+      File file = new File(context.getFilesDir(), filename);
+      fileOutputStream = new FileOutputStream(file);
+      bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+    } catch (Exception ex) {
+      Analytics.INST.exception(ex, "Failed to save file: " + filename);
+    } finally {
+      try {
+        if (fileOutputStream != null) {
+          fileOutputStream.close();
+        }
+      } catch (IOException ex) {
+        Analytics.INST.exception(ex, "Failed to save file: " + filename);
+      }
+    }
+  }
+
+  /**
+   * Load from internal storage
+   * @param context  a context
+   * @param filename name of file
+   */
+  @Nullable
+  public static Bitmap loadPNG(Context context, String filename) {
+    Bitmap bitmap = null;
+    FileInputStream inputStream = null;
+    try {
+      File file = new File(context.getFilesDir(), filename);
+      if (file.exists()) {
+        inputStream = new FileInputStream(file);
+        bitmap = BitmapFactory.decodeStream(inputStream);
+      }
+    } catch (Exception ex) {
+      Analytics.INST.exception(ex, "Failed to load file: " + filename);
+    } finally {
+      try {
+        if (inputStream != null) {
+          inputStream.close();
+        }
+      } catch (IOException ex) {
+        Analytics.INST.exception(ex, "Failed to load file: " + filename);
+      }
+    }
+    return bitmap;
+  }
+
+  /**
+   * Delete file from internal storage
+   * @param context  a context
+   * @param filename name of file
+   */
+  public static boolean deletePNG(Context context, String filename) {
+    boolean ret = false;
+    try {
+      File file = new File(context.getFilesDir(), filename);
+      if(file.exists()) {
+        ret = file.delete();
+      }
+    } catch (Exception ex) {
+      Analytics.INST.exception(ex, "Failed to delete file: " + filename);
+      ret = false;
+    }
+    return ret;
   }
 
   /**
@@ -111,7 +186,8 @@ public class BitmapHelper {
   }
 
   @SuppressWarnings("unused")
-  public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
+  public static Bitmap getBitmapFromVectorDrawable(Context context, int
+    drawableId) {
     Bitmap bitmap = null;
     Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
     if (drawable != null) {
@@ -127,5 +203,4 @@ public class BitmapHelper {
     }
     return bitmap;
   }
-
 }

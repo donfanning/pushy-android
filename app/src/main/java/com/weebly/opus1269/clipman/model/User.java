@@ -62,7 +62,11 @@ public class User {
   private final Context mContext;
 
   private final String TAG = "User";
+
   public final String PREFS_FILENAME = "userPrefs";
+  private final String COVER_FILENAME = "cover.png";
+  private final String PHOTO_FILENAME = "photo.png";
+
   private final String PREF_USER_NAME = "prefUserName";
   private final String PREF_USER_EMAIL = "prefUserEmail";
   private final String PREF_USER_PHOTO_URI = "prefUserPhotoUri";
@@ -172,6 +176,15 @@ public class User {
     setPref(PREF_USER_EMAIL, value);
   }
 
+  @SuppressWarnings("unused")
+  private String getType() {
+    return getPref(PREF_USER_TYPE, "com.google");
+  }
+
+  private void setType(String value) {
+    setPref(PREF_USER_TYPE, value);
+  }
+
   private String getPhotoUri() {
     return getPref(PREF_USER_PHOTO_URI, "");
   }
@@ -181,22 +194,15 @@ public class User {
   }
 
   private Bitmap getPhotoBitmap() {
-    return BitmapHelper.decodeBitmap(
-      getPref(PREF_USER_PHOTO_ENCODED, ""));
+    return BitmapHelper.loadPNG(mContext, PHOTO_FILENAME);
   }
 
   private void setPhotoBitmap(Bitmap bitmap) {
-    setPref(PREF_USER_PHOTO_ENCODED,
-      BitmapHelper.encodeBitmap(bitmap));
-  }
-
-  @SuppressWarnings("unused")
-  public String getType() {
-    return getPref(PREF_USER_TYPE, "com.google");
-  }
-
-  private void setType(String value) {
-    setPref(PREF_USER_TYPE, value);
+    if (bitmap != null) {
+      BitmapHelper.savePNG(mContext, PHOTO_FILENAME, bitmap);
+    } else {
+      BitmapHelper.deletePNG(mContext, PHOTO_FILENAME);
+    }
   }
 
   private String getCoverPhotoUri() {
@@ -208,13 +214,15 @@ public class User {
   }
 
   private Bitmap getCoverPhotoBitmap() {
-    return BitmapHelper.decodeBitmap(
-      getPref(PREF_USER_COVER_PHOTO_ENCODED, ""));
+    return BitmapHelper.loadPNG(mContext, COVER_FILENAME);
   }
 
   private void setCoverPhotoBitmap(Bitmap bitmap) {
-    setPref(PREF_USER_COVER_PHOTO_ENCODED,
-      BitmapHelper.encodeBitmap(bitmap));
+    if (bitmap != null) {
+      BitmapHelper.savePNG(mContext, COVER_FILENAME, bitmap);
+    } else {
+      BitmapHelper.deletePNG(mContext, COVER_FILENAME);
+    }
   }
 
   /**
