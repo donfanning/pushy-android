@@ -132,10 +132,11 @@ public class User {
 
   /** Convert to own pref file */
   public void convertPrefs() {
-    Log.logD(TAG, "Converting User preferences.");
     final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";
     final String PREF_USER_COVER_PHOTO_ENCODED = "prefUserCoverPhotoEncoded";
     final Prefs prefs = Prefs.INST(mContext);
+
+    Log.logD(TAG, "Converting User preferences.");
 
     // transfer prefs
     setId(prefs.get(PREF_USER_ID, ""));
@@ -169,12 +170,11 @@ public class User {
     return prefs.getString(key, defValue);
   }
 
+  @SuppressLint("ApplySharedPref")
   private void setPref(String key, String value) {
     final SharedPreferences prefs =
       mContext.getSharedPreferences(PREFS_FILENAME, 0);
-    prefs.edit()
-      .putString(key, value)
-      .apply();
+    prefs.edit().putString(key, value).commit();
   }
 
   public boolean isLoggedIn() {
