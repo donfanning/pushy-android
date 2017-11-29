@@ -23,7 +23,6 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Trigger;
 import com.google.firebase.iid.FirebaseInstanceIdService;
-import com.weebly.opus1269.clipman.app.App;
 
 /**
  * This {@link FirebaseInstanceIdService} listens for changes to the regToken
@@ -41,7 +40,7 @@ public class MyInstanceIDListenerService extends FirebaseInstanceIdService {
   public void onTokenRefresh() {
     // Use Job Service
     FirebaseJobDispatcher dispatcher =
-      new FirebaseJobDispatcher(new GooglePlayDriver(App.getContext()));
+      new FirebaseJobDispatcher(new GooglePlayDriver(this));
 
     Job myJob = dispatcher.newJobBuilder()
       .setService(RefreshTokenJobService.class)
