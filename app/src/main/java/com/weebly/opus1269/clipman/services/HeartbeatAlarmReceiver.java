@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -28,9 +27,9 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
 
   /**
    * Set or cancel the repeating alarm to send the heartbeat
+   * @param ctxt A Context
    */
-  public static void updateAlarm() {
-    final Context ctxt = App.getContext();
+  public static void updateAlarm(Context ctxt) {
     final AlarmManager alarmMgr =
       (AlarmManager) ctxt.getSystemService(Context.ALARM_SERVICE);
     if (alarmMgr == null) {

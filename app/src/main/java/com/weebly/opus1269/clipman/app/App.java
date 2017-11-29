@@ -119,7 +119,7 @@ public class App extends Application implements
     Notifications.initChannels(this);
 
     // Setup heartbeat alarm
-    HeartbeatAlarmReceiver.updateAlarm();
+    HeartbeatAlarmReceiver.updateAlarm(sContext);
 
     // listen for shared preference changes
     PreferenceManager
@@ -182,12 +182,9 @@ public class App extends Application implements
     final String keyHeartbeat = getString(R.string.key_pref_heartbeat);
 
     // update heartbeat on appropriate changes
-    if (key.equals(keyUserId)) {
-      HeartbeatAlarmReceiver.updateAlarm();
-    } else if (key.equals(keyReceive)) {
-      HeartbeatAlarmReceiver.updateAlarm();
-    } else if (key.equals(keyHeartbeat)) {
-      HeartbeatAlarmReceiver.updateAlarm();
+    if (key.equals(keyUserId) || key.equals(keyReceive) ||
+      key.equals(keyHeartbeat)) {
+      HeartbeatAlarmReceiver.updateAlarm(sContext);
     }
   }
 
