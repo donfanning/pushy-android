@@ -45,7 +45,7 @@ public class MyBackupAgent extends BackupAgent {
   @Override
   public void onQuotaExceeded(long backupDataBytes, long quotaBytes) {
     super.onQuotaExceeded(backupDataBytes, quotaBytes);
-    Log.logE(TAG, "onQuotaExceeded", false);
+    Log.logE(this, TAG, "onQuotaExceeded", false);
   }
 
   @Override

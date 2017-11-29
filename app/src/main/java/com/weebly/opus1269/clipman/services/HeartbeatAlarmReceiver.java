@@ -30,21 +30,21 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
    * Set or cancel the repeating alarm to send the heartbeat
    */
   public static void updateAlarm() {
-    final Context context = App.getContext();
+    final Context ctxt = App.getContext();
     final AlarmManager alarmMgr =
-      (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+      (AlarmManager) ctxt.getSystemService(Context.ALARM_SERVICE);
     if (alarmMgr == null) {
-      Log.logE(TAG,
+      Log.logE(ctxt, TAG,
         "Failed to start or cancel " + TAG + ", null AlarmManager");
       return;
     }
-    final Intent intent = new Intent(context, HeartbeatAlarmReceiver.class);
-    final PendingIntent alarmIntent = PendingIntent.getBroadcast(context,
+    final Intent intent = new Intent(ctxt, HeartbeatAlarmReceiver.class);
+    final PendingIntent alarmIntent = PendingIntent.getBroadcast(ctxt,
       Intents.HEARTBEAT_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    final long interval = Prefs.INST(context).getHeartbeat() * 60 * 1000;
+    final long interval = Prefs.INST(ctxt).getHeartbeat() * 60 * 1000;
 
-    if (User.INST(context).isLoggedIn() &&
-      Prefs.INST(context).isAllowReceive()) {
+    if (User.INST(ctxt).isLoggedIn() &&
+      Prefs.INST(ctxt).isAllowReceive()) {
       // setup Heartbeat alarm
       alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
         interval, interval, alarmIntent);

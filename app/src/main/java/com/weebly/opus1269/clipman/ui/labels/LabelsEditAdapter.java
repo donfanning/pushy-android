@@ -141,7 +141,8 @@ class LabelsEditAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Analytics.INST.imageClick(mActivity.getTAG(), "deleteLabel");
+          Analytics.INST(v.getContext())
+            .imageClick(mActivity.getTAG(), "deleteLabel");
           mDeleteLabel = holder.label;
           showDeleteDialog();
         }
@@ -161,7 +162,8 @@ class LabelsEditAdapter extends
       // delete it
       mDeleteLabel.delete();
       mDeleteLabel = null;
-      Analytics.INST.buttonClick(mActivity.getTAG(), mDialog.getButton(which));
+      Analytics.INST(mContext)
+        .buttonClick(mActivity.getTAG(), mDialog.getButton(which));
     }
   }
 

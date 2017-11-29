@@ -99,7 +99,7 @@ public class ErrorViewerActivity extends BaseActivity
     }
 
     if (processed) {
-      Analytics.INST.menuClick(TAG, item);
+      Analytics.INST(this).menuClick(TAG, item);
     }
 
     return processed || super.onOptionsItemSelected(item);

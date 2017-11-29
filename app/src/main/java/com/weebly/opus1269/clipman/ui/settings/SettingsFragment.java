@@ -135,6 +135,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     if ((requestCode == REQUEST_CODE_ALERT_RINGTONE) && (data != null)) {
+      final Context cxt = getContext();
       // Save the Ringtone preference
       final Uri uri =
         data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
@@ -143,9 +144,10 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       if (uri != null) {
         ringTone = uri.toString();
       }
-      Prefs.INST(getContext()).setRingtone(ringTone);
-      Analytics.INST.event(((BaseActivity)getActivity()).getTAG(),
-        Analytics.CAT_UI, Analytics.UI_LIST, "ringtone: " + ringTone);
+      Prefs.INST(cxt).setRingtone(ringTone);
+      Analytics.INST(cxt).event(((BaseActivity) getActivity()).getTAG(),
+        Analytics.INST(cxt).CAT_UI, Analytics.INST(cxt).UI_LIST,
+        "ringtone: " + ringTone);
       setRingtoneSummary();
     } else {
       super.onActivityResult(requestCode, resultCode, data);
@@ -219,36 +221,37 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   /**
    * Log settings changes to Analytics
-   * @param sp default preferences
+   * @param sp  default preferences
    * @param key key of setting to log
    */
   private void logChange(SharedPreferences sp, String key) {
+    final Context context = getContext();
     final Preference preference = findPreference(key);
     final String TAG = ((BaseActivity) getActivity()).getTAG();
-    final String category = Analytics.CAT_UI;
+    final String category = Analytics.INST(context).CAT_UI;
     String action = "";
     String label = "";
 
     // log events
     if (preference instanceof SwitchPreferenceCompat) {
-      action = Analytics.UI_TOGGLE;
+      action = Analytics.INST(context).UI_TOGGLE;
       label = key + ": " + sp.getBoolean(key, false);
     } else if (preference instanceof SwitchPreference) {
-      action = Analytics.UI_LIST;
+      action = Analytics.INST(context).UI_LIST;
       label = key + ": " + sp.getBoolean(key, false);
     } else if (preference instanceof ListPreference) {
-      action = Analytics.UI_LIST;
+      action = Analytics.INST(context).UI_LIST;
       label = key + ": " + sp.getString(key, "");
     } else if (preference instanceof MultiSelectListPreference) {
-      action = Analytics.UI_MULTI_LIST;
+      action = Analytics.INST(context).UI_MULTI_LIST;
       label = key + ": " + sp.getStringSet(key, new HashSet<String>(0));
     } else if (preference instanceof EditTextPreference) {
-      action = Analytics.UI_EDIT_TEXT;
+      action = Analytics.INST(context).UI_EDIT_TEXT;
       label = key + ": " + sp.getString(key, "");
     }
 
     if (!TextUtils.isEmpty(action)) {
-      Analytics.INST.event(TAG, category, action, label);
+      Analytics.INST(context).event(TAG, category, action, label);
     }
   }
 

@@ -18,6 +18,8 @@
 
 package com.weebly.opus1269.clipman.msg;
 
+import android.content.Context;
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -70,7 +72,8 @@ public class MessagingClient extends Endpoint {
     try {
       data.put(Msg.FAV, favString);
     } catch (JSONException ex) {
-      Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
+      Log.logEx(App.getContext(), TAG, ex.getLocalizedMessage(), ex,
+        ERROR_SEND);
       data = null;
     }
 
@@ -131,7 +134,8 @@ public class MessagingClient extends Endpoint {
     try {
       data.put(Msg.SRC_REG_ID, srcRegId);
     } catch (JSONException ex) {
-      Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
+      Log.logEx(App.getContext(), TAG, ex.getLocalizedMessage(), ex,
+        ERROR_SEND);
       data = null;
     }
 
@@ -175,7 +179,8 @@ public class MessagingClient extends Endpoint {
       data.put(Msg.DEVICE_OS, Device.getMyDevice().getOS());
       data.put(Msg.DEVICE_NICKNAME, Device.getMyDevice().getNickname());
     } catch (JSONException ex) {
-      Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
+      Log.logEx(App.getContext(), TAG, ex.getLocalizedMessage(), ex,
+        ERROR_SEND);
       data = null;
     }
     return data;
@@ -193,6 +198,7 @@ public class MessagingClient extends Endpoint {
 
     @Override
     protected EndpointRet doInBackground(JSONObject... params) {
+      final Context ctxt = App.getContext();
       EndpointRet ret = new EndpointRet();
       ret.setSuccess(false);
       ret.setReason(Msg.ERROR_UNKNOWN);
@@ -206,7 +212,7 @@ public class MessagingClient extends Endpoint {
 
         final GoogleCredential credential = getCredential(null);
         if (credential == null) {
-          ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL, ERROR_SEND));
+          ret.setReason(Log.logE(ctxt, TAG, Msg.ERROR_CREDENTIAL, ERROR_SEND));
           return ret;
         }
 
@@ -220,13 +226,14 @@ public class MessagingClient extends Endpoint {
           .send(regToken, jsonString, highPriority).execute();
         if (ret.getSuccess()) {
           Log.logD(TAG, "Message sent to server: " + mAction);
-          Analytics.INST.sent(mAction);
+          Analytics.INST(App.getContext()).sent(mAction);
         } else {
           ret.setReason(
-            Log.logE(TAG, ret.getReason(), ERROR_SEND));
+            Log.logE(ctxt, TAG, ret.getReason(), ERROR_SEND));
         }
       } catch (IOException | JSONException ex) {
-        ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_SEND));
+        ret.setReason(
+          Log.logEx(ctxt, TAG, ex.getLocalizedMessage(), ex, ERROR_SEND));
       }
       return ret;
     }

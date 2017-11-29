@@ -25,9 +25,7 @@ import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 
-/**
- * Activity to manage our connected devices
- */
+/** Activity to manage our connected devices */
 public class DevicesActivity extends BaseActivity {
 
   /** Adapter being used to display the list's data */
@@ -49,7 +47,7 @@ public class DevicesActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
           doRefresh();
-          Analytics.INST.imageClick(TAG, "refreshDevices");
+          Analytics.INST(v.getContext()).imageClick(TAG, "refreshDevices");
         }
       });
     }
@@ -86,9 +84,7 @@ public class DevicesActivity extends BaseActivity {
       .unregisterReceiver(mReceiver);
   }
 
-  /**
-   * Connect the {@link DevicesAdapter} to the {@link RecyclerView}
-   */
+  /** Connect the {@link DevicesAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView() {
     final RecyclerView recyclerView =
       findViewById(R.id.deviceList);
@@ -99,9 +95,7 @@ public class DevicesActivity extends BaseActivity {
     }
   }
 
-  /**
-   * Create the {@link BroadcastReceiver} to handle changes to the list
-   */
+  /** Create the {@link BroadcastReceiver} to handle changes to the list */
   private void setupDevicesBroadcastReceiver() {
     // handler for received Intents for the "devices" event
     mReceiver = new BroadcastReceiver() {
@@ -128,9 +122,7 @@ public class DevicesActivity extends BaseActivity {
     };
   }
 
-  /**
-   * Refresh the list
-   */
+  /** Refresh the list */
   private void doRefresh() {
     mAdapter.notifyDataSetChanged();
     MessagingClient.sendPing();

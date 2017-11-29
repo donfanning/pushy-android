@@ -82,8 +82,9 @@ public class LabelCreateFragement extends Fragment implements
   @Override
   public void onClick(View view) {
     if (view.getId() == R.id.addDoneButton) {
+      final BaseActivity activity = (BaseActivity)getActivity();
       doneAction();
-      Analytics.INST.imageClick(((BaseActivity)getActivity()).getTAG(),
+      Analytics.INST(activity).imageClick(activity.getTAG(),
         "addLabel");
     }
   }

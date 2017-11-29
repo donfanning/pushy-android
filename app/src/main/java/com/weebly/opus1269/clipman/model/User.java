@@ -38,6 +38,7 @@ import com.google.api.services.people.v1.model.CoverPhoto;
 import com.google.api.services.people.v1.model.Person;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.ui.helpers.BitmapHelper;
@@ -48,10 +49,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Singleton representing the current User.
- * Data backed by {@link android.support.v4.content.SharedPreferencesCompat}
- */
+/** Singleton representing the current user */
 public class User {
   // OK, because mContext is the global Application context
   @SuppressLint("StaticFieldLeak")
@@ -60,9 +58,12 @@ public class User {
   public final String PREF_USER_ID = "prefUserId";
   public final String PREFS_FILENAME =
     BuildConfig.APPLICATION_ID + ".userPrefs";
+
   /** Global Application Context */
   private final Context mContext;
+
   private final String TAG = "User";
+
   private final String COVER_FILENAME = "cover.png";
   private final String PHOTO_FILENAME = "photo.png";
 
@@ -130,7 +131,10 @@ public class User {
     Devices.INST(mContext).clear();
   }
 
-  /** Convert to own pref file */
+  /**
+   *  Convert to own pref file.
+   *  Used to be stored in default shared prefs.
+   */
   public void convertPrefs() {
     final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";
     final String PREF_USER_COVER_PHOTO_ENCODED = "prefUserCoverPhotoEncoded";
@@ -357,6 +361,7 @@ public class User {
    * Inner class to handle loading of user avatar
    * and cover photo asynchronously
    */
+  @SuppressLint("StaticFieldLeak")
   private class SetPhotosAsyncTask extends ThreadedAsyncTask<Void, Void, Void> {
 
     @Override
@@ -366,7 +371,7 @@ public class User {
 
       // Load avatar Bitmap
       if (isLoggedIn()) {
-        avatar = BitmapHelper.loadBitmap(getPhotoUri());
+        avatar = BitmapHelper.loadBitmap(App.getContext(), getPhotoUri());
       }
       setPhotoBitmap(avatar);
 
@@ -376,7 +381,7 @@ public class User {
 
       // Load Cover Photo Bitmap
       if (isLoggedIn()) {
-        cover = BitmapHelper.loadBitmap(getCoverPhotoUri());
+        cover = BitmapHelper.loadBitmap(App.getContext(), getCoverPhotoUri());
       }
       setCoverPhotoBitmap(cover);
 
@@ -410,7 +415,7 @@ public class User {
       try {
         userProfile = service.people().get("people/me").execute();
       } catch (IOException ex) {
-        Log.logEx(TAG, "", ex, false);
+        Log.logEx(mContext, TAG, "", ex, false);
       }
 
       if (userProfile != null) {

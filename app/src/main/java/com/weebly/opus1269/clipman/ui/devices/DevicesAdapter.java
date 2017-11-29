@@ -89,7 +89,8 @@ class DevicesAdapter extends
         @Override
         public void onClick(View v) {
           Devices.INST(mActivity).remove(device);
-          Analytics.INST.imageClick("DevicesActivity", "removeDevice");
+          Analytics.INST(v.getContext())
+            .imageClick("DevicesActivity", "removeDevice");
         }
       }
     );
@@ -120,6 +121,7 @@ class DevicesAdapter extends
       .applyTo(holder.forgetButton);
   }
 
+  /** ViewHolder */
   static class DeviceViewHolder extends RecyclerView.ViewHolder {
     final TextView lastSeenTextView;
     final TextView deviceTextView;

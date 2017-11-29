@@ -199,9 +199,9 @@ public class ClipViewerFragment extends Fragment
     final String TAG = ((BaseActivity) activity).getTAG();
     if (v == fab) {
       mClipItem.doShare(v);
-      Analytics.INST.imageClick(TAG, "shareClipItem");
+      Analytics.INST(activity).imageClick(TAG, "shareClipItem");
     } else if (v == labelList) {
-      Analytics.INST.click(TAG, "showLabelList");
+      Analytics.INST(activity).click(TAG, "showLabelList");
       final Intent intent = new Intent(activity, LabelsSelectActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, mClipItem);
       AppUtils.startActivity(activity, intent);

@@ -48,7 +48,7 @@ public class BitmapHelper {
    * @return The Bitmap, null on failure
    */
   @Nullable
-  public static Bitmap loadBitmap(String urlName) {
+  public static Bitmap loadBitmap(Context ctxt, String urlName) {
     final URL url;
     Bitmap bitmap = null;
 
@@ -56,7 +56,7 @@ public class BitmapHelper {
       try {
         url = new URL(urlName);
       } catch (final MalformedURLException ex) {
-        Log.logEx(TAG, "Bad bitmap URL", ex, false);
+        Log.logEx(ctxt, TAG, "Bad bitmap URL", ex, false);
         return null;
       }
       InputStream inputStream = null;
@@ -64,7 +64,7 @@ public class BitmapHelper {
         inputStream = url.openStream();
         bitmap = BitmapFactory.decodeStream(inputStream);
       } catch (final IOException ex) {
-        Log.logEx(TAG, "Failed to get bitmap", ex, false);
+        Log.logEx(ctxt, TAG, "Failed to get bitmap", ex, false);
       } finally {
         try {
           if (inputStream != null) {
@@ -80,53 +80,57 @@ public class BitmapHelper {
 
   /**
    * Save to internal storage as .png files
-   * @param context  a context
+   * @param ctxt  a context
    * @param filename name of file
    * @param bitmap   Bitmap to save
    */
-  public static void savePNG(Context context, String filename, Bitmap bitmap) {
+  public static void savePNG(Context ctxt, String filename, Bitmap bitmap) {
     FileOutputStream fileOutputStream = null;
     try {
-      File file = new File(context.getFilesDir(), filename);
+      File file = new File(ctxt.getFilesDir(), filename);
       fileOutputStream = new FileOutputStream(file);
       bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
     } catch (Exception ex) {
-      Analytics.INST.exception(ex, "Failed to save file: " + filename);
+      Analytics.INST(ctxt)
+        .exception(ex, "Failed to save file: " + filename);
     } finally {
       try {
         if (fileOutputStream != null) {
           fileOutputStream.close();
         }
       } catch (IOException ex) {
-        Analytics.INST.exception(ex, "Failed to save file: " + filename);
+        Analytics.INST(ctxt)
+          .exception(ex, "Failed to save file: " + filename);
       }
     }
   }
 
   /**
    * Load from internal storage
-   * @param context  a context
+   * @param ctxt  a context
    * @param filename name of file
    */
   @Nullable
-  public static Bitmap loadPNG(Context context, String filename) {
+  public static Bitmap loadPNG(Context ctxt, String filename) {
     Bitmap bitmap = null;
     FileInputStream inputStream = null;
     try {
-      File file = new File(context.getFilesDir(), filename);
+      File file = new File(ctxt.getFilesDir(), filename);
       if (file.exists()) {
         inputStream = new FileInputStream(file);
         bitmap = BitmapFactory.decodeStream(inputStream);
       }
     } catch (Exception ex) {
-      Analytics.INST.exception(ex, "Failed to load file: " + filename);
+      Analytics.INST(ctxt)
+        .exception(ex, "Failed to load file: " + filename);
     } finally {
       try {
         if (inputStream != null) {
           inputStream.close();
         }
       } catch (IOException ex) {
-        Analytics.INST.exception(ex, "Failed to load file: " + filename);
+        Analytics.INST(ctxt)
+          .exception(ex, "Failed to load file: " + filename);
       }
     }
     return bitmap;
@@ -134,18 +138,19 @@ public class BitmapHelper {
 
   /**
    * Delete file from internal storage
-   * @param context  a context
+   * @param ctxt  a context
    * @param filename name of file
    */
-  public static boolean deletePNG(Context context, String filename) {
+  public static boolean deletePNG(Context ctxt, String filename) {
     boolean ret = false;
     try {
-      File file = new File(context.getFilesDir(), filename);
+      File file = new File(ctxt.getFilesDir(), filename);
       if(file.exists()) {
         ret = file.delete();
       }
     } catch (Exception ex) {
-      Analytics.INST.exception(ex, "Failed to delete file: " + filename);
+      Analytics.INST(ctxt)
+        .exception(ex, "Failed to delete file: " + filename);
       ret = false;
     }
     return ret;
@@ -186,10 +191,10 @@ public class BitmapHelper {
   }
 
   @SuppressWarnings("unused")
-  public static Bitmap getBitmapFromVectorDrawable(Context context, int
+  public static Bitmap getBitmapFromVectorDrawable(Context ctxt, int
     drawableId) {
     Bitmap bitmap = null;
-    Drawable drawable = AppCompatResources.getDrawable(context, drawableId);
+    Drawable drawable = AppCompatResources.getDrawable(ctxt, drawableId);
     if (drawable != null) {
       if (!AppUtils.isLollipopOrLater()) {
         drawable = (DrawableCompat.wrap(drawable)).mutate();

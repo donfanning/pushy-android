@@ -72,7 +72,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         .setAction(R.string.button_undo, new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            Analytics.INST.imageClick(mActivity.getTAG(),
+            Analytics.INST(mActivity).imageClick(mActivity.getTAG(),
               mActivity.getString(R.string.button_undo));
             if (mUndoItem != null) {
               mUndoItem.undo();

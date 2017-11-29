@@ -155,10 +155,9 @@ public class MainActivity extends BaseActivity implements
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
 
-    outState.putInt(STATE_POS,
-      mLoaderManager.getAdapter().getSelectedPos());
-    outState.putLong(STATE_ITEM_ID,
-      mLoaderManager.getAdapter().getSelectedItemID());
+    final ClipCursorAdapter adapter = mLoaderManager.getAdapter();
+    outState.putInt(STATE_POS, adapter.getSelectedPos());
+    outState.putLong(STATE_ITEM_ID, adapter.getSelectedItemID());
   }
 
   @Override
@@ -276,7 +275,7 @@ public class MainActivity extends BaseActivity implements
     }
 
     if (processed) {
-      Analytics.INST.menuClick(TAG, item);
+      Analytics.INST(this).menuClick(TAG, item);
     }
 
     return processed || super.onOptionsItemSelected(item);
@@ -284,9 +283,8 @@ public class MainActivity extends BaseActivity implements
 
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    boolean processed = true;
     final int id = item.getItemId();
-
-    Analytics.INST.menuClick(TAG, item);
 
     switch (id) {
       case R.id.nav_account:
@@ -324,18 +322,21 @@ public class MainActivity extends BaseActivity implements
         startActivity(HelpActivity.class);
         break;
       case R.id.nav_chrome_extension:
-        AppUtils.showWebUrl(
-          getString(R.string.chrome_extension_url));
+        AppUtils.showWebUrl(getString(R.string.chrome_extension_url));
         break;
       case R.id.rate_app:
         AppUtils.showInPlayStore();
         break;
       default:
+        processed = false;
         break;
     }
 
-    final DrawerLayout drawer =
-      findViewById(R.id.drawer_layout);
+    if (processed) {
+      Analytics.INST(this).menuClick(TAG, item);
+    }
+
+    final DrawerLayout drawer = findViewById(R.id.drawer_layout);
     drawer.closeDrawer(GravityCompat.START);
 
     return true;
@@ -346,16 +347,14 @@ public class MainActivity extends BaseActivity implements
   public void onLayoutChange(View v, int left, int top, int right, int bottom,
                              int oldLeft, int oldTop, int oldRight,
                              int oldBottom) {
-    final NavigationView navigationView =
-      findViewById(R.id.nav_view);
+    final NavigationView navigationView = findViewById(R.id.nav_view);
 
     if (v.equals(navigationView)) {
       final int oldWidth = oldRight - oldLeft;
       final int width = right - left;
       final View hView = navigationView.getHeaderView(0);
       if ((hView != null) && (oldWidth != width)) {
-        hView.getLayoutParams().height =
-          Math.round((9.0F / 16.0F) * width);
+        hView.getLayoutParams().height = Math.round((9.0F / 16.0F) * width);
       }
     }
   }
@@ -385,13 +384,13 @@ public class MainActivity extends BaseActivity implements
         break;
     }
     final Snackbar snack =
-      Snackbar.make(findViewById(R.id.fab),
-        message, Snackbar.LENGTH_LONG);
+      Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
     if (nRows > 0) {
       snack.setAction(R.string.button_undo, new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Analytics.INST.imageClick(getTAG(), getString(R.string.button_undo));
+          Analytics.INST(v.getContext())
+            .imageClick(getTAG(), getString(R.string.button_undo));
           ClipTable.INST.insertClipItems(mUndoItems);
         }
       }).addCallback(new Snackbar.Callback() {
@@ -470,8 +469,7 @@ public class MainActivity extends BaseActivity implements
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP_ITEM)) {
       // from clip notification
-      final int msgCt =
-        intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
+      final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
         final ClipItem item =
@@ -510,8 +508,7 @@ public class MainActivity extends BaseActivity implements
 
   /** Initialize the NavigationView */
   private void setupNavigationView() {
-    final NavigationView navigationView =
-      findViewById(R.id.nav_view);
+    final NavigationView navigationView = findViewById(R.id.nav_view);
     if (navigationView == null) {
       return;
     }
@@ -522,8 +519,7 @@ public class MainActivity extends BaseActivity implements
     hView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        final DrawerLayout drawer =
-          findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer != null) {
           drawer.closeDrawer(GravityCompat.START);
         }
@@ -564,8 +560,7 @@ public class MainActivity extends BaseActivity implements
 
   /** Update the Navigation View */
   private void updateNavView() {
-    final NavigationView navigationView =
-      findViewById(R.id.nav_view);
+    final NavigationView navigationView = findViewById(R.id.nav_view);
     if (navigationView == null) {
       return;
     }

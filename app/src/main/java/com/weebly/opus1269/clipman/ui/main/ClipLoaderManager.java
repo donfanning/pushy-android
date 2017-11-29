@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -29,17 +30,15 @@ import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
-/**
- * This class manages most everything related to the main RecyclerView
- */
-
+/** This class manages most everything related to the main RecyclerViev */
 class ClipLoaderManager implements
   LoaderManager.LoaderCallbacks<Cursor>,
   View.OnClickListener {
 
+  /** Main app activity */
   private final MainActivity mMainActivity;
 
-  // Adapter being used to display the list's data
+  /** Adapter being used to display the list's data */
   private ClipCursorAdapter mAdapter = null;
 
   ClipLoaderManager(MainActivity activity) {
@@ -145,24 +144,26 @@ class ClipLoaderManager implements
   public void onClick(View v) {
     final ClipCursorAdapter.ClipViewHolder holder;
     final int id = v.getId();
+    final Context context = v.getContext();
 
     switch (id) {
       case R.id.clipRow:
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
         onItemViewClicked(holder);
-        Analytics.INST.click(mMainActivity.getTAG(), "clipItemRow");
+        Analytics.INST(context).click(mMainActivity.getTAG(), "clipItemRow");
         break;
       case R.id.favCheckBox:
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
         onFavClicked(holder);
         final boolean checked = holder.favCheckBox.isChecked();
-        Analytics.INST.checkBoxClick(mMainActivity.getTAG(),
-          "clipItemFav: " + checked);
+        Analytics.INST(context)
+          .checkBoxClick(mMainActivity.getTAG(), "clipItemFav: " + checked);
         break;
       case R.id.copyButton:
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
         onCopyClicked(holder);
-        Analytics.INST.imageClick(mMainActivity.getTAG(), "clipItemCopy");
+        Analytics.INST(context)
+          .imageClick(mMainActivity.getTAG(), "clipItemCopy");
         break;
       case R.id.labelButton:
         holder = (ClipCursorAdapter.ClipViewHolder) v.getTag();
@@ -170,8 +171,8 @@ class ClipLoaderManager implements
           new Intent(mMainActivity, LabelsSelectActivity.class);
         intent.putExtra(Intents.EXTRA_CLIP_ITEM, holder.clipItem);
         AppUtils.startActivity(mMainActivity, intent);
-        Analytics.INST.imageClick(mMainActivity.getTAG(),
-          "clipItemLabels");
+        Analytics.INST(context)
+          .imageClick(mMainActivity.getTAG(), "clipItemLabels");
         break;
       default:
         break;

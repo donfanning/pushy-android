@@ -144,7 +144,7 @@ abstract class Endpoint {
         }
       }
     } catch (Exception ex) {
-      Log.logEx(TAG, ex.getLocalizedMessage(), ex, false);
+      Log.logEx(App.getContext(), TAG, ex.getLocalizedMessage(), ex, false);
     } finally {
       googleApiClient.disconnect();
     }

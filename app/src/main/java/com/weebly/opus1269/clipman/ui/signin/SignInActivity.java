@@ -57,12 +57,14 @@ public class SignInActivity extends BaseActivity implements
   OnCompleteListener<AuthResult>,
   View.OnClickListener {
 
-  /** Result of Google signIn attempt - {@value} */
+  /** Result of Google signIn attempt */
   private static final int RC_SIGN_IN = 9001;
-  /** Saved state: {@value} */
+
+  /** Saved state: connection status */
   private static final String STATE_CONNECTION = "connection";
-  /** Google API interface */
+  /** Saved state: error message */
   private static final String STATE_ERROR = "error";
+
   /** Google API interface */
   private GoogleApiClient mGoogleApiClient = null;
   /** Google account */
@@ -162,7 +164,7 @@ public class SignInActivity extends BaseActivity implements
     }
 
     if (processed) {
-      Analytics.INST.menuClick(TAG, item);
+      Analytics.INST(this).menuClick(TAG, item);
     }
 
     return processed || super.onOptionsItemSelected(item);
@@ -224,11 +226,11 @@ public class SignInActivity extends BaseActivity implements
     switch (v.getId()) {
       case R.id.sign_in_button:
         onSignInClicked();
-        Analytics.INST.buttonClick(TAG, v);
+        Analytics.INST(v.getContext()).buttonClick(TAG, v);
         break;
       case R.id.sign_out_button:
         onSignOutClicked();
-        Analytics.INST.buttonClick(TAG, v);
+        Analytics.INST(v.getContext()).buttonClick(TAG, v);
         break;
       default:
         break;
@@ -266,9 +268,8 @@ public class SignInActivity extends BaseActivity implements
 
   /** SignIn button clicked */
   private void onSignInClicked() {
-    final Intent signInIntent =
-      Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-    startActivityForResult(signInIntent, RC_SIGN_IN);
+    final Intent intnt = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+    startActivityForResult(intnt, RC_SIGN_IN);
   }
 
   /** SignOut button clicked */
@@ -368,9 +369,7 @@ public class SignInActivity extends BaseActivity implements
 
     final SignInButton signInButton = findViewById(R.id.sign_in_button);
     if (signInButton != null) {
-      signInButton.setStyle(
-        SignInButton.SIZE_WIDE,
-        SignInButton.COLOR_AUTO);
+      signInButton.setStyle(SignInButton.SIZE_WIDE, SignInButton.COLOR_AUTO);
     }
   }
 
@@ -396,8 +395,7 @@ public class SignInActivity extends BaseActivity implements
 
   /** Unregister with App Engine. This will also perform the sign-out */
   void doUnregister() {
-    new RegistrationClient.UnregisterAsyncTask(
-      SignInActivity.this).executeMe();
+    new RegistrationClient.UnregisterAsyncTask(SignInActivity.this).executeMe();
   }
 
   /** Remove all {@link User} info. */
@@ -442,7 +440,7 @@ public class SignInActivity extends BaseActivity implements
     mConnectionFailed = true;
     final String title = getString(R.string.error_connection);
     mErrorMessage = title + '\n' + result.toString();
-    Log.logE(TAG, result.toString(), title);
+    Log.logE(this, TAG, result.toString(), title);
     clearUser();
     dismissProgress();
   }
@@ -454,7 +452,7 @@ public class SignInActivity extends BaseActivity implements
   private void signInFailed(String error) {
     final String title = getString(R.string.sign_in_err);
     mErrorMessage = title + '\n' + error;
-    Log.logE(TAG, error, title);
+    Log.logE(this, TAG, error, title);
     clearUser();
     dismissProgress();
   }
@@ -466,7 +464,7 @@ public class SignInActivity extends BaseActivity implements
   private void signInFailed(String message, Exception ex) {
     final String title = getString(R.string.sign_in_err);
     mErrorMessage = title + '\n' + message;
-    Log.logEx(TAG, message, ex, title);
+    Log.logEx(this, TAG, message, ex, title);
     clearUser();
     dismissProgress();
   }
@@ -478,7 +476,7 @@ public class SignInActivity extends BaseActivity implements
   private void signOutFailed(String error) {
     final String title = getString(R.string.sign_out_err);
     mErrorMessage = title + '\n' + error;
-    Log.logE(TAG, error, title);
+    Log.logE(this, TAG, error, title);
     dismissProgress();
   }
 
@@ -516,9 +514,7 @@ public class SignInActivity extends BaseActivity implements
     view.setText(message);
   }
 
-  /**
-   * {@link BroadcastReceiver} to handle {@link Devices} actions
-   */
+  /** {@link BroadcastReceiver} to handle {@link Devices} actions */
   class DevicesReceiver extends BroadcastReceiver {
 
     @Override

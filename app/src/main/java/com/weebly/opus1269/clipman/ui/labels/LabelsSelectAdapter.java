@@ -98,7 +98,8 @@ class LabelsSelectAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Analytics.INST.click(mActivity.getTAG(), "selectLabel");
+          Analytics.INST(v.getContext())
+            .click(mActivity.getTAG(), "selectLabel");
           holder.checkBox.toggle();
           final boolean checked = holder.checkBox.isChecked();
           addOrRemoveLabel(checked, label);
@@ -112,8 +113,8 @@ class LabelsSelectAdapter extends
         public void onClick(View v) {
           final boolean checked = holder.checkBox.isChecked();
           addOrRemoveLabel(checked, label);
-          Analytics.INST.checkBoxClick(mActivity.getTAG(),
-            "selectLabel: " + checked);
+          Analytics.INST(v.getContext())
+            .checkBoxClick(mActivity.getTAG(), "selectLabel: " + checked);
         }
       }
     );

@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.app;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.BuildConfig;
@@ -16,14 +17,15 @@ import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.Notifications;
 
-/**
- * Message logger Class
- */
-public class Log {
-  /**
-   * @value
-   */
+/** A collection of static methods to log messages */
+public final class Log {
+
   private static final String MY_APP = "MyApp ";
+
+  /** Private contructor */
+  private Log() {
+    // do nothing
+  }
 
   /**
    * Log a debug message
@@ -44,23 +46,23 @@ public class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  public static String logE(String tag, String message, String title,
-                             boolean notify) {
+  public static String logE(Context ctxt, String tag, String message,
+                            String title, boolean notify) {
     String msg = "";
-    if(!TextUtils.isEmpty(title)) {
+    if (!TextUtils.isEmpty(title)) {
       msg += title;
     }
-    if(!TextUtils.isEmpty(message)) {
+    if (!TextUtils.isEmpty(message)) {
       msg += ": " + message;
     }
 
     android.util.Log.e(MY_APP + tag, msg);
 
-    Analytics.INST.error(tag, msg);
+    Analytics.INST(ctxt).error(tag, msg);
 
     // save last error
     final LastError lastError = new LastError(tag, title, message);
-    if (notify && Prefs.INST(App.getContext()).isNotifyError()) {
+    if (notify && Prefs.INST(ctxt).isNotifyError()) {
       // notify user
       Notifications.show(lastError);
     }
@@ -75,9 +77,10 @@ public class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  public static String logE(String tag, String message, boolean notify) {
-    final String title = App.getContext().getString(R.string.error_not_title);
-    return logE(tag, message, title, notify);
+  public static String logE(Context ctxt, String tag, String message,
+                            boolean notify) {
+    final String title = ctxt.getString(R.string.error_not_title);
+    return logE(ctxt, tag, message, title, notify);
   }
 
   /**
@@ -87,8 +90,9 @@ public class Log {
    * @param title   title for LastError
    * @return The message
    */
-  public static String logE(String tag, String message, String title) {
-    return logE(tag, message, title, true);
+  public static String logE(Context ctxt, String tag, String message,
+                            String title) {
+    return logE(ctxt, tag, message, title, true);
   }
 
   /**
@@ -97,9 +101,9 @@ public class Log {
    * @param message message to log
    * @return The message
    */
-  public static String logE(String tag, String message) {
-    final String title = App.getContext().getString(R.string.error_not_title);
-    return logE(tag, message, title, true);
+  public static String logE(Context ctxt, String tag, String message) {
+    final String title = ctxt.getString(R.string.error_not_title);
+    return logE(ctxt, tag, message, title, true);
   }
 
   /**
@@ -111,27 +115,26 @@ public class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  public static String logEx(String tag, String message, Exception ex,
-                              String title, Boolean notify) {
+  public static String logEx(Context ctxt, String tag, String message,
+                             Exception ex, String title, Boolean notify) {
     String msg = "";
-      if(!TextUtils.isEmpty(title)) {
+    if (!TextUtils.isEmpty(title)) {
       msg += title;
     }
-    if(!TextUtils.isEmpty(message)) {
+    if (!TextUtils.isEmpty(message)) {
       msg += ": " + message;
     }
 
-    Analytics.INST.exception(ex, msg);
+    Analytics.INST(ctxt).exception(ex, msg);
 
     android.util.Log.e(MY_APP + tag, msg);
     android.util.Log.e(MY_APP + tag, ex.toString());
 
     // save last error
     final LastError lastError = new LastError(tag, title, message, ex);
-    if (notify && Prefs.INST(App.getContext()).isNotifyError()) {
+    if (notify && Prefs.INST(ctxt).isNotifyError()) {
       Notifications.show(lastError);
     }
-
     return msg;
   }
 
@@ -143,10 +146,10 @@ public class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  public static String logEx(String tag, String message, Exception ex,
-                             Boolean notify) {
-    final String title = App.getContext().getString(R.string.error_not_title);
-    return logEx(tag, message, ex, title, notify);
+  public static String logEx(Context ctxt, String tag, String message,
+                             Exception ex, Boolean notify) {
+    final String title = ctxt.getString(R.string.error_not_title);
+    return logEx(ctxt, tag, message, ex, title, notify);
   }
 
   /**
@@ -156,9 +159,10 @@ public class Log {
    * @param exception Exception to log
    * @return The message
    */
-  public static String logEx(String tag, String message, Exception exception) {
-    final String title = App.getContext().getString(R.string.error_not_title);
-    return logEx(tag, message, exception, title, true);
+  public static String logEx(Context ctxt, String tag, String message,
+                             Exception exception) {
+    final String title = ctxt.getString(R.string.error_not_title);
+    return logEx(ctxt, tag, message, exception, title, true);
   }
 
   /**
@@ -169,8 +173,8 @@ public class Log {
    * @param title     LastError title
    * @return The message
    */
-  public static String logEx(String tag, String message, Exception exception,
-                             String title) {
-    return logEx(tag, message, exception, title, true);
+  public static String logEx(Context ctxt, String tag, String message,
+                             Exception exception, String title) {
+    return logEx(ctxt, tag, message, exception, title, true);
   }
 }

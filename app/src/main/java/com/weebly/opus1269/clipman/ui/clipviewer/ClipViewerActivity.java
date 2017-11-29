@@ -82,7 +82,6 @@ public class ClipViewerActivity extends BaseActivity implements
         ret = true;
       }
     }
-
     return ret;
   }
 
@@ -122,7 +121,7 @@ public class ClipViewerActivity extends BaseActivity implements
     }
 
     if (processed) {
-      Analytics.INST.menuClick(TAG, item);
+      Analytics.INST(this).menuClick(TAG, item);
     }
 
     return processed || super.onOptionsItemSelected(item);
@@ -166,7 +165,7 @@ public class ClipViewerActivity extends BaseActivity implements
     final ClipItem clipItem = getClipViewerFragment().getClipItemClone();
 
     // delete from database
-    boolean deleted = clipItem.delete();
+    final boolean deleted = clipItem.delete();
 
     String message = getResources().getString(R.string.clip_deleted);
     if (!deleted) {
@@ -184,7 +183,7 @@ public class ClipViewerActivity extends BaseActivity implements
         @Override
         public void onClick(View v) {
           mUndoItem.save();
-          Analytics.INST.imageClick(TAG, getString(R.string.button_undo));
+          Analytics.INST(v.getContext()).imageClick(TAG, getString(R.string.button_undo));
         }
       }).addCallback(new Snackbar.Callback() {
 

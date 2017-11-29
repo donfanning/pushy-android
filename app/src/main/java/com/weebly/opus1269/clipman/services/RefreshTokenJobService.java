@@ -7,6 +7,8 @@
 
 package com.weebly.opus1269.clipman.services;
 
+import android.content.Context;
+
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -24,10 +26,11 @@ public class RefreshTokenJobService extends JobService {
   public static final String TAG = "RefreshTokenJobService";
 
   @Override
-  public boolean onStartJob(JobParameters job) {
+  public boolean onStartJob(final JobParameters job) {
     Log.logD(TAG, "onStartJob");
     Boolean ret = false;
     if (Prefs.INST(this).isDeviceRegistered()) {
+      final Context ctxt = this;
       ret = true;
       Thread thread = new Thread(new Runnable() {
         @Override
@@ -37,10 +40,10 @@ public class RefreshTokenJobService extends JobService {
           final EndpointRet ret =
             RegistrationClient.register(null, true);
           if (!ret.getSuccess()) {
-            Log.logE(TAG, ret.getReason(), false);
+            Log.logE(ctxt, TAG, ret.getReason(), false);
           } else {
             Log.logD(TAG, "Reregister success");
-            Analytics.INST.instanceIdRefreshed();
+            Analytics.INST(ctxt).instanceIdRefreshed();
           }
         }
       });

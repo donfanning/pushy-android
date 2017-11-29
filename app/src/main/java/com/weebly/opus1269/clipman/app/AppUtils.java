@@ -102,11 +102,13 @@ public class AppUtils {
       context.getSystemService(Context.ACTIVITY_SERVICE);
     boolean ret = false;
 
-    for (final ActivityManager.RunningServiceInfo service :
-      manager.getRunningServices(Integer.MAX_VALUE)) {
-      if (serviceClass.getName().equals(service.service.getClassName())) {
-        ret = true;
-        break;
+    if (manager != null) {
+      for (final ActivityManager.RunningServiceInfo service :
+        manager.getRunningServices(Integer.MAX_VALUE)) {
+        if (serviceClass.getName().equals(service.service.getClassName())) {
+          ret = true;
+          break;
+        }
       }
     }
 
@@ -128,7 +130,7 @@ public class AppUtils {
       activity.startActivity(intent);
     } catch (Exception ex) {
       final String msg = activity.getString(R.string.err_start_activity);
-      Log.logEx(TAG, msg, ex, ERROR_ACTIVITY, notify);
+      Log.logEx(activity, TAG, msg, ex, ERROR_ACTIVITY, notify);
       ret = false;
     }
 
@@ -152,15 +154,15 @@ public class AppUtils {
    * @return true if successful
    */
   public static boolean startNewTaskActivity(Intent intent, boolean notify) {
-    Context context = App.getContext();
+    Context ctxt = App.getContext();
     boolean ret = true;
 
     try {
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      context.startActivity(intent);
+      ctxt.startActivity(intent);
     } catch (Exception ex) {
-      final String msg = context.getString(R.string.err_start_activity);
-      Log.logEx(TAG, msg, ex, ERROR_ACTIVITY, notify);
+      final String msg = ctxt.getString(R.string.err_start_activity);
+      Log.logEx(ctxt, TAG, msg, ex, ERROR_ACTIVITY, notify);
       ret = false;
     }
 
@@ -249,7 +251,7 @@ public class AppUtils {
    * @return CharSequence time
    */
   public static CharSequence getRelativeDisplayTime(DateTime date) {
-    final Context context = App.getContext();
+    final Context ctxt = App.getContext();
     final CharSequence value;
     long now = System.currentTimeMillis();
     long time = date.getMillis();
@@ -257,11 +259,11 @@ public class AppUtils {
 
     if (delta <= DateUtils.SECOND_IN_MILLIS) {
       DateTimeFormatter fmt =
-        DateTimeFormat.forPattern(context.getString(R.string.joda_time_fmt_pattern));
-      value = context.getString(R.string.now_fmt, date.toString(fmt));
+        DateTimeFormat.forPattern(ctxt.getString(R.string.joda_time_fmt_pattern));
+      value = ctxt.getString(R.string.now_fmt, date.toString(fmt));
     } else {
       value =
-        DateUtils.getRelativeDateTimeString(context, time,
+        DateUtils.getRelativeDateTimeString(ctxt, time,
           DateUtils.SECOND_IN_MILLIS, DateUtils.DAY_IN_MILLIS,
           DateUtils.FORMAT_ABBREV_ALL);
     }

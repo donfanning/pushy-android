@@ -125,10 +125,12 @@ public class ClipItem implements Serializable {
     if (clipText == null) {
       // If the Uri contains something, just coerce it to text
       if (item.getUri() != null) {
+        final Context ctxt = App.getContext();
         try {
-          clipText = item.coerceToText(App.getContext());
+          clipText = item.coerceToText(ctxt);
         } catch (Exception ex) {
-          Log.logEx(TAG, ex.getLocalizedMessage(), ex, ERROR_CLIPBOARD_READ);
+          Log.logEx(ctxt, TAG, ex.getLocalizedMessage(), ex,
+            ERROR_CLIPBOARD_READ);
           return null;
         }
       }

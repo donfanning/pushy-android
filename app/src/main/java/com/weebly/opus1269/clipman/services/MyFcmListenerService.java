@@ -38,19 +38,13 @@ import org.joda.time.DateTime;
 
 import java.util.Map;
 
-/**
- * A service that listens for messages from firebase
- */
+/** A service that listens for messages from firebase */
 public class MyFcmListenerService extends FirebaseMessagingService {
-  /** {@value} */
   private static final String TAG = "MyFcmListenerService";
 
-  /** {@value} */
   private static final String FCM_RECEIVED = "FCM message received: ";
-  /** {@value} */
   private static final String FCM_DELETED =
     "Messages from remote devices were deleted before they could be delivered";
-  /** {@value} */
   private static final String FCM_MESSAGE_ERROR =
     "Unknown FCM message received: ";
 
@@ -131,7 +125,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     }
 
     Log.logD(TAG, FCM_RECEIVED + action);
-    Analytics.INST.received(action);
+    Analytics.INST(this).received(action);
 
     switch (action) {
       case Msg.ACTION_MESSAGE:
@@ -161,7 +155,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
         Notifications.show(action, device.getDisplayName());
         break;
       default:
-        Log.logE(TAG, action, FCM_MESSAGE_ERROR, false);
+        Log.logE(this, TAG, action, FCM_MESSAGE_ERROR, false);
         break;
     }
 
@@ -174,6 +168,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     super.onDeletedMessages();
     final String msg =
       this.getApplicationContext().getString(R.string.fcm_deleted_message);
-    Log.logE(TAG, msg, FCM_DELETED);
+    Log.logE(this, TAG, msg, FCM_DELETED);
   }
 }

@@ -78,7 +78,7 @@ public class HelpActivity extends BaseActivity {
     }
 
     if (processed) {
-      Analytics.INST.menuClick(TAG, item);
+      Analytics.INST(this).menuClick(TAG, item);
     }
 
     return processed || super.onOptionsItemSelected(item);
@@ -92,7 +92,7 @@ public class HelpActivity extends BaseActivity {
 
     final TextView textView = (TextView) v;
 
-    Analytics.INST.click(TAG, textView.getText().toString());
+    Analytics.INST(this).click(TAG, textView.getText().toString());
 
     final int id = v.getId();
     switch (id) {

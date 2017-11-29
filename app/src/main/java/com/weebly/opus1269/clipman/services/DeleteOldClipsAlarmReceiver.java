@@ -16,29 +16,26 @@ import android.content.Intent;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
 
-/**
- * {@link BroadcastReceiver} that cleans up old entries in the database
- */
+/** {@link BroadcastReceiver} that cleans up old entries in the database */
 public class DeleteOldClipsAlarmReceiver extends BroadcastReceiver {
   private static final String TAG = "DeleteOldClipsAlarmReceiver";
 
   /**
    * Add daily alarm to cleanup database of old entries
    * @param caller  caller's class name
-   * @param context a Context
+   * @param ctxt a Context
    */
-  public static void initialize(String caller, Context context) {
+  public static void initialize(String caller, Context ctxt) {
     final AlarmManager alarmMgr =
-      (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+      (AlarmManager) ctxt.getSystemService(Context.ALARM_SERVICE);
     if (alarmMgr == null) {
-      Log.logE(caller,
+      Log.logE(ctxt, caller,
         "Failed to start " + TAG + ", null AlarmManager");
       return;
     }
-    final Intent intent =
-      new Intent(context, DeleteOldClipsAlarmReceiver.class);
+    final Intent intent = new Intent(ctxt, DeleteOldClipsAlarmReceiver.class);
     final PendingIntent alarmIntent =
-      PendingIntent.getBroadcast(context, 0, intent, 0);
+      PendingIntent.getBroadcast(ctxt, 0, intent, 0);
 
     // setup daily alarm
     alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,

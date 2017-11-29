@@ -22,8 +22,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -37,14 +35,10 @@ import java.text.Collator;
  * This Activity handles lots of the basic stuff. Make sure you use a standard
  * naming convention for you Activities views and actions. Extend from this.
  */
-
 public abstract class BaseActivity extends AppCompatActivity implements
   SearchView.OnQueryTextListener {
 
-  /**
-   * saved instance state
-   */
-
+  /** saved instance state - query text */
   private static final String STATE_QUERY_STRING = "query";
 
   // Required to support Vector Drawables on pre-marshmallow devices
@@ -58,7 +52,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
   protected Menu mOptionsMenu = null;
   protected boolean mHomeUpEnabled = true;
   protected String mQueryString = "";
-  private Tracker mTracker;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +80,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
       actionBar.setDisplayHomeAsUpEnabled(mHomeUpEnabled);
     }
 
-    mTracker = Analytics.INST.getTracker();
-
     // make sure Prefs are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
   }
@@ -109,8 +100,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
     // start if needed
     ClipboardWatcherService.startService(this, false);
 
-    mTracker.setScreenName(TAG);
-    mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    Analytics.INST(this).screen(TAG);
   }
 
   @Override
@@ -122,7 +112,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-
     if (mOptionsMenuID != -1) {
       getMenuInflater().inflate(mOptionsMenuID, menu);
 
@@ -134,7 +123,6 @@ public abstract class BaseActivity extends AppCompatActivity implements
         setupSearch();
       }
     }
-
     return super.onCreateOptionsMenu(menu);
   }
 
@@ -162,16 +150,12 @@ public abstract class BaseActivity extends AppCompatActivity implements
     return ret;
   }
 
-  /**
-   * Get the TAG
-   */
+  /** Get the TAG */
   public String getTAG() {
     return TAG;
   }
 
-  /**
-   * Get the Fab view
-   */
+  /** Get the Fab view */
   public FloatingActionButton getFab() {
     return findViewById(R.id.fab);
   }
@@ -203,9 +187,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
     return true;
   }
 
-  /**
-   * Apply the user selected theme
-   */
+  /** Apply the user selected theme */
   private void setTheme() {
     if (Prefs.INST(this).isDarkTheme()) {
       this.setTheme(R.style.AppThemeDark);
@@ -214,9 +196,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
     }
   }
 
-  /**
-   * Color the icons white for all API versions
-   */
+  /** Color the icons white for all API versions */
   private void tintMenuItems() {
     if (mOptionsMenu != null) {
       final int color = ContextCompat.getColor(this, R.color.icons);
@@ -235,6 +215,10 @@ public abstract class BaseActivity extends AppCompatActivity implements
     if (searchItem != null) {
       final SearchManager searchManager =
         (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+      if (searchManager == null) {
+        return;
+      }
+
       final SearchView searchView = (SearchView) searchItem.getActionView();
       searchView.setSearchableInfo(
         searchManager.getSearchableInfo(getComponentName()));

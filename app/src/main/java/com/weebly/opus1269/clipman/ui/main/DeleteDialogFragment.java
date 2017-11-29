@@ -49,6 +49,7 @@ public class DeleteDialogFragment extends DialogFragment {
   @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
+    final Context context = getContext();
     // Use the Builder class for convenient dialog construction
     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     builder.setTitle(R.string.delete_all_question)
@@ -63,7 +64,8 @@ public class DeleteDialogFragment extends DialogFragment {
       .setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          Analytics.INST.buttonClick(TAG, ((AlertDialog)dialog).getButton(which));
+          Analytics.INST(context)
+            .buttonClick(TAG, ((AlertDialog)dialog).getButton(which));
           // tell the listener to delete the items
           mListener.onDeleteDialogPositiveClick(mDeleteFavs);
         }
@@ -72,7 +74,8 @@ public class DeleteDialogFragment extends DialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
           // User cancelled the dialog
-          Analytics.INST.buttonClick(TAG, ((AlertDialog)dialog).getButton(which));
+          Analytics.INST(context)
+            .buttonClick(TAG, ((AlertDialog)dialog).getButton(which));
           dialog.cancel();
         }
       });
@@ -81,9 +84,11 @@ public class DeleteDialogFragment extends DialogFragment {
     return builder.create();
   }
 
-  /* The activity that creates an instance of this dialog fragment must
+  /**
+   * The activity that creates an instance of this dialog fragment must
    * implement this interface in order to receive event callbacks.
-   * Each method passes the DialogFragment in case the host needs to query it. */
+   * Each method passes the DialogFragment in case the host needs to query it.
+   */
   public interface DeleteDialogListener {
     void onDeleteDialogPositiveClick(Boolean deleteFavs);
   }

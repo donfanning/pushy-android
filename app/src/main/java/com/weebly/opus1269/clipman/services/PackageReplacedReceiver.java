@@ -32,7 +32,7 @@ public class PackageReplacedReceiver extends BroadcastReceiver {
 
     Log.logD(TAG, "onReceive");
 
-    Analytics.INST.updated(appContext);
+    Analytics.INST(appContext).updated();
 
     ClipboardWatcherService.startService(appContext, true);
 

@@ -60,7 +60,7 @@ public class RegistrationClient extends Endpoint {
    * @return getSuccess() false on error
    */
   public static EndpointRet register(String idToken, Boolean refresh) {
-    final Context context = App.getContext();
+    final Context ctxt = App.getContext();
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
     ret.setReason(Msg.ERROR_UNKNOWN);
@@ -69,11 +69,11 @@ public class RegistrationClient extends Endpoint {
       Log.logD(TAG, "Not signed in.");
       ret.setSuccess(true);
       return ret;
-    } else if (!refresh && Prefs.INST(context).isDeviceRegistered()) {
+    } else if (!refresh && Prefs.INST(ctxt).isDeviceRegistered()) {
       Log.logD(TAG, "Already registered.");
       ret.setSuccess(true);
       return ret;
-    } else if (!Prefs.INST(context).isAllowReceive()) {
+    } else if (!Prefs.INST(ctxt).isAllowReceive()) {
       Log.logD(TAG, "User doesn't want to receive messasges.");
       ret.setSuccess(true);
       return ret;
@@ -83,13 +83,13 @@ public class RegistrationClient extends Endpoint {
     try {
       final String regToken = getRegToken();
       if (TextUtils.isEmpty(regToken)) {
-        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID, ERROR_REGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, ERROR_INVALID_REGID, ERROR_REGISTER));
         return ret;
       }
 
       final GoogleCredential credential = getCredential(idToken);
       if (credential == null) {
-        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL, ERROR_REGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, Msg.ERROR_CREDENTIAL, ERROR_REGISTER));
         return ret;
       }
 
@@ -98,15 +98,15 @@ public class RegistrationClient extends Endpoint {
       ret = regService.register(regToken).execute();
       if (ret.getSuccess()) {
         isRegistered = true;
-        Analytics.INST.registered();
+        Analytics.INST(ctxt).registered();
       } else {
-        ret.setReason(Log.logE(TAG, ret.getReason(), ERROR_REGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, ret.getReason(), ERROR_REGISTER));
       }
     } catch (final IOException ex) {
-      ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex,
+      ret.setReason(Log.logEx(ctxt, TAG, ex.getLocalizedMessage(), ex,
         ERROR_REGISTER));
     } finally {
-      Prefs.INST(context).setDeviceRegistered(isRegistered);
+      Prefs.INST(ctxt).setDeviceRegistered(isRegistered);
     }
 
     return ret;
@@ -117,7 +117,7 @@ public class RegistrationClient extends Endpoint {
    * @return getSuccess() false on error
    */
   private static EndpointRet unregister() {
-    final Context context = App.getContext();
+    final Context ctxt = App.getContext();
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
     ret.setReason(Msg.ERROR_UNKNOWN);
@@ -125,8 +125,8 @@ public class RegistrationClient extends Endpoint {
     if (notSignedIn()) {
       ret.setSuccess(true);
       return ret;
-    } else if (!Prefs.INST(context).isDeviceRegistered()) {
-      Log.logE(TAG, Msg.ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
+    } else if (!Prefs.INST(ctxt).isDeviceRegistered()) {
+      Log.logE(ctxt, TAG, Msg.ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
       ret.setSuccess(true);
       return ret;
     }
@@ -135,13 +135,13 @@ public class RegistrationClient extends Endpoint {
     try {
       final String regToken = getRegToken();
       if (TextUtils.isEmpty(regToken)) {
-        ret.setReason(Log.logE(TAG, ERROR_INVALID_REGID, ERROR_UNREGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, ERROR_INVALID_REGID, ERROR_UNREGISTER));
         return ret;
       }
 
       final GoogleCredential credential = getCredential(null);
       if (credential == null) {
-        ret.setReason(Log.logE(TAG, Msg.ERROR_CREDENTIAL, ERROR_UNREGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, Msg.ERROR_CREDENTIAL, ERROR_UNREGISTER));
         return ret;
       }
 
@@ -149,16 +149,16 @@ public class RegistrationClient extends Endpoint {
       final Registration regService = getRegistrationService(credential);
       ret = regService.unregister(regToken).execute();
       if (ret.getSuccess()) {
-        Analytics.INST.unregistered();
+        Analytics.INST(ctxt).unregistered();
         isRegistered = false;
       } else {
-        ret.setReason(Log.logE(TAG, ret.getReason(), ERROR_UNREGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, ret.getReason(), ERROR_UNREGISTER));
       }
     } catch (final IOException ex) {
-      ret.setReason(Log.logEx(TAG, ex.getLocalizedMessage(), ex,
+      ret.setReason(Log.logEx(ctxt, TAG, ex.getLocalizedMessage(), ex,
         ERROR_UNREGISTER));
     } finally {
-      Prefs.INST(context).setDeviceRegistered(isRegistered);
+      Prefs.INST(ctxt).setDeviceRegistered(isRegistered);
     }
 
     return ret;
@@ -221,7 +221,7 @@ public class RegistrationClient extends Endpoint {
           Devices.INST(mActivity).notifyMyDeviceRegistered();
         }
       } else {
-        Log.logE(TAG, NO_ACTIVITY, false);
+        Log.logE(App.getContext(), TAG, NO_ACTIVITY, false);
       }
     }
   }
@@ -236,6 +236,7 @@ public class RegistrationClient extends Endpoint {
 
     @Override
     protected String doInBackground(Void... params) {
+      final Context ctxt = App.getContext();
       String error = "";
       // unregister with the server - blocks
       EndpointRet ret = RegistrationClient.unregister();
@@ -245,10 +246,10 @@ public class RegistrationClient extends Endpoint {
           // delete in case user logs into different account - blocks
           FirebaseInstanceId.getInstance().deleteInstanceId();
         } catch (IOException ex) {
-          Log.logEx(TAG, "", ex, false);
+          Log.logEx(ctxt, TAG, "", ex, false);
         }
         error = ret.getReason();
-        Log.logE(TAG, error, false);
+        Log.logE(ctxt, TAG, error, false);
       }
       return error;
     }

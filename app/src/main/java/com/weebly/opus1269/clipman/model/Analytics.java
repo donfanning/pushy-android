@@ -7,7 +7,9 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -18,64 +20,74 @@ import android.widget.Button;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
 /**
  * Singleton for Google Analytics tracking.
  * @see <a href="https://goo.gl/VUowF7">Android Analytics</a>
  */
-public enum Analytics {
-  INST;
+public class Analytics {
 
-  public static final String CAT_UI = "ui";
-  public static final String UI_TOGGLE = "toggle";
-  public static final String UI_LIST = "listSelect";
-  public static final String UI_MULTI_LIST = "multiListSelect";
-  public static final String UI_EDIT_TEXT = "textChanged";
-  private static final String UI_CLICK = "click";
-  private static final String UI_BUTTON = "buttonClicked";
-  private static final String UI_CHECKBOX = "checkBoxClicked";
-  private static final String UI_IMAGE_VIEW = "imageButtonClicked";
-  private static final String UI_MENU = "menuSelect";
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static Analytics sInstance;
 
-  /**
-   * Google Analytics tracking ID
-   */
-  private static final String TRACKING_ID = "UA-61314754-3";
+  public final String CAT_UI = "ui";
+  public final String UI_TOGGLE = "toggle";
+  public final String UI_LIST = "listSelect";
+  public final String UI_MULTI_LIST = "multiListSelect";
+  public final String UI_EDIT_TEXT = "textChanged";
 
-  private static final String CAT_APP = "app";
-  private static final String CAT_MSG = "message";
-  private static final String CAT_REG = "register";
-  private static final String CAT_TOKEN = "token";
-  private static final String CAT_ERROR = "error";
-  private static final String SENT = "sent";
-  private static final String RECEIVED = "received";
-  private static final String REGISTERED = "registered";
-  private static final String UNREGISTERED = "unregistered";
-  private static final String REFRESHED = "refeshed";
-  private static final String UPDATED = "updated";
-  private static final String NO_SCREEN = "none";
+  /** Global Application Context */
+  private final Context mContext;
 
-  /**
-   * Google Analytics tracker
-   */
+  private final String CAT_MSG = "message";
+  private final String CAT_REG = "register";
+  private final String NO_SCREEN = "none";
+
+  /** Google Analytics tracker */
   private Tracker mTracker;
+
+  private Analytics(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static Analytics INST(@NonNull Context context) {
+    synchronized (Analytics.class) {
+      if (sInstance == null) {
+        sInstance = new Analytics(context);
+      }
+      return sInstance;
+    }
+  }
 
   /**
    * Get a {@link Tracker}
    * @return tracker
    */
-  synchronized public Tracker getTracker() {
+  synchronized private Tracker getTracker() {
     if (mTracker == null) {
-      final Context context = App.getContext();
-      GoogleAnalytics analytics = GoogleAnalytics.getInstance(context);
+      final String TRACKING_ID = "UA-61314754-3";
+      GoogleAnalytics analytics = GoogleAnalytics.getInstance(mContext);
       // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
       mTracker = analytics.newTracker(TRACKING_ID);
       mTracker.setAppName(AppUtils.getApplicationName());
-      mTracker.setAppVersion(Prefs.INST(context).getVersionName());
+      mTracker.setAppVersion(Prefs.INST(mContext).getVersionName());
     }
     return mTracker;
+  }
+
+  /**
+   * Screen view
+   * @param screen Source screen
+   */
+  public void screen(String screen) {
+    getTracker().setScreenName(screen);
+    getTracker().send(new HitBuilders.ScreenViewBuilder().build());
   }
 
   /**
@@ -116,7 +128,7 @@ public enum Analytics {
    * @param label  description
    */
   public void click(String screen, String label) {
-    event(screen, Analytics.CAT_UI, Analytics.UI_CLICK, label);
+    event(screen, CAT_UI, "click", label);
   }
 
   /**
@@ -127,7 +139,7 @@ public enum Analytics {
   public void buttonClick(String screen, View view) {
     if (view instanceof Button) {
       final String label = ((Button) view).getText().toString();
-      event(screen, Analytics.CAT_UI, Analytics.UI_BUTTON, label);
+      event(screen, CAT_UI, "buttonClicked", label);
     }
   }
 
@@ -146,7 +158,7 @@ public enum Analytics {
         label = title.toString();
       }
     }
-    event(screen, Analytics.CAT_UI, Analytics.UI_MENU, label);
+    event(screen, CAT_UI, "menuSelect", label);
   }
 
   /**
@@ -155,7 +167,7 @@ public enum Analytics {
    * @param label  description
    */
   public void imageClick(String screen, String label) {
-    event(screen, Analytics.CAT_UI, Analytics.UI_IMAGE_VIEW, label);
+    event(screen, CAT_UI, "imageButtonClicked", label);
   }
 
   /**
@@ -164,7 +176,7 @@ public enum Analytics {
    * @param label  description
    */
   public void checkBoxClick(String screen, String label) {
-    event(screen, Analytics.CAT_UI, Analytics.UI_CHECKBOX, label);
+    event(screen, CAT_UI, "checkBoxClicked", label);
   }
 
   /**
@@ -173,7 +185,7 @@ public enum Analytics {
    * @param label  Event label
    */
   public void error(String action, String label) {
-    event(NO_SCREEN, CAT_ERROR, action, label);
+    event(NO_SCREEN, "error", action, label);
   }
 
   /**
@@ -197,10 +209,10 @@ public enum Analytics {
 
   /**
    * App updated
-   * @param context a context
    */
-  public void updated(Context context) {
-    event(NO_SCREEN, CAT_APP, UPDATED, Prefs.INST(context).getVersionName());
+  public void updated() {
+    event(NO_SCREEN, "app", "updated",
+      Prefs.INST(mContext).getVersionName());
   }
 
   /**
@@ -208,7 +220,7 @@ public enum Analytics {
    * @param label message type
    */
   public void sent(String label) {
-    event(NO_SCREEN, CAT_MSG, SENT, label);
+    event(NO_SCREEN, CAT_MSG, "sent", label);
   }
 
   /**
@@ -216,21 +228,21 @@ public enum Analytics {
    * @param label message type
    */
   public void received(String label) {
-    event(NO_SCREEN, CAT_MSG, RECEIVED, label);
+    event(NO_SCREEN, CAT_MSG, "received", label);
   }
 
   /** Device registered event */
   public void registered() {
-    event(NO_SCREEN, CAT_REG, REGISTERED);
+    event(NO_SCREEN, CAT_REG, "registered");
   }
 
   /** Device unregistered event */
   public void unregistered() {
-    event(NO_SCREEN, CAT_REG, UNREGISTERED);
+    event(NO_SCREEN, CAT_REG, "unregistered");
   }
 
   /** Firebase token refreshed */
   public void instanceIdRefreshed() {
-    event(NO_SCREEN, CAT_TOKEN, REFRESHED);
+    event(NO_SCREEN, "token", "refreshed");
   }
 }

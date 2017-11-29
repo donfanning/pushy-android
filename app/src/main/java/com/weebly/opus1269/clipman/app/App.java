@@ -108,7 +108,8 @@ public class App extends Application implements
       Prefs.INST(sContext).setVersionName(pInfo.versionName);
       Prefs.INST(sContext).setVersionCode(pInfo.versionCode);
     } catch (final PackageManager.NameNotFoundException ex) {
-      Log.logEx(TAG, "Version info not found: " + ex.getMessage(), ex, false);
+      Log.logEx(sContext, TAG,
+        "Version info not found: " + ex.getMessage(), ex, false);
     }
 
     // Register to be notified of activity state changes
