@@ -38,7 +38,6 @@ import com.google.api.services.people.v1.model.CoverPhoto;
 import com.google.api.services.people.v1.model.Person;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.ui.helpers.BitmapHelper;
@@ -114,7 +113,7 @@ public class User {
     }
 
     // get the avatar and cover photos from the inter-webs
-    new SetPhotosAsyncTask().execute();
+    new SetPhotosAsyncTask().execute(mContext);
   }
 
   /** Remove information on current user */
@@ -362,16 +361,18 @@ public class User {
    * and cover photo asynchronously
    */
   @SuppressLint("StaticFieldLeak")
-  private class SetPhotosAsyncTask extends ThreadedAsyncTask<Void, Void, Void> {
+  private class SetPhotosAsyncTask extends
+    ThreadedAsyncTask<Context, Void, Void> {
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Void doInBackground(Context... params) {
+      Context context = params[0];
       Bitmap avatar = null;
       Bitmap cover = null;
 
       // Load avatar Bitmap
       if (isLoggedIn()) {
-        avatar = BitmapHelper.loadBitmap(App.getContext(), getPhotoUri());
+        avatar = BitmapHelper.loadBitmap(context, getPhotoUri());
       }
       setPhotoBitmap(avatar);
 
@@ -381,7 +382,7 @@ public class User {
 
       // Load Cover Photo Bitmap
       if (isLoggedIn()) {
-        cover = BitmapHelper.loadBitmap(App.getContext(), getCoverPhotoUri());
+        cover = BitmapHelper.loadBitmap(context, getCoverPhotoUri());
       }
       setCoverPhotoBitmap(cover);
 
