@@ -7,12 +7,13 @@
 
 package com.weebly.opus1269.clipman.db;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
@@ -21,8 +22,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton to manage the Clips.db Label and LabelMap tables */
-public enum LabelTables {
-  INST;
+public class LabelTables {
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static LabelTables sInstance;
+
+  /** Global Application Context */
+  private final Context mContext;
+
+  private LabelTables(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static LabelTables INST(@NonNull Context context) {
+    synchronized (LabelTables.class) {
+      if (sInstance == null) {
+        sInstance = new LabelTables(context);
+      }
+      return sInstance;
+    }
+  }
+
 
   /**
    * Get the List of {@link Label} objects
@@ -30,8 +54,7 @@ public enum LabelTables {
    */
   public List<Label> getLabels() {
     final ArrayList<Label> list = new ArrayList<>(0);
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
 
     final String[] projection = {" * "};
 
@@ -65,8 +88,7 @@ public enum LabelTables {
       return 0;
     }
 
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
 
     // get total number of ClipItem/Label entrie
     int size = 0;
@@ -101,8 +123,7 @@ public enum LabelTables {
       return false;
     }
 
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
 
     if (exists(resolver, clipItem, label)) {
       // already in db
@@ -133,8 +154,7 @@ public enum LabelTables {
       return;
     }
 
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
 
     final long id = clipItem.getId();
     final String selection =

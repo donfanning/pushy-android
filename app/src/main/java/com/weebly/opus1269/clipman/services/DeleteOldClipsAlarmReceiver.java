@@ -42,7 +42,7 @@ public class DeleteOldClipsAlarmReceiver extends BroadcastReceiver {
       AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, alarmIntent);
 
     // run now
-    ClipTable.INST.deleteOldItems();
+    ClipTable.INST(ctxt).deleteOldItems();
 
     Log.logD(TAG, "Initialized");
   }
@@ -51,6 +51,6 @@ public class DeleteOldClipsAlarmReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
     Log.logD(TAG, "onReceive");
 
-    ClipTable.INST.deleteOldItems();
+    ClipTable.INST(context).deleteOldItems();
   }
 }

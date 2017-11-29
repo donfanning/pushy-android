@@ -7,14 +7,15 @@
 
 package com.weebly.opus1269.clipman.db;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
@@ -23,8 +24,30 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import org.joda.time.DateTime;
 
 /** Singleton to manage the Clips.db Clip table */
-public enum ClipTable {
-  INST;
+public class ClipTable {
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static ClipTable sInstance;
+
+  /** Global Application Context */
+  private final Context mContext;
+
+  private ClipTable(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static ClipTable INST(@NonNull Context context) {
+    synchronized (ClipTable.class) {
+      if (sInstance == null) {
+        sInstance = new ClipTable(context);
+      }
+      return sInstance;
+    }
+  }
 
   /**
    * Get all non-favorite and optionally favorite rows for a given {@link Label}
@@ -33,8 +56,7 @@ public enum ClipTable {
    * @return Array of {@link ClipItem} objects
    */
   public ClipItem[] getAll(Boolean includeFavs, String labelFilter) {
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
 
     Uri uri = ClipsContract.Clip.CONTENT_URI;
     final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
@@ -91,8 +113,7 @@ public enum ClipTable {
       return 0;
     }
 
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
     int ret;
 
     // add the clips
@@ -103,7 +124,7 @@ public enum ClipTable {
     ret = resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
 
     // add the LabelMap
-    LabelTables.INST.insertLabelsMap(clipItems);
+    LabelTables.INST(mContext).insertLabelsMap(clipItems);
 
     return ret;
   }
@@ -116,8 +137,7 @@ public enum ClipTable {
    * @return Number of rows deleted
    */
   public int deleteAll(Boolean deleteFavs, String labelFilter) {
-    final Context context = App.getContext();
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
 
 
     String selection;
@@ -164,10 +184,8 @@ public enum ClipTable {
    * @return Number of rows deleted
    */
   public int deleteOldItems() {
-    final Context context = App.getContext();
-
-    final String value = Prefs.INST(context).getDuration();
-    if (value.equals(context.getString(R.string.ar_duration_forever))) {
+    final String value = Prefs.INST(mContext).getDuration();
+    if (value.equals(mContext.getString(R.string.ar_duration_forever))) {
       return 0;
     }
 
@@ -198,7 +216,7 @@ public enum ClipTable {
       "(" + ClipsContract.Clip.COL_FAV + " = 0 " + ")" + " AND (" +
         ClipsContract.Clip.COL_DATE + " < " + deleteTime + ")";
 
-    final ContentResolver resolver = context.getContentResolver();
+    final ContentResolver resolver = mContext.getContentResolver();
     return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 }

@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.main;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -368,9 +369,9 @@ public class MainActivity extends BaseActivity implements
   @Override
   public void onDeleteDialogPositiveClick(Boolean deleteFavs) {
     // save items for undo
-    mUndoItems = ClipTable.INST.getAll(deleteFavs, mLabelFilter);
+    mUndoItems = ClipTable.INST(this).getAll(deleteFavs, mLabelFilter);
 
-    final int nRows = ClipTable.INST.deleteAll(deleteFavs, mLabelFilter);
+    final int nRows = ClipTable.INST(this).deleteAll(deleteFavs, mLabelFilter);
 
     String message = nRows + getResources().getString(R.string.items_deleted);
     switch (nRows) {
@@ -389,9 +390,10 @@ public class MainActivity extends BaseActivity implements
       snack.setAction(R.string.button_undo, new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Analytics.INST(v.getContext())
+          final Context ctxt = v.getContext();
+          Analytics.INST(ctxt)
             .imageClick(getTAG(), getString(R.string.button_undo));
-          ClipTable.INST.insertClipItems(mUndoItems);
+          ClipTable.INST(ctxt).insertClipItems(mUndoItems);
         }
       }).addCallback(new Snackbar.Callback() {
 
@@ -580,7 +582,7 @@ public class MainActivity extends BaseActivity implements
     menuItem.setEnabled(LastError.exists(this));
 
     // Create Labels sub menu
-    List<Label> labels = LabelTables.INST.getLabels();
+    List<Label> labels = LabelTables.INST(this).getLabels();
     menu.setGroupVisible(R.id.nav_group_labels, (labels.size() > 0));
     SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
     labelMenu.clear();

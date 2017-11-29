@@ -327,14 +327,14 @@ public class ClipItem implements Serializable {
   public void addLabel(Label label) {
     if (!hasLabel(label)) {
       mLabels.add(label);
-      LabelTables.INST.insert(this, label);
+      LabelTables.INST(App.getContext()).insert(this, label);
     }
   }
 
   public void removeLabel(Label label) {
     if (hasLabel(label)) {
       mLabels.remove(label);
-      LabelTables.INST.delete(this, label);
+      LabelTables.INST(App.getContext()).delete(this, label);
     }
   }
 
@@ -486,7 +486,7 @@ public class ClipItem implements Serializable {
       // add the label map entries
       List<Label> labels = getLabels();
       for (Label label : labels) {
-        LabelTables.INST.insert(this, label);
+        LabelTables.INST(context).insert(this, label);
       }
     }
 

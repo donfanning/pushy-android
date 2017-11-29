@@ -13,7 +13,6 @@ import android.provider.BaseColumns;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 
@@ -66,7 +65,6 @@ public class ClipsContract {
         ret = "fav DESC, ";
       }
       ret += sorts[Prefs.INST(context).getSortType()];
-      Log.logD("ClipsContract", ret);
       return ret;
     }
   }
@@ -81,6 +79,7 @@ public class ClipsContract {
       ClipsContract.Label.COL_NAME,
     };
 
+    @SuppressWarnings("SameReturnValue")
     static String getDefaultSortOrder() {
       return "LOWER(name) ASC";
     }
@@ -102,6 +101,7 @@ public class ClipsContract {
       ClipsContract.LabelMap.COL_LABEL_NAME,
     };
 
+    @SuppressWarnings("SameReturnValue")
     static String getDefaultSortOrder() {
       return "LOWER(label_name) ASC";
     }
