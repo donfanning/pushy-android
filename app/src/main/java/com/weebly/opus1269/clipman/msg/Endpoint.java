@@ -34,6 +34,7 @@ import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.weebly.opus1269.clipman.BuildConfig;
+import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.User;
@@ -45,16 +46,29 @@ import java.util.concurrent.TimeUnit;
  * Base class for Google App Engine Endpoints
  */
 abstract class Endpoint {
+  static final String ERROR_UNKNOWN =
+    App.getContext().getString(R.string.err_unknown);
+  static final String ERROR_CREDENTIAL =
+    App.getContext().getString(R.string.err_credential);
+
+  /** Log tag */
   private static final String TAG = "Endpoint";
 
-  /** Set to true to use local gae server - {@value} */
+  /** Set to true to use local gae server */
   private static final boolean USE_LOCAL_SERVER = false;
 
-  /** Network timeout in seconds - {@value} */
+  /** Access id */
+  private static final String WEB_CLIENT_ID =
+    App.getContext().getString(R.string.default_web_client_id);
+
+  /** Network timeout in seconds */
   private static final int TIMEOUT = 60;
 
+  private static final String ERROR_NOT_SIGNED_IN =
+    App.getContext().getString(R.string.err_not_signed_in);
+
   /** Global NetHttpTransport instance */
-  private static  NetHttpTransport sNetHttpTransport = null;
+  private static NetHttpTransport sNetHttpTransport = null;
 
   /** Global AndroidJacksonFactory instance */
   private static AndroidJsonFactory sAndroidJsonFactory = null;
@@ -65,7 +79,7 @@ abstract class Endpoint {
    */
   static boolean notSignedIn() {
     if (!User.INST(App.getContext()).isLoggedIn()) {
-      Log.logD(TAG, Msg.ERROR_NOT_SIGNED_IN);
+      Log.logD(TAG, ERROR_NOT_SIGNED_IN);
       return true;
     }
     return false;
@@ -117,7 +131,7 @@ abstract class Endpoint {
     final GoogleSignInOptions gso =
       new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestEmail()
-        .requestIdToken(Msg.WEB_CLIENT_ID)
+        .requestIdToken(WEB_CLIENT_ID)
         .build();
 
     // Build a GoogleApiClient with access to the Google Sign-In API and the
@@ -193,7 +207,8 @@ abstract class Endpoint {
       // - 10.0.2.2 is localhost's IP address in Android emulator
       // - turn off compression when running against local devappserver
       builder.setRootUrl("http://10.0.2.2:8080/_ah/api/")
-        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer
+          () {
           @Override
           public void initialize(AbstractGoogleClientRequest<?> request) {
             request.setDisableGZipContent(true);

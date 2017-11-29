@@ -49,6 +49,8 @@ public class RegistrationClient extends Endpoint {
     App.getContext().getString(R.string.err_unregister);
   private static final String ERROR_INVALID_REGID =
     App.getContext().getString(R.string.err_invalid_regid);
+  private static final String ERROR_NOT_REGISTERED =
+    App.getContext().getString(R.string.err_not_registered);
 
   private RegistrationClient() {
   }
@@ -63,7 +65,7 @@ public class RegistrationClient extends Endpoint {
     final Context ctxt = App.getContext();
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
-    ret.setReason(Msg.ERROR_UNKNOWN);
+    ret.setReason(ERROR_UNKNOWN);
 
     if (!refresh && notSignedIn()) {
       Log.logD(TAG, "Not signed in.");
@@ -89,7 +91,7 @@ public class RegistrationClient extends Endpoint {
 
       final GoogleCredential credential = getCredential(idToken);
       if (credential == null) {
-        ret.setReason(Log.logE(ctxt, TAG, Msg.ERROR_CREDENTIAL, ERROR_REGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, ERROR_CREDENTIAL, ERROR_REGISTER));
         return ret;
       }
 
@@ -120,13 +122,13 @@ public class RegistrationClient extends Endpoint {
     final Context ctxt = App.getContext();
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
-    ret.setReason(Msg.ERROR_UNKNOWN);
+    ret.setReason(ERROR_UNKNOWN);
 
     if (notSignedIn()) {
       ret.setSuccess(true);
       return ret;
     } else if (!Prefs.INST(ctxt).isDeviceRegistered()) {
-      Log.logE(ctxt, TAG, Msg.ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
+      Log.logE(ctxt, TAG, ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
       ret.setSuccess(true);
       return ret;
     }
@@ -135,13 +137,14 @@ public class RegistrationClient extends Endpoint {
     try {
       final String regToken = getRegToken();
       if (TextUtils.isEmpty(regToken)) {
-        ret.setReason(Log.logE(ctxt, TAG, ERROR_INVALID_REGID, ERROR_UNREGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, ERROR_INVALID_REGID,
+          ERROR_UNREGISTER));
         return ret;
       }
 
       final GoogleCredential credential = getCredential(null);
       if (credential == null) {
-        ret.setReason(Log.logE(ctxt, TAG, Msg.ERROR_CREDENTIAL, ERROR_UNREGISTER));
+        ret.setReason(Log.logE(ctxt, TAG, ERROR_CREDENTIAL, ERROR_UNREGISTER));
         return ret;
       }
 

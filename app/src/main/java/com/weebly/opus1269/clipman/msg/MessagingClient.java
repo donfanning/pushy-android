@@ -45,6 +45,18 @@ import java.io.IOException;
 public class MessagingClient extends Endpoint {
   private static final String TAG = "MessagingClient";
 
+  /** Max length of fcm data message - {@value} */
+  private static final int MAX_LEN = 4096;
+
+  private static final String PING =
+    App.getContext().getString(R.string.device_ping);
+  private static final String PING_RESPONSE =
+    App.getContext().getString(R.string.device_ping_response);
+  private static final String DEVICE_ADDED =
+    App.getContext().getString(R.string.device_added);
+  private static final String DEVICE_REMOVED =
+    App.getContext().getString(R.string.device_removed);
+
   /** Send error message */
   private static final String ERROR_SEND =
     App.getContext().getString(R.string.err_send);
@@ -62,9 +74,9 @@ public class MessagingClient extends Endpoint {
     }
 
     String message = clipItem.getText();
-    if (message.length() > Msg.MAX_MSG_LEN) {
+    if (message.length() > MAX_LEN) {
       // 4KB limit with FCM - server will do final limiting
-      message = message.substring(0, Msg.MAX_MSG_LEN - 1);
+      message = message.substring(0, MAX_LEN - 1);
     }
     final String favString = clipItem.isFav() ? "1" : "0";
 
@@ -89,7 +101,7 @@ public class MessagingClient extends Endpoint {
     }
 
     JSONObject data =
-      getJSONData(Msg.ACTION_DEVICE_ADDED, Msg.MSG_DEVICE_ADDED);
+      getJSONData(Msg.ACTION_DEVICE_ADDED, DEVICE_ADDED);
     if (data != null) {
       new MessagingAsyncTask().executeMe(data);
     }
@@ -102,7 +114,7 @@ public class MessagingClient extends Endpoint {
     }
 
     JSONObject data =
-      getJSONData(Msg.ACTION_DEVICE_REMOVED, Msg.MSG_DEVICE_REMOVED);
+      getJSONData(Msg.ACTION_DEVICE_REMOVED, DEVICE_REMOVED);
     if (data != null) {
       new MessagingAsyncTask().executeMe(data);
     }
@@ -114,7 +126,7 @@ public class MessagingClient extends Endpoint {
       return;
     }
 
-    JSONObject data = getJSONData(Msg.ACTION_PING, Msg.MSG_PING);
+    JSONObject data = getJSONData(Msg.ACTION_PING, PING);
     if (data != null) {
       new MessagingAsyncTask().executeMe(data);
     }
@@ -130,7 +142,7 @@ public class MessagingClient extends Endpoint {
     }
 
     JSONObject data =
-      getJSONData(Msg.ACTION_PING_RESPONSE, Msg.MSG_PING_RESPONSE);
+      getJSONData(Msg.ACTION_PING_RESPONSE, PING_RESPONSE);
     try {
       data.put(Msg.SRC_REG_ID, srcRegId);
     } catch (JSONException ex) {
@@ -201,7 +213,7 @@ public class MessagingClient extends Endpoint {
       final Context ctxt = App.getContext();
       EndpointRet ret = new EndpointRet();
       ret.setSuccess(false);
-      ret.setReason(Msg.ERROR_UNKNOWN);
+      ret.setReason(ERROR_UNKNOWN);
 
       final JSONObject data = params[0];
 
@@ -212,7 +224,7 @@ public class MessagingClient extends Endpoint {
 
         final GoogleCredential credential = getCredential(null);
         if (credential == null) {
-          ret.setReason(Log.logE(ctxt, TAG, Msg.ERROR_CREDENTIAL, ERROR_SEND));
+          ret.setReason(Log.logE(ctxt, TAG, ERROR_CREDENTIAL, ERROR_SEND));
           return ret;
         }
 
