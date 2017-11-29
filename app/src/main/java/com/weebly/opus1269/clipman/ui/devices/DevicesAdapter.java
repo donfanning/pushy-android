@@ -79,7 +79,7 @@ class DevicesAdapter extends
     deviceTextView.setText(desc);
 
     final CharSequence value =
-      AppUtils.getRelativeDisplayTime(device.getLastSeen());
+      AppUtils.getRelativeDisplayTime(context, device.getLastSeen());
     final TextView lastSeenTextView = holder.lastSeenTextView;
     lastSeenTextView.setText(context.getString(R.string.device_last_seen_fmt,
       value));
@@ -121,7 +121,7 @@ class DevicesAdapter extends
       .applyTo(holder.forgetButton);
   }
 
-  /** ViewHolder */
+  /** ViewHolder inner class used to display the info. in the RecyclerView. */
   static class DeviceViewHolder extends RecyclerView.ViewHolder {
     final TextView lastSeenTextView;
     final TextView deviceTextView;

@@ -52,10 +52,9 @@ public class AppUtils {
    * Get the app name
    * @return app name
    */
-  public static String getApplicationName() {
-    final Context context = App.getContext();
-    final int stringId = context.getApplicationInfo().labelRes;
-    return context.getString(stringId);
+  public static String getAppName(Context ctxt) {
+    final int stringId = ctxt.getApplicationInfo().labelRes;
+    return ctxt.getString(stringId);
   }
 
   /**
@@ -92,14 +91,15 @@ public class AppUtils {
 
   /**
    * Check if a service is running
+   * @param ctxt A Context
    * @param serviceClass Class name of Service
    * @return true if service is running
    * @see <a href="https://goo.gl/55RFa6">Stack Overflow</a>
    */
-  public static boolean isMyServiceRunning(Class<?> serviceClass) {
-    final Context context = App.getContext();
+  public static boolean isMyServiceRunning(Context ctxt,
+                                           Class<?> serviceClass) {
     final ActivityManager manager = (ActivityManager)
-      context.getSystemService(Context.ACTIVITY_SERVICE);
+      ctxt.getSystemService(Context.ACTIVITY_SERVICE);
     boolean ret = false;
 
     if (manager != null) {
@@ -119,81 +119,49 @@ public class AppUtils {
    * Try to start an activity from another activity
    * @param activity starting activity
    * @param intent   Activity intent
-   * @param notify   notify user on error if true
-   * @return true if successful
    */
-  public static boolean startActivity(Activity activity, Intent intent,
-                                      boolean notify) {
-    boolean ret = true;
-
+  public static void startActivity(Activity activity, Intent intent) {
     try {
       activity.startActivity(intent);
     } catch (Exception ex) {
       final String msg = activity.getString(R.string.err_start_activity);
-      Log.logEx(activity, TAG, msg, ex, ERROR_ACTIVITY, notify);
-      ret = false;
+      Log.logEx(activity, TAG, msg, ex, ERROR_ACTIVITY);
     }
-
-    return ret;
-  }
-
-  /**
-   * Try to start an activity from another activity
-   * @param activity starting activity
-   * @param intent   Activity intent
-   * @return true if successful
-   */
-  public static boolean startActivity(Activity activity, Intent intent) {
-    return startActivity(activity, intent, true);
   }
 
   /**
    * Try to start an activity as a new task
    * @param intent Activity intent
-   * @param notify if true, notify user on error
    * @return true if successful
    */
-  public static boolean startNewTaskActivity(Intent intent, boolean notify) {
-    Context ctxt = App.getContext();
+  public static boolean startNewTaskActivity(Context ctxt, Intent intent) {
     boolean ret = true;
-
     try {
       intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       ctxt.startActivity(intent);
     } catch (Exception ex) {
       final String msg = ctxt.getString(R.string.err_start_activity);
-      Log.logEx(ctxt, TAG, msg, ex, ERROR_ACTIVITY, notify);
+      Log.logEx(ctxt, TAG, msg, ex, ERROR_ACTIVITY);
       ret = false;
     }
-
-    return ret;
-  }
-
-  /**
-   * Try to start an activity as a new task
-   * @param intent Activity intent
-   * @return true if successful
-   */
-  public static boolean startNewTaskActivity(Intent intent) {
-    return startNewTaskActivity(intent, true);
-  }
+    return ret;  }
 
   /**
    * Display a toast or snackbar message
    * @param view a view to use for snackbar
    * @param msg  message to display
    */
-  public static void showMessage(final View view, final String msg) {
-    final Context context = App.getContext();
+  public static void showMessage(final Context ctxt, final View view,
+                                 final String msg) {
     if (view != null) {
       Snackbar
         .make(view, msg, Snackbar.LENGTH_SHORT)
         .show();
     } else {
-      Handler handler = new Handler(context.getMainLooper());
+      Handler handler = new Handler(ctxt.getMainLooper());
       handler.post(new Runnable() {
         public void run() {
-          Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+          Toast.makeText(ctxt, msg, Toast.LENGTH_LONG).show();
         }
       });
     }
@@ -201,57 +169,51 @@ public class AppUtils {
 
   /**
    * Show the {@link App} in the play store
+   * @param ctxt A Context
    */
-  public static void showInPlayStore() {
+  public static void showInPlayStore(Context ctxt) {
     final Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(PLAY_STORE));
-    if (!AppUtils.startNewTaskActivity(intent, false)) {
+    if (!AppUtils.startNewTaskActivity(ctxt, intent)) {
       Log.logD(TAG, "Could not open app in play store, trying web.");
-      AppUtils.showWebUrl(PLAY_STORE_WEB);
+      AppUtils.showWebUrl(ctxt, PLAY_STORE_WEB);
     }
   }
 
   /**
    * Launch an {@link Intent} to show a {@link Uri}
+   * @param ctxt A Context
    * @param uri A String that is a valid Web Url
-   * @return true on success
    */
-  public static Boolean showWebUrl(String uri) {
-    Boolean ret = false;
-
+  public static void showWebUrl(Context ctxt, String uri) {
     if (Patterns.WEB_URL.matcher(uri).matches()) {
       final Intent intent = new Intent(Intent.ACTION_VIEW);
       intent.setData(Uri.parse(uri));
-      ret = AppUtils.startNewTaskActivity(intent);
+      AppUtils.startNewTaskActivity(ctxt, intent);
     }
-    return ret;
   }
 
   /**
    * Launch an {@link Intent} to search the web
+   * @param ctxt A Context
    * @param text A String to search for
-   * @return true on success
    */
-  public static Boolean performWebSearch(String text) {
-    boolean ret;
-
-    if (TextUtils.isEmpty(text)) {
-      ret = false;
-    } else {
+  public static void performWebSearch(Context ctxt, String text) {
+    if (!TextUtils.isEmpty(text)) {
       final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
       intent.putExtra(SearchManager.QUERY, text);
-      ret = AppUtils.startNewTaskActivity(intent);
+      AppUtils.startNewTaskActivity(ctxt, intent);
     }
-    return ret;
   }
 
   /**
    * Get a time string relative to now
+   * @param ctxt A Context
    * @param date A {@link DateTime}
    * @return CharSequence time
    */
-  public static CharSequence getRelativeDisplayTime(DateTime date) {
-    final Context ctxt = App.getContext();
+  public static CharSequence getRelativeDisplayTime(Context ctxt,
+                                                    DateTime date) {
     final CharSequence value;
     long now = System.currentTimeMillis();
     long time = date.getMillis();
@@ -308,6 +270,7 @@ public class AppUtils {
    * @param length length of string to generate
    * @return a pseudo-random string
    */
+  @SuppressWarnings({"SameParameterValue", "WeakerAccess"})
   public static String getRandomString(int length) {
     char[] chars1 = "ABCDEF012GHIJKL345MNOPQR678STUVWXYZ9".toCharArray();
     StringBuilder sb1 = new StringBuilder();
@@ -329,25 +292,25 @@ public class AppUtils {
 
   /**
    * Convert device density to pixels
-   * @param context  A Context
+   * @param ctxt  A Context
    * @param dipValue Value to convert
    * @return Value in pixels
    */
-  public static int dp2px(Context context, float dipValue) {
-    final float scale = context.getResources().getDisplayMetrics().density;
+  public static int dp2px(Context ctxt, float dipValue) {
+    final float scale = ctxt.getResources().getDisplayMetrics().density;
     //noinspection NumericCastThatLosesPrecision,MagicNumber
     return (int) ((dipValue * scale) + 0.5F);
   }
 
   /**
    * Convert pixels to device density
-   * @param context A Context
+   * @param ctxt A Context
    * @param pxValue Value to convert
    * @return Value in device density
    */
   @SuppressWarnings("unused")
-  public static int px2dp(Context context, float pxValue) {
-    final float scale = context.getResources().getDisplayMetrics().density;
+  public static int px2dp(Context ctxt, float pxValue) {
+    final float scale = ctxt.getResources().getDisplayMetrics().density;
     //noinspection NumericCastThatLosesPrecision,MagicNumber
     return (int) ((pxValue / scale) + 0.5F);
   }

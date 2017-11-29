@@ -7,11 +7,11 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
 import org.joda.time.DateTime;
@@ -41,21 +41,23 @@ public class LastError implements Serializable {
     mStack = Log.getStackTraceString(new Exception());
   }
 
-  public LastError(String tag, String title, String message, Exception ex) {
-    init(tag, title, message, ex);
+  public LastError(Context ctxt, String tag, String title, String message,
+                   Exception ex) {
+    init(ctxt, tag, title, message, ex);
   }
 
-  public LastError(String tag, String title, String message) {
-    init(tag, title, message, null);
+  public LastError(Context ctxt, String tag, String title, String message) {
+    init(ctxt, tag, title, message, null);
   }
 
   /**
    * Retrieve from Prefs
+   * @param ctxt A Context
    * @return LastError from storage
    */
-  public static LastError get() {
+  public static LastError get(Context ctxt) {
     final String json =
-      Prefs.INST(App.getContext()).get(PREF_LAST_ERROR, "");
+      Prefs.INST(ctxt).get(PREF_LAST_ERROR, "");
 
     if (json.isEmpty()) {
       return new LastError();
@@ -67,22 +69,22 @@ public class LastError implements Serializable {
 
   /**
    * Clear the stored LastError
-   * @return a LastError with no message
+   * @param ctxt A Context
    */
-  public static LastError clear() {
+  public static void clear(Context ctxt) {
     final LastError lastError = new LastError();
-    lastError.persist();
-    return lastError;
+    lastError.persist(ctxt);
   }
 
   /**
    * Determine if the saved LastError has a message
+   * @param ctxt A Context
    * @return true if message is not empty
    */
-  public static boolean exists() {
+  public static boolean exists(Context ctxt) {
     boolean ret = true;
 
-    final LastError lastError = LastError.get();
+    final LastError lastError = LastError.get(ctxt);
     if (TextUtils.isEmpty(lastError.getMessage())) {
       ret = false;
     }
@@ -104,10 +106,11 @@ public class LastError implements Serializable {
 
   /**
    * Get relative time string
+   * @param ctxt A Context
    * @return relative time
    */
-  public CharSequence getRelativeTime() {
-    return AppUtils.getRelativeDisplayTime(new DateTime(mTime));
+  public CharSequence getRelativeTime(Context ctxt) {
+    return AppUtils.getRelativeDisplayTime(ctxt, new DateTime(mTime));
   }
 
   /**
@@ -120,12 +123,14 @@ public class LastError implements Serializable {
 
   /**
    * Inialize members and persist
+   * @param ctxt    A Context
    * @param tag     source tag
    * @param title   title
    * @param message message
    * @param ex      causing exception
    */
-  private void init(String tag, String title, String message, Exception ex) {
+  private void init(Context ctxt, String tag, String title, String message,
+                    Exception ex) {
     mTag = tag;
     mTitle = title;
     mMessage = message;
@@ -149,16 +154,17 @@ public class LastError implements Serializable {
       mStack = Log.getStackTraceString(new Exception());
     }
 
-    persist();
+    persist(ctxt);
   }
 
   /**
    * Persist to Prefs
+   * @param ctxt A Context
    */
-  private void persist() {
+  private void persist(Context ctxt) {
     final Gson gson = new Gson();
     final String asString = gson.toJson(this);
-    Prefs.INST(App.getContext()).set(PREF_LAST_ERROR, asString);
+    Prefs.INST(ctxt).set(PREF_LAST_ERROR, asString);
   }
 
   public String getTag() {

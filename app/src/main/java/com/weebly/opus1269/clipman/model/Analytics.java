@@ -75,7 +75,7 @@ public class Analytics {
       GoogleAnalytics analytics = GoogleAnalytics.getInstance(mContext);
       // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
       mTracker = analytics.newTracker(TRACKING_ID);
-      mTracker.setAppName(AppUtils.getApplicationName());
+      mTracker.setAppName(AppUtils.getAppName(mContext));
       mTracker.setAppVersion(Prefs.INST(mContext).getVersionName());
     }
     return mTracker;

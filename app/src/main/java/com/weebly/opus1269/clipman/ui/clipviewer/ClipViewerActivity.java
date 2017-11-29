@@ -107,7 +107,7 @@ public class ClipViewerActivity extends BaseActivity implements
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_search_web:
-        AppUtils.performWebSearch(getClipItemClone().getText());
+        AppUtils.performWebSearch(this, getClipItemClone().getText());
         break;
       case R.id.action_copy:
         copyClipItem();

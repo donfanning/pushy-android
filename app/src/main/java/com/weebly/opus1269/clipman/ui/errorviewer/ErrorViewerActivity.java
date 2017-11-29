@@ -53,7 +53,7 @@ public class ErrorViewerActivity extends BaseActivity
         (LastError) intent.getSerializableExtra(Intents.EXTRA_LAST_ERROR);
       intent.removeExtra(Intents.EXTRA_LAST_ERROR);
     } else {
-      mLastError = LastError.get();
+      mLastError = LastError.get(this);
     }
 
     updateText();
@@ -88,10 +88,10 @@ public class ErrorViewerActivity extends BaseActivity
       case R.id.action_email:
         String body = Email.INST.getBody() + mLastError + " \n" +
           getString(R.string.email_error_info) + " \n \n";
-        Email.INST.send(getString(R.string.last_error), body);
+        Email.INST.send(this, getString(R.string.last_error), body);
         break;
       case R.id.action_delete:
-        LastError.clear();
+        LastError.clear(this);
         break;
       default:
         processed = false;
@@ -109,7 +109,7 @@ public class ErrorViewerActivity extends BaseActivity
   public void
   onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if (key.equals(LastError.PREF_LAST_ERROR)) {
-      mLastError = LastError.get();
+      mLastError = LastError.get(this);
       updateText();
       updateOptionsMenu();
     }
@@ -124,7 +124,7 @@ public class ErrorViewerActivity extends BaseActivity
 
     if ((mLastError != null) && mLastError.hasMessage()) {
       title.setText(mLastError.getTitle());
-      time.setText(mLastError.getRelativeTime());
+      time.setText(mLastError.getRelativeTime(this));
       message.setText(mLastError.getMessage());
       stack.setText(mLastError.getStack());
     } else {

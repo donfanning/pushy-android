@@ -204,7 +204,7 @@ class ClipCursorAdapter extends
       .applyToDrawableLeft(holder.favCheckBox);
   }
 
-  /** ViewHolder inner class used to display the clip in the RecyclerView. */
+  /** ViewHolder inner class used to display the info. in the RecyclerView. */
   static class ClipViewHolder extends RecyclerViewCursorViewHolder {
     final RelativeLayout clipBackground;
     final RelativeLayout clipForeground;
@@ -244,7 +244,8 @@ class ClipCursorAdapter extends
 
       long time = clipItem.getTime();
       final CharSequence value =
-        AppUtils.getRelativeDisplayTime(clipItem.getDate());
+        AppUtils
+          .getRelativeDisplayTime(clipText.getContext(), clipItem.getDate());
       dateText.setText(value);
       dateText.setTag(time);
     }

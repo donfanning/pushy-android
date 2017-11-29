@@ -200,7 +200,7 @@ class ClipLoaderManager implements
     holder.clipItem.setDevice(Device.getMyName());
     holder.clipItem.copyToClipboard();
     if (!Prefs.INST(mMainActivity).isMonitorClipboard()) {
-      AppUtils.showMessage(mMainActivity.getFab(),
+      AppUtils.showMessage(mMainActivity, mMainActivity.getFab(),
         mMainActivity.getString(R.string.clipboard_copy));
     }
   }

@@ -59,17 +59,17 @@ public class HelpActivity extends BaseActivity {
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_view_store:
-        AppUtils.showInPlayStore();
+        AppUtils.showInPlayStore(this);
         break;
       case R.id.action_version:
         showVersionDialog();
         break;
       case R.id.action_privacy:
-        AppUtils.showWebUrl(
+        AppUtils.showWebUrl(this,
           getString(R.string.help_privacy_url));
         break;
       case R.id.action_licenses:
-        AppUtils.showWebUrl(
+        AppUtils.showWebUrl(this,
           getString(R.string.help_licenses_url));
         break;
       default:
@@ -98,20 +98,20 @@ public class HelpActivity extends BaseActivity {
     switch (id) {
       case R.id.emailTranslate:
       case R.id.emailGeneral:
-        Email.INST.send((String) textView.getTag(), null);
+        Email.INST.send(this, (String) textView.getTag(), null);
         break;
       case R.id.emailQuestion:
       case R.id.emailBug:
       case R.id.emailFeature:
         final String body = Email.INST.getBody();
-        Email.INST.send((String) textView.getTag(), body);
+        Email.INST.send(this, (String) textView.getTag(), body);
         break;
       case R.id.githubIssue:
       case R.id.docApp:
       case R.id.docFaq:
       case R.id.docRelease:
       case R.id.docSource:
-        AppUtils.showWebUrl((String) textView.getTag());
+        AppUtils.showWebUrl(this, (String) textView.getTag());
         break;
       case R.id.license:
         mDialog.dismiss();

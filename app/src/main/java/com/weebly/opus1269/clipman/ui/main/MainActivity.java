@@ -322,10 +322,10 @@ public class MainActivity extends BaseActivity implements
         startActivity(HelpActivity.class);
         break;
       case R.id.nav_chrome_extension:
-        AppUtils.showWebUrl(getString(R.string.chrome_extension_url));
+        AppUtils.showWebUrl(this, getString(R.string.chrome_extension_url));
         break;
       case R.id.rate_app:
-        AppUtils.showInPlayStore();
+        AppUtils.showInPlayStore(this);
         break;
       default:
         processed = false;
@@ -577,7 +577,7 @@ public class MainActivity extends BaseActivity implements
 
     // set Error Viewer menu state
     menuItem = menu.findItem(R.id.nav_error);
-    menuItem.setEnabled(LastError.exists());
+    menuItem.setEnabled(LastError.exists(this));
 
     // Create Labels sub menu
     List<Label> labels = LabelTables.INST.getLabels();

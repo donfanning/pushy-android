@@ -175,7 +175,7 @@ public class RegistrationClient extends Endpoint {
       new Registration.Builder(getNetHttpTransport(),
         getAndroidJsonFactory(), credential);
 
-    builder.setApplicationName(AppUtils.getApplicationName());
+    builder.setApplicationName(AppUtils.getAppName(App.getContext()));
 
     // for development purposes
     setLocalServer(builder);

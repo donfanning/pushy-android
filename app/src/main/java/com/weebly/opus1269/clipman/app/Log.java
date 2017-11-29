@@ -20,6 +20,7 @@ import com.weebly.opus1269.clipman.model.Notifications;
 /** A collection of static methods to log messages */
 public final class Log {
 
+  /** Tag prefix for our messages */
   private static final String MY_APP = "MyApp ";
 
   /** Private contructor */
@@ -61,7 +62,7 @@ public final class Log {
     Analytics.INST(ctxt).error(tag, msg);
 
     // save last error
-    final LastError lastError = new LastError(tag, title, message);
+    final LastError lastError = new LastError(ctxt, tag, title, message);
     if (notify && Prefs.INST(ctxt).isNotifyError()) {
       // notify user
       Notifications.show(lastError);
@@ -131,7 +132,7 @@ public final class Log {
     android.util.Log.e(MY_APP + tag, ex.toString());
 
     // save last error
-    final LastError lastError = new LastError(tag, title, message, ex);
+    final LastError lastError = new LastError(ctxt, tag, title, message, ex);
     if (notify && Prefs.INST(ctxt).isNotifyError()) {
       Notifications.show(lastError);
     }

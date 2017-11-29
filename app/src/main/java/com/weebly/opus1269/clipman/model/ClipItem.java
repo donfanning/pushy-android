@@ -172,9 +172,9 @@ public class ClipItem implements Serializable {
    *  @param view toast parent
    */
   public static void sendClipboardContents(View view) {
-    final Context context = App.getContext();
+    final Context ctxt = App.getContext();
     ClipboardManager clipboardManager =
-      (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+      (ClipboardManager) ctxt.getSystemService(Context.CLIPBOARD_SERVICE);
     final ClipItem clipItem = getFromClipboard(clipboardManager);
     int id = R.string.clipboard_no_text;
 
@@ -183,11 +183,11 @@ public class ClipItem implements Serializable {
       clipItem.saveIfNew();
 
       // send to registered devices , if possible
-      if (!User.INST(context).isLoggedIn()) {
+      if (!User.INST(ctxt).isLoggedIn()) {
         id = R.string.err_not_signed_in;
-      } else if (!Prefs.INST(context).isDeviceRegistered()) {
+      } else if (!Prefs.INST(ctxt).isDeviceRegistered()) {
         id = R.string.err_not_registered;
-      } else if (!Prefs.INST(context).isPushClipboard()) {
+      } else if (!Prefs.INST(ctxt).isPushClipboard()) {
         id = R.string.err_no_push;
       } else if (clipItem.send()) {
         id = R.string.clipboard_sent;
@@ -195,8 +195,8 @@ public class ClipItem implements Serializable {
     }
 
     // display status message
-    final String msg = context.getString(id);
-    AppUtils.showMessage(view, msg);
+    final String msg = ctxt.getString(id);
+    AppUtils.showMessage(ctxt, view, msg);
   }
 
   /**
@@ -426,9 +426,10 @@ public class ClipItem implements Serializable {
 
   /**
    * Share the ClipItem with other apps
+   * @param ctxt A context
    * @param view The {@link View} that is requesting the share
    */
-  public void doShare(View view) {
+  public void doShare(Context ctxt, @Nullable View view) {
     if (TextUtils.isEmpty(mText)) {
       if (view != null) {
         Snackbar
@@ -436,13 +437,6 @@ public class ClipItem implements Serializable {
           .show();
       }
       return;
-    }
-
-    Context context;
-    if (view != null) {
-      context = view.getContext();
-    } else {
-      context = App.getContext();
     }
 
     final long fav = mFav ? 1L : 0L;
@@ -455,8 +449,8 @@ public class ClipItem implements Serializable {
     intent.putExtra(Intent.EXTRA_TITLE, label);
     intent.setType(TEXT_PLAIN);
     final Intent sendIntent = Intent.createChooser(intent,
-      context.getResources().getString(R.string.share_text_to));
-    AppUtils.startNewTaskActivity(sendIntent);
+      ctxt.getResources().getString(R.string.share_text_to));
+    AppUtils.startNewTaskActivity(ctxt, sendIntent);
   }
 
   /**

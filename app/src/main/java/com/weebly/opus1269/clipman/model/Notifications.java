@@ -334,7 +334,7 @@ public class Notifications {
 
     Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
     intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
-    AppUtils.startNewTaskActivity(intent);
+    AppUtils.startNewTaskActivity(context, intent);
   }
 
   /**
@@ -503,7 +503,7 @@ public class Notifications {
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context ctxt, Intent intent) {
       final String action = intent.getAction();
       final ClipItem clipItem;
       final int noteId =
@@ -518,7 +518,7 @@ public class Notifications {
           Intents.EXTRA_CLIP_ITEM);
 
         // search the web for the clip text
-        AppUtils.performWebSearch(clipItem.getText());
+        AppUtils.performWebSearch(ctxt, clipItem.getText());
 
         cancelNotification(noteId);
       } else if (Intents.ACTION_SHARE.equals(action)) {
@@ -526,7 +526,7 @@ public class Notifications {
           Intents.EXTRA_CLIP_ITEM);
 
         // share the clip text with other apps
-        clipItem.doShare(null);
+        clipItem.doShare(ctxt, null);
 
         cancelNotification(noteId);
       } else if (Intents.ACTION_EMAIL.equals(action)) {
@@ -536,7 +536,7 @@ public class Notifications {
           intent.getStringExtra(Intents.EXTRA_EMAIL_BODY);
 
         // Send email
-        Email.INST.send(emailSubject, emailBody);
+        Email.INST.send(ctxt, emailSubject, emailBody);
 
         cancelNotification(noteId);
       }

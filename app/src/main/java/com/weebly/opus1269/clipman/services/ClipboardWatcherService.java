@@ -51,20 +51,20 @@ public class ClipboardWatcherService extends Service implements
 
   /**
    * Start ourselves
-   * @param context a context
+   * @param ctxt             a Context
    * @param noProcessOnStart true if we should not process clipboard on start
    */
   @TargetApi(26)
-  public static void startService(Context context, Boolean noProcessOnStart) {
-    if (Prefs.INST(context).isMonitorClipboard()
-      && !AppUtils.isMyServiceRunning(ClipboardWatcherService.class)) {
+  public static void startService(Context ctxt, Boolean noProcessOnStart) {
+    if (Prefs.INST(ctxt).isMonitorClipboard()
+      && !AppUtils.isMyServiceRunning(ctxt, ClipboardWatcherService.class)) {
       // only start if the user has allowed it and we are not running
-      final Intent intent = new Intent(context, ClipboardWatcherService.class);
+      final Intent intent = new Intent(ctxt, ClipboardWatcherService.class);
       intent.putExtra(EXTRA_NO_PROCESS_ON_START, noProcessOnStart);
       if (AppUtils.isOreoOrLater()) {
-        context.startForegroundService(intent);
+        ctxt.startForegroundService(intent);
       } else {
-        context.startService(intent);
+        ctxt.startService(intent);
       }
     }
   }
@@ -76,7 +76,12 @@ public class ClipboardWatcherService extends Service implements
     }
 
     mClipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-    mClipboard.addPrimaryClipChangedListener(this);
+    if (mClipboard != null) {
+      mClipboard.addPrimaryClipChangedListener(this);
+    } else {
+      Log.logE(this, TAG, "Failed to get ClipboardManager");
+    }
+
     mLastText = "";
     mLastTime = System.currentTimeMillis();
   }
@@ -96,7 +101,6 @@ public class ClipboardWatcherService extends Service implements
       processClipboard(true);
     }
 
-
     Log.logD(TAG, "started");
 
     return super.onStartCommand(intent, flags, startId);
@@ -105,7 +109,9 @@ public class ClipboardWatcherService extends Service implements
   @Override
   public void onDestroy() {
     super.onDestroy();
-    mClipboard.removePrimaryClipChangedListener(this);
+    if (mClipboard != null) {
+      mClipboard.removePrimaryClipChangedListener(this);
+    }
   }
 
   @Nullable
@@ -125,6 +131,9 @@ public class ClipboardWatcherService extends Service implements
    * @param onNewOnly if true, only update database if text is new
    */
   private void processClipboard(boolean onNewOnly) {
+    if (mClipboard == null) {
+      return;
+    }
     final ClipItem clipItem = ClipItem.getFromClipboard(mClipboard);
     final long now = System.currentTimeMillis();
     final long deltaTime = now - mLastTime;

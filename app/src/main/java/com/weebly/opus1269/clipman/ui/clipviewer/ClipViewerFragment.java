@@ -198,7 +198,7 @@ public class ClipViewerFragment extends Fragment
     final View labelList = activity.findViewById(R.id.labelList);
     final String TAG = ((BaseActivity) activity).getTAG();
     if (v == fab) {
-      mClipItem.doShare(v);
+      mClipItem.doShare(getContext(), v);
       Analytics.INST(activity).imageClick(TAG, "shareClipItem");
     } else if (v == labelList) {
       Analytics.INST(activity).click(TAG, "showLabelList");
@@ -247,7 +247,7 @@ public class ClipViewerFragment extends Fragment
       mOnClipChanged.clipChanged(mClipItem);
       mClipItem.copyToClipboard();
       View view = getView();
-      AppUtils.showMessage(view, getString(R.string.clipboard_copy));
+      AppUtils.showMessage(getContext(), view, getString(R.string.clipboard_copy));
     }
   }
 
