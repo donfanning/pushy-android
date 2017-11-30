@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -14,7 +15,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.Label;
 
@@ -22,10 +22,14 @@ import com.weebly.opus1269.clipman.model.Label;
 class LabelLoaderManager implements
   LoaderManager.LoaderCallbacks<Cursor> {
 
+  /** A Context */
+  private final Context mContext;
+
   /** Adapter used to display a list's data */
   private RecyclerViewCursorAdapter mAdapter = null;
 
-  LabelLoaderManager(RecyclerViewCursorAdapter adapter) {
+  LabelLoaderManager(Context context, RecyclerViewCursorAdapter adapter) {
+    mContext = context;
     mAdapter = adapter;
   }
 
@@ -41,7 +45,7 @@ class LabelLoaderManager implements
     // Now create and return a CursorLoader that will take care of
     // creating a Cursor for the data being displayed.
     return new CursorLoader(
-      App.getContext(),
+      mContext,
       ClipsContract.Label.CONTENT_URI,
       projection,
       selection,

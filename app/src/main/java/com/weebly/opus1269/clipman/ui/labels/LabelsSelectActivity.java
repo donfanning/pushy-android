@@ -85,7 +85,8 @@ public class LabelsSelectActivity extends BaseActivity {
       recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-      final LabelLoaderManager loaderManager = new LabelLoaderManager(mAdapter);
+      final LabelLoaderManager loaderManager =
+        new LabelLoaderManager(getApplicationContext(), mAdapter);
 
       // Prepare the loader. Either re-connect with an existing one,
       // or start a new one.
