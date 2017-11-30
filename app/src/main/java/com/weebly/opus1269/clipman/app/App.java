@@ -116,7 +116,7 @@ public class App extends Application implements
     registerActivityLifecycleCallbacks(this);
 
     // Initialize the Notification Channels
-    Notifications.initChannels(this);
+    Notifications.INST(sContext).initChannels(this);
 
     // Setup heartbeat alarm
     HeartbeatAlarmReceiver.updateAlarm(sContext);

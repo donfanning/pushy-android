@@ -125,7 +125,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       return true;
     } else if (getString(R.string.key_pref_manage_not).equals(key)) {
       // Manage notifications for Android O and later
-      Notifications.showNotificationSettings(getContext());
+      Notifications.INST(getContext()).showNotificationSettings(getContext());
       return true;
     }
 
@@ -200,7 +200,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     } else if (key.equals(keyNotifications)) {
       if (Prefs.INST(context).notNotifications()) {
         // remove any currently displayed Notifications
-        Notifications.removeAll();
+        Notifications.INST(getContext()).removeAll();
       }
     } else if (key.equals(keyReceive)) {
       if (User.INST(context).isLoggedIn()) {

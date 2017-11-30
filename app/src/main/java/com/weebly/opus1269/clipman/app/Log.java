@@ -65,7 +65,7 @@ public final class Log {
     final LastError lastError = new LastError(ctxt, tag, title, message);
     if (notify && Prefs.INST(ctxt).isNotifyError()) {
       // notify user
-      Notifications.show(lastError);
+      Notifications.INST(ctxt).show(lastError);
     }
 
     return msg;
@@ -134,7 +134,7 @@ public final class Log {
     // save last error
     final LastError lastError = new LastError(ctxt, tag, title, message, ex);
     if (notify && Prefs.INST(ctxt).isNotifyError()) {
-      Notifications.show(lastError);
+      Notifications.INST(ctxt).show(lastError);
     }
     return msg;
   }

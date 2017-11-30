@@ -72,7 +72,7 @@ public class ClipboardWatcherService extends Service implements
   @Override
   public void onCreate() {
     if (AppUtils.isOreoOrLater()) {
-      Notifications.startAndShow(this);
+      Notifications.INST(getApplicationContext()).startAndShow(this);
     }
 
     mClipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -172,7 +172,7 @@ public class ClipboardWatcherService extends Service implements
     }
 
     if (saved) {
-      Notifications.show(clipItem);
+      Notifications.INST(getApplicationContext()).show(clipItem);
 
       if (!clipItem.isRemote() && Prefs.INST(this).isAutoSend()) {
         clipItem.send();

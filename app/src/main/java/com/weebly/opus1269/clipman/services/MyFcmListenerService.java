@@ -18,6 +18,7 @@
 
 package com.weebly.opus1269.clipman.services;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.SystemClock;
 
@@ -50,10 +51,12 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
   /**
    * Save {@link ClipItem} to database and copy to clipboard
+   * @param ctxt   A Context
    * @param data   {@link Map} of key value pairs
    * @param device Source {@link Device}
    */
-  private static void saveClipItem(Map<String, String> data, Device device) {
+  private static void saveClipItem(Context ctxt, Map<String, String> data,
+                                   Device device) {
     final String message = data.get(Msg.MESSAGE);
     final String favString = data.get(Msg.FAV);
     final Boolean fav = "1".equals(favString);
@@ -68,7 +71,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     clipItem.copyToClipboard();
 
     // display notification if requested by user
-    Notifications.show(clipItem);
+    Notifications.INST(ctxt).show(clipItem);
   }
 
   @Override
@@ -131,7 +134,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       case Msg.ACTION_MESSAGE:
         // normal message, save and copy to clipboard
         Devices.INST(this).add(device, false);
-        saveClipItem(data, device);
+        saveClipItem(this, data, device);
         break;
       case Msg.ACTION_PING:
         // We were pinged
@@ -147,12 +150,12 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       case Msg.ACTION_DEVICE_ADDED:
         // A new device was added
         Devices.INST(this).add(device, true);
-        Notifications.show(action, device.getDisplayName());
+        Notifications.INST(this).show(action, device.getDisplayName());
         break;
       case Msg.ACTION_DEVICE_REMOVED:
         // A device was removed
         Devices.INST(this).remove(device);
-        Notifications.show(action, device.getDisplayName());
+        Notifications.INST(this).show(action, device.getDisplayName());
         break;
       default:
         Log.logE(this, TAG, action, FCM_MESSAGE_ERROR, false);

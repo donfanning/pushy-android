@@ -66,7 +66,7 @@ public class DevicesActivity extends BaseActivity {
       .registerReceiver(mReceiver,
         new IntentFilter(Intents.FILTER_DEVICES));
 
-    Notifications.removeDevices();
+    Notifications.INST(this).removeDevices();
 
     // ping devices
     MessagingClient.sendPing();

@@ -171,7 +171,7 @@ public class MainActivity extends BaseActivity implements
 
     updateOptionsMenu();
 
-    Notifications.removeClips();
+    Notifications.INST(this).removeClips();
 
     // so relative dates get updated
     mLoaderManager.getAdapter().notifyDataSetChanged();

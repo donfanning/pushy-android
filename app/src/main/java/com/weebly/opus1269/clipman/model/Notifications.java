@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
@@ -20,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
@@ -36,7 +38,7 @@ import com.weebly.opus1269.clipman.ui.main.MainActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 
 /**
- * Static class to manage our {@link android.app.Notification} objects
+ * Singleton to manage our {@link android.app.Notification} objects
  */
 public class Notifications {
   // notification ids
@@ -45,13 +47,34 @@ public class Notifications {
   private static final int ID_CLIPBOARD_SERVICE = 30;
   private static final int ID_ERROR = 40;
 
-  // Has channel been initialized
-  private static boolean sChannelsInit = false;
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static Notifications sInstance;
 
-  // keep track of number of clipboard messages received.
-  private static int sClipItemCt;
+  /** Global Application Context */
+  private final Context mContext;
 
-  private Notifications() {
+  /** Flag for channel initialization */
+  private boolean mChannelsInit = false;
+
+  /** Count of number of clipboard messages received. */
+  private int mClipItemCt;
+
+  private Notifications(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static Notifications INST(@NonNull Context context) {
+    synchronized (Notifications.class) {
+      if (sInstance == null) {
+        sInstance = new Notifications(context);
+      }
+      return sInstance;
+    }
   }
 
   /**
@@ -59,12 +82,14 @@ public class Notifications {
    * @param context A Context
    */
   @TargetApi(26)
-  public static void initChannels(Context context) {
-    if (sChannelsInit || !AppUtils.isOreoOrLater()) {
+  public void initChannels(Context context) {
+    if (mChannelsInit || !AppUtils.isOreoOrLater()) {
       return;
     }
 
-    int importance = NotificationManager.IMPORTANCE_DEFAULT;
+    int importance;
+
+    importance = NotificationManager.IMPORTANCE_DEFAULT;
     String id = context.getString(R.string.channel_message);
     String name = context.getString(R.string.channel_message_name);
     String desc = context.getString(R.string.channel_message_desc);
@@ -88,28 +113,27 @@ public class Notifications {
     desc = context.getString(R.string.channel_service_desc);
     createChannel(id, importance, name, desc, false);
 
-    sChannelsInit = true;
+    mChannelsInit = true;
   }
 
   /**
    * Start and show the {@link ClipboardWatcherService}
-   * @param service the foreground service to minitor the clipboard
+   * @param service the foreground service to monitor the clipboard
    */
   @TargetApi(26)
-  public static void startAndShow(ClipboardWatcherService service) {
-    final Context context = App.getContext();
-    final Intent intent = new Intent(context, SettingsActivity.class);
-    final PendingIntent pendingIntent =
-      getPendingIntent(context, SettingsActivity.class, intent);
-    final String channelId = context.getString(R.string.channel_service);
+  public void startAndShow(ClipboardWatcherService service) {
+    final Intent intent = new Intent(mContext, SettingsActivity.class);
+    final PendingIntent pIntent =
+      getPIntent(mContext, SettingsActivity.class, intent);
+    final String channelId = mContext.getString(R.string.channel_service);
 
     final Notification notification =
-      new Notification.Builder(context, channelId)
-        .setContentTitle(context.getString(R.string.service_title))
-        .setContentText(context.getString(R.string.service_text))
+      new Notification.Builder(mContext, channelId)
+        .setContentTitle(mContext.getString(R.string.service_title))
+        .setContentText(mContext.getString(R.string.service_text))
         .setSmallIcon(R.drawable.ic_clipboard_service)
         .setLargeIcon(getLargeIcon(R.drawable.lic_local_copy))
-        .setContentIntent(pendingIntent)
+        .setContentIntent(pIntent)
         .build();
 
     service.startForeground(ID_CLIPBOARD_SERVICE, notification);
@@ -119,13 +143,12 @@ public class Notifications {
    * Display notification on a clipboard change
    * @param clipItem the {@link ClipItem} to display notification for
    */
-  public static void show(ClipItem clipItem) {
-    final Context context = App.getContext();
-    final String labelFilter = Prefs.INST(context).getLabelFilter();
+  public void show(ClipItem clipItem) {
+    final String labelFilter = Prefs.INST(mContext).getLabelFilter();
     if (ClipItem.isWhitespace(clipItem) ||
       (App.isMainActivityVisible() && TextUtils.isEmpty(labelFilter)) ||
-      (clipItem.isRemote() && !Prefs.INST(context).isNotifyRemote()) ||
-      (!clipItem.isRemote() && !Prefs.INST(context).isNotifyLocal())) {
+      (clipItem.isRemote() && !Prefs.INST(mContext).isNotifyRemote()) ||
+      (!clipItem.isRemote() && !Prefs.INST(mContext).isNotifyLocal())) {
       return;
     }
 
@@ -133,64 +156,63 @@ public class Notifications {
     final int id = ID_COPY;
 
     // keep track of number of new items
-    sClipItemCt++;
+    mClipItemCt++;
 
-    final Intent intent = new Intent(context, MainActivity.class);
+    final Intent intent = new Intent(mContext, MainActivity.class);
     intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
-    intent.putExtra(Intents.EXTRA_CLIP_COUNT, sClipItemCt);
+    intent.putExtra(Intents.EXTRA_CLIP_COUNT, mClipItemCt);
 
-    PendingIntent pendingIntent =
-      getPendingIntent(context, MainActivity.class, intent);
+    PendingIntent pIntent =
+      getPIntent(mContext, MainActivity.class, intent);
 
-    final String channelId = context.getString(R.string.channel_message);
+    final String channelId = mContext.getString(R.string.channel_message);
 
     // remote vs. local settings
     final int largeIcon;
     final String titleText;
     if (clipItem.isRemote()) {
       largeIcon = R.drawable.lic_remote_copy;
-      titleText = context
+      titleText = mContext
         .getString(R.string.clip_notification_remote_fmt, clipItem.getDevice());
     } else {
       largeIcon = R.drawable.lic_local_copy;
-      titleText = context.getString(R.string.clip_notification_local);
+      titleText = mContext.getString(R.string.clip_notification_local);
     }
 
     final NotificationCompat.Builder builder =
-      getBuilder(pendingIntent, channelId, largeIcon, titleText);
+      getBuilder(pIntent, channelId, largeIcon, titleText);
     builder
       .setContentText(clipText)
       .setStyle(new NotificationCompat.BigTextStyle().bigText(clipText))
       .setWhen(clipItem.getTime());
 
-    if (sClipItemCt > 1) {
+    if (mClipItemCt > 1) {
       final String text =
-        context.getString(R.string.clip_notification_count_fmt, sClipItemCt);
+        mContext.getString(R.string.clip_notification_count_fmt, mClipItemCt);
       builder
         .setSubText(text)
-        .setNumber(sClipItemCt);
+        .setNumber(mClipItemCt);
     }
 
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
-    pendingIntent = NotificationReceiver
-      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATION, id, null);
-    builder.setDeleteIntent(pendingIntent);
+    pIntent = NotificationReceiver
+      .getPIntent(mContext, Intents.ACTION_DELETE_NOTIFICATION, id, null);
+    builder.setDeleteIntent(pIntent);
 
     // Web Search action
-    pendingIntent = NotificationReceiver
-      .getPendingIntent(Intents.ACTION_SEARCH, id, clipItem);
+    pIntent = NotificationReceiver
+      .getPIntent(mContext, Intents.ACTION_SEARCH, id, clipItem);
     builder.addAction(R.drawable.ic_search,
-      context.getString(R.string.action_search), pendingIntent);
+      mContext.getString(R.string.action_search), pIntent);
 
     // Share action
-    pendingIntent = NotificationReceiver
-      .getPendingIntent(Intents.ACTION_SHARE, id, clipItem);
+    pIntent = NotificationReceiver
+      .getPIntent(mContext, Intents.ACTION_SHARE, id, clipItem);
     builder.addAction(R.drawable.ic_share,
-      context.getString(R.string.action_share) + " ...", pendingIntent);
+      mContext.getString(R.string.action_share) + " ...", pIntent);
 
-    final NotificationManager notificationManager = getManager();
-    notificationManager.notify(id, builder.build());
+    getManager().notify(id, builder.build());
   }
 
   /**
@@ -198,67 +220,64 @@ public class Notifications {
    * @param action Added or removed
    * @param device remote device
    */
-  public static void show(String action, CharSequence device) {
-    final Context context = App.getContext();
+  public void show(String action, CharSequence device) {
     final Boolean isAdded = action.equals(Msg.ACTION_DEVICE_ADDED);
     if (TextUtils.isEmpty(action) || TextUtils.isEmpty(device) ||
       App.isDevicesActivityVisible() ||
-      (isAdded && !Prefs.INST(context).isNotifyDeviceAdded()) ||
-      (!isAdded && !Prefs.INST(context).isNotifyDeviceRemoved())) {
+      (isAdded && !Prefs.INST(mContext).isNotifyDeviceAdded()) ||
+      (!isAdded && !Prefs.INST(mContext).isNotifyDeviceRemoved())) {
       return;
     }
 
-    final Intent intent = new Intent(context, DevicesActivity.class);
+    final Intent intent = new Intent(mContext, DevicesActivity.class);
 
-    final PendingIntent pendingIntent =
-      getPendingIntent(context, DevicesActivity.class, intent);
+    final PendingIntent pIntent =
+      getPIntent(mContext, DevicesActivity.class, intent);
 
     // added vs. removed device settings
     final int largeIcon;
-    final String channelId = context.getString(R.string.channel_device);
+    final String channelId = mContext.getString(R.string.channel_device);
     final String titleText;
     if (isAdded) {
       largeIcon = R.drawable.lic_add_device;
-      titleText = context.getString(R.string.device_added);
+      titleText = mContext.getString(R.string.device_added);
     } else {
       largeIcon = R.drawable.lic_remove_device;
-      titleText = context.getString(R.string.device_removed);
+      titleText = mContext.getString(R.string.device_removed);
     }
 
     final NotificationCompat.Builder builder =
-      getBuilder(pendingIntent, channelId, largeIcon, titleText);
+      getBuilder(pIntent, channelId, largeIcon, titleText);
     builder
       .setContentText(device)
       .setWhen(System.currentTimeMillis());
 
-    final NotificationManager notificationManager = getManager();
-    notificationManager.notify(ID_DEVICE, builder.build());
+    getManager().notify(ID_DEVICE, builder.build());
   }
 
   /**
    * Display notification on an app error or exception
    * @param lastError error message
    */
-  public static void show(LastError lastError) {
-    final Context context = App.getContext();
+  public void show(LastError lastError) {
     final String message = lastError.getMessage();
-    if (TextUtils.isEmpty(message) || !Prefs.INST(context).isNotifyError()) {
+    if (TextUtils.isEmpty(message) || !Prefs.INST(mContext).isNotifyError()) {
       return;
     }
 
-    final Intent intent = new Intent(context, ErrorViewerActivity.class);
+    final Intent intent = new Intent(mContext, ErrorViewerActivity.class);
     intent.putExtra(Intents.EXTRA_LAST_ERROR, lastError);
 
-    PendingIntent pendingIntent =
-      getPendingIntent(context, ErrorViewerActivity.class, intent);
+    PendingIntent pIntent =
+      getPIntent(mContext, ErrorViewerActivity.class, intent);
 
     final int id = ID_ERROR;
     final int largeIcon = R.drawable.lic_error;
-    final String channelId = context.getString(R.string.channel_error);
+    final String channelId = mContext.getString(R.string.channel_error);
     final String title = lastError.getTitle();
 
     final NotificationCompat.Builder builder =
-      getBuilder(pendingIntent, channelId, largeIcon, title);
+      getBuilder(pIntent, channelId, largeIcon, title);
     builder
       .setContentText(message)
       .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
@@ -269,54 +288,42 @@ public class Notifications {
 
     // notification deleted (cleared, swiped, etc) action
     // does not get called on tap if autocancel is true
-    pendingIntent = NotificationReceiver
-      .getPendingIntent(Intents.ACTION_DELETE_NOTIFICATION, id, null, null);
-    builder.setDeleteIntent(pendingIntent);
+    pIntent = NotificationReceiver.getPIntent(mContext,
+      Intents.ACTION_DELETE_NOTIFICATION, id, null, null);
+    builder.setDeleteIntent(pIntent);
 
     // Email support action
-    final String emailSubject = context.getString(R.string.last_error);
+    final String emailSubject = mContext.getString(R.string.last_error);
     String emailBody = Email.INST.getBody() + lastError + " \n" +
-      context.getString(R.string.email_error_info) + " \n \n";
+      mContext.getString(R.string.email_error_info) + " \n \n";
 
-    pendingIntent = NotificationReceiver
-      .getPendingIntent(Intents.ACTION_EMAIL, id, emailSubject, emailBody);
+    pIntent = NotificationReceiver.getPIntent(mContext,
+      Intents.ACTION_EMAIL, id, emailSubject, emailBody);
     builder
-      .addAction(R.drawable.ic_email, context.getString(R.string.action_email),
-        pendingIntent);
+      .addAction(R.drawable.ic_email, mContext.getString(R.string.action_email),
+        pIntent);
 
-    final NotificationManager notificationManager = getManager();
-    notificationManager.notify(id, builder.build());
+    getManager().notify(id, builder.build());
   }
 
-  /**
-   * Remove our {@link ClipItem} notifications
-   */
-  public static void removeClips() {
-    final NotificationManager notificationManager = getManager();
-    notificationManager.cancel(ID_COPY);
+  /** Remove {@link ClipItem} notifications */
+  public void removeClips() {
+    getManager().cancel(ID_COPY);
     resetCount();
   }
 
-  /**
-   * Remove our {@link Device} notifications
-   */
-  public static void removeDevices() {
-    final NotificationManager notificationManager = getManager();
-    notificationManager.cancel(ID_DEVICE);
+  /** Remove {@link Device} notifications */
+  public void removeDevices() {
+    getManager().cancel(ID_DEVICE);
   }
 
-  /**
-   * Remove our Error notifications
-   */
-  private static void removeErrors() {
-    final NotificationManager notificationManager = getManager();
-    notificationManager.cancel(ID_ERROR);
+  /** Remove {@link LastError} notifications */
+  private void removeErrors() {
+    getManager().cancel(ID_ERROR);
   }
 
-  /**
-   * Remove all our Notifications
-   */
-  public static void removeAll() {
+  /** Remove all Notifications */
+  public void removeAll() {
     removeClips();
     removeDevices();
     removeErrors();
@@ -327,7 +334,7 @@ public class Notifications {
    * @param context A context
    */
   @TargetApi(26)
-  public static void showNotificationSettings(Context context) {
+  public void showNotificationSettings(Context context) {
     if (!AppUtils.isOreoOrLater()) {
       return;
     }
@@ -337,11 +344,9 @@ public class Notifications {
     AppUtils.startNewTaskActivity(context, intent);
   }
 
-  /**
-   * Reset count
-   */
-  private static void resetCount() {
-    sClipItemCt = 0;
+  /** Reset message count */
+  private void resetCount() {
+    mClipItemCt = 0;
   }
 
   /**
@@ -349,18 +354,17 @@ public class Notifications {
    * @param id Resource id
    * @return new Bitmap
    */
-  private static Bitmap getLargeIcon(int id) {
-    return BitmapFactory.decodeResource(App.getContext().getResources(), id);
+  private Bitmap getLargeIcon(int id) {
+    return BitmapFactory.decodeResource(mContext.getResources(), id);
   }
 
   /**
    * Get the NotificationManager
    * @return NotificationManager
    */
-  private static NotificationManager getManager() {
-    final Context context = App.getContext();
+  private NotificationManager getManager() {
     return (NotificationManager)
-      context.getSystemService(Context.NOTIFICATION_SERVICE);
+      mContext.getSystemService(Context.NOTIFICATION_SERVICE);
   }
 
   /**
@@ -370,8 +374,8 @@ public class Notifications {
    * @param intent  an intent for the top of the stack
    * @return pending intent of full back stack
    */
-  private static PendingIntent getPendingIntent(Context context, Class aClass,
-                                                Intent intent) {
+  private PendingIntent getPIntent(Context context, Class aClass,
+                                   Intent intent) {
     // stupid android: http://stackoverflow.com/a/36110709/4468645
     final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
     // Adds the back stack i.e. MainActivity.class
@@ -389,26 +393,24 @@ public class Notifications {
    * @param titleText display title
    * @return the Builder
    */
-  private static NotificationCompat.Builder getBuilder(PendingIntent pInt,
-                                                       String channelId,
-                                                       int largeIcon,
-                                                       String titleText) {
-    final Context context = App.getContext();
+  private NotificationCompat.Builder getBuilder(PendingIntent pInt,
+                                                String channelId,
+                                                int largeIcon,
+                                                String titleText) {
     final NotificationCompat.Builder builder =
-      new NotificationCompat.Builder(context, channelId);
-
+      new NotificationCompat.Builder(mContext, channelId);
     builder.setContentIntent(pInt)
       .setLargeIcon(getLargeIcon(largeIcon))
       .setSmallIcon(R.drawable.ic_notification)
       .setContentTitle(titleText)
       .setTicker(titleText)
-      .setColor(ContextCompat.getColor(context, R.color.primary))
+      .setColor(ContextCompat.getColor(mContext, R.color.primary))
       .setShowWhen(true)
-      .setOnlyAlertOnce(Prefs.INST(context).isAudibleOnce())
+      .setOnlyAlertOnce(Prefs.INST(mContext).isAudibleOnce())
       .setAutoCancel(true);
 
     if (!AppUtils.isOreoOrLater()) {
-      final Uri sound = Prefs.INST(context).getNotificationSound();
+      final Uri sound = Prefs.INST(mContext).getNotificationSound();
       if (sound != null) {
         builder.setSound(sound);
       }
@@ -426,8 +428,8 @@ public class Notifications {
    * @param badge      true if a badge should be shown on app icon
    */
   @TargetApi(26)
-  private static void createChannel(String id, int importance, String name,
-                                    String desc, Boolean badge) {
+  private void createChannel(String id, int importance, String name,
+                             String desc, Boolean badge) {
     if (!AppUtils.isOreoOrLater()) {
       return;
     }
@@ -439,66 +441,64 @@ public class Notifications {
     notificationManager.createNotificationChannel(channel);
   }
 
-  /**
-   * {@link BroadcastReceiver} to handle notification actions
-   */
+  /** {@link BroadcastReceiver} to handle notification actions */
   public static class NotificationReceiver extends BroadcastReceiver {
 
     /**
      * Get a pending intent for this receiver
+     * @param ctxt     A Context
      * @param action   An action we know about
      * @param noteId   The id of the source notification
      * @param clipItem The {@link ClipItem}
      * @return a {@link PendingIntent}
      */
-    public static PendingIntent getPendingIntent(String action, int noteId,
-                                                 ClipItem clipItem) {
-      final Context context = App.getContext();
-      final Intent intent =
-        new Intent(context, NotificationReceiver.class);
+    public static PendingIntent getPIntent(Context ctxt, String action,
+                                           int noteId, ClipItem clipItem) {
+      final Intent intent = new Intent(ctxt, NotificationReceiver.class);
       intent.setAction(action);
       intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
-      return PendingIntent.getBroadcast(context, 12345, intent,
+      return PendingIntent.getBroadcast(ctxt, 12345, intent,
         PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
      * Get a pending intent for this receiver
+     * @param ctxt         A Context
      * @param action       An action we know about
      * @param noteId       The id of the source notification
      * @param emailSubject subject of email
      * @param emailBody    body of email
      * @return a {@link PendingIntent}
      */
-    public static PendingIntent getPendingIntent(String action, int noteId,
-                                                 String emailSubject,
-                                                 String emailBody) {
-      final Context context = App.getContext();
-      final Intent intent = new Intent(context, NotificationReceiver.class);
+    public static PendingIntent getPIntent(Context ctxt, String action,
+                                           int noteId, String emailSubject,
+                                           String emailBody) {
+      final Intent intent = new Intent(ctxt, NotificationReceiver.class);
       intent.setAction(action);
       intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);
       intent.putExtra(Intents.EXTRA_EMAIL_SUBJECT, emailSubject);
       intent.putExtra(Intents.EXTRA_EMAIL_BODY, emailBody);
-      return PendingIntent.getBroadcast(context, 12345, intent,
+      return PendingIntent.getBroadcast(ctxt, 12345, intent,
         PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
      * Remove the given notification
+     * @param ctxt         A Context
      * @param notificationId notification id to remove
      */
-    private static void cancelNotification(int notificationId) {
+    private void cancelNotification(Context ctxt, int notificationId) {
       if (notificationId != -1) {
         if (notificationId == ID_COPY) {
-          resetCount();
+          Notifications.INST(ctxt).resetCount();
         }
-        final Context context = App.getContext();
-        final NotificationManager notificationManager = getManager();
+        final NotificationManager notificationManager =
+          Notifications.INST(ctxt).getManager();
         notificationManager.cancel(notificationId);
 
         // collapse notifications dialog
-        context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        ctxt.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
       }
     }
 
@@ -506,12 +506,11 @@ public class Notifications {
     public void onReceive(Context ctxt, Intent intent) {
       final String action = intent.getAction();
       final ClipItem clipItem;
-      final int noteId =
-        intent.getIntExtra(Intents.EXTRA_NOTIFICATION_ID, -1);
+      final int noteId = intent.getIntExtra(Intents.EXTRA_NOTIFICATION_ID, -1);
 
       if (Intents.ACTION_DELETE_NOTIFICATION.equals(action)) {
         if (noteId == ID_COPY) {
-          resetCount();
+          Notifications.INST(ctxt).resetCount();
         }
       } else if (Intents.ACTION_SEARCH.equals(action)) {
         clipItem = (ClipItem) intent.getSerializableExtra(
@@ -520,7 +519,7 @@ public class Notifications {
         // search the web for the clip text
         AppUtils.performWebSearch(ctxt, clipItem.getText());
 
-        cancelNotification(noteId);
+        cancelNotification(ctxt, noteId);
       } else if (Intents.ACTION_SHARE.equals(action)) {
         clipItem = (ClipItem) intent.getSerializableExtra(
           Intents.EXTRA_CLIP_ITEM);
@@ -528,7 +527,7 @@ public class Notifications {
         // share the clip text with other apps
         clipItem.doShare(ctxt, null);
 
-        cancelNotification(noteId);
+        cancelNotification(ctxt, noteId);
       } else if (Intents.ACTION_EMAIL.equals(action)) {
         final String emailSubject =
           intent.getStringExtra(Intents.EXTRA_EMAIL_SUBJECT);
@@ -538,7 +537,7 @@ public class Notifications {
         // Send email
         Email.INST.send(ctxt, emailSubject, emailBody);
 
-        cancelNotification(noteId);
+        cancelNotification(ctxt, noteId);
       }
     }
   }
