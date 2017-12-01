@@ -33,14 +33,11 @@ import java.net.URL;
 
 import javax.annotation.CheckForNull;
 
-/**
- * Helper class for working with Bitmaps
- */
+/** Helper class for working with Bitmaps */
 public class BitmapHelper {
   private static final String TAG = "BitmapHelper";
 
-  private BitmapHelper() {
-  }
+  private BitmapHelper() {}
 
   /**
    * Loads a Bitmap from the inter-webs, blocks
@@ -181,7 +178,7 @@ public class BitmapHelper {
    * @return the decoded Bitmap null if string is empty
    */
   public static
-  @CheckForNull
+  @CheckForNull @Nullable
   Bitmap decodeBitmap(String encodedBitmap) {
     Bitmap bitmap = null;
     if (!TextUtils.isEmpty(encodedBitmap)) {
@@ -193,6 +190,7 @@ public class BitmapHelper {
   }
 
   @SuppressWarnings("unused")
+  @Nullable
   public static Bitmap getBitmapFromVectorDrawable(Context ctxt, int
     drawableId) {
     Bitmap bitmap = null;

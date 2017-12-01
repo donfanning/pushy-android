@@ -20,6 +20,7 @@ package com.weebly.opus1269.clipman.ui.helpers;
 import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.widget.ActionMenuView;
 import android.util.Log;
@@ -85,8 +86,10 @@ public class MenuTintHelper {
     }
     if (nativeIsActionButton == null) {
       try {
-        Class<?> MenuItemImpl = Class.forName("com.android.internal.view.menu.MenuItemImpl");
-        nativeIsActionButton = MenuItemImpl.getDeclaredMethod("isActionButton");
+        Class<?> MenuItemImpl =
+          Class.forName("com.android.internal.view.menu.MenuItemImpl");
+        nativeIsActionButton =
+          MenuItemImpl.getDeclaredMethod("isActionButton");
         if (!nativeIsActionButton.isAccessible()) {
           nativeIsActionButton.setAccessible(true);
         }
@@ -120,13 +123,15 @@ public class MenuTintHelper {
    * @param alpha    The alpha value (0...255) to set on the icon or {@code
    *                 null} for no changes.
    */
-  public static void colorMenuItem(MenuItem menuItem, Integer color, Integer alpha) {
+  public static void colorMenuItem(MenuItem menuItem, Integer color,
+                                   Integer alpha) {
     if (color == null && alpha == null) {
       return; // nothing to do.
     }
     Drawable drawable = menuItem.getIcon();
     if (drawable != null) {
-      // If we don't mutate the drawable, then all drawables with this id will have the ColorFilter
+      // If we don't mutate the drawable,
+      // then all drawables with this id will have the ColorFilter
       drawable.mutate();
       if (color != null) {
         drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
@@ -144,8 +149,8 @@ public class MenuTintHelper {
   public static void forceMenuIcons(Menu menu) {
     try {
       Class<?> MenuBuilder = menu.getClass();
-      Method setOptionalIconsVisible =
-        MenuBuilder.getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+      Method setOptionalIconsVisible = MenuBuilder
+        .getDeclaredMethod("setOptionalIconsVisible", boolean.class);
       if (!setOptionalIconsVisible.isAccessible()) {
         setOptionalIconsVisible.setAccessible(true);
       }
@@ -176,7 +181,9 @@ public class MenuTintHelper {
     return findOverflowMenuButton(activity, findActionBar(activity));
   }
 
-  private static ImageView findOverflowMenuButton(Activity activity, ViewGroup viewGroup) {
+  @Nullable
+  private static ImageView findOverflowMenuButton(Activity activity,
+                                                  ViewGroup viewGroup) {
     if (viewGroup == null) {
       return null;
     }
@@ -197,8 +204,10 @@ public class MenuTintHelper {
     return overflow;
   }
 
+  @Nullable
   private static ViewGroup findActionBar(Activity activity) {
-    int id = activity.getResources().getIdentifier("action_bar", "id", "android");
+    int id = activity.getResources()
+      .getIdentifier("action_bar", "id", "android");
     ViewGroup actionBar = null;
     if (id != 0) {
       actionBar = (ViewGroup) activity.findViewById(id);
@@ -210,6 +219,7 @@ public class MenuTintHelper {
     return actionBar;
   }
 
+  @Nullable
   private static ViewGroup findToolbar(ViewGroup viewGroup) {
     ViewGroup toolbar = null;
     for (int i = 0, len = viewGroup.getChildCount(); i < len; i++) {
@@ -262,7 +272,8 @@ public class MenuTintHelper {
       return;
     }
 
-    // We must wait for the view to be created to set a color filter on the drawables.
+    // We must wait for the view to be created to set a color filter
+    // on the drawables.
     actionBarView.post(new Runnable() {
 
       @Override
@@ -275,7 +286,8 @@ public class MenuTintHelper {
           if (menuItem.hasSubMenu()) {
             SubMenu subMenu = menuItem.getSubMenu();
             for (int j = 0; j < subMenu.size(); j++) {
-              colorMenuItem(subMenu.getItem(j), subMenuIconColor, subMenuIconAlpha);
+              colorMenuItem(subMenu.getItem(j), subMenuIconColor,
+                subMenuIconAlpha);
             }
           }
         }
@@ -317,12 +329,14 @@ public class MenuTintHelper {
           if (isInOverflow(menuItem)) {
             colorMenuItem(menuItem, subMenuIconColor, subMenuIconAlpha);
           } else {
-            colorMenuItem(menu.getItem(i), menuItemIconColor, menuItemIconAlpha);
+            colorMenuItem(menu.getItem(i), menuItemIconColor,
+              menuItemIconAlpha);
           }
           if (menuItem.hasSubMenu()) {
             SubMenu subMenu = menuItem.getSubMenu();
             for (int j = 0; j < subMenu.size(); j++) {
-              colorMenuItem(subMenu.getItem(j), subMenuIconColor, subMenuIconAlpha);
+              colorMenuItem(subMenu.getItem(j), subMenuIconColor,
+                subMenuIconAlpha);
             }
           }
         }
@@ -370,7 +384,8 @@ public class MenuTintHelper {
 
     @Override
     public boolean onMenuItemActionExpand(MenuItem item) {
-      int color = menuTintHelper.originalMenuItemIconColor == null ? menuTintHelper.menuItemIconColor :
+      int color = menuTintHelper.originalMenuItemIconColor ==
+        null ? menuTintHelper.menuItemIconColor :
         menuTintHelper.originalMenuItemIconColor;
       menuTintHelper.setMenuItemIconColor(color);
       menuTintHelper.reapply();
@@ -379,17 +394,17 @@ public class MenuTintHelper {
 
     @Override
     public boolean onMenuItemActionCollapse(MenuItem item) {
-      int color = menuTintHelper.originalMenuItemIconColor == null ? menuTintHelper.menuItemIconColor :
+      int color = menuTintHelper.originalMenuItemIconColor ==
+        null ? menuTintHelper.menuItemIconColor :
         menuTintHelper.originalMenuItemIconColor;
       menuTintHelper.setMenuItemIconColor(color);
       menuTintHelper.reapply();
       return true;
     }
-
   }
 
 
-  // --------------------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------
 
   public static final class Builder {
 
@@ -532,12 +547,11 @@ public class MenuTintHelper {
 
   }
 
-  // --------------------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------
 
-  /**
-   * Auto collapses the SearchView when the soft keyboard is dismissed.
-   */
-  public static class SearchViewFocusListener implements View.OnFocusChangeListener {
+  /** Auto collapses the SearchView when the soft keyboard is dismissed. */
+  public static class SearchViewFocusListener implements
+    View.OnFocusChangeListener {
 
     private final MenuItem item;
 
@@ -556,5 +570,4 @@ public class MenuTintHelper {
     }
 
   }
-
 }

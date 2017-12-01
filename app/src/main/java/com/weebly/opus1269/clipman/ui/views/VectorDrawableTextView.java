@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
  * Licensed under Apache 2.0
@@ -34,7 +33,8 @@ public class VectorDrawableTextView extends AppCompatTextView {
     initAttrs(context, attrs);
   }
 
-  public VectorDrawableTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+  public VectorDrawableTextView(Context context, AttributeSet attrs,
+                                int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     initAttrs(context, attrs);
   }
@@ -53,27 +53,40 @@ public class VectorDrawableTextView extends AppCompatTextView {
     Drawable drawableTop = null;
 
     if (AppUtils.isLollipopOrLater()) {
-      drawableLeft = attributeArray.getDrawable(R.styleable.VectorDrawableTextView_drawableLeftCompat);
-      drawableRight = attributeArray.getDrawable(R.styleable.VectorDrawableTextView_drawableRightCompat);
-      drawableBottom = attributeArray.getDrawable(R.styleable.VectorDrawableTextView_drawableBottomCompat);
-      drawableTop = attributeArray.getDrawable(R.styleable.VectorDrawableTextView_drawableTopCompat);
+      drawableLeft = attributeArray.getDrawable(
+        R.styleable.VectorDrawableTextView_drawableLeftCompat);
+      drawableRight = attributeArray.getDrawable(
+        R.styleable.VectorDrawableTextView_drawableRightCompat);
+      drawableBottom = attributeArray.getDrawable(
+        R.styleable.VectorDrawableTextView_drawableBottomCompat);
+      drawableTop = attributeArray.getDrawable(
+        R.styleable.VectorDrawableTextView_drawableTopCompat);
     } else {
-      final int drawableLeftId = attributeArray.getResourceId(R.styleable.VectorDrawableTextView_drawableLeftCompat, -1);
-      final int drawableRightId = attributeArray.getResourceId(R.styleable.VectorDrawableTextView_drawableRightCompat, -1);
-      final int drawableBottomId = attributeArray.getResourceId(R.styleable.VectorDrawableTextView_drawableBottomCompat, -1);
-      final int drawableTopId = attributeArray.getResourceId(R.styleable.VectorDrawableTextView_drawableTopCompat, -1);
+      final int drawableLeftId = attributeArray.getResourceId(
+        R.styleable.VectorDrawableTextView_drawableLeftCompat, -1);
+      final int drawableRightId = attributeArray.getResourceId(
+        R.styleable.VectorDrawableTextView_drawableRightCompat, -1);
+      final int drawableBottomId = attributeArray.getResourceId(
+        R.styleable.VectorDrawableTextView_drawableBottomCompat, -1);
+      final int drawableTopId = attributeArray.getResourceId(
+        R.styleable.VectorDrawableTextView_drawableTopCompat, -1);
 
       if (drawableLeftId != -1)
-        drawableLeft = AppCompatResources.getDrawable(context, drawableLeftId);
+        drawableLeft =
+          AppCompatResources.getDrawable(context, drawableLeftId);
       if (drawableRightId != -1)
-        drawableRight = AppCompatResources.getDrawable(context, drawableRightId);
+        drawableRight =
+          AppCompatResources.getDrawable(context, drawableRightId);
       if (drawableBottomId != -1)
-        drawableBottom = AppCompatResources.getDrawable(context, drawableBottomId);
+        drawableBottom =
+          AppCompatResources.getDrawable(context, drawableBottomId);
       if (drawableTopId != -1)
-        drawableTop = AppCompatResources.getDrawable(context, drawableTopId);
+        drawableTop =
+          AppCompatResources.getDrawable(context, drawableTopId);
     }
 
-    setCompoundDrawablesWithIntrinsicBounds(drawableLeft, drawableTop, drawableRight, drawableBottom);
+    setCompoundDrawablesWithIntrinsicBounds(drawableLeft, drawableTop,
+      drawableRight, drawableBottom);
     attributeArray.recycle();
   }
 }
