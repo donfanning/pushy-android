@@ -216,6 +216,8 @@ public class MainActivity extends BaseActivity implements
       Prefs.INST(this).setLabelFilter("");
       startActivity(MainActivity.class);
       finish();
+    } else {
+      super.onBackPressed();
     }
   }
 
