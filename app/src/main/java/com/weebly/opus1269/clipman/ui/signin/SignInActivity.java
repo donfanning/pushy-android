@@ -244,7 +244,7 @@ public class SignInActivity extends BaseActivity implements
   }
 
   /** SignOut of Google and Firebase */
-  public void doSignOut() {
+  private void doSignOut() {
     if (mGoogleApiClient.isConnected()) {
       showProgress(getString(R.string.signing_out));
       Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
@@ -393,7 +393,7 @@ public class SignInActivity extends BaseActivity implements
   }
 
   /** Unregister with App Engine. This will also perform the sign-out */
-  void doUnregister() {
+  private void doUnregister() {
     new RegistrationClient.UnregisterAsyncTask(getApplicationContext(), SignInActivity.this).executeMe();
   }
 
@@ -495,7 +495,7 @@ public class SignInActivity extends BaseActivity implements
   /**
    * Remove progress
    */
-  void dismissProgress() {
+  private void dismissProgress() {
     final View userView = findViewById(R.id.user);
     final View progressView = findViewById(R.id.progress);
 
@@ -508,7 +508,7 @@ public class SignInActivity extends BaseActivity implements
    * Set progress message
    * @param message - message to display
    */
-  void setProgressMessage(String message) {
+  private void setProgressMessage(String message) {
     final TextView view = findViewById(R.id.progress_message);
     view.setText(message);
   }

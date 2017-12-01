@@ -153,18 +153,20 @@ public final class Log {
     return logEx(ctxt, tag, message, ex, title, notify);
   }
 
-  /**
-   * Log an {@link Exception}
-   * @param tag       Class we are from
-   * @param message   message to log
-   * @param exception Exception to log
-   * @return The message
-   */
-  public static String logEx(Context ctxt, String tag, String message,
-                             Exception exception) {
-    final String title = ctxt.getString(R.string.error_not_title);
-    return logEx(ctxt, tag, message, exception, title, true);
-  }
+// --Commented out by Inspection START (12/1/2017 6:11 AM):
+//  /**
+//   * Log an {@link Exception}
+//   * @param tag       Class we are from
+//   * @param message   message to log
+//   * @param exception Exception to log
+//   * @return The message
+//   */
+//  public static String logEx(Context ctxt, String tag, String message,
+//                             Exception exception) {
+//    final String title = ctxt.getString(R.string.error_not_title);
+//    return logEx(ctxt, tag, message, exception, title, true);
+//  }
+// --Commented out by Inspection STOP (12/1/2017 6:11 AM)
 
   /**
    * Log an {@link Exception}

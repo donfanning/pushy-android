@@ -156,22 +156,24 @@ public class BitmapHelper {
     return ret;
   }
 
-  /**
-   * Do a Base64 encoding of a {@link Bitmap}
-   * @param bitmap a Bitmap
-   * @return the encoded String
-   */
-  public static String encodeBitmap(@Nullable Bitmap bitmap) {
-    String encodedBitmap = "";
-    if (bitmap != null) {
-      ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bStream);
-      byte[] b = bStream.toByteArray();
-      encodedBitmap = Base64.encodeToString(b, Base64.DEFAULT);
-    }
-
-    return encodedBitmap;
-  }
+// --Commented out by Inspection START (12/1/2017 6:11 AM):
+//  /**
+//   * Do a Base64 encoding of a {@link Bitmap}
+//   * @param bitmap a Bitmap
+//   * @return the encoded String
+//   */
+//  public static String encodeBitmap(@Nullable Bitmap bitmap) {
+//    String encodedBitmap = "";
+//    if (bitmap != null) {
+//      ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+//      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bStream);
+//      byte[] b = bStream.toByteArray();
+//      encodedBitmap = Base64.encodeToString(b, Base64.DEFAULT);
+//    }
+//
+//    return encodedBitmap;
+//  }
+// --Commented out by Inspection STOP (12/1/2017 6:11 AM)
 
   /**
    * Decode a Base64 encoding of a {@link Bitmap}

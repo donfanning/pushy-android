@@ -118,7 +118,7 @@ public class Analytics {
    * @param cat    Event category
    * @param action Event action
    */
-  public void event(String screen, String cat, String action) {
+  private void event(String screen, String cat, String action) {
     event(screen, cat, action, null);
   }
 

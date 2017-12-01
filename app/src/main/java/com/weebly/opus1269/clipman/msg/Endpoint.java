@@ -51,7 +51,7 @@ abstract class Endpoint {
   final static private boolean USE_LOCAL_SERVER = false;
 
   /** Global Application Context */
-  protected final Context mContext;
+  final Context mContext;
 
   final String ERROR_UNKNOWN;
   final String ERROR_CREDENTIAL;

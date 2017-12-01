@@ -57,7 +57,6 @@
   <string name="action_help_version">Version info</string>
   <string name="action_help_licenses">Open source licenses</string>
   <string name="action_help_privacy">Privacy</string>
-  <string name="action_refresh_devices">Refresh device list</string>
 
   <string name="nav_account">Manage account</string>
   <string name="nav_devices">Manage devices</string>
@@ -252,7 +251,6 @@
          items. Your items won\'t be deleted.]]></string>
 
   <!-- Related to notifications -->
-  <string name="refresh_devices">Refreshing device list…</string>
   <string name="device_ping">Contacting other devices&#8230;</string>
   <string name="device_ping_response">Device is online</string>
   <string name="device_added">New device added</string>
@@ -288,12 +286,9 @@
 
   <!-- Related to account sign-in -->
   <string name="signin_title">Google Sign-In\nPushy</string>
-  <string name="signed_in_fmt">Signed in as: %s</string>
-  <string name="signed_in">Signed in</string>
   <string name="signing_in">Signing in…</string>
   <string name="signing_out">Signing out…</string>
   <string name="signed_out">Signed out</string>
-  <string name="loading">Loading…</string>
   <string name="signin_help_title">Sign-In Help</string>
   <string name="signin_help"><![CDATA[
         Sign-in is only required if you want to share items with your other devices.
@@ -303,10 +298,7 @@
   <string name="sign_in_err">"Sign-in failed. Please try again later"</string>
   <string name="sign_in_err_firebase">"Sign-in to firebase failed"</string>
   <string name="error_connection">Unable to connect to Google SignIn</string>
-  <string name="auth_code_fmt">Auth Code: %s</string>
-  <string name="id_token_fmt">ID Token: %s</string>
 
-  <string name="play_services_error_fmt">Google Play Services Error: %i</string>
   <string name="sign_out">Sign Out</string>
   <string name="desc_google_icon">Google Logo</string>
 
@@ -333,7 +325,7 @@
   <string name="delete_all_question">Delete all items?</string>
   <string name="button_delete">DELETE</string>
   <string name="button_dismiss">DISMISS</string>
-  <string name="button_cancel">CANCEL</string>
+  <string name="button_cancel" tools:ignore="ButtonCase">CANCEL</string>
   <string name="button_undo">UNDO</string>
   <string name="button_continue">CONTINUE</string>
   <string name="copyright" translatable="false">&#169;2017 Michael A Updike</string>
