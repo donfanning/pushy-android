@@ -52,6 +52,13 @@ public class MyBackupAgent extends BackupAgent {
   public void onRestoreFinished() {
     super.onRestoreFinished();
 
+    final int versionCode = Prefs.INST(this).getVersionCode();
+    if (versionCode <= 222001) {
+      Log.logD(TAG, "converting User preferences");
+      // switch to standalone prefs file for User info.
+      User.INST(this).convertPrefs();
+    }
+
     // reset device and log in info.
     Prefs.INST(this).setSN();
     Prefs.INST(this).setDeviceRegistered(false);
