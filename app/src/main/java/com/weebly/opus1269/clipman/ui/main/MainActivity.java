@@ -466,7 +466,7 @@ public class MainActivity extends BaseActivity implements
           final ClipItem item = new ClipItem(this, sharedText);
           item.save(this);
           startOrUpdateClipViewer(item);
-          MessagingClient.send(item);
+          MessagingClient.INST(this).send(item);
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP_ITEM)) {

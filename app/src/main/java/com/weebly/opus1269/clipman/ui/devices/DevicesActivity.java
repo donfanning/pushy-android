@@ -69,7 +69,7 @@ public class DevicesActivity extends BaseActivity {
     Notifications.INST(this).removeDevices();
 
     // ping devices
-    MessagingClient.sendPing();
+    MessagingClient.INST(this).sendPing();
 
     // so relative dates get updated
     mAdapter.notifyDataSetChanged();
@@ -125,6 +125,6 @@ public class DevicesActivity extends BaseActivity {
   /** Refresh the list */
   private void doRefresh() {
     mAdapter.notifyDataSetChanged();
-    MessagingClient.sendPing();
+    MessagingClient.INST(this).sendPing();
   }
 }

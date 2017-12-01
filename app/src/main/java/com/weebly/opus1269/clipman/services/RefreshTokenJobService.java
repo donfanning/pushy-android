@@ -38,7 +38,7 @@ public class RefreshTokenJobService extends JobService {
           String token = FirebaseInstanceId.getInstance().getToken();
           Log.logD(TAG, "Refreshed token: " + token);
           final EndpointRet ret =
-            RegistrationClient.register(null, true);
+            RegistrationClient.INST(ctxt).register(null, true);
           if (!ret.getSuccess()) {
             Log.logE(ctxt, TAG, ret.getReason(), false);
           } else {

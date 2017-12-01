@@ -207,9 +207,8 @@ public class SignInActivity extends BaseActivity implements
       if (!Prefs.INST(this).isDeviceRegistered()) {
         // now register with server
         setProgressMessage(getString(R.string.registering));
-        new RegistrationClient
-          .RegisterAsyncTask(this, mAccount.getIdToken())
-          .executeMe();
+        new RegistrationClient.RegisterAsyncTask(getApplicationContext(),
+          this, mAccount.getIdToken()).executeMe();
       } else {
         dismissProgress();
       }
@@ -346,7 +345,7 @@ public class SignInActivity extends BaseActivity implements
       if (Prefs.INST(this).isPushClipboard()) {
         // also handles unregister and sign-out
         showProgress(getString(R.string.signing_out));
-        MessagingClient.sendDeviceRemoved();
+        MessagingClient.INST(this).sendDeviceRemoved();
       } else {
         // handles unregister and sign-out
         doUnregister();
@@ -395,7 +394,7 @@ public class SignInActivity extends BaseActivity implements
 
   /** Unregister with App Engine. This will also perform the sign-out */
   void doUnregister() {
-    new RegistrationClient.UnregisterAsyncTask(SignInActivity.this).executeMe();
+    new RegistrationClient.UnregisterAsyncTask(getApplicationContext(), SignInActivity.this).executeMe();
   }
 
   /** Remove all {@link User} info. */

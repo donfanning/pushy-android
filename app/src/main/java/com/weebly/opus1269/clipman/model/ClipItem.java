@@ -568,7 +568,7 @@ public class ClipItem implements Serializable {
     if (User.INST(context).isLoggedIn() &&
       Prefs.INST(context).isPushClipboard()) {
       ret = true;
-      MessagingClient.send(this);
+      MessagingClient.INST(context).send(this);
     }
     return ret;
   }

@@ -18,14 +18,15 @@
 
 package com.weebly.opus1269.clipman.msg;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
@@ -37,22 +38,39 @@ import com.weebly.opus1269.clipman.model.Prefs;
 
 import java.io.IOException;
 
-/**
- * This helper class is the interface to our gae Registration Endpoint
- */
+/** Singleton that is the interface to our gae Registration Endpoint */
 public class RegistrationClient extends Endpoint {
-  private static final String TAG = "RegistrationClient";
 
-  private static final String ERROR_REGISTER =
-    App.getContext().getString(R.string.err_register);
-  private static final String ERROR_UNREGISTER =
-    App.getContext().getString(R.string.err_unregister);
-  private static final String ERROR_INVALID_REGID =
-    App.getContext().getString(R.string.err_invalid_regid);
-  private static final String ERROR_NOT_REGISTERED =
-    App.getContext().getString(R.string.err_not_registered);
+  // OK, because mContext is the global Application context
+  @SuppressLint("StaticFieldLeak")
+  private static RegistrationClient sInstance;
 
-  private RegistrationClient() {
+  private final String TAG = "RegistrationClient";
+  private final String ERROR_REGISTER;
+  private final String ERROR_UNREGISTER;
+  private final String ERROR_INVALID_REGID;
+  private final String ERROR_NOT_REGISTERED;
+
+  private RegistrationClient(@NonNull Context context) {
+    super(context);
+
+    ERROR_REGISTER = context.getString(R.string.err_register);
+    ERROR_UNREGISTER = context.getString(R.string.err_unregister);
+    ERROR_INVALID_REGID = context.getString(R.string.err_invalid_regid);
+    ERROR_NOT_REGISTERED = context.getString(R.string.err_not_registered);
+  }
+
+  /**
+   * Lazily create our instance
+   * @param context any old context
+   */
+  public static RegistrationClient INST(@NonNull Context context) {
+    synchronized (RegistrationClient.class) {
+      if (sInstance == null) {
+        sInstance = new RegistrationClient(context);
+      }
+      return sInstance;
+    }
   }
 
   /**
@@ -61,8 +79,7 @@ public class RegistrationClient extends Endpoint {
    * @param refresh - true is refreshing exisitng token
    * @return getSuccess() false on error
    */
-  public static EndpointRet register(String idToken, Boolean refresh) {
-    final Context ctxt = App.getContext();
+  public EndpointRet register(String idToken, Boolean refresh) {
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
     ret.setReason(ERROR_UNKNOWN);
@@ -71,11 +88,11 @@ public class RegistrationClient extends Endpoint {
       Log.logD(TAG, "Not signed in.");
       ret.setSuccess(true);
       return ret;
-    } else if (!refresh && Prefs.INST(ctxt).isDeviceRegistered()) {
+    } else if (!refresh && Prefs.INST(mContext).isDeviceRegistered()) {
       Log.logD(TAG, "Already registered.");
       ret.setSuccess(true);
       return ret;
-    } else if (!Prefs.INST(ctxt).isAllowReceive()) {
+    } else if (!Prefs.INST(mContext).isAllowReceive()) {
       Log.logD(TAG, "User doesn't want to receive messasges.");
       ret.setSuccess(true);
       return ret;
@@ -85,13 +102,15 @@ public class RegistrationClient extends Endpoint {
     try {
       final String regToken = getRegToken();
       if (TextUtils.isEmpty(regToken)) {
-        ret.setReason(Log.logE(ctxt, TAG, ERROR_INVALID_REGID, ERROR_REGISTER));
+        ret.setReason(
+          Log.logE(mContext, TAG, ERROR_INVALID_REGID, ERROR_REGISTER));
         return ret;
       }
 
       final GoogleCredential credential = getCredential(idToken);
       if (credential == null) {
-        ret.setReason(Log.logE(ctxt, TAG, ERROR_CREDENTIAL, ERROR_REGISTER));
+        ret.setReason(
+          Log.logE(mContext, TAG, ERROR_CREDENTIAL, ERROR_REGISTER));
         return ret;
       }
 
@@ -100,15 +119,15 @@ public class RegistrationClient extends Endpoint {
       ret = regService.register(regToken).execute();
       if (ret.getSuccess()) {
         isRegistered = true;
-        Analytics.INST(ctxt).registered();
+        Analytics.INST(mContext).registered();
       } else {
-        ret.setReason(Log.logE(ctxt, TAG, ret.getReason(), ERROR_REGISTER));
+        ret.setReason(Log.logE(mContext, TAG, ret.getReason(), ERROR_REGISTER));
       }
     } catch (final IOException ex) {
-      ret.setReason(Log.logEx(ctxt, TAG, ex.getLocalizedMessage(), ex,
+      ret.setReason(Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
         ERROR_REGISTER));
     } finally {
-      Prefs.INST(ctxt).setDeviceRegistered(isRegistered);
+      Prefs.INST(mContext).setDeviceRegistered(isRegistered);
     }
 
     return ret;
@@ -118,8 +137,7 @@ public class RegistrationClient extends Endpoint {
    * Unregister with server - Blocks
    * @return getSuccess() false on error
    */
-  private static EndpointRet unregister() {
-    final Context ctxt = App.getContext();
+  private EndpointRet unregister() {
     EndpointRet ret = new EndpointRet();
     ret.setSuccess(false);
     ret.setReason(ERROR_UNKNOWN);
@@ -127,8 +145,8 @@ public class RegistrationClient extends Endpoint {
     if (notSignedIn()) {
       ret.setSuccess(true);
       return ret;
-    } else if (!Prefs.INST(ctxt).isDeviceRegistered()) {
-      Log.logE(ctxt, TAG, ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
+    } else if (!Prefs.INST(mContext).isDeviceRegistered()) {
+      Log.logE(mContext, TAG, ERROR_NOT_REGISTERED, ERROR_UNREGISTER);
       ret.setSuccess(true);
       return ret;
     }
@@ -137,14 +155,15 @@ public class RegistrationClient extends Endpoint {
     try {
       final String regToken = getRegToken();
       if (TextUtils.isEmpty(regToken)) {
-        ret.setReason(Log.logE(ctxt, TAG, ERROR_INVALID_REGID,
+        ret.setReason(Log.logE(mContext, TAG, ERROR_INVALID_REGID,
           ERROR_UNREGISTER));
         return ret;
       }
 
       final GoogleCredential credential = getCredential(null);
       if (credential == null) {
-        ret.setReason(Log.logE(ctxt, TAG, ERROR_CREDENTIAL, ERROR_UNREGISTER));
+        ret.setReason(
+          Log.logE(mContext, TAG, ERROR_CREDENTIAL, ERROR_UNREGISTER));
         return ret;
       }
 
@@ -152,16 +171,17 @@ public class RegistrationClient extends Endpoint {
       final Registration regService = getRegistrationService(credential);
       ret = regService.unregister(regToken).execute();
       if (ret.getSuccess()) {
-        Analytics.INST(ctxt).unregistered();
+        Analytics.INST(mContext).unregistered();
         isRegistered = false;
       } else {
-        ret.setReason(Log.logE(ctxt, TAG, ret.getReason(), ERROR_UNREGISTER));
+        ret.setReason(
+          Log.logE(mContext, TAG, ret.getReason(), ERROR_UNREGISTER));
       }
     } catch (final IOException ex) {
-      ret.setReason(Log.logEx(ctxt, TAG, ex.getLocalizedMessage(), ex,
+      ret.setReason(Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
         ERROR_UNREGISTER));
     } finally {
-      Prefs.INST(ctxt).setDeviceRegistered(isRegistered);
+      Prefs.INST(mContext).setDeviceRegistered(isRegistered);
     }
 
     return ret;
@@ -172,13 +192,13 @@ public class RegistrationClient extends Endpoint {
    * @param credential - authorization for current user
    * @return Connection to RegistrationEndpoint on server
    */
-  private static Registration
-  getRegistrationService(GoogleCredential credential) {
+  @NonNull
+  private Registration getRegistrationService(GoogleCredential credential) {
     final Registration.Builder builder =
       new Registration.Builder(getNetHttpTransport(),
         getAndroidJsonFactory(), credential);
 
-    builder.setApplicationName(AppUtils.getAppName(App.getContext()));
+    builder.setApplicationName(AppUtils.getAppName(mContext));
 
     // for development purposes
     setLocalServer(builder);
@@ -190,10 +210,16 @@ public class RegistrationClient extends Endpoint {
   public static class RegisterAsyncTask extends
     CustomAsyncTask<Void, Void, String> {
 
+    // OK, if mAppContext is the global Application context
+    @SuppressLint("StaticFieldLeak")
+    private final Context mAppContext;
+
     private final String mIdToken;
 
-    public RegisterAsyncTask(Activity activity, String idToken) {
+    public RegisterAsyncTask(Context appContext, Activity activity,
+                             String idToken) {
       super(activity);
+      mAppContext = appContext;
       mIdToken = idToken;
     }
 
@@ -201,7 +227,8 @@ public class RegistrationClient extends Endpoint {
     protected String doInBackground(Void... params) {
       String error = "";
       // register device with the server - blocks
-      EndpointRet ret = RegistrationClient.register(mIdToken, false);
+      EndpointRet ret =
+        RegistrationClient.INST(mAppContext).register(mIdToken, false);
       if (!ret.getSuccess()) {
         error = ret.getReason();
       }
@@ -219,12 +246,12 @@ public class RegistrationClient extends Endpoint {
           Devices.INST(mActivity).notifyMyDeviceRegisterError(error);
         } else {
           // let others know we are here
-          MessagingClient.sendDeviceAdded();
+          MessagingClient.INST(mAppContext).sendDeviceAdded();
           // notifiy listeners
           Devices.INST(mActivity).notifyMyDeviceRegistered();
         }
       } else {
-        Log.logE(App.getContext(), TAG, NO_ACTIVITY, false);
+        Log.logE(mAppContext, "RegisterAsyncTask", NO_ACTIVITY, false);
       }
     }
   }
@@ -232,27 +259,32 @@ public class RegistrationClient extends Endpoint {
   /** AsyncTask to unregister from server */
   public static class UnregisterAsyncTask extends
     CustomAsyncTask<Void, Void, String> {
+    private static final String TAG = "UnregisterAsyncTask";
 
-    public UnregisterAsyncTask(Activity activity) {
+    // OK, if mAppContext is the global Application context
+    @SuppressLint("StaticFieldLeak")
+    private final Context mAppContext;
+
+    public UnregisterAsyncTask(Context appContext, Activity activity) {
       super(activity);
+      mAppContext = appContext;
     }
 
     @Override
     protected String doInBackground(Void... params) {
-      final Context ctxt = App.getContext();
       String error = "";
       // unregister with the server - blocks
-      EndpointRet ret = RegistrationClient.unregister();
+      EndpointRet ret = RegistrationClient.INST(mAppContext).unregister();
       if (!ret.getSuccess()) {
-        Prefs.INST(App.getContext()).setDeviceRegistered(false);
+        Prefs.INST(mAppContext).setDeviceRegistered(false);
         try {
           // delete in case user logs into different account - blocks
           FirebaseInstanceId.getInstance().deleteInstanceId();
         } catch (IOException ex) {
-          Log.logEx(ctxt, TAG, "", ex, false);
+          Log.logEx(mAppContext, TAG, "", ex, false);
         }
         error = ret.getReason();
-        Log.logE(ctxt, TAG, error, false);
+        Log.logE(mAppContext, TAG, error, false);
       }
       return error;
     }
@@ -263,7 +295,7 @@ public class RegistrationClient extends Endpoint {
       super.onPostExecute(error);
 
       // SignInActivity will be notified that it can now sign-out
-      Devices.INST(App.getContext()).notifyMyDeviceUnregistered();
+      Devices.INST(mAppContext).notifyMyDeviceUnregistered();
     }
   }
 }

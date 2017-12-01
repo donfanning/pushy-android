@@ -166,8 +166,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sp, String key) {
-    final Context context = getContext();
     final Activity activity = getActivity();
+    final Context context = activity.getApplicationContext();
     final String keyNickname = getString(R.string.key_pref_nickname);
     final String keyMonitor = getString(R.string.key_pref_monitor_clipboard);
     final String keyTheme = getString(R.string.key_pref_theme);
@@ -180,7 +180,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     // process changes
     if (key.equals(keyNickname)) {
       setNicknameSummary();
-      MessagingClient.sendPing();
+      MessagingClient.INST(context).sendPing();
     } else if (key.equals(keyMonitor)) {
       // start or stop clipboard service as needed
       if (Prefs.INST(context).isMonitorClipboard()) {
@@ -204,16 +204,15 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       }
     } else if (key.equals(keyReceive)) {
       if (User.INST(context).isLoggedIn()) {
+        final Context appContext = activity.getApplicationContext();
         if (Prefs.INST(context).isAllowReceive()) {
           // register
           new RegistrationClient
-            .RegisterAsyncTask(getActivity(), null)
-            .executeMe();
+            .RegisterAsyncTask(appContext, activity, null).executeMe();
         } else {
           // unregister
           new RegistrationClient
-            .UnregisterAsyncTask(getActivity())
-            .executeMe();
+            .UnregisterAsyncTask(appContext, activity).executeMe();
         }
       }
     }

@@ -42,9 +42,6 @@ public class App extends Application implements
 
   private static final String TAG = "App";
 
-  // OK, because App won't go away until killed
-  @SuppressLint("StaticFieldLeak")
-  private static Context sContext = null;
   @SuppressLint("StaticFieldLeak")
   private static ClipsDatabaseHelper sClipsDB = null;
 
@@ -59,10 +56,6 @@ public class App extends Application implements
 
   public App() {
     mActivityTaskMap = new HashMap<>();
-  }
-
-  public static Context getContext() {
-    return sContext;
   }
 
   public static ClipsDatabaseHelper getDbHelper() {
@@ -81,20 +74,18 @@ public class App extends Application implements
   public void onCreate() {
     super.onCreate();
 
-    sContext = this;
-
     // initialize database
-    sClipsDB = new ClipsDatabaseHelper(sContext);
+    sClipsDB = new ClipsDatabaseHelper(this);
     sClipsDB.getWritableDatabase();
 
     // make sure Shared preferences are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
     // reset fav filter
-    Prefs.INST(sContext).setFavFilter(false);
+    Prefs.INST(this).setFavFilter(false);
 
     // reset label filter
-    Prefs.INST(sContext).setLabelFilter("");
+    Prefs.INST(this).setLabelFilter("");
 
     // save version info. to the preferences database
     final PackageInfo pInfo;
@@ -105,10 +96,10 @@ public class App extends Application implements
       updatePreferences(pInfo.versionCode);
 
       // save current version
-      Prefs.INST(sContext).setVersionName(pInfo.versionName);
-      Prefs.INST(sContext).setVersionCode(pInfo.versionCode);
+      Prefs.INST(this).setVersionName(pInfo.versionName);
+      Prefs.INST(this).setVersionCode(pInfo.versionCode);
     } catch (final PackageManager.NameNotFoundException ex) {
-      Log.logEx(sContext, TAG,
+      Log.logEx(this, TAG,
         "Version info not found: " + ex.getMessage(), ex, false);
     }
 
@@ -116,18 +107,18 @@ public class App extends Application implements
     registerActivityLifecycleCallbacks(this);
 
     // Initialize the Notification Channels
-    Notifications.INST(sContext).initChannels(this);
+    Notifications.INST(this).initChannels(this);
 
     // Setup heartbeat alarm
-    HeartbeatAlarmReceiver.updateAlarm(sContext);
+    HeartbeatAlarmReceiver.updateAlarm(this);
 
     // listen for shared preference changes
     PreferenceManager
-      .getDefaultSharedPreferences(sContext)
+      .getDefaultSharedPreferences(this)
       .registerOnSharedPreferenceChangeListener(this);
 
     // listen for user preference changes
-    sContext.getSharedPreferences(User.INST(sContext).PREFS_FILENAME, 0)
+    this.getSharedPreferences(User.INST(this).PREFS_FILENAME, 0)
       .registerOnSharedPreferenceChangeListener(this);
   }
 
@@ -177,14 +168,14 @@ public class App extends Application implements
   @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    final String keyUserId = User.INST(sContext).PREF_USER_ID;
+    final String keyUserId = User.INST(this).PREF_USER_ID;
     final String keyReceive = getString(R.string.key_pref_receive_msg);
     final String keyHeartbeat = getString(R.string.key_pref_heartbeat);
 
     // update heartbeat on appropriate changes
     if (key.equals(keyUserId) || key.equals(keyReceive) ||
       key.equals(keyHeartbeat)) {
-      HeartbeatAlarmReceiver.updateAlarm(sContext);
+      HeartbeatAlarmReceiver.updateAlarm(this);
     }
   }
 
@@ -250,7 +241,7 @@ public class App extends Application implements
    */
   private void updatePreferences(final int versionCode) {
     Log.logD(TAG, "updatePreferences called");
-    final int oldVersionCode = Prefs.INST(sContext).getVersionCode();
+    final int oldVersionCode = Prefs.INST(this).getVersionCode();
 
     if ((oldVersionCode == 0) || (versionCode == oldVersionCode)) {
       Log.logD(TAG, "no change needed");
@@ -264,7 +255,7 @@ public class App extends Application implements
       final String key = getString(R.string.key_pref_not_types);
       final String errorValue = getString(R.string.ar_not_error_value);
       final Set<String> values =
-        preferences.getStringSet(key, Prefs.INST(sContext).DEF_NOTIFICATIONS);
+        preferences.getStringSet(key, Prefs.INST(this).DEF_NOTIFICATIONS);
       if (!values.contains(errorValue)) {
         // add the error notification
         values.add(errorValue);
@@ -277,7 +268,7 @@ public class App extends Application implements
 
     if (oldVersionCode <= 222001) {
       // switch to standalone prefs file for User info.
-      User.INST(sContext).convertPrefs();
+      User.INST(this).convertPrefs();
     }
   }
 }

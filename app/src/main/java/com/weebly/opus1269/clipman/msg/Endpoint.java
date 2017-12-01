@@ -18,6 +18,9 @@
 
 package com.weebly.opus1269.clipman.msg;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.google.android.gms.auth.api.Auth;
@@ -35,50 +38,57 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.User;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Base class for Google App Engine Endpoints
- */
+/** Base class for Google App Engine Endpoints */
 abstract class Endpoint {
-  static final String ERROR_UNKNOWN =
-    App.getContext().getString(R.string.err_unknown);
-  static final String ERROR_CREDENTIAL =
-    App.getContext().getString(R.string.err_credential);
-
-  /** Log tag */
-  private static final String TAG = "Endpoint";
 
   /** Set to true to use local gae server */
-  private static final boolean USE_LOCAL_SERVER = false;
+  final static private boolean USE_LOCAL_SERVER = false;
+
+  /** Global Application Context */
+  protected final Context mContext;
+
+  final String ERROR_UNKNOWN;
+  final String ERROR_CREDENTIAL;
+
+  /** Log tag */
+  final private String TAG = "Endpoint";
 
   /** Access id */
-  private static final String WEB_CLIENT_ID =
-    App.getContext().getString(R.string.default_web_client_id);
+  final private String WEB_CLIENT_ID;
 
   /** Network timeout in seconds */
-  private static final int TIMEOUT = 60;
+  final private int TIMEOUT = 60;
 
-  private static final String ERROR_NOT_SIGNED_IN =
-    App.getContext().getString(R.string.err_not_signed_in);
+  final private String ERROR_NOT_SIGNED_IN;
 
   /** Global NetHttpTransport instance */
-  private static NetHttpTransport sNetHttpTransport = null;
+  private NetHttpTransport mNetHttpTransport = null;
 
   /** Global AndroidJacksonFactory instance */
-  private static AndroidJsonFactory sAndroidJsonFactory = null;
+  private AndroidJsonFactory mAndroidJsonFactory = null;
+
+  Endpoint(@NonNull Context context) {
+    mContext = context.getApplicationContext();
+
+    ERROR_UNKNOWN = mContext.getString(R.string.err_unknown);
+    ERROR_CREDENTIAL = mContext.getString(R.string.err_credential);
+    ERROR_NOT_SIGNED_IN = mContext.getString(R.string.err_not_signed_in);
+
+    WEB_CLIENT_ID = mContext.getString(R.string.default_web_client_id);
+  }
 
   /**
    * Determine if we are signed in
    * @return true if not signed in
    */
-  static boolean notSignedIn() {
-    if (!User.INST(App.getContext()).isLoggedIn()) {
+  boolean notSignedIn() {
+    if (!User.INST(mContext).isLoggedIn()) {
       Log.logD(TAG, ERROR_NOT_SIGNED_IN);
       return true;
     }
@@ -89,7 +99,7 @@ abstract class Endpoint {
    * Get InstanceId (regToken)
    * @return regToken
    */
-  static String getRegToken() throws IOException {
+  String getRegToken() throws IOException {
     String ret = FirebaseInstanceId.getInstance().getToken();
     if (ret == null) {
       throw new IOException("Failed to get registration token.");
@@ -101,33 +111,32 @@ abstract class Endpoint {
    * Get shared NetHttpTransport
    * @return regToken
    */
-  static NetHttpTransport getNetHttpTransport() {
-    if (sNetHttpTransport == null) {
-      sNetHttpTransport = new NetHttpTransport();
+  NetHttpTransport getNetHttpTransport() {
+    if (mNetHttpTransport == null) {
+      mNetHttpTransport = new NetHttpTransport();
     }
-    return sNetHttpTransport;
+    return mNetHttpTransport;
   }
 
   /**
    * Get shared AndroidJsonFactory
    * @return regToken
    */
-  static AndroidJsonFactory getAndroidJsonFactory() {
-    if (sAndroidJsonFactory == null) {
-      sAndroidJsonFactory = new AndroidJsonFactory();
+  AndroidJsonFactory getAndroidJsonFactory() {
+    if (mAndroidJsonFactory == null) {
+      mAndroidJsonFactory = new AndroidJsonFactory();
     }
-    return sAndroidJsonFactory;
+    return mAndroidJsonFactory;
   }
 
   /**
    * Get an idToken for authorization
    * @return idToken
    */
-  private static String getIdToken() {
+  private String getIdToken() {
     String idToken = "";
 
-    // Get the IDToken that can be used securely on the backend
-    // for a short time
+    // Get the IDToken that can be used securely on the backend for a short time
     final GoogleSignInOptions gso =
       new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestEmail()
@@ -137,7 +146,7 @@ abstract class Endpoint {
     // Build a GoogleApiClient with access to the Google Sign-In API and the
     // options specified by gso.
     final GoogleApiClient googleApiClient =
-      new GoogleApiClient.Builder(App.getContext())
+      new GoogleApiClient.Builder(mContext)
         .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
         .build();
 
@@ -158,7 +167,7 @@ abstract class Endpoint {
         }
       }
     } catch (Exception ex) {
-      Log.logEx(App.getContext(), TAG, ex.getLocalizedMessage(), ex, false);
+      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, false);
     } finally {
       googleApiClient.disconnect();
     }
@@ -171,7 +180,8 @@ abstract class Endpoint {
    * @param idToken - authorization token for user
    * @return {@link GoogleCredential} for authorized server call
    */
-  static GoogleCredential getCredential(String idToken) {
+  @Nullable
+  GoogleCredential getCredential(String idToken) {
 
     // get credential for a server call
     final GoogleCredential.Builder builder = new GoogleCredential.Builder();
@@ -201,7 +211,7 @@ abstract class Endpoint {
    * for running with local server
    * @param builder JSON client
    */
-  static void setLocalServer(AbstractGoogleJsonClient.Builder builder) {
+  void setLocalServer(AbstractGoogleJsonClient.Builder builder) {
     if (USE_LOCAL_SERVER && BuildConfig.DEBUG) {
       // options for running against local devappserver
       // - 10.0.2.2 is localhost's IP address in Android emulator
