@@ -166,16 +166,16 @@ public class ClipboardWatcherService extends Service implements
   private void saveAndSend(ClipItem clipItem, boolean onNewOnly) {
     boolean saved;
     if (onNewOnly) {
-      saved = clipItem.saveIfNew();
+      saved = clipItem.saveIfNew(this);
     } else {
-      saved = clipItem.save();
+      saved = clipItem.save(this);
     }
 
     if (saved) {
-      Notifications.INST(getApplicationContext()).show(clipItem);
+      Notifications.INST(this).show(clipItem);
 
       if (!clipItem.isRemote() && Prefs.INST(this).isAutoSend()) {
-        clipItem.send();
+        clipItem.send(this);
       }
     }
   }

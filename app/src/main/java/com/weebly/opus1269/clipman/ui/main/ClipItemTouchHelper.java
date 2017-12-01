@@ -64,7 +64,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         mActivity.getClipLoaderManager().getAdapter().getSelectedPos();
       mUndoItem = new UndoItem(holder.clipItem, selectedPos,
         holder.itemView.isSelected());
-      holder.clipItem.delete();
+      holder.clipItem.delete(mActivity);
 
       final Snackbar snack = Snackbar
         .make(mActivity.findViewById(R.id.fab), R.string.deleted_1_item,
@@ -158,7 +158,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     }
 
     private void undo() {
-      mClipItem.save();
+      mClipItem.save(mActivity);
 
       if (mIsSelected) {
         // little hack to make sure item is selected if it was when deleted

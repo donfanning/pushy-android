@@ -130,7 +130,7 @@ public class MainActivity extends BaseActivity implements
     if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
       final ClipViewerFragment fragment =
-        ClipViewerFragment.newInstance(new ClipItem(), "");
+        ClipViewerFragment.newInstance(new ClipItem(this), "");
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();
@@ -463,8 +463,8 @@ public class MainActivity extends BaseActivity implements
         final String sharedText =
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          final ClipItem item = new ClipItem(sharedText);
-          item.save();
+          final ClipItem item = new ClipItem(this, sharedText);
+          item.save(this);
           startOrUpdateClipViewer(item);
           MessagingClient.send(item);
         }
@@ -493,7 +493,7 @@ public class MainActivity extends BaseActivity implements
 
   /** Send the clipboard contents to our {@link Devices} */
   private void sendClipboardContents() {
-    ClipItem.sendClipboardContents(findViewById(R.id.fab));
+    ClipItem.sendClipboardContents(this, findViewById(R.id.fab));
   }
 
   /** Show the {@link DeleteDialogFragment} for verifying delete all */

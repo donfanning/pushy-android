@@ -28,7 +28,6 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipsContract;
@@ -59,29 +58,31 @@ public class ClipItem implements Serializable {
   private String mDevice;
   private List<Label> mLabels;
 
-  public ClipItem() {
-    init();
+  public ClipItem(Context context) {
+    init(context);
   }
 
-  public ClipItem(String text) {
-    init();
+  public ClipItem(Context context, String text) {
+    init(context);
     mText = text;
-    loadLabels();
+    loadLabels(context);
   }
 
-  public ClipItem(String text, ReadableInstant date, Boolean fav,
-                  Boolean remote, String device) {
-    init();
+  public ClipItem(Context context, String text, ReadableInstant date,
+                  Boolean fav,
+                  @SuppressWarnings("SameParameterValue") Boolean remote,
+                  String device) {
+    init(context);
     mText = text;
     mDate = new DateTime(date.getMillis());
     mFav = fav;
     mRemote = remote;
     mDevice = device;
-    loadLabels();
+    loadLabels(context);
   }
 
-  public ClipItem(Cursor cursor) {
-    init();
+  public ClipItem(Context context, Cursor cursor) {
+    init(context);
     int idx = cursor.getColumnIndex(ClipsContract.Clip.COL_TEXT);
     mText = cursor.getString(idx);
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DATE);
@@ -94,17 +95,17 @@ public class ClipItem implements Serializable {
     mRemote = remote != 0L;
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DEVICE);
     mDevice = cursor.getString(idx);
-    loadLabels();
+    loadLabels(context);
   }
 
-  public ClipItem(ClipItem clipItem) {
-    init();
+  public ClipItem(Context context, ClipItem clipItem) {
+    init(context);
     mText = clipItem.getText();
     mDate = new DateTime(clipItem.getDate().getMillis());
     mFav = clipItem.isFav();
     mRemote = clipItem.isRemote();
     mDevice = clipItem.getDevice();
-    loadLabels();
+    loadLabels(context);
   }
 
   /**
@@ -126,11 +127,10 @@ public class ClipItem implements Serializable {
     if (clipText == null) {
       // If the Uri contains something, just coerce it to text
       if (item.getUri() != null) {
-        final Context ctxt = App.getContext();
         try {
-          clipText = item.coerceToText(ctxt);
+          clipText = item.coerceToText(context);
         } catch (Exception ex) {
-          Log.logEx(ctxt, TAG, ex.getLocalizedMessage(), ex,
+          Log.logEx(context, TAG, ex.getLocalizedMessage(), ex,
             ERROR_CLIPBOARD_READ);
           return null;
         }
@@ -157,7 +157,7 @@ public class ClipItem implements Serializable {
 
     ClipItem clipItem = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
-      clipItem = new ClipItem();
+      clipItem = new ClipItem(context);
       clipItem.setText(String.valueOf(clipText));
       clipItem.setFav(fav);
       clipItem.setRemote(remote);
@@ -169,35 +169,35 @@ public class ClipItem implements Serializable {
   }
 
   /**
-   *  Send the clipboard contents to our {@link Devices}
-   *  @param view toast parent
+   * Send the clipboard contents to our {@link Devices}
+   * @param view toast parent
    */
-  public static void sendClipboardContents(View view) {
-    final Context ctxt = App.getContext();
+  public static void sendClipboardContents(@NonNull Context context,
+                                           @Nullable View view) {
     ClipboardManager clipboardManager =
-      (ClipboardManager) ctxt.getSystemService(Context.CLIPBOARD_SERVICE);
-    final ClipItem clipItem = getFromClipboard(ctxt, clipboardManager);
+      (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+    final ClipItem clipItem = getFromClipboard(context, clipboardManager);
     int id = R.string.clipboard_no_text;
 
     if (!ClipItem.isWhitespace(clipItem)) {
       // save to database
-      clipItem.saveIfNew();
+      clipItem.saveIfNew(context);
 
       // send to registered devices , if possible
-      if (!User.INST(ctxt).isLoggedIn()) {
+      if (!User.INST(context).isLoggedIn()) {
         id = R.string.err_not_signed_in;
-      } else if (!Prefs.INST(ctxt).isDeviceRegistered()) {
+      } else if (!Prefs.INST(context).isDeviceRegistered()) {
         id = R.string.err_not_registered;
-      } else if (!Prefs.INST(ctxt).isPushClipboard()) {
+      } else if (!Prefs.INST(context).isPushClipboard()) {
         id = R.string.err_no_push;
-      } else if (clipItem.send()) {
+      } else if (clipItem.send(context)) {
         id = R.string.clipboard_sent;
       }
     }
 
     // display status message
-    final String msg = ctxt.getString(id);
-    AppUtils.showMessage(ctxt, view, msg);
+    final String msg = context.getString(id);
+    AppUtils.showMessage(context, view, msg);
   }
 
   /**
@@ -325,17 +325,17 @@ public class ClipItem implements Serializable {
     return mLabels.contains(label);
   }
 
-  public void addLabel(Label label) {
+  public void addLabel(Context context, Label label) {
     if (!hasLabel(label)) {
       mLabels.add(label);
-      LabelTables.INST(App.getContext()).insert(this, label);
+      LabelTables.INST(context).insert(this, label);
     }
   }
 
-  public void removeLabel(Label label) {
+  public void removeLabel(Context context, Label label) {
     if (hasLabel(label)) {
       mLabels.remove(label);
-      LabelTables.INST(App.getContext()).delete(this, label);
+      LabelTables.INST(context).delete(this, label);
     }
   }
 
@@ -343,9 +343,8 @@ public class ClipItem implements Serializable {
    * Get our database PK
    * @return table row, -1L if not found
    */
-  public long getId() {
+  public long getId(Context context) {
     long ret = -1L;
-    final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
     final String[] projection = {ClipsContract.Clip._ID};
@@ -382,16 +381,14 @@ public class ClipItem implements Serializable {
   }
 
   /** Copy to the clipboard */
-  public void copyToClipboard() {
+  public void copyToClipboard(final Context context) {
     final Handler handler = new Handler(Looper.getMainLooper());
     handler.post(new Runnable() {
 
       @Override
       public void run() {
-        final Context cntxt = App.getContext();
-        final ClipboardManager clipboard =
-          (ClipboardManager) cntxt.getSystemService(Context.CLIPBOARD_SERVICE);
-
+        final ClipboardManager clipboard = (ClipboardManager) context
+          .getSystemService(Context.CLIPBOARD_SERVICE);
         final ClipData clip = ClipData.newPlainText(buildClipLabel(), mText);
         if (clipboard != null) {
           clipboard.setPrimaryClip(clip);
@@ -460,11 +457,11 @@ public class ClipItem implements Serializable {
    * @return true if saved
    */
   @NonNull
-  private Boolean save(Boolean onNewOnly) {
+  private Boolean save(Context context, Boolean onNewOnly) {
     if (ClipItem.isWhitespace(this)) {
       return false;
     }
-    final long id = getId();
+    final long id = getId(context);
     final boolean exists = (id != -1L);
 
     if (onNewOnly && exists) {
@@ -472,7 +469,6 @@ public class ClipItem implements Serializable {
       return false;
     }
 
-    final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
     if (exists) {
@@ -480,7 +476,7 @@ public class ClipItem implements Serializable {
       final Uri uri =
         ContentUris.withAppendedId(ClipsContract.Clip.CONTENT_URI, id);
       resolver.update(uri, getContentValues(), null, null);
-     } else {
+    } else {
       // insert new
       resolver.insert(ClipsContract.Clip.CONTENT_URI, getContentValues());
 
@@ -498,28 +494,27 @@ public class ClipItem implements Serializable {
    * Save to database if it is a new item
    * @return true if saved
    */
-  public Boolean saveIfNew() {
-    return save(true);
+  public Boolean saveIfNew(Context context) {
+    return save(context, true);
   }
 
   /**
    * Save to database
    * @return true if saved
    */
-  public Boolean save() {
-    return save(false);
+  public Boolean save(Context context) {
+    return save(context, false);
   }
 
   /**
    * Delete from database
    * @return true if deleted
    */
-  public Boolean delete() {
+  public Boolean delete(Context context) {
     if (ClipItem.isWhitespace(this)) {
       return false;
     }
 
-    final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
     final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
@@ -533,18 +528,17 @@ public class ClipItem implements Serializable {
   }
 
   /** Get our {@link Label} names from the database */
-  public void loadLabels() {
+  public void loadLabels(Context context) {
     mLabels.clear();
 
     if (ClipItem.isWhitespace(this)) {
       return;
     }
 
-    final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
     final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final long id = getId();
+    final long id = getId(context);
     final String selection = ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
 
     Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
@@ -569,8 +563,7 @@ public class ClipItem implements Serializable {
    * Send to our devices
    * @return true if sent
    */
-  public Boolean send() {
-    final Context context = App.getContext();
+  public Boolean send(Context context) {
     Boolean ret = false;
     if (User.INST(context).isLoggedIn() &&
       Prefs.INST(context).isPushClipboard()) {
@@ -581,12 +574,12 @@ public class ClipItem implements Serializable {
   }
 
   /** Initialize the members */
-  private void init() {
+  private void init(Context context) {
     mText = "";
     mDate = new DateTime();
     mFav = false;
     mRemote = false;
-    mDevice = Device.getMyName(App.getContext());
+    mDevice = Device.getMyName(context);
     mLabels = new ArrayList<>(0);
   }
 }

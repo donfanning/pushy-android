@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -112,7 +113,7 @@ public class ClipViewerFragment extends Fragment
       mIsViewable = savedInstanceState.getBoolean(STATE_CLIP_VIEWABLE);
       mHighlightText = savedInstanceState.getString(STATE_CLIP_HIGHLIGHT);
     } else {
-      mClipItem = new ClipItem();
+      mClipItem = new ClipItem(getContext());
       mHighlightText = "";
       mIsViewable = true;
     }
@@ -209,8 +210,13 @@ public class ClipViewerFragment extends Fragment
   }
 
   /** Get a shallow copy of our ClipItem */
-  public ClipItem getClipItemClone() {
-    return new ClipItem(mClipItem);
+  public @Nullable
+  ClipItem getClipItemClone() {
+    if (mClipItem != null) {
+      return new ClipItem(getContext(), mClipItem);
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -242,12 +248,18 @@ public class ClipViewerFragment extends Fragment
   /** Copy our ClipItem to the Clipboard */
   void copyToClipboard() {
     if (!ClipItem.isWhitespace(mClipItem)) {
+      final Context context = getContext();
+
       mClipItem.setRemote(false);
       setupRemoteDevice();
+
+      // let listeners know
       mOnClipChanged.clipChanged(mClipItem);
-      mClipItem.copyToClipboard();
+
+      // copy and let user know
+      mClipItem.copyToClipboard(context);
       View view = getView();
-      AppUtils.showMessage(getContext(), view, getString(R.string.clipboard_copy));
+      AppUtils.showMessage(context, view, getString(R.string.clipboard_copy));
     }
   }
 
@@ -287,7 +299,7 @@ public class ClipViewerFragment extends Fragment
     }
   }
 
-  /** Set the source view if we are from a Remote Device */
+  /** Set the source view if we are from a remote device or hide it if local */
   private void setupRemoteDevice() {
     if (!mIsViewable) {
       return;
@@ -313,7 +325,7 @@ public class ClipViewerFragment extends Fragment
       return;
     }
 
-    mClipItem.loadLabels();
+    mClipItem.loadLabels(getContext());
     final List<Label> labels = mClipItem.getLabels();
 
     final LinearLayout labelLayout =

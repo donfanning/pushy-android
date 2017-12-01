@@ -93,7 +93,7 @@ public class ClipTable {
       array = new ClipItem[cursor.getCount()];
       int count = 0;
       while (cursor.moveToNext()) {
-        array[count] = new ClipItem(cursor);
+        array[count] = new ClipItem(mContext, cursor);
         count++;
       }
     } finally {

@@ -53,7 +53,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     super.onReceive(context, intent);
 
     if (ACTION_CLICK.equals(intent.getAction())) {
-      ClipItem.sendClipboardContents(null);
+      ClipItem.sendClipboardContents(context, null);
     }
   }
 }

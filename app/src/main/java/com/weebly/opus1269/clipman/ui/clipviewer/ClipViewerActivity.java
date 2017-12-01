@@ -163,9 +163,12 @@ public class ClipViewerActivity extends BaseActivity implements
   /** Delete the {@link ClipItem} from the db */
   private void deleteClipItem() {
     final ClipItem clipItem = getClipViewerFragment().getClipItemClone();
+    if (clipItem == null) {
+      return;
+    }
 
     // delete from database
-    final boolean deleted = clipItem.delete();
+    final boolean deleted = clipItem.delete(this);
 
     String message = getResources().getString(R.string.clip_deleted);
     if (!deleted) {
@@ -182,7 +185,7 @@ public class ClipViewerActivity extends BaseActivity implements
       snack.setAction(R.string.button_undo, new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          mUndoItem.save();
+          mUndoItem.save(v.getContext());
           Analytics.INST(v.getContext()).imageClick(TAG, getString(R.string.button_undo));
         }
       }).addCallback(new Snackbar.Callback() {
@@ -207,6 +210,9 @@ public class ClipViewerActivity extends BaseActivity implements
   private void toggleFavorite() {
     ClipViewerFragment clipViewerFragment = getClipViewerFragment();
     ClipItem clipItem = clipViewerFragment.getClipItemClone();
+    if (clipItem == null) {
+      return;
+    }
 
     clipItem.setFav(!clipItem.isFav());
 
@@ -217,7 +223,7 @@ public class ClipViewerActivity extends BaseActivity implements
     setFavoriteMenuItem();
 
     // update database
-    clipItem.save();
+    clipItem.save(this);
   }
 
   /** Set the favorite {@link MenuItem} appearence */

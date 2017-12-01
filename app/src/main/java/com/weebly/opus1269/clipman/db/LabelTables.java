@@ -101,7 +101,7 @@ public class LabelTables {
     for (ClipItem clipItem : clipItems) {
       for (Label label : clipItem.getLabels()) {
         ContentValues cv = new ContentValues();
-        cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId());
+        cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId(mContext));
         cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
         mapCVs[count] = cv;
         count++;
@@ -135,7 +135,7 @@ public class LabelTables {
 
     // insert into LabelMap table
     final ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId());
+    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId(mContext));
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
 
     resolver.insert(ClipsContract.LabelMap.CONTENT_URI, cv);
@@ -156,7 +156,7 @@ public class LabelTables {
 
     final ContentResolver resolver = mContext.getContentResolver();
 
-    final long id = clipItem.getId();
+    final long id = clipItem.getId(mContext);
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
       ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
@@ -175,7 +175,7 @@ public class LabelTables {
   private boolean exists(ContentResolver resolver, ClipItem clipItem,
                          Label label) {
     final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final long id = clipItem.getId();
+    final long id = clipItem.getId(mContext);
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
       ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;

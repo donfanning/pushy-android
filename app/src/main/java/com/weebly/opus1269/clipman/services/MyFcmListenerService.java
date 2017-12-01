@@ -62,13 +62,13 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final Boolean fav = "1".equals(favString);
     final String name = device.getDisplayName();
     final ClipItem clipItem =
-      new ClipItem(message, new DateTime(), fav, true, name);
+      new ClipItem(ctxt, message, new DateTime(), fav, true, name);
 
     // save to DB
-    clipItem.save();
+    clipItem.save(ctxt);
 
     // add to clipboard
-    clipItem.copyToClipboard();
+    clipItem.copyToClipboard(ctxt);
 
     // display notification if requested by user
     Notifications.INST(ctxt).show(clipItem);

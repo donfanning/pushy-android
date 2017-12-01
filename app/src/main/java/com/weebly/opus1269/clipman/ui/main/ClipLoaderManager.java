@@ -115,7 +115,7 @@ class ClipLoaderManager implements
       // see: http://goo.gl/IFQkPc
       if (cursor.getCount() == 0) {
         mAdapter.setSelectedItemID(-1L);
-        mMainActivity.startOrUpdateClipViewer(new ClipItem());
+        mMainActivity.startOrUpdateClipViewer(new ClipItem(mMainActivity));
       } else {
         int pos;
         if (mAdapter.getSelectedItemID() == -1L) {
@@ -127,7 +127,8 @@ class ClipLoaderManager implements
         cursor.moveToPosition(pos);
         final int index = cursor.getColumnIndex(ClipsContract.Clip._ID);
         mAdapter.setSelectedItemID(cursor.getLong(index));
-        mMainActivity.startOrUpdateClipViewer(new ClipItem(cursor));
+        mMainActivity
+          .startOrUpdateClipViewer(new ClipItem(mMainActivity, cursor));
       }
     }
   }
@@ -192,13 +193,13 @@ class ClipLoaderManager implements
     final boolean checked = holder.favCheckBox.isChecked();
 
     holder.clipItem.setFav(checked);
-    holder.clipItem.save();
+    holder.clipItem.save(mMainActivity);
   }
 
   private void onCopyClicked(ClipCursorAdapter.ClipViewHolder holder) {
     holder.clipItem.setRemote(false);
     holder.clipItem.setDevice(Device.getMyName(mMainActivity));
-    holder.clipItem.copyToClipboard();
+    holder.clipItem.copyToClipboard(mMainActivity);
     if (!Prefs.INST(mMainActivity).isMonitorClipboard()) {
       AppUtils.showMessage(mMainActivity, mMainActivity.getFab(),
         mMainActivity.getString(R.string.clipboard_copy));

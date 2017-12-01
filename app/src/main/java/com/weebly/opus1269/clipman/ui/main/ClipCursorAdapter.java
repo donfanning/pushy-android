@@ -237,7 +237,7 @@ class ClipCursorAdapter extends
 
     @Override
     public void bindCursor(final Cursor cursor) {
-      clipItem = new ClipItem(cursor);
+      clipItem = new ClipItem(clipText.getContext(), cursor);
       itemID = cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip._ID));
       clipText.setText(clipItem.getText());
       favCheckBox.setChecked(clipItem.isFav());

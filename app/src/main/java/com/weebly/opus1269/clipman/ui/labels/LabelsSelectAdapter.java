@@ -135,9 +135,9 @@ class LabelsSelectAdapter extends
   private void addOrRemoveLabel(boolean checked, Label label) {
     final ClipItem clipItem = mActivity.getClipItem();
     if (checked) {
-      clipItem.addLabel(label);
+      clipItem.addLabel(mContext, label);
     } else {
-      clipItem.removeLabel(label);
+      clipItem.removeLabel(mContext, label);
     }
   }
 
