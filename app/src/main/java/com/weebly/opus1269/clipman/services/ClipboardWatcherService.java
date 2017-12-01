@@ -134,7 +134,7 @@ public class ClipboardWatcherService extends Service implements
     if (mClipboard == null) {
       return;
     }
-    final ClipItem clipItem = ClipItem.getFromClipboard(mClipboard);
+    final ClipItem clipItem = ClipItem.getFromClipboard(this, mClipboard);
     final long now = System.currentTimeMillis();
     final long deltaTime = now - mLastTime;
     mLastTime = now;

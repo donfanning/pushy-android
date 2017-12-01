@@ -197,7 +197,7 @@ class ClipLoaderManager implements
 
   private void onCopyClicked(ClipCursorAdapter.ClipViewHolder holder) {
     holder.clipItem.setRemote(false);
-    holder.clipItem.setDevice(Device.getMyName());
+    holder.clipItem.setDevice(Device.getMyName(mMainActivity));
     holder.clipItem.copyToClipboard();
     if (!Prefs.INST(mMainActivity).isMonitorClipboard()) {
       AppUtils.showMessage(mMainActivity, mMainActivity.getFab(),

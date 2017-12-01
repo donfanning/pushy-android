@@ -18,10 +18,10 @@
 
 package com.weebly.opus1269.clipman.model;
 
+import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
 
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
 import org.joda.time.DateTime;
@@ -50,15 +50,15 @@ public class Device {
     mLastSeen = new DateTime().getMillis();
   }
 
-  public static Device getMyDevice() {
-    return new Device(getMyModel(), getMySN(), getMyOS(),
-      Prefs.INST(App.getContext()).getDeviceNickname());
+  public static Device getMyDevice(Context context) {
+    return new Device(getMyModel(), getMySN(context), getMyOS(),
+      Prefs.INST(context).getDeviceNickname());
   }
 
-  public static String getMyName() {
-    String myName = getMyNickname();
+  public static String getMyName(Context context) {
+    String myName = getMyNickname(context);
     if (TextUtils.isEmpty(myName)) {
-      myName = getMyModel() + " - " + getMySN() + " - " + getMyOS();
+      myName = getMyModel() + " - " + getMySN(context) + " - " + getMyOS();
     }
     return myName;
   }
@@ -79,20 +79,21 @@ public class Device {
     return value;
   }
 
-  private static String getMySN() {
-    return Prefs.INST(App.getContext()).getSN();
+  private static String getMySN(Context context) {
+    return Prefs.INST(context).getSN();
   }
 
+  @SuppressWarnings("SameReturnValue")
   private static String getMyOS() {
     return "Android";
   }
 
-  private static String getMyNickname() {
-    return Prefs.INST(App.getContext()).getDeviceNickname();
+  private static String getMyNickname(Context context) {
+    return Prefs.INST(context).getDeviceNickname();
   }
 
-  public static String getMyUniqueName() {
-    return getMyModel() + " - " + getMySN() + " - " + getMyOS();
+  public static String getMyUniqueName(Context context) {
+    return getMyModel() + " - " + getMySN(context) + " - " + getMyOS();
   }
 
   public String getModel() {

@@ -113,7 +113,8 @@ public class ClipItem implements Serializable {
    * @return A new clip from the clipboard contents
    */
   @Nullable
-  public static ClipItem getFromClipboard(ClipboardManager clipboard) {
+  public static ClipItem getFromClipboard(Context context,
+                                          ClipboardManager clipboard) {
     final ClipData clipData = clipboard.getPrimaryClip();
     if (clipData == null) {
       return null;
@@ -138,7 +139,7 @@ public class ClipItem implements Serializable {
 
     // parse the description for special instructions
     Boolean remote = false;
-    String sourceDevice = Device.getMyName();
+    String sourceDevice = Device.getMyName(context);
     final ClipDescription desc = clipData.getDescription();
 
     // set fav state if the copy is from us
@@ -175,7 +176,7 @@ public class ClipItem implements Serializable {
     final Context ctxt = App.getContext();
     ClipboardManager clipboardManager =
       (ClipboardManager) ctxt.getSystemService(Context.CLIPBOARD_SERVICE);
-    final ClipItem clipItem = getFromClipboard(clipboardManager);
+    final ClipItem clipItem = getFromClipboard(ctxt, clipboardManager);
     int id = R.string.clipboard_no_text;
 
     if (!ClipItem.isWhitespace(clipItem)) {
@@ -585,7 +586,7 @@ public class ClipItem implements Serializable {
     mDate = new DateTime();
     mFav = false;
     mRemote = false;
-    mDevice = Device.getMyName();
+    mDevice = Device.getMyName(App.getContext());
     mLabels = new ArrayList<>(0);
   }
 }

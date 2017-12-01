@@ -124,7 +124,7 @@ class LabelsEditAdapter extends
           text = text.trim();
           if (text.length() > 0) {
             if (!text.equals(holder.label.getName())) {
-              holder.label.setName(text);
+              holder.label.setName(mContext, text);
             }
             labelEditText.setText(holder.label.getName());
             DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
@@ -160,7 +160,7 @@ class LabelsEditAdapter extends
   public void onClick(DialogInterface dialogInterface, int which) {
     if ((which == DialogInterface.BUTTON_POSITIVE) && (mDeleteLabel != null)) {
       // delete it
-      mDeleteLabel.delete();
+      mDeleteLabel.delete(mContext);
       mDeleteLabel = null;
       Analytics.INST(mContext)
         .buttonClick(mActivity.getTAG(), mDialog.getButton(which));

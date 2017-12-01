@@ -183,13 +183,14 @@ public class MessagingClient extends Endpoint {
   private static JSONObject getJSONData(String action, String message) {
     JSONObject data;
     try {
+      Context context = App.getContext();
       data = new JSONObject();
       data.put(Msg.ACTION, action);
       data.put(Msg.MESSAGE, message);
-      data.put(Msg.DEVICE_MODEL, Device.getMyDevice().getModel());
-      data.put(Msg.DEVICE_SN, Device.getMyDevice().getSN());
-      data.put(Msg.DEVICE_OS, Device.getMyDevice().getOS());
-      data.put(Msg.DEVICE_NICKNAME, Device.getMyDevice().getNickname());
+      data.put(Msg.DEVICE_MODEL, Device.getMyDevice(context).getModel());
+      data.put(Msg.DEVICE_SN, Device.getMyDevice(context).getSN());
+      data.put(Msg.DEVICE_OS, Device.getMyDevice(context).getOS());
+      data.put(Msg.DEVICE_NICKNAME, Device.getMyDevice(context).getNickname());
     } catch (JSONException ex) {
       Log.logEx(App.getContext(), TAG, ex.getLocalizedMessage(), ex,
         ERROR_SEND);

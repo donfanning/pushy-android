@@ -131,7 +131,7 @@ public class LabelTables {
     }
 
     // insert Label
-    label.save();
+    label.save(mContext);
 
     // insert into LabelMap table
     final ContentValues cv = new ContentValues();

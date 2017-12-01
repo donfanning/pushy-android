@@ -119,7 +119,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       data.put(Msg.MESSAGE, Uri.decode(msg));
     }
 
-    if (device.getUniqueName().equals(Device.getMyUniqueName())) {
+    if (device.getUniqueName().equals(Device.getMyUniqueName(this))) {
       // ignore our own messages
       return;
     } else if (!User.INST(this).isLoggedIn()) {

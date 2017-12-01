@@ -13,7 +13,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 
@@ -26,6 +25,7 @@ public class Label implements Serializable {
   @NonNull
   private String mName;
 
+  @SuppressWarnings("unused")
   public Label() {mName = "";}
 
   public Label(@NonNull String name) {mName = name;}
@@ -35,11 +35,19 @@ public class Label implements Serializable {
     mName = cursor.getString(idx);
   }
 
+  /**
+   * Get name
+   * @return name
+   */
   @NonNull
   public String getName() {return mName;}
 
-  public void setName(@NonNull String name) {
-    final Context context = App.getContext();
+  /**
+   * Change name and update database
+   * @param context A Context
+   * @param name    The new name
+   */
+  public void setName(Context context, @NonNull String name) {
     final ContentResolver resolver = context.getContentResolver();
 
     // update Label table
@@ -60,6 +68,11 @@ public class Label implements Serializable {
   }
 
   @Override
+  public int hashCode() {
+    return mName.hashCode();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
@@ -67,11 +80,6 @@ public class Label implements Serializable {
     Label label = (Label) o;
 
     return mName.equals(label.mName);
-  }
-
-  @Override
-  public int hashCode() {
-    return mName.hashCode();
   }
 
   /**
@@ -88,15 +96,14 @@ public class Label implements Serializable {
    * Save to database
    * @return true if saved
    */
-  public Boolean save() {
+  public Boolean save(Context context) {
     if (AppUtils.isWhitespace(getName())) {
       return false;
     }
 
-    final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
-    if (exists()) {
+    if (exists(context)) {
       // already in db
       return false;
     }
@@ -111,12 +118,11 @@ public class Label implements Serializable {
    * Delete from database
    * @return true if deleted
    */
-  public Boolean delete() {
+  public Boolean delete(Context context) {
     if (AppUtils.isWhitespace(mName)) {
       return false;
     }
 
-    final Context context = App.getContext();
     final ContentResolver resolver = context.getContentResolver();
 
     // delete from Label table
@@ -137,8 +143,7 @@ public class Label implements Serializable {
    * Are we in the database
    * @return if true, label exists
    */
-  private boolean exists() {
-    final Context context = App.getContext();
+  private boolean exists(Context context) {
     final ContentResolver resolver = context.getContentResolver();
 
     final String[] projection = {ClipsContract.Label.COL_NAME};

@@ -91,10 +91,12 @@ public class LabelCreateFragement extends Fragment implements
 
   @Override
   public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
+    // noop
   }
 
   @Override
   public void onTextChanged(CharSequence text, int i, int i1, int i2) {
+    //noop
   }
 
   @Override
@@ -106,6 +108,10 @@ public class LabelCreateFragement extends Fragment implements
     DrawableHelper.setImageViewEnabled(doneButton, enabled);
   }
 
+  /**
+   * Initialize the view
+   * @param rootView The View
+   */
   private void setup(View rootView) {
     int color;
 
@@ -155,8 +161,9 @@ public class LabelCreateFragement extends Fragment implements
     String text = editText.getText().toString();
     if (!AppUtils.isWhitespace(text)) {
       text = text.trim();
-      ret = new Label(text).save();
+      ret = new Label(text).save(getContext());
       if (ret) {
+        // clear EditText
         editText.setText("");
       }
     }
