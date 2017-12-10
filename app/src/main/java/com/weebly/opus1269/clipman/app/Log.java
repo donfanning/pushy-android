@@ -23,9 +23,22 @@ public final class Log {
   /** Tag prefix for our messages */
   private static final String MY_APP = "MyApp ";
 
+  /** should we log errors and exceptions */
+  private static boolean sLogErrors = false;
+
   /** Private contructor */
   private Log() {
     // do nothing
+  }
+
+  /** Disable error and exception loggin */
+  public static void disableErrorLogging() {
+    sLogErrors = false;
+  }
+
+  /** Enable error and exception logging */
+  public static void enableErrorLogging() {
+    sLogErrors = true;
   }
 
   /**
@@ -59,13 +72,15 @@ public final class Log {
 
     android.util.Log.e(MY_APP + tag, msg);
 
-    Analytics.INST(ctxt).error(tag, msg);
+    if (sLogErrors) {
+      Analytics.INST(ctxt).error(tag, msg);
 
-    // save last error
-    final LastError lastError = new LastError(ctxt, tag, title, message);
-    if (notify && Prefs.INST(ctxt).isNotifyError()) {
-      // notify user
-      Notifications.INST(ctxt).show(lastError);
+      // save last error
+      final LastError lastError = new LastError(ctxt, tag, title, message);
+      if (notify && Prefs.INST(ctxt).isNotifyError()) {
+        // notify user
+        Notifications.INST(ctxt).show(lastError);
+      }
     }
 
     return msg;
@@ -126,16 +141,19 @@ public final class Log {
       msg += ": " + message;
     }
 
-    Analytics.INST(ctxt).exception(ex, msg);
-
     android.util.Log.e(MY_APP + tag, msg);
     android.util.Log.e(MY_APP + tag, ex.toString());
 
-    // save last error
-    final LastError lastError = new LastError(ctxt, tag, title, message, ex);
-    if (notify && Prefs.INST(ctxt).isNotifyError()) {
-      Notifications.INST(ctxt).show(lastError);
+    if (sLogErrors) {
+      Analytics.INST(ctxt).exception(ex, msg);
+
+      // save last error
+      final LastError lastError = new LastError(ctxt, tag, title, message, ex);
+      if (notify && Prefs.INST(ctxt).isNotifyError()) {
+        Notifications.INST(ctxt).show(lastError);
+      }
     }
+
     return msg;
   }
 

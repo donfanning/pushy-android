@@ -123,7 +123,7 @@ public class RegistrationClient extends Endpoint {
       } else {
         ret.setReason(Log.logE(mContext, TAG, ret.getReason(), ERROR_REGISTER));
       }
-    } catch (final IOException ex) {
+    } catch (final Exception ex) {
       ret.setReason(Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
         ERROR_REGISTER));
     } finally {
@@ -177,7 +177,7 @@ public class RegistrationClient extends Endpoint {
         ret.setReason(
           Log.logE(mContext, TAG, ret.getReason(), ERROR_UNREGISTER));
       }
-    } catch (final IOException ex) {
+    } catch (final Exception ex) {
       ret.setReason(Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
         ERROR_UNREGISTER));
     } finally {
@@ -196,7 +196,7 @@ public class RegistrationClient extends Endpoint {
   private Registration getRegistrationService(GoogleCredential credential) {
     final Registration.Builder builder =
       new Registration.Builder(getNetHttpTransport(),
-        getAndroidJsonFactory(), credential);
+        getAndroidJsonFactory(), setHttpTimeout(credential));
 
     builder.setApplicationName(AppUtils.getAppName(mContext));
 

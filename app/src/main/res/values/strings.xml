@@ -267,6 +267,8 @@
   <string name="err_no_push">Sending push messages is disabled</string>
   <string name="err_not_signed_in">Not signed in</string>
   <string name="err_credential">Unable to get user credential</string>
+  <string name="err_id_token">Unable to get authorization token</string>
+  <string name="err_account">Failed to get Google account</string>
   <string name="err_start_activity">Failed to start activity</string>
   <string name="channel_service" translatable="false">service</string>
   <string name="channel_service_name">Clipboard watcher service</string>

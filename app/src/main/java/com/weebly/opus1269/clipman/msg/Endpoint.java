@@ -34,6 +34,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.weebly.opus1269.clipman.BuildConfig;
@@ -54,7 +56,12 @@ abstract class Endpoint {
   final Context mContext;
 
   final String ERROR_UNKNOWN;
+
   final String ERROR_CREDENTIAL;
+
+  final private String ERROR_ID_TOKEN;
+
+  final private String ERROR_ACCOUNT;
 
   /** Log tag */
   final private String TAG = "Endpoint";
@@ -62,8 +69,8 @@ abstract class Endpoint {
   /** Access id */
   final private String WEB_CLIENT_ID;
 
-  /** Network timeout in seconds */
-  final private int TIMEOUT = 60;
+  /** Network timeout in millisecs */
+  final private int TIMEOUT = 40000;
 
   final private String ERROR_NOT_SIGNED_IN;
 
@@ -78,6 +85,8 @@ abstract class Endpoint {
 
     ERROR_UNKNOWN = mContext.getString(R.string.err_unknown);
     ERROR_CREDENTIAL = mContext.getString(R.string.err_credential);
+    ERROR_ACCOUNT = mContext.getString(R.string.err_account);
+    ERROR_ID_TOKEN = mContext.getString(R.string.err_id_token);
     ERROR_NOT_SIGNED_IN = mContext.getString(R.string.err_not_signed_in);
 
     WEB_CLIENT_ID = mContext.getString(R.string.default_web_client_id);
@@ -133,13 +142,12 @@ abstract class Endpoint {
    * Get an idToken for authorization
    * @return idToken
    */
-  private String getIdToken() {
-    String idToken = "";
+  private String getIdToken() throws IOException {
+    String idToken;
 
     // Get the IDToken that can be used securely on the backend for a short time
     final GoogleSignInOptions gso =
       new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestEmail()
         .requestIdToken(WEB_CLIENT_ID)
         .build();
 
@@ -151,23 +159,33 @@ abstract class Endpoint {
         .build();
 
     try {
-      final ConnectionResult result =
-        googleApiClient.blockingConnect(TIMEOUT, TimeUnit.SECONDS);
-      if (result.isSuccess()) {
-        final GoogleSignInResult googleSignInResult =
+      final ConnectionResult connRes =
+        googleApiClient.blockingConnect(TIMEOUT, TimeUnit.MILLISECONDS);
+      if (connRes.isSuccess()) {
+        final GoogleSignInResult signInRes =
           Auth.GoogleSignInApi
             .silentSignIn(googleApiClient)
-            .await(TIMEOUT, TimeUnit.SECONDS);
-        if (googleSignInResult.isSuccess()) {
+            .await(TIMEOUT, TimeUnit.MILLISECONDS);
+        if (signInRes.isSuccess()) {
           final GoogleSignInAccount acct =
-            googleSignInResult.getSignInAccount();
+            signInRes.getSignInAccount();
           if (acct != null) {
             idToken = acct.getIdToken();
+          } else {
+            throw new IOException(ERROR_ACCOUNT);
           }
+        } else {
+          final String msg = signInRes.getStatus().toString();
+          throw new IOException(msg);
         }
+      } else {
+        final String msg = connRes.getErrorMessage() +
+          "Code=" + connRes.getErrorCode();
+        throw new IOException(msg);
       }
     } catch (Exception ex) {
-      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, false);
+      final String msg = ERROR_ID_TOKEN + ": " + ex.getLocalizedMessage();
+      throw new IOException(msg);
     } finally {
       googleApiClient.disconnect();
     }
@@ -181,7 +199,7 @@ abstract class Endpoint {
    * @return {@link GoogleCredential} for authorized server call
    */
   @Nullable
-  GoogleCredential getCredential(String idToken) {
+  GoogleCredential getCredential(String idToken) throws IOException {
 
     // get credential for a server call
     final GoogleCredential.Builder builder = new GoogleCredential.Builder();
@@ -225,5 +243,23 @@ abstract class Endpoint {
           }
         });
     }
+  }
+
+  /**
+   * Set timeout for authorized calls
+   * @param requestInitializer initialize timeouts
+   * @return HttpRequestInitializer
+   */
+  HttpRequestInitializer setHttpTimeout(
+    final HttpRequestInitializer requestInitializer) {
+
+    return new HttpRequestInitializer() {
+      @Override
+      public void initialize(HttpRequest httpRequest) throws IOException {
+        requestInitializer.initialize(httpRequest);
+        httpRequest.setConnectTimeout(TIMEOUT);  // connect timeout millisecs
+        httpRequest.setReadTimeout(TIMEOUT);  // read timeout millisecs
+      }
+    };
   }
 }

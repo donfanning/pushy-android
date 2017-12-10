@@ -39,8 +39,6 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 /** Singleton that is the interface to our gae Messaging endpoint */
 public class MessagingClient extends Endpoint {
 
@@ -112,7 +110,7 @@ public class MessagingClient extends Endpoint {
     }
 
     if (data != null) {
-      new MessagingAsyncTask(mContext).executeMe(data);
+      new MessagingAsyncTask(mContext, true).executeMe(data);
     }
   }
 
@@ -124,7 +122,7 @@ public class MessagingClient extends Endpoint {
 
     JSONObject data = getJSONData(Msg.ACTION_DEVICE_ADDED, DEVICE_ADDED);
     if (data != null) {
-      new MessagingAsyncTask(mContext).executeMe(data);
+      new MessagingAsyncTask(mContext, true).executeMe(data);
     }
   }
 
@@ -136,7 +134,7 @@ public class MessagingClient extends Endpoint {
 
     JSONObject data = getJSONData(Msg.ACTION_DEVICE_REMOVED, DEVICE_REMOVED);
     if (data != null) {
-      new MessagingAsyncTask(mContext).executeMe(data);
+      new MessagingAsyncTask(mContext, true).executeMe(data);
     }
   }
 
@@ -148,7 +146,7 @@ public class MessagingClient extends Endpoint {
 
     JSONObject data = getJSONData(Msg.ACTION_PING, PING);
     if (data != null) {
-      new MessagingAsyncTask(mContext).executeMe(data);
+      new MessagingAsyncTask(mContext, true).executeMe(data);
     }
   }
 
@@ -173,7 +171,7 @@ public class MessagingClient extends Endpoint {
     }
 
     if (data != null) {
-      new MessagingAsyncTask(mContext).executeMe(data);
+      new MessagingAsyncTask(mContext, true).executeMe(data);
     }
   }
 
@@ -185,7 +183,7 @@ public class MessagingClient extends Endpoint {
   private Messaging getMessagingService(GoogleCredential credential) {
     final Messaging.Builder builder =
       new Messaging.Builder(getNetHttpTransport(),
-        getAndroidJsonFactory(), credential);
+        getAndroidJsonFactory(), setHttpTimeout(credential));
 
     builder.setApplicationName(AppUtils.getAppName(mContext));
 
@@ -255,7 +253,7 @@ public class MessagingClient extends Endpoint {
         ret.setReason(
           Log.logE(mContext, TAG, ret.getReason(), ERROR_SEND));
       }
-    } catch (IOException | JSONException ex) {
+    } catch (Exception ex) {
       ret.setReason(
         Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, ERROR_SEND));
     }
@@ -266,17 +264,34 @@ public class MessagingClient extends Endpoint {
   private static class MessagingAsyncTask extends
     ThreadedAsyncTask<JSONObject, Void, EndpointRet> {
 
+    private final static String TAG = "MessagingAsyncTask";
+
     // OK, if mAppContext is the global Application context
     @SuppressLint("StaticFieldLeak")
     private final Context mAppContext;
 
     private final String ERROR_SEND;
-    private final String TAG = "MessagingAsyncTask";
+
+    /** If true, retry on any error */
+    private final boolean mRetryOnError;
+
+    /** Data to send */
+    private JSONObject mData;
+
+    /** Message type */
     private String mAction;
 
-    MessagingAsyncTask(Context context) {
+    MessagingAsyncTask(Context context, boolean retryOnError) {
       mAppContext = context;
+      mRetryOnError = retryOnError;
       ERROR_SEND = context.getString(R.string.err_send);
+
+      if (mRetryOnError) {
+        // skip error and exception logging on first try
+        Log.disableErrorLogging();
+      } else {
+        Log.enableErrorLogging();
+      }
     }
 
     @Override
@@ -286,11 +301,11 @@ public class MessagingClient extends Endpoint {
       ret.setReason(ERROR_SEND);
 
       try {
-        final JSONObject data = params[0];
-        mAction = data.getString(Msg.ACTION);
+        mData = params[0];
+        mAction = mData.getString(Msg.ACTION);
 
         // send message to server - blocks
-        ret = MessagingClient.INST(mAppContext).sendMessage(data);
+        ret = MessagingClient.INST(mAppContext).sendMessage(mData);
       } catch (JSONException ex) {
         ret.setReason(Log.logEx(mAppContext, TAG, ex.getLocalizedMessage(),
           ex, ERROR_SEND));
@@ -300,10 +315,16 @@ public class MessagingClient extends Endpoint {
 
     @Override
     protected void onPostExecute(EndpointRet ret) {
-      if (Msg.ACTION_DEVICE_REMOVED.equals(mAction)) {
-        // remove device notification. SignInActivity will be notified that it
-        // can now unregister and sign-out
-        Devices.INST(mAppContext).notifyMyDeviceRemoved();
+      if (!ret.getSuccess() && mRetryOnError) {
+        // try again
+        Log.logD(TAG, "Retrying message send");
+        new MessagingAsyncTask(mAppContext, false).executeMe(mData);
+      } else {
+        if (Msg.ACTION_DEVICE_REMOVED.equals(mAction)) {
+          // remove device notification. SignInActivity will be notified that it
+          // can now unregister and sign-out
+          Devices.INST(mAppContext).notifyMyDeviceRemoved();
+        }
       }
     }
   }
