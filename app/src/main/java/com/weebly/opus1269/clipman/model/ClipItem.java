@@ -210,6 +210,30 @@ public class ClipItem implements Serializable {
   }
 
   /**
+   * Determine if a {@link ClipItem} exists with given text and is a favorite
+   * @param clipText text to query
+   * @return true if exists and fav is true
+   */
+  public static boolean hasClipWithFav(Context context, String clipText) {
+    boolean ret = false;
+    final ContentResolver resolver = context.getContentResolver();
+
+    final String[] projection = {ClipsContract.Clip._ID};
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ? AND " +
+        ClipsContract.Clip.COL_FAV + " = 1 ";
+    final String[] selectionArgs = {clipText};
+
+    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      ret = true;
+      cursor.close();
+    }
+    return ret;
+  }
+
+  /**
    * Get the label for the {@link ClipDescription}
    * @param desc The item's {@link ClipDescription}
    * @return true if null of whitespace

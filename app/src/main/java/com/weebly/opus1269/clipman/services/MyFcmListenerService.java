@@ -57,12 +57,19 @@ public class MyFcmListenerService extends FirebaseMessagingService {
    */
   private static void saveClipItem(Context ctxt, Map<String, String> data,
                                    Device device) {
-    final String message = data.get(Msg.MESSAGE);
+    final String clipTxt = data.get(Msg.MESSAGE);
     final String favString = data.get(Msg.FAV);
-    final Boolean fav = "1".equals(favString);
-    final String name = device.getDisplayName();
-    final ClipItem clipItem =
-      new ClipItem(ctxt, message, new DateTime(), fav, true, name);
+    Boolean fav = "1".equals(favString);
+    final String deviceName = device.getDisplayName();
+    final DateTime date = new DateTime();
+    final ClipItem clipItem;
+
+    if (!fav && ClipItem.hasClipWithFav(ctxt, clipTxt)) {
+      // don't override fav of an existing item
+      fav = true;
+    }
+
+    clipItem = new ClipItem(ctxt, clipTxt, date, fav, true, deviceName);
 
     // save to DB
     clipItem.save(ctxt);
