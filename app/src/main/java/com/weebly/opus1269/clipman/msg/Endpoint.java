@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 abstract class Endpoint {
 
   /** Set to true to use local gae server */
-  final static private boolean USE_LOCAL_SERVER = false;
+  final static private boolean USE_LOCAL_SERVER = true;
 
   /** Global Application Context */
   final Context mContext;
