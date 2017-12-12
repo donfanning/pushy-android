@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -45,6 +46,8 @@ import java.util.regex.Pattern;
 /** A fragment to view a {@link ClipItem} */
 public class ClipViewerFragment extends Fragment
   implements View.OnClickListener {
+
+  private static final String TAG = "ClipViewerFragment";
 
   // saved state
   private static final String STATE_CLIP_ITEM = "clip";
@@ -396,7 +399,11 @@ public class ClipViewerFragment extends Fragment
    */
   private void linkifyTextView(TextView textView) {
     // http://stackoverflow.com/a/16003280/4468645
-    Linkify.addLinks(textView, Linkify.ALL);
+    try {
+      Linkify.addLinks(textView, Linkify.ALL);
+    } catch (Exception ex) {
+      Log.logEx(getContext(), TAG, ex.getLocalizedMessage(), ex, false);
+    }
     textView.setMovementMethod(ArrowKeyMovementMethod.getInstance());
     textView.setTextIsSelectable(true);
   }
