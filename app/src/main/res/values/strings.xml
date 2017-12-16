@@ -273,6 +273,7 @@
   <string name="err_no_server_entry">Your email is no longer registered with the server.\nPlease try to sign in again.</string>
   <string name="err_no_remote_devices">No remote devices are registered.\n\nPlease disable \'Push to devices\' in the Settings or register other devices.\nThank you.</string>
   <string name="err_no_push_to_devices">Unable to look for remote devices\n\n\'Push to devices\' is disabled.\nYou can enable it in the Settings.</string>
+  <string name="err_no_receive_from_devices">Unable to look for remote devices\n\n\'Receive from devices\' is disabled.\nYou can enable it in the Settings.</string>
   <string name="channel_service" translatable="false">service</string>
   <string name="channel_service_name">Clipboard watcher service</string>
   <string name="channel_service_desc">Listen for clipboard changes</string>

@@ -110,6 +110,8 @@ public class DevicesActivity extends BaseActivity {
 
     if (!Prefs.INST(getApplicationContext()).isPushClipboard()) {
       mInfoMessage = getString(R.string.err_no_push_to_devices);
+    } else if (!Prefs.INST(getApplicationContext()).isAllowReceive()) {
+      mInfoMessage = getString(R.string.err_no_receive_from_devices);
     }
 
     if (TextUtils.isEmpty(mInfoMessage)) {
