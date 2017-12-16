@@ -37,12 +37,18 @@ public class Analytics {
   public final String UI_LIST = "listSelect";
   public final String UI_MULTI_LIST = "multiListSelect";
   public final String UI_EDIT_TEXT = "textChanged";
-
+  public final String DB_LABEL = "label";
+  public final String DB_CLIP_ITEM = "clipItem";
+  public final String DB_CREATE = "create";
+  public final String DB_CREATE_OR_UPDATE = "createOrUpdate";
+  public final String DB_UPDATE = "update";
+  public final String DB_DELETE = "delete";
   /** Global Application Context */
   private final Context mContext;
 
   private final String CAT_MSG = "message";
   private final String CAT_REG = "register";
+
   private final String NO_SCREEN = "none";
 
   /** Google Analytics tracker */
@@ -113,13 +119,22 @@ public class Analytics {
   }
 
   /**
-   * Generic event
+   * Generic  event
    * @param screen Source screen
    * @param cat    Event category
    * @param action Event action
    */
   private void event(String screen, String cat, String action) {
     event(screen, cat, action, null);
+  }
+
+  /**
+   * Database event
+   * @param action Event action
+   * @param label  Event label
+   */
+  public void eventDB(String action, String label) {
+    event(NO_SCREEN, "database", action, label);
   }
 
   /**

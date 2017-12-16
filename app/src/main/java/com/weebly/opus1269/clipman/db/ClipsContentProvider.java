@@ -23,6 +23,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.Analytics;
 
 /** App private {@link ContentProvider} for the Clips.db */
 public class ClipsContentProvider extends ContentProvider {
@@ -107,10 +108,6 @@ public class ClipsContentProvider extends ContentProvider {
         if (TextUtils.isEmpty(sortOrder)) {
           newSortOrder = ClipsContract.Label.getDefaultSortOrder();
         }
-        // Because this URI was for a single row, the _ID value part is
-        // present. Get the last path segment from the URI; this is the
-        // _ID value. Then, append the value to the WHERE clause for
-        // the query
         newSelection += "and _ID = " + uri.getLastPathSegment();
         break;
       case LABEL_MAP_ID:
@@ -118,10 +115,6 @@ public class ClipsContentProvider extends ContentProvider {
         if (TextUtils.isEmpty(sortOrder)) {
           newSortOrder = ClipsContract.LabelMap.getDefaultSortOrder();
         }
-        // Because this URI was for a single row, the _ID value part is
-        // present. Get the last path segment from the URI; this is the
-        // _ID value. Then, append the value to the WHERE clause for
-        // the query
         newSelection += "and _ID = " + uri.getLastPathSegment();
         break;
       case CLIP_LABEL_MAP_JOIN:
@@ -173,13 +166,18 @@ public class ClipsContentProvider extends ContentProvider {
     Uri newUri = uri;
     final String table;
 
+    final String actionGA = Analytics.INST(mContext).DB_CREATE_OR_UPDATE;
+    String labelGA = null;
+
     final int uriType = URI_MATCHER.match(uri);
     switch (uriType) {
       case CLIP:
         table = ClipsContract.Clip.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_CLIP_ITEM;
         break;
       case LABEL:
         table = ClipsContract.Label.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_LABEL;
         break;
       case LABEL_MAP:
         table = ClipsContract.LabelMap.TABLE_NAME;
@@ -202,6 +200,9 @@ public class ClipsContentProvider extends ContentProvider {
 
       Log.logD(TAG, "Added or updated row from insert: " + row + " in " +
         "table: " + table);
+      if (labelGA != null) {
+        Analytics.INST(mContext).eventDB(actionGA, labelGA);
+      }
 
       final ContentResolver resolver = mContext.getContentResolver();
       resolver.notifyChange(newUri, null);
@@ -217,12 +218,17 @@ public class ClipsContentProvider extends ContentProvider {
     final SQLiteDatabase db = App.getDbHelper().getWritableDatabase();
     final String table;
 
+    final String actionGA = Analytics.INST(mContext).DB_CREATE;
+    String labelGA = null;
+
     switch (uriType) {
       case CLIP:
         table = ClipsContract.Clip.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_CLIP_ITEM;
         break;
       case LABEL:
         table = ClipsContract.Label.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_LABEL;
         break;
       case LABEL_MAP:
         table = ClipsContract.LabelMap.TABLE_NAME;
@@ -243,6 +249,12 @@ public class ClipsContentProvider extends ContentProvider {
     db.endTransaction();
 
     Log.logD(TAG, "Bulk insert rows: " + insertCount + " into table: " + table);
+    if (labelGA != null) {
+      if (insertCount > 1) {
+        labelGA = labelGA + " " + insertCount;
+      }
+      Analytics.INST(mContext).eventDB(actionGA, labelGA);
+    }
 
     final ContentResolver resolver = mContext.getContentResolver();
     resolver.notifyChange(uri, null);
@@ -258,10 +270,14 @@ public class ClipsContentProvider extends ContentProvider {
     final String table;
     String newSelection = selection;
 
+    final String actionGA = Analytics.INST(mContext).DB_DELETE;
+    String labelGA = null;
+
     String id;
     switch (uriType) {
       case CLIP:
         table = ClipsContract.Clip.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_CLIP_ITEM;
         break;
       case CLIP_ID:
         table = ClipsContract.Clip.TABLE_NAME;
@@ -271,9 +287,11 @@ public class ClipsContentProvider extends ContentProvider {
         } else {
           newSelection = selection + ClipsContract.Clip._ID + "=" + id;
         }
+        labelGA = Analytics.INST(mContext).DB_CLIP_ITEM;
         break;
       case LABEL:
         table = ClipsContract.Label.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_LABEL;
         break;
       case LABEL_ID:
         table = ClipsContract.Label.TABLE_NAME;
@@ -283,6 +301,7 @@ public class ClipsContentProvider extends ContentProvider {
         } else {
           newSelection = selection + ClipsContract.Label._ID + "=" + id;
         }
+        labelGA = Analytics.INST(mContext).DB_LABEL;
         break;
       case LABEL_MAP:
         table = ClipsContract.LabelMap.TABLE_NAME;
@@ -308,6 +327,12 @@ public class ClipsContentProvider extends ContentProvider {
       selectionArgs);
 
     Log.logD(TAG, "Deleted rows: " + rowsDeleted + " in table: " + table);
+    if ((labelGA != null) && (rowsDeleted > 0)) {
+      if (rowsDeleted > 1) {
+        labelGA = labelGA + " " + rowsDeleted;
+      }
+      Analytics.INST(mContext).eventDB(actionGA, labelGA);
+    }
 
     final ContentResolver resolver = mContext.getContentResolver();
     resolver.notifyChange(uri, null);
@@ -327,11 +352,15 @@ public class ClipsContentProvider extends ContentProvider {
     final String table;
     String newSelection = selection;
 
+    final String actionGA = Analytics.INST(mContext).DB_UPDATE;
+    String labelGA = null;
+
     String id;
     final int uriType = URI_MATCHER.match(uri);
     switch (uriType) {
       case CLIP:
         table = ClipsContract.Clip.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_CLIP_ITEM;
         break;
       case CLIP_ID:
         table = ClipsContract.Clip.TABLE_NAME;
@@ -342,9 +371,11 @@ public class ClipsContentProvider extends ContentProvider {
           newSelection = newSelection + " and " +
             ClipsContract.Clip._ID + "=" + id;
         }
+        labelGA = Analytics.INST(mContext).DB_CLIP_ITEM;
         break;
       case LABEL:
         table = ClipsContract.Label.TABLE_NAME;
+        labelGA = Analytics.INST(mContext).DB_LABEL;
         break;
       case LABEL_ID:
         table = ClipsContract.Label.TABLE_NAME;
@@ -355,6 +386,7 @@ public class ClipsContentProvider extends ContentProvider {
           newSelection = newSelection + " and " +
             ClipsContract.Label._ID + "=" + id;
         }
+        labelGA = Analytics.INST(mContext).DB_LABEL;
         break;
       case LABEL_MAP:
         table = ClipsContract.LabelMap.TABLE_NAME;
@@ -385,6 +417,12 @@ public class ClipsContentProvider extends ContentProvider {
     resolver.notifyChange(uri, null);
 
     Log.logD(TAG, "Updated rows: " + rowsUpdated + " in table: " + table);
+    if (labelGA != null) {
+      if (rowsUpdated > 1) {
+        labelGA = labelGA + " " + rowsUpdated;
+      }
+      Analytics.INST(mContext).eventDB(actionGA, labelGA);
+    }
 
     return rowsUpdated;
   }
