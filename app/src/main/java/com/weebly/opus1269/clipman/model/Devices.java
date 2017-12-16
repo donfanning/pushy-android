@@ -168,14 +168,14 @@ public class Devices {
    */
   public void notifyMyDeviceRemoved() {
     clear();
-    sendBroadcast(Intents.TYPE_DEVICE_REMOVED);
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_REMOVED);
   }
 
   /**
    * Notify listeners that our {@link Device} was registered
    */
   public void notifyMyDeviceRegistered() {
-    sendBroadcast(Intents.TYPE_DEVICE_REGISTERED);
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTERED);
   }
 
   /**
@@ -183,7 +183,7 @@ public class Devices {
    */
   public void notifyMyDeviceUnregistered() {
     clear();
-    sendBroadcast(Intents.TYPE_DEVICE_UNREGISTERED);
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_UNREGISTERED);
   }
 
   /**
@@ -192,9 +192,18 @@ public class Devices {
    */
   public void notifyMyDeviceRegisterError(String message) {
     clear();
-    sendBroadcast(Intents.TYPE_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
       message);
   }
+
+  /**
+   * Notify listeners that no remote devices are registered
+   */
+  public void notifyNoRemoteDevicesError() {
+    clear();
+    sendBroadcast(Intents.TYPE_NO_REMOTE_DEVICES, "", "");
+  }
+
 
   /**
    * Get the {@link Device} at the given position
@@ -219,8 +228,7 @@ public class Devices {
    * @param extra      extra String info type
    * @param extraValue value of extra
    */
-  private void sendBroadcast(String action, String extra,
-                             String extraValue) {
+  private void sendBroadcast(String action, String extra, String extraValue) {
     final Intent intent = new Intent(Intents.FILTER_DEVICES);
     final Bundle bundle = new Bundle();
     bundle.putString(Intents.ACTION_TYPE_DEVICES, action);

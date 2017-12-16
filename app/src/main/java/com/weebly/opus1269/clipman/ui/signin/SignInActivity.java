@@ -528,20 +528,20 @@ public class SignInActivity extends BaseActivity implements
       }
 
       switch (action) {
-        case Intents.TYPE_DEVICE_REMOVED:
+        case Intents.TYPE_OUR_DEVICE_REMOVED:
           // device remove message sent, now unregister
           setProgressMessage(getString(R.string.unregistering));
           doUnregister();
           break;
-        case Intents.TYPE_DEVICE_REGISTERED:
+        case Intents.TYPE_OUR_DEVICE_REGISTERED:
           // registered
           dismissProgress();
           break;
-        case Intents.TYPE_DEVICE_UNREGISTERED:
+        case Intents.TYPE_OUR_DEVICE_UNREGISTERED:
           // unregistered, now signout
           doSignOut();
           break;
-        case Intents.TYPE_DEVICE_REGISTER_ERROR:
+        case Intents.TYPE_OUR_DEVICE_REGISTER_ERROR:
           // registration error
           mErrorMessage = bundle.getString(Intents.EXTRA_TEXT);
           doSignOut();

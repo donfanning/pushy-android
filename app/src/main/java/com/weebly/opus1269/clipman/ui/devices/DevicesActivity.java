@@ -16,11 +16,15 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -34,6 +38,9 @@ public class DevicesActivity extends BaseActivity {
   /** Receiver to be notified of changes */
   private BroadcastReceiver mReceiver = null;
 
+  /** Info. message if list is not visible */
+  private String mInfoMessage = "";
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 
@@ -46,7 +53,8 @@ public class DevicesActivity extends BaseActivity {
       fab.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          doRefresh();
+          setupMainView();
+          ping();
           Analytics.INST(v.getContext()).imageClick(TAG, "refreshDevices");
         }
       });
@@ -63,16 +71,16 @@ public class DevicesActivity extends BaseActivity {
 
     // Register mReceiver to receive Device notifications.
     LocalBroadcastManager.getInstance(this)
-      .registerReceiver(mReceiver,
-        new IntentFilter(Intents.FILTER_DEVICES));
+      .registerReceiver(mReceiver, new IntentFilter(Intents.FILTER_DEVICES));
 
+    // remove any displayed device notifications
     Notifications.INST(this).removeDevices();
 
-    // ping devices
-    MessagingClient.INST(this).sendPing();
+    // show list or info. message
+    setupMainView();
 
-    // so relative dates get updated
-    mAdapter.notifyDataSetChanged();
+    // ping devices
+    ping();
   }
 
   @Override
@@ -80,18 +88,42 @@ public class DevicesActivity extends BaseActivity {
     super.onPause();
 
     // Unregister since the activity is not visible
-    LocalBroadcastManager.getInstance(this)
-      .unregisterReceiver(mReceiver);
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
   }
 
   /** Connect the {@link DevicesAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView() {
-    final RecyclerView recyclerView =
-      findViewById(R.id.deviceList);
+    final RecyclerView recyclerView = findViewById(R.id.deviceList);
     if (recyclerView != null) {
       mAdapter = new DevicesAdapter(this);
       recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+  }
+
+  /** Determine if list or error should be shown */
+  private void setupMainView() {
+
+    final RecyclerView recyclerView = findViewById(R.id.deviceList);
+    final TextView textView = findViewById(R.id.info_message);
+    final FloatingActionButton fab = findViewById(R.id.fab);
+
+    if (!Prefs.INST(getApplicationContext()).isPushClipboard()) {
+      mInfoMessage = getString(R.string.err_no_push_to_devices);
+    }
+
+    if (TextUtils.isEmpty(mInfoMessage)) {
+      refreshList();
+
+      textView.setVisibility(View.GONE);
+      recyclerView.setVisibility(View.VISIBLE);
+      fab.setVisibility(View.VISIBLE);
+      textView.setText("");
+    } else {
+      textView.setText(mInfoMessage);
+      textView.setVisibility(View.VISIBLE);
+      recyclerView.setVisibility(View.GONE);
+      fab.setVisibility(View.GONE);
     }
   }
 
@@ -101,11 +133,10 @@ public class DevicesActivity extends BaseActivity {
     mReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        notifyAdapter(intent);
-      }
-
-      private void notifyAdapter(Intent intent) {
         final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
+        if (bundle == null) {
+          return;
+        }
         final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
         if (action == null) {
           return;
@@ -113,7 +144,16 @@ public class DevicesActivity extends BaseActivity {
 
         switch (action) {
           case Intents.TYPE_UPDATE_DEVICES:
-            mAdapter.notifyDataSetChanged();
+            // device list changed - don't ping here
+            if (Devices.INST(getApplicationContext()).getCount() > 0) {
+              mInfoMessage = "";
+            }
+            setupMainView();
+            break;
+          case Intents.TYPE_NO_REMOTE_DEVICES:
+            // detected no remote devices - don't ping here
+            mInfoMessage = getString(R.string.err_no_remote_devices);
+            setupMainView();
             break;
           default:
             break;
@@ -122,9 +162,13 @@ public class DevicesActivity extends BaseActivity {
     };
   }
 
-  /** Refresh the list */
-  private void doRefresh() {
-    mAdapter.notifyDataSetChanged();
+  /** Ping our devices */
+  private void ping() {
     MessagingClient.INST(this).sendPing();
+  }
+
+  /** Refresh the list */
+  private void refreshList() {
+    mAdapter.notifyDataSetChanged();
   }
 }

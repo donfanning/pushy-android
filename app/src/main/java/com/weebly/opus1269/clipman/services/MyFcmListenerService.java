@@ -140,7 +140,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     switch (action) {
       case Msg.ACTION_MESSAGE:
         // normal message, save and copy to clipboard
-        Devices.INST(this).add(device, false);
+        Devices.INST(this).add(device, true);
         saveClipItem(this, data, device);
         break;
       case Msg.ACTION_PING:

@@ -323,27 +323,32 @@ public class MessagingClient extends Endpoint {
     protected void onPostExecute(@NonNull EndpointRet ret) {
       final String reason = ret.getReason();
 
+      // !Important - make sure to reenable
       Log.enableErrorLogging();
 
       if (reason.contains(Msg.SERVER_ERR_NO_DB_ENTRY)) {
-        // unrecoverable error
-        Log.logE(mAppContext, TAG, ERROR_NO_SERVER_ENTRY, ERROR_SEND);
+        // unrecoverable error - not in server database
         mRetryOnError = false;
+        Log.logE(mAppContext, TAG, ERROR_NO_SERVER_ENTRY, ERROR_SEND);
       } else if (reason.contains(Msg.SERVER_ERR_NO_DEVICES)) {
-        // no other devices registered
+        // unrecoverable error - no other devices registered
+        mRetryOnError = false;
+
+        // let listeners know
+        Devices.INST(mAppContext).notifyNoRemoteDevicesError();
+
         int noDevicesCt = Prefs.INST(mAppContext).getNoDevicesCt();
         if (noDevicesCt >= MAX_NO_DEVICES_CT) {
           // disable push silently
-          Log.logE(mAppContext, TAG, "No devices", ERROR_SEND);
+          //Log.logE(mAppContext, TAG, "No devices", ERROR_SEND);
           if (Prefs.INST(mAppContext).isPushClipboard()) {
             Prefs.INST(mAppContext).setPushClipboard(false);
           }
-        } else {
-          // let it go but increment error count
+        } else if (Msg.ACTION_MESSAGE.equals(mAction)) {
+          // let regular messages go but increment error count
           noDevicesCt++;
           Prefs.INST(mAppContext).setNoDevicesCt(noDevicesCt);
         }
-        mRetryOnError = false;
       }
 
       if (mRetryOnError && !ret.getSuccess()) {

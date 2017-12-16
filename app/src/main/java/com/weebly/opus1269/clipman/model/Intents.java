@@ -9,9 +9,7 @@ package com.weebly.opus1269.clipman.model;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 
-/**
- * Static class for our intents
- */
+/** Static class for our intents */
 public class Intents {
   private static final String PATH = BuildConfig.APPLICATION_ID + '.';
 
@@ -20,10 +18,15 @@ public class Intents {
   public static final String BUNDLE_DEVICES = PATH + "bundleDevices";
   public static final String ACTION_TYPE_DEVICES = PATH + "actionTypeDevices";
   public static final String TYPE_UPDATE_DEVICES = PATH + "updateDevices";
-  public static final String TYPE_DEVICE_REMOVED = PATH + "deviceRemoved";
-  public static final String TYPE_DEVICE_REGISTERED = PATH + "deviceRegistered";
-  public static final String TYPE_DEVICE_UNREGISTERED = PATH + "deviceUnregistered";
-  public static final String TYPE_DEVICE_REGISTER_ERROR = PATH + "deviceRegisterError";
+  public static final String TYPE_NO_REMOTE_DEVICES = PATH + "noRemoteDevices";
+  public static final String TYPE_OUR_DEVICE_REMOVED =
+    PATH + "ourDeviceRemoved";
+  public static final String TYPE_OUR_DEVICE_REGISTERED =
+    PATH + "ourDeviceRegistered";
+  public static final String TYPE_OUR_DEVICE_UNREGISTERED =
+    PATH + "ourDeviceUnregistered";
+  public static final String TYPE_OUR_DEVICE_REGISTER_ERROR =
+    PATH + "ourDeviceRegisterError";
 
   // related to Notifications
   static final String ACTION_DELETE_NOTIFICATION = PATH + "deleteNotification";
@@ -42,4 +45,8 @@ public class Intents {
 
   // id's
   public static final int HEARTBEAT_ID = 100;
+
+  private Intents() {
+    // no creation
+  }
 }
