@@ -24,6 +24,7 @@ import android.view.MenuItem;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
@@ -59,6 +60,9 @@ public abstract class BaseActivity extends AppCompatActivity implements
     setTheme();
 
     super.onCreate(savedInstanceState);
+
+    // make sure logging is enabled
+    Log.enableErrorLogging();
 
     // Check whether we're recreating a previously destroyed instance
     if (savedInstanceState != null) {
