@@ -420,8 +420,12 @@ public class MainActivity extends BaseActivity implements
   @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if (key.equals(LastError.PREF_LAST_ERROR)) {
+    final String keyPush = getString(R.string.key_pref_push_msg);
+
+    if (LastError.PREF_LAST_ERROR.equals(key)) {
       updateNavView();
+    } else if (keyPush.equals(key)) {
+      updateOptionsMenu();
     }
   }
 
