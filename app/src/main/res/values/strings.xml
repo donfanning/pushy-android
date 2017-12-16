@@ -270,6 +270,7 @@
   <string name="err_id_token">Unable to get authorization token</string>
   <string name="err_account">Failed to get Google account</string>
   <string name="err_start_activity">Failed to start activity</string>
+  <string name="err_no_server_entry">Your email is no longer registered with the server.\nPlease try to sign in again.</string>
   <string name="channel_service" translatable="false">service</string>
   <string name="channel_service_name">Clipboard watcher service</string>
   <string name="channel_service_desc">Listen for clipboard changes</string>

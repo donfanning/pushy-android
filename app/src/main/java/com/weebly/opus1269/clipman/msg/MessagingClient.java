@@ -272,8 +272,13 @@ public class MessagingClient extends Endpoint {
 
     private final String ERROR_SEND;
 
+    private final String ERROR_NO_SERVER_ENTRY;
+
+    /** Max number of no devices error before disabling push */
+    private final int MAX_NO_DEVICES_CT = 10;
+
     /** If true, retry on any error */
-    private final boolean mRetryOnError;
+    private boolean mRetryOnError;
 
     /** Data to send */
     private JSONObject mData;
@@ -285,6 +290,7 @@ public class MessagingClient extends Endpoint {
       mAppContext = context;
       mRetryOnError = retryOnError;
       ERROR_SEND = context.getString(R.string.err_send);
+      ERROR_NO_SERVER_ENTRY = context.getString(R.string.err_no_server_entry);
 
       if (mRetryOnError) {
         // skip error and exception logging on first try
@@ -314,9 +320,34 @@ public class MessagingClient extends Endpoint {
     }
 
     @Override
-    protected void onPostExecute(EndpointRet ret) {
-      if (!ret.getSuccess() && mRetryOnError) {
-        // try again
+    protected void onPostExecute(@NonNull EndpointRet ret) {
+      final String reason = ret.getReason();
+
+      Log.enableErrorLogging();
+
+      if (reason.contains(Msg.SERVER_ERR_NO_DB_ENTRY)) {
+        // unrecoverable error
+        Log.logE(mAppContext, TAG, ERROR_NO_SERVER_ENTRY, ERROR_SEND);
+        mRetryOnError = false;
+      } else if (reason.contains(Msg.SERVER_ERR_NO_DEVICES)) {
+        // no other devices registered
+        int noDevicesCt = Prefs.INST(mAppContext).getNoDevicesCt();
+        if (noDevicesCt >= MAX_NO_DEVICES_CT) {
+          // disable push silently
+          Log.logE(mAppContext, TAG, "No devices", ERROR_SEND);
+          if (Prefs.INST(mAppContext).isPushClipboard()) {
+            Prefs.INST(mAppContext).setPushClipboard(false);
+          }
+        } else {
+          // let it go but increment error count
+          noDevicesCt++;
+          Prefs.INST(mAppContext).setNoDevicesCt(noDevicesCt);
+        }
+        mRetryOnError = false;
+      }
+
+      if (mRetryOnError && !ret.getSuccess()) {
+        // try again on most errors
         Log.logD(TAG, "Retrying message send");
         new MessagingAsyncTask(mAppContext, false).executeMe(mData);
       } else {

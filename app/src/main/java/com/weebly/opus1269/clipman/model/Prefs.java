@@ -57,6 +57,7 @@ public class Prefs {
   private final String PREF_SORT_TYPE = "prefSortType";
   private final String PREF_DEVICE_REGISTERED = "prefDeviceRegistered";
   private final String PREF_DEVICES = "prefDevices";
+  private final String PREF_NO_DEVICES_CT = "prefNoDeviceCt";
   private final String PREF_SN = "prefSN";
 
 
@@ -94,64 +95,59 @@ public class Prefs {
   // Set from UI
   ///////////////////////////////////////////////////////////////////////////
 
-
   public boolean isMonitorStartup() {
-    final String key =
-      mContext.getString(R.string.key_pref_monitor_startup);
+    final String key = mContext.getString(R.string.key_pref_monitor_startup);
     return get(key, true);
   }
 
   public boolean isMonitorClipboard() {
-    final String key =
-      mContext.getString(R.string.key_pref_monitor_clipboard);
+    final String key = mContext.getString(R.string.key_pref_monitor_clipboard);
     return get(key, true);
   }
 
   public boolean isPushClipboard() {
-    final String key =
-      mContext.getString(R.string.key_pref_push_msg);
+    final String key = mContext.getString(R.string.key_pref_push_msg);
     return get(key, true);
   }
 
+  @SuppressWarnings("SameParameterValue")
+  public void setPushClipboard(boolean value) {
+    final String key = mContext.getString(R.string.key_pref_push_msg);
+    set(key, value);
+  }
+
   public boolean isAutoSend() {
-    final String key =
-      mContext.getString(R.string.key_pref_auto_msg);
+    final String key = mContext.getString(R.string.key_pref_auto_msg);
     return get(key, true);
   }
 
   public boolean isAllowReceive() {
-    final String key =
-      mContext.getString(R.string.key_pref_receive_msg);
+    final String key = mContext.getString(R.string.key_pref_receive_msg);
     return get(key, true);
   }
 
   public int getHeartbeat() {
-    final String key =
-      mContext.getString(R.string.key_pref_heartbeat);
+    final String key = mContext.getString(R.string.key_pref_heartbeat);
     return Integer.parseInt(get(key, "5"));
   }
 
   public boolean isHighPriority() {
-    final String key =
-      mContext.getString(R.string.key_pref_priority_msg);
+    final String key = mContext.getString(R.string.key_pref_priority_msg);
     return get(key, true);
   }
 
   public String getDeviceNickname() {
-    final String key =
-      mContext.getString(R.string.key_pref_nickname);
+    final String key = mContext.getString(R.string.key_pref_nickname);
     return get(key, "");
   }
 
   public String getDuration() {
-    final String key =
-      mContext.getString(R.string.key_pref_duration);
+    final String key = mContext.getString(R.string.key_pref_duration);
     return get(key, DEF_DURATION);
   }
 
   private String getTheme() {
-    final String key =
-      mContext.getString(R.string.key_pref_theme);
+    final String key = mContext.getString(R.string.key_pref_theme);
     return get(key, DEF_THEME);
   }
 
@@ -164,8 +160,7 @@ public class Prefs {
   }
 
   public boolean notNotifications() {
-    final String key =
-      mContext.getString(R.string.key_pref_notifications);
+    final String key = mContext.getString(R.string.key_pref_notifications);
     return !get(key, true);
   }
 
@@ -298,6 +293,14 @@ public class Prefs {
     set(PREF_DEVICES, value);
   }
 
+  public int getNoDevicesCt() {
+    return get(PREF_NO_DEVICES_CT, 0);
+  }
+
+  public void setNoDevicesCt(int value) {
+    set(PREF_NO_DEVICES_CT, value);
+  }
+
   /** Get Serial number. Create if not set */
   String getSN() {
     final SharedPreferences preferences =
@@ -363,6 +366,7 @@ public class Prefs {
     return preferences.getBoolean(key, defValue);
   }
 
+  @SuppressWarnings("SameParameterValue")
   private int get(String key, int defValue) {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);

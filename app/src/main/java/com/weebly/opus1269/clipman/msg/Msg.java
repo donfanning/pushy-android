@@ -40,6 +40,17 @@ public class Msg {
   public static final String FAV = "fav";
   public static final String SRC_REG_ID = "srcRegId";
 
+  // shared error messages
+
+  /** Start of no devices server error */
+  public static final String SERVER_ERR_NO_DEVICES =
+    "No other devices are registered";
+
+  /** Start of no db entry server error */
+  static final String SERVER_ERR_NO_DB_ENTRY =
+    "Your email is no longer registered with the server";
+
+
   private Msg() {
     // prevent creation
   }

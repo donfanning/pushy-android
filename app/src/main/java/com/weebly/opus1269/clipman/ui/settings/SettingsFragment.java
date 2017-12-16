@@ -78,10 +78,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     try {
       return super.onCreateView(inflater, container, savedInstanceState);
     } finally {
-      setDividerPreferences(
-        DIVIDER_PADDING_CHILD |
-          DIVIDER_CATEGORY_AFTER_LAST |
-          DIVIDER_CATEGORY_BETWEEN);
+      setDividerPreferences(DIVIDER_PADDING_CHILD |
+        DIVIDER_CATEGORY_AFTER_LAST | DIVIDER_CATEGORY_BETWEEN);
     }
   }
 
@@ -173,6 +171,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     final String keyTheme = getString(R.string.key_pref_theme);
     final String keyNotifications = getString(R.string.key_pref_notifications);
     final String keyReceive = getString(R.string.key_pref_receive_msg);
+    final String keyPush = getString(R.string.key_pref_push_msg);
 
     // log event
     logChange(sp, key);
@@ -214,6 +213,11 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
           new RegistrationClient
             .UnregisterAsyncTask(appContext, activity).executeMe();
         }
+      }
+    } else if (key.equals(keyPush)) {
+      if (Prefs.INST(context).isPushClipboard()) {
+        // reset error count
+        Prefs.INST(context).setNoDevicesCt(0);
       }
     }
   }

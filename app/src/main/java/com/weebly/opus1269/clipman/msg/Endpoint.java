@@ -64,6 +64,7 @@ abstract class Endpoint {
   final private String ERROR_ACCOUNT;
 
   /** Log tag */
+  @SuppressWarnings("FieldCanBeLocal")
   final private String TAG = "Endpoint";
 
   /** Access id */
