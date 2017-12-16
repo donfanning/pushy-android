@@ -20,6 +20,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Email;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.LastError;
+import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 
@@ -45,6 +46,8 @@ public class ErrorViewerActivity extends BaseActivity
   @Override
   protected void onResume() {
     super.onResume();
+
+    Notifications.INST(this).removeErrors();
 
     // Check for intent first time
     Intent intent = getIntent();

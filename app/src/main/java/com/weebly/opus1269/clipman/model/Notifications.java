@@ -318,7 +318,7 @@ public class Notifications {
   }
 
   /** Remove {@link LastError} notifications */
-  private void removeErrors() {
+  public void removeErrors() {
     getManager().cancel(ID_ERROR);
   }
 
