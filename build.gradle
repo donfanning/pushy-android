@@ -10,10 +10,10 @@
 
 ext {
     minSdkVersion = 16
-    sdkVersion = 26
-    buildToolsVersion = '26.0.3'
-    supportLibraryVersion = '26.1.0'
-    gmsVersion = '11.6.0'
+    sdkVersion = 27
+    buildToolsVersion = '27.0.2'
+    supportLibraryVersion = '27.0.2'
+    gmsVersion = '11.8.0'
     gapiVersion = '1.23.0'
 }
 
