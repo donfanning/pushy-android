@@ -546,6 +546,8 @@ public class SignInActivity extends BaseActivity implements
           mErrorMessage = bundle.getString(Intents.EXTRA_TEXT);
           doSignOut();
           break;
+        default:
+          break;
       }
     }
   }
