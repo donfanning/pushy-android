@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.ui.clipviewer;
+package com.weebly.opus1269.clipman.ui.clips;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

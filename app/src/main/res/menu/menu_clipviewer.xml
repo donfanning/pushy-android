@@ -9,7 +9,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   tools:showIn=".ui.clipviewer.ClipViewerActivity"
-  tools:context=".ui.clipviewer.ClipViewerActivity">
+  tools:context=".ui.clips.ClipViewerActivity">
 
   <item
     android:id="@+id/action_search"

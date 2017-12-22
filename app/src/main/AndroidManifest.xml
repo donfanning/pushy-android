@@ -50,12 +50,12 @@
       </intent-filter>
     </activity>
     <activity
-      android:name=".ui.clipviewer.ClipViewerActivity"
+      android:name=".ui.clips.ClipViewerActivity"
       android:label="@string/title_activity_clip_viewer"
       android:parentActivityName=".ui.main.MainActivity"
       android:theme="@style/AppThemeLight" />
     <activity
-      android:name=".ui.clipeditor.ClipEditorActvity"
+      android:name=".ui.clips.ClipEditorActvity"
       android:label="@string/title_activity_clip_editor"
       android:parentActivityName=".ui.main.MainActivity"
       android:theme="@style/AppThemeLight" />

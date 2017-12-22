@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.ui.clipeditor;
+package com.weebly.opus1269.clipman.ui.clips;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
