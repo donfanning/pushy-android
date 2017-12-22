@@ -17,11 +17,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -158,7 +160,7 @@ public class ClipItem implements Serializable {
     ClipItem clipItem = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
       clipItem = new ClipItem(context);
-      clipItem.setText(String.valueOf(clipText));
+      clipItem.setText(context, String.valueOf(clipText));
       clipItem.setFav(fav);
       clipItem.setRemote(remote);
       clipItem.setDevice(sourceDevice);
@@ -220,7 +222,7 @@ public class ClipItem implements Serializable {
 
     final String[] projection = {ClipsContract.Clip._ID};
     final String selection = ClipsContract.Clip.COL_TEXT + " = ? AND " +
-        ClipsContract.Clip.COL_FAV + " = 1 ";
+      ClipsContract.Clip.COL_FAV + " = 1 ";
     final String[] selectionArgs = {clipText};
 
     final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
@@ -312,7 +314,26 @@ public class ClipItem implements Serializable {
 
   public String getText() {return mText;}
 
-  public void setText(String text) {mText = text;}
+  public void setText(@NonNull Context context, @NonNull String text) {
+    if (!text.equals(mText)) {
+      final String oldText = mText;
+      mText = text;
+
+      if (!TextUtils.isEmpty(oldText)) {
+        // broadcast change to listeners
+        final Intent intent = new Intent(Intents.FILTER_CLIP_ITEM);
+        final Bundle bundle = new Bundle();
+        bundle.putString(Intents.ACTION_TYPE_CLIP_ITEM,
+          Intents.TYPE_TEXT_CHANGED_CLIP_ITEM);
+        bundle.putSerializable(Intents.EXTRA_CLIP_ITEM, this);
+        bundle.putString(Intents.EXTRA_TEXT, oldText);
+        intent.putExtra(Intents.BUNDLE_CLIP_ITEM, bundle);
+        LocalBroadcastManager
+          .getInstance(context)
+          .sendBroadcast(intent);
+      }
+    }
+  }
 
   public DateTime getDate() {return new DateTime(mDate.getMillis());}
 

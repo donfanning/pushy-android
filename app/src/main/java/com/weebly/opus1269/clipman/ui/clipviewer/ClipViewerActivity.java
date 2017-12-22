@@ -21,6 +21,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
+import com.weebly.opus1269.clipman.ui.clipeditor.ClipEditorActvity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
@@ -96,14 +97,20 @@ public class ClipViewerActivity extends BaseActivity implements
   public boolean onOptionsItemSelected(MenuItem item) {
     boolean processed = true;
 
+    Intent intent;
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_favorite:
         toggleFavorite();
         break;
       case R.id.action_labels:
-        final Intent intent = new Intent(this, LabelsSelectActivity.class);
-        intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
+        intent = new Intent(this, LabelsSelectActivity.class);
+        intent.putExtra(Intents.EXTRA_CLIP_ITEM, getClipItemClone());
+        AppUtils.startActivity(this, intent);
+        break;
+      case R.id.action_edit_text:
+        intent = new Intent(this, ClipEditorActvity.class);
+        intent.putExtra(Intents.EXTRA_CLIP_ITEM, getClipItemClone());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_search_web:

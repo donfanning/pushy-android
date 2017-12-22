@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE resources [
-  <!ENTITY clips "Clips">
-  ]>
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE resources [<!ENTITY clips "Clips">]>
 
 <!--
   ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
@@ -29,6 +26,7 @@
   <string name="title_activity_devices">Manage devices</string>
   <string name="title_activity_labels_edit">Edit labels</string>
   <string name="title_activity_labels_select">Select labels</string>
+  <string name="title_activity_clip_editor">Edit clip text</string>
 
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -46,6 +44,9 @@
   <string name="action_email">Email support</string>
   <string name="action_search_web">Search Web</string>
   <string name="action_copy">Copy</string>
+  <string name="action_edit_text">Edit text</string>
+  <string name="action_save_changes">Save changes</string>
+  <string name="action_discard_changes">Discard changes</string>
   <string name="action_share">Share</string>
   <string name="action_sort">Sort by</string>
   <string name="action_delete">Delete</string>

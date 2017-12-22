@@ -8,13 +8,17 @@
 package com.weebly.opus1269.clipman.ui.clipviewer;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.ArrowKeyMovementMethod;
@@ -69,6 +73,9 @@ public class ClipViewerFragment extends Fragment
    */
   private boolean mIsViewable = true;
 
+  /** Receive {@link ClipItem} actions */
+  private BroadcastReceiver mClipItemReceiver = null;
+
   /**
    * Factory method to create new fragment
    * @param item      ClipItem to view
@@ -122,11 +129,20 @@ public class ClipViewerFragment extends Fragment
     }
 
     mOnClipChanged.clipChanged(mClipItem);
+
+    // listen for changes to ClipItems
+    mClipItemReceiver = new ClipItemReceiver();
+    final Context context = getContext();
+    if (context != null) {
+      LocalBroadcastManager.getInstance(context)
+        .registerReceiver(mClipItemReceiver,
+          new IntentFilter(Intents.FILTER_CLIP_ITEM));
+    }
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                           Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater,
+                           ViewGroup container, Bundle savedInstanceState) {
 
     if (container == null) {
       // We have different layouts, and in one of them this
@@ -178,6 +194,23 @@ public class ClipViewerFragment extends Fragment
   }
 
   @Override
+  public void onStart() {
+    super.onStart();
+
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    final Context context = getContext();
+    if (context != null) {
+      LocalBroadcastManager.getInstance(context)
+        .unregisterReceiver(mClipItemReceiver);
+    }
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
 
@@ -187,7 +220,7 @@ public class ClipViewerFragment extends Fragment
   }
 
   @Override
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
     outState.putString(STATE_CLIP_HIGHLIGHT, mHighlightText);
     outState.putBoolean(STATE_CLIP_VIEWABLE, mIsViewable);
@@ -411,5 +444,38 @@ public class ClipViewerFragment extends Fragment
   /** Activities implement this to get notified of clip changes */
   public interface OnClipChanged {
     void clipChanged(ClipItem clipItem);
+  }
+
+
+  /** {@link BroadcastReceiver} to handle {@link ClipItem} actions */
+  class ClipItemReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_CLIP_ITEM);
+      if (bundle == null) {
+        return;
+      }
+      final String action = bundle.getString(Intents.ACTION_TYPE_CLIP_ITEM);
+      if (action == null) {
+        return;
+      }
+
+      switch (action) {
+        case Intents.TYPE_TEXT_CHANGED_CLIP_ITEM:
+          Log.logD(TAG, "text changed");
+          // text changed on a clip, see if it is us
+          final String oldText = bundle.getString(Intents.EXTRA_TEXT);
+          if ((oldText!= null) && oldText.equals(mClipItem.getText())) {
+            // us
+            final ClipItem clipItem =
+              (ClipItem) bundle.getSerializable(Intents.EXTRA_CLIP_ITEM);
+            setClipItem(clipItem);
+          }
+          break;
+        default:
+          break;
+      }
+    }
   }
 }
