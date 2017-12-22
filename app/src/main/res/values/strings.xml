@@ -27,6 +27,7 @@
   <string name="title_activity_labels_edit">Edit labels</string>
   <string name="title_activity_labels_select">Select labels</string>
   <string name="title_activity_clip_editor">Edit clip text</string>
+  <string name="title_activity_clip_editor_add_mode">Create new clip</string>
 
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -44,7 +45,8 @@
   <string name="action_email">Email support</string>
   <string name="action_search_web">Search Web</string>
   <string name="action_copy">Copy</string>
-  <string name="action_edit_text">Edit text</string>
+  <string name="action_add_clip">Create new clip</string>
+  <string name="action_edit_text">Edit clip text</string>
   <string name="action_save_changes">Save changes</string>
   <string name="action_discard_changes">Discard changes</string>
   <string name="action_share">Share</string>
@@ -311,6 +313,8 @@
 
 
   <!-- Misc. strings -->
+  <string name="err_whitespace">Text is all whitespace</string>
+  <string name="err_clip_exits">A clip with that text already exists</string>
   <string name="deleted_1_item">1 item deleted</string>
   <string name="item_delete_empty">Nothing to delete</string>
   <string name="clip_deleted">"Clip deleted"</string>

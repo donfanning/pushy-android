@@ -49,6 +49,12 @@
     app:showAsAction="ifRoom" />
 
   <item
+    android:id="@+id/action_add_clip"
+    android:icon="@drawable/ic_add"
+    android:title="@string/action_add_clip"
+    app:showAsAction="ifRoom" />
+
+  <item
     android:id="@+id/action_edit_text"
     android:icon="@drawable/ic_mode_edit"
     android:title="@string/action_edit_text"

@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -27,8 +29,14 @@ public class ClipEditorActvity extends BaseActivity {
   /** Saved state for mClipItem */
   private static final String STATE_CLIP_ITEM = "clipItem";
 
+  /** Saved state for mIsAddMode */
+  private static final String STATE_IS_ADD_MODE = "isAddMode";
+
   /** Clipitem we are editing */
   private ClipItem mClipItem;
+
+  /** Are we adding a new clip instead of editing existing */
+  private Boolean mIsAddMode = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -44,15 +52,29 @@ public class ClipEditorActvity extends BaseActivity {
     if (savedInstanceState == null) {
       mClipItem =
         (ClipItem) getIntent().getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
+      if (mClipItem == null) {
+        // adding new, not editing existing
+        setAddMode(true);
+        mClipItem = new ClipItem(this);
+      }
     } else {
       mClipItem =
         (ClipItem) savedInstanceState.getSerializable(STATE_CLIP_ITEM);
+      setAddMode(savedInstanceState.getBoolean(STATE_IS_ADD_MODE));
     }
 
     final EditText editText = findViewById(R.id.clip_text);
     if (editText != null) {
       editText.setText(mClipItem.getText());
     }
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
+    outState.putBoolean(STATE_IS_ADD_MODE, mIsAddMode);
   }
 
   @Override
@@ -65,19 +87,13 @@ public class ClipEditorActvity extends BaseActivity {
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-
-    outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
-  }
-
-  @Override
   public boolean onSupportNavigateUp() {
     // close this activity as opposed to navigating up
     finish();
 
     return false;
   }
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     boolean processed = true;
@@ -88,22 +104,30 @@ public class ClipEditorActvity extends BaseActivity {
         finish();
         break;
       case R.id.action_save_changes:
-        // TODO handle dualpane edge cases
-        EditText editText = findViewById(R.id.clip_text);
+        final EditText editText = findViewById(R.id.clip_text);
         if (editText != null) {
-          final CharSequence text = editText.getText();
-          if (!text.toString().equals(mClipItem.getText())) {
-            mClipItem.delete(this);
-            if (!ClipItem.isWhitespace(mClipItem)) {
-              mClipItem.setText(this, text.toString());
-              mClipItem.setRemote(false);
-              mClipItem.setDate(new DateTime().getMillis());
-              mClipItem.save(this);
-              mClipItem.send(this);
+          final String oldText = mClipItem.getText();
+          final String newText = editText.getText().toString();
+          if (AppUtils.isWhitespace(newText)) {
+            AppUtils.showMessage(this, null,
+              getString(R.string.err_whitespace));
+          } else if (ClipTable.INST(this).exists(newText)) {
+            AppUtils.showMessage(this, null,
+              getString(R.string.err_clip_exits));
+          } else if (mIsAddMode || !newText.equals(oldText)) {
+            if (!mIsAddMode) {
+              // delete old
+              mClipItem.delete(this);
             }
+            // save and send new or changed
+            mClipItem.setText(this, newText);
+            mClipItem.setRemote(false);
+            mClipItem.setDate(new DateTime().getMillis());
+            mClipItem.save(this);
+            mClipItem.copyToClipboard(this);
+            finish();
           }
         }
-        finish();
         break;
       default:
         processed = false;
@@ -115,5 +139,14 @@ public class ClipEditorActvity extends BaseActivity {
     }
 
     return processed || super.onOptionsItemSelected(item);
+  }
+
+  private void setAddMode(boolean state) {
+    mIsAddMode = state;
+    if (state) {
+      setTitle(R.string.title_activity_clip_editor_add_mode);
+    } else {
+      setTitle(R.string.title_activity_clip_editor);
+    }
   }
 }

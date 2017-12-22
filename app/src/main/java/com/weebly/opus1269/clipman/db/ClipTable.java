@@ -50,6 +50,29 @@ public class ClipTable {
   }
 
   /**
+   * Doea a {@link ClipItem} with the given text exist
+   * @param clipText text to query
+   * @return true if in db
+   */
+  public boolean exists(@NonNull String clipText) {
+    boolean ret = false;
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] projection = {ClipsContract.Clip._ID};
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ?";
+    final String[] selectionArgs = {clipText};
+
+    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      ret = true;
+      cursor.close();
+    }
+    return ret;
+  }
+
+  /**
    * Get all non-favorite and optionally favorite rows for a given {@link Label}
    * @param includeFavs flag to indicate if favorites should be retrieved too
    * @param labelFilter label to filter on

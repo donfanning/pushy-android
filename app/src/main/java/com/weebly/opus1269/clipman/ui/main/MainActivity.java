@@ -257,18 +257,22 @@ public class MainActivity extends BaseActivity implements
         // reload clips
         getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
+      case R.id.action_sort:
+        showSortTypeDialog();
+        break;
       case R.id.action_labels:
         intent = new Intent(this, LabelsSelectActivity.class);
         intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
+        AppUtils.startActivity(this, intent);
+        break;
+      case R.id.action_add_clip:
+        intent = new Intent(this, ClipEditorActvity.class);
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_edit_text:
         intent = new Intent(this, ClipEditorActvity.class);
         intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
         AppUtils.startActivity(this, intent);
-        break;
-      case R.id.action_sort:
-        showSortTypeDialog();
         break;
       case R.id.action_delete:
         showDeleteDialog();
