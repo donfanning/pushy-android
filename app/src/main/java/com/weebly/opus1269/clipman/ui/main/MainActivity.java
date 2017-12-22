@@ -43,6 +43,7 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
+import com.weebly.opus1269.clipman.ui.clipeditor.ClipEditorActvity;
 import com.weebly.opus1269.clipman.ui.clipviewer.ClipViewerActivity;
 import com.weebly.opus1269.clipman.ui.clipviewer.ClipViewerFragment;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
@@ -232,6 +233,7 @@ public class MainActivity extends BaseActivity implements
   public boolean onOptionsItemSelected(MenuItem item) {
     boolean processed = true;
 
+    Intent intent;
     final int id = item.getItemId();
     switch (id) {
       case R.id.home:
@@ -256,15 +258,20 @@ public class MainActivity extends BaseActivity implements
         getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_labels:
-        final Intent intent = new Intent(this, LabelsSelectActivity.class);
+        intent = new Intent(this, LabelsSelectActivity.class);
         intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
         AppUtils.startActivity(this, intent);
         break;
-      case R.id.action_delete:
-        showDeleteDialog();
+      case R.id.action_edit_text:
+        intent = new Intent(this, ClipEditorActvity.class);
+        intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
+        AppUtils.startActivity(this, intent);
         break;
       case R.id.action_sort:
         showSortTypeDialog();
+        break;
+      case R.id.action_delete:
+        showDeleteDialog();
         break;
       case R.id.action_settings:
         startActivity(SettingsActivity.class);
@@ -601,14 +608,21 @@ public class MainActivity extends BaseActivity implements
     User.INST(this).setNavigationHeaderView(hView);
   }
 
-  /** Set Option Menu icons enabled state */
+  /** Set Option Menu items based on current state */
   private void updateOptionsMenu() {
     if (mOptionsMenu != null) {
 
-      // Hide labels menu if not dual pane
       if (!AppUtils.isDualPane(this)) {
-        MenuItem labelItem = mOptionsMenu.findItem(R.id.action_labels);
-        labelItem.setVisible(false);
+        // hide labels and edit_text menu if not dual pane
+        MenuItem menuItem;
+        menuItem = mOptionsMenu.findItem(R.id.action_labels);
+        if (menuItem != null) {
+          menuItem.setVisible(false);
+        }
+        menuItem = mOptionsMenu.findItem(R.id.action_edit_text);
+        if (menuItem != null) {
+          menuItem.setVisible(false);
+        }
       }
 
       // enabled state of send button
