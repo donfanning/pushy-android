@@ -27,7 +27,7 @@
   <string name="title_activity_labels_edit">Edit labels</string>
   <string name="title_activity_labels_select">Select labels</string>
   <string name="title_activity_clip_editor">Edit clip text</string>
-  <string name="title_activity_clip_editor_add_mode">Create new clip</string>
+  <string name="title_activity_clip_editor_add_mode">Create new</string>
 
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
