@@ -187,17 +187,16 @@
 
 
   <!-- Related to the ClipItem database-->
-  <string name="default_clip_1">A clipboard manager with push notifications.</string>
-  <string name="default_clip_2">Sign-In to share with all your devices.</string>
-  <string name="default_clip_3"><![CDATA[Tap to view all.\n\n
-    It is a good idea to go to the "Settings" and enter a nickname for this device.\n\n
-    Try clicking on a link: http://google.com\n\n
-    Or an Email address: pushyclipboard@gmail.com\n\n
-    Or a phone number: 555-1234\n\n
-    Map locations too:\n\n1600 Amphitheatre Parkway\nMountain View, CA 94043]]></string>
-  <string name="default_clip_4">Tap the \u2661 to make it a favorite.</string>
-  <string name="default_clip_5">Swipe \u261E to delete.</string>
-  <string name="default_clip_6">You can label items to categorize them.</string>
+  <string name="default_clip_1"><![CDATA[Welcome to Pushy Clipboard. Tap to view all.
+    \n\nIf you want to share with your other devices, you need to install the app or Chrome extension
+     on each device and sign in under the same Google account.
+    \n\nIt is a good idea to go to the "Settings" and enter a nickname for this device.
+    \n\nContact me for support or to provide feedback pushyclipboard@gmail.com
+    \n\nI write free and advertising free open source software for fun and hope it benefits others.
+     If you find the app of value, please rate it. Thank you.]]></string>
+  <string name="default_clip_2">Tap the \u2661 to make it a favorite.</string>
+  <string name="default_clip_3">Swipe \u261E to delete.</string>
+  <string name="default_clip_4">You can label items to categorize them.</string>
 
 
   <!-- Related to ErrorViewerActivity -->

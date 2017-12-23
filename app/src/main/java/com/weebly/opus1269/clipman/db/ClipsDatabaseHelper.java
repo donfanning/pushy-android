@@ -109,7 +109,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     // create some informative entries
 
     ClipItem item = new ClipItem(mContext);
-    item.setText(mContext, mContext.getString(R.string.default_clip_5));
+    item.setText(mContext, mContext.getString(R.string.default_clip_3));
     item.setFav(true);
     long time = item.getTime();
     time = time + 1;
@@ -117,7 +117,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
     item = new ClipItem(mContext);
-    item.setText(mContext, mContext.getString(R.string.default_clip_4));
+    item.setText(mContext, mContext.getString(R.string.default_clip_2));
     item.setFav(false);
     time = time + 1;
     item.setDate(time);
@@ -126,20 +126,6 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     // create one with a label
     time = time + 1;
     createExampleLabel(db, time);
-
-    item = new ClipItem(mContext);
-    item.setText(mContext, mContext.getString(R.string.default_clip_3));
-    item.setFav(true);
-    time = time + 1;
-    item.setDate(time);
-    db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
-
-    item = new ClipItem(mContext);
-    item.setText(mContext, mContext.getString(R.string.default_clip_2));
-    item.setFav(true);
-    time = time + 1;
-    item.setDate(time);
-    db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
     item = new ClipItem(mContext);
     item.setText(mContext, mContext.getString(R.string.default_clip_1));
@@ -157,7 +143,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   private void createExampleLabel(SQLiteDatabase db, long time) {
     // add new ClipItem
     ClipItem clipItem = new ClipItem(mContext);
-    clipItem.setText(mContext, mContext.getString(R.string.default_clip_6));
+    clipItem.setText(mContext, mContext.getString(R.string.default_clip_4));
     clipItem.setFav(true);
     clipItem.setDate(time);
     final long clipId = db.replace(ClipsContract.Clip.TABLE_NAME, null,
