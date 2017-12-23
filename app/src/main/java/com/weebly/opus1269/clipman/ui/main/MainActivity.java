@@ -267,6 +267,7 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.action_add_clip:
         intent = new Intent(this, ClipEditorActvity.class);
+        intent.putExtra(Intents.EXTRA_TEXT, mLabelFilter);
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_edit_text:

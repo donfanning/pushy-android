@@ -7,8 +7,10 @@
 
 package com.weebly.opus1269.clipman.ui.clips;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -19,6 +21,7 @@ import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
 import org.joda.time.DateTime;
@@ -50,12 +53,18 @@ public class ClipEditorActvity extends BaseActivity {
     }
 
     if (savedInstanceState == null) {
+      final Intent intent = getIntent();
       mClipItem =
-        (ClipItem) getIntent().getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
+        (ClipItem) intent.getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
       if (mClipItem == null) {
         // adding new, not editing existing
         setAddMode(true);
         mClipItem = new ClipItem(this);
+        final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
+        if (!TextUtils.isEmpty(labelName)) {
+          // added from a list filtered by labelName
+          mClipItem.addLabel(this, new Label(labelName));
+        }
       }
     } else {
       mClipItem =
