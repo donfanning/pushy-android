@@ -50,11 +50,15 @@ public class DeleteDialogFragment extends DialogFragment {
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     final Context context = getContext();
+    assert context != null;
+
     // Use the Builder class for convenient dialog construction
-    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-    builder.setTitle(R.string.delete_all_question)
+    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    builder
+      .setTitle(R.string.delete_all_question)
       // only has one item
-      .setMultiChoiceItems(R.array.favs, null, new DialogInterface.OnMultiChoiceClickListener() {
+      .setMultiChoiceItems(R.array.favs, null,
+        new DialogInterface.OnMultiChoiceClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which,
                             boolean isChecked) {
