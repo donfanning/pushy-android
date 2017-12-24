@@ -21,17 +21,18 @@ import android.view.WindowManager;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 
-/**
- * Modal dialog to display list of sort types for the clip list
- */
+/** Modal dialog to display list of sort types for the clip list */
 public class SortTypeDialogFragment extends DialogFragment {
+  /** Screen name */
+  private final String TAG = this.getClass().getSimpleName();
 
-  // Use this instance of the interface to deliver action events
+  /** Activity must implement interface to get action events */
   private SortTypeDialogFragment.SortTypeDialogListener mListener = null;
 
-  // The actual dialog
+  /** The actual dialog */
   private AlertDialog mDialog;
 
   // Override the Fragment.onAttach() method to instantiate the listener
@@ -40,33 +41,40 @@ public class SortTypeDialogFragment extends DialogFragment {
   public void onAttach(Context context) {
     super.onAttach(context);
 
-    Activity activity = getActivity();
+    final Activity activity = getActivity();
     // Verify that the host activity implements the callback interface
     try {
       // Instantiate the DeleteDialogListener so we can send events to the host
       mListener = (SortTypeDialogFragment.SortTypeDialogListener) activity;
     } catch (final ClassCastException ignored) {
       // The activity doesn't implement the interface, throw exception
-      throw new ClassCastException(activity + " must implement SortTypeDialogListener");
+      throw new ClassCastException(
+        activity + " must implement SortTypeDialogListener");
     }
   }
 
   @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
+    final Context context = getContext();
+    assert context != null;
+
+    // current setting
     final int selected = Prefs.INST(getContext()).getSortType();
-    // Use the Builder class for convenient dialog construction
-    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
     builder
-      .setSingleChoiceItems(R.array.sort_type_clips, selected, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Prefs.INST(getContext()).setSortType(which);
-          // tell the listener something was elected
-          mListener.onSortTypeSelected();
-          dialog.dismiss();
-        }
-      });
+      .setSingleChoiceItems(R.array.sort_type_clips, selected,
+        new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            Analytics.INST(context).checkBoxClick(TAG, "sortType: " + which);
+            Prefs.INST(context).setSortType(which);
+            // tell the listener something was elected
+            mListener.onSortTypeSelected();
+            dialog.dismiss();
+          }
+        });
 
     // Create the AlertDialog
     mDialog = builder.create();
@@ -93,9 +101,10 @@ public class SortTypeDialogFragment extends DialogFragment {
     }
   }
 
-  /* The activity that creates an instance of this dialog fragment must
+  /**
+   * The activity that creates an instance of this dialog fragment must
    * implement this interface in order to receive event callbacks.
-   * Each method passes the DialogFragment in case the host needs to query it. */
+   */
   public interface SortTypeDialogListener {
     void onSortTypeSelected();
   }
