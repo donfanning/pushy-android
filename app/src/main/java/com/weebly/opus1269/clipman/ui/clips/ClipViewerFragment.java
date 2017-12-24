@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
@@ -38,7 +37,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.ui.base.BaseActivity;
+import com.weebly.opus1269.clipman.ui.base.BaseFragment;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 import java.io.Serializable;
@@ -48,10 +47,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** A fragment to view a {@link ClipItem} */
-public class ClipViewerFragment extends Fragment
+public class ClipViewerFragment extends BaseFragment
   implements View.OnClickListener {
-
-  private static final String TAG = "ClipViewerFragment";
 
   // saved state
   private static final String STATE_CLIP_ITEM = "clip";
@@ -169,44 +166,28 @@ public class ClipViewerFragment extends Fragment
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    if (getArguments().containsKey(Intents.EXTRA_CLIP_ITEM)) {
-      final ClipItem clipItem =
-        (ClipItem) getArguments().getSerializable(Intents.EXTRA_CLIP_ITEM);
-      setClipItem(clipItem);
+    final Bundle args = getArguments();
+    if (args != null) {
+      if (args.containsKey(Intents.EXTRA_CLIP_ITEM)) {
+        final ClipItem clipItem =
+          (ClipItem) args.getSerializable(Intents.EXTRA_CLIP_ITEM);
+        setClipItem(clipItem);
+      }
+
+      if (args.containsKey(Intents.EXTRA_TEXT)) {
+        final String highlightText = args.getString(Intents.EXTRA_TEXT);
+        setHighlightText(highlightText);
+      }
     }
 
-    if (getArguments().containsKey(Intents.EXTRA_TEXT)) {
-      final String highlightText = getArguments().getString(Intents.EXTRA_TEXT);
-      setHighlightText(highlightText);
-    }
-
-    final Activity activity = getActivity();
-
-    final FloatingActionButton fab = activity.findViewById(R.id.fab);
+    final FloatingActionButton fab = findViewById(R.id.fab);
     if (fab != null) {
       fab.setOnClickListener(this);
     }
 
-    final LinearLayout labelList = activity.findViewById(R.id.labelList);
+    final LinearLayout labelList = findViewById(R.id.labelList);
     if (labelList != null) {
       labelList.setOnClickListener(this);
-    }
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-
-    final Context context = getContext();
-    if (context != null) {
-      LocalBroadcastManager.getInstance(context)
-        .unregisterReceiver(mClipItemReceiver);
     }
   }
 
@@ -229,19 +210,29 @@ public class ClipViewerFragment extends Fragment
   }
 
   @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    final Context context = getContext();
+    if (context != null) {
+      LocalBroadcastManager.getInstance(context)
+        .unregisterReceiver(mClipItemReceiver);
+    }
+  }
+
+  @Override
   public void onClick(View v) {
-    final Activity activity = getActivity();
-    final View fab = activity.findViewById(R.id.fab);
-    final View labelList = activity.findViewById(R.id.labelList);
-    final String TAG = ((BaseActivity) activity).getTAG();
+    final Context context = v.getContext();
+    final View fab = findViewById(R.id.fab);
+    final View labelList = findViewById(R.id.labelList);
     if (v == fab) {
       mClipItem.doShare(getContext(), v);
-      Analytics.INST(activity).imageClick(TAG, "shareClipItem");
+      Analytics.INST(context).imageClick(TAG, "shareClipItem");
     } else if (v == labelList) {
-      Analytics.INST(activity).click(TAG, "showLabelList");
-      final Intent intent = new Intent(activity, LabelsSelectActivity.class);
+      Analytics.INST(context).click(TAG, "showLabelList");
+      final Intent intent = new Intent(context, LabelsSelectActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP_ITEM, mClipItem);
-      AppUtils.startActivity(activity, intent);
+      AppUtils.startActivity(context, intent);
     }
   }
 
@@ -260,10 +251,10 @@ public class ClipViewerFragment extends Fragment
    * @param clipItem a ClipItem
    */
   public void setClipItem(ClipItem clipItem) {
-    if (!Collator.getInstance().equals(clipItem.getText(), mClipItem.getText
-      ())) {
+    if (!Collator.getInstance()
+      .equals(clipItem.getText(), mClipItem.getText())) {
       // skip repaint if text is same
-      final TextView textView = getActivity().findViewById(R.id.clipViewerText);
+      final TextView textView = findViewById(R.id.clipViewerText);
       if (textView != null) {
         //force layout change animation
         textView.setVisibility(View.GONE);
@@ -306,7 +297,7 @@ public class ClipViewerFragment extends Fragment
   public void setHighlightText(String highlightText) {
     mHighlightText = highlightText;
 
-    final TextView textView = getActivity().findViewById(R.id.clipViewerText);
+    final TextView textView = findViewById(R.id.clipViewerText);
     if (textView == null) {
       return;
     }
@@ -319,7 +310,7 @@ public class ClipViewerFragment extends Fragment
       final Spannable spanText =
         Spannable.Factory.getInstance().newSpannable(text);
       final int color =
-        ContextCompat.getColor(getContext(), R.color.search_highlight);
+        ContextCompat.getColor(textView.getContext(), R.color.search_highlight);
       final Pattern p =
         Pattern.compile(highlightText, Pattern.CASE_INSENSITIVE);
       final Matcher m = p.matcher(text);
@@ -341,14 +332,16 @@ public class ClipViewerFragment extends Fragment
       return;
     }
 
-    final TextView textView = getActivity().findViewById(R.id.remoteDevice);
-    final View divider = getActivity().findViewById(R.id.remoteDivider);
+    final TextView textView = findViewById(R.id.remoteDevice);
+    assert textView != null;
+    final View divider = findViewById(R.id.remoteDivider);
+    assert divider != null;
 
     if (mClipItem.isRemote() && !AppUtils.isDualPane(getContext())) {
       textView.setVisibility(View.VISIBLE);
       divider.setVisibility(View.VISIBLE);
-      textView.setText(getString(R.string.remote_device_fmt, mClipItem
-        .getDevice()));
+      textView
+        .setText(getString(R.string.remote_device_fmt, mClipItem.getDevice()));
     } else {
       textView.setVisibility(View.GONE);
       divider.setVisibility(View.GONE);
@@ -364,8 +357,8 @@ public class ClipViewerFragment extends Fragment
     mClipItem.loadLabels(getContext());
     final List<Label> labels = mClipItem.getLabels();
 
-    final LinearLayout labelLayout =
-      getActivity().findViewById(R.id.labelLayout);
+    final LinearLayout labelLayout = findViewById(R.id.labelLayout);
+    assert labelLayout != null;
     if (labels.size() > 0) {
       labelLayout.setVisibility(View.VISIBLE);
     } else {
@@ -373,7 +366,8 @@ public class ClipViewerFragment extends Fragment
       return;
     }
 
-    final LinearLayout labelList = getActivity().findViewById(R.id.labelList);
+    final LinearLayout labelList = findViewById(R.id.labelList);
+    assert labelList != null;
     if (labelList.getChildCount() > 0) {
       labelList.removeAllViews();
     }
@@ -401,8 +395,7 @@ public class ClipViewerFragment extends Fragment
    * @param text text to be linkified
    */
   private void setText(String text) {
-    final TextView textView =
-      getActivity().findViewById(R.id.clipViewerText);
+    final TextView textView = findViewById(R.id.clipViewerText);
     if (textView == null) {
       return;
     }
@@ -416,8 +409,7 @@ public class ClipViewerFragment extends Fragment
    * @param text text as Spannable
    */
   private void setText(Spannable text) {
-    final TextView textView =
-      getActivity().findViewById(R.id.clipViewerText);
+    final TextView textView = findViewById(R.id.clipViewerText);
     if (textView == null) {
       return;
     }
@@ -466,7 +458,7 @@ public class ClipViewerFragment extends Fragment
           Log.logD(TAG, "text changed");
           // text changed on a clip, see if it is us
           final String oldText = bundle.getString(Intents.EXTRA_TEXT);
-          if ((oldText!= null) && oldText.equals(mClipItem.getText())) {
+          if ((oldText != null) && oldText.equals(mClipItem.getText())) {
             // us
             final ClipItem clipItem =
               (ClipItem) bundle.getSerializable(Intents.EXTRA_CLIP_ITEM);

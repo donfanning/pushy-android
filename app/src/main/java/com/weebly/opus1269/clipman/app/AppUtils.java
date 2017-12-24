@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.app;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.SearchManager;
 import android.content.Context;
@@ -91,7 +90,7 @@ public class AppUtils {
 
   /**
    * Check if a service is running
-   * @param ctxt A Context
+   * @param ctxt         A Context
    * @param serviceClass Class name of Service
    * @return true if service is running
    * @see <a href="https://goo.gl/55RFa6">Stack Overflow</a>
@@ -116,21 +115,22 @@ public class AppUtils {
   }
 
   /**
-   * Try to start an activity from another activity
-   * @param activity starting activity
-   * @param intent   Activity intent
+   * Try to start an activity
+   * @param ctxt A Context
+   * @param intent  Activity intent
    */
-  public static void startActivity(Activity activity, Intent intent) {
+  public static void startActivity(Context ctxt, Intent intent) {
     try {
-      activity.startActivity(intent);
+      ctxt.startActivity(intent);
     } catch (Exception ex) {
-      final String msg = activity.getString(R.string.err_start_activity);
-      Log.logEx(activity, TAG, msg, ex, ERROR_ACTIVITY);
+      final String msg = ctxt.getString(R.string.err_start_activity);
+      Log.logEx(ctxt, TAG, msg, ex, ERROR_ACTIVITY);
     }
   }
 
   /**
    * Try to start an activity as a new task
+   * @param ctxt A Context
    * @param intent Activity intent
    * @return true if successful
    */
@@ -144,10 +144,12 @@ public class AppUtils {
       Log.logEx(ctxt, TAG, msg, ex, ERROR_ACTIVITY);
       ret = false;
     }
-    return ret;  }
+    return ret;
+  }
 
   /**
    * Display a toast or snackbar message
+   * @param ctxt A Context
    * @param view a view to use for snackbar
    * @param msg  message to display
    */
@@ -183,7 +185,7 @@ public class AppUtils {
   /**
    * Launch an {@link Intent} to show a {@link Uri}
    * @param ctxt A Context
-   * @param uri A String that is a valid Web Url
+   * @param uri  A String that is a valid Web Url
    */
   public static void showWebUrl(Context ctxt, String uri) {
     if (Patterns.WEB_URL.matcher(uri).matches()) {
@@ -221,7 +223,8 @@ public class AppUtils {
 
     if (delta <= DateUtils.SECOND_IN_MILLIS) {
       DateTimeFormatter fmt =
-        DateTimeFormat.forPattern(ctxt.getString(R.string.joda_time_fmt_pattern));
+        DateTimeFormat.forPattern(ctxt.getString(R.string
+          .joda_time_fmt_pattern));
       value = ctxt.getString(R.string.now_fmt, date.toString(fmt));
     } else {
       value =
@@ -292,7 +295,7 @@ public class AppUtils {
 
   /**
    * Convert device density to pixels
-   * @param ctxt  A Context
+   * @param ctxt     A Context
    * @param dipValue Value to convert
    * @return Value in pixels
    */
@@ -304,7 +307,7 @@ public class AppUtils {
 
   /**
    * Convert pixels to device density
-   * @param ctxt A Context
+   * @param ctxt    A Context
    * @param pxValue Value to convert
    * @return Value in device density
    */

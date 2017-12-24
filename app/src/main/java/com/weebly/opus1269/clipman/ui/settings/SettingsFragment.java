@@ -58,6 +58,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   @Override
   public void onCreatePreferencesFix(Bundle bundle, String rootKey) {
+    final Context context = getContext();
+    assert context != null;
+    
     // Load the preferences from an XML resource
     setPreferencesFromResource(R.xml.preferences, rootKey);
 
@@ -85,7 +88,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   @Override
   public boolean onPreferenceTreeClick(Preference preference) {
-
+    final Context context = getContext();
+    assert context != null;
+    
     final String key = preference.getKey();
 
     if (mRingtoneKey.equals(key)) {
@@ -133,7 +138,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     if ((requestCode == REQUEST_CODE_ALERT_RINGTONE) && (data != null)) {
-      final Context cxt = getContext();
+      final BaseActivity activity = (BaseActivity) getActivity();
+      assert activity != null;
+
       // Save the Ringtone preference
       final Uri uri =
         data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
@@ -142,9 +149,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       if (uri != null) {
         ringTone = uri.toString();
       }
-      Prefs.INST(cxt).setRingtone(ringTone);
-      Analytics.INST(cxt).event(((BaseActivity) getActivity()).getTAG(),
-        Analytics.INST(cxt).CAT_UI, Analytics.INST(cxt).UI_LIST,
+      Prefs.INST(activity).setRingtone(ringTone);
+      Analytics.INST(activity).event(activity.getTAG(),
+        Analytics.INST(activity).CAT_UI, Analytics.INST(activity).UI_LIST,
         "ringtone: " + ringTone);
       setRingtoneSummary();
     } else {
@@ -156,6 +163,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   public void onDestroy() {
     super.onDestroy();
 
+    final Context context = getContext();
+    assert context != null;
+
     // stop listening for preference changes
     PreferenceManager.getDefaultSharedPreferences(getContext())
       .unregisterOnSharedPreferenceChangeListener(this);
@@ -165,7 +175,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   public void
   onSharedPreferenceChanged(SharedPreferences sp, String key) {
     final Activity activity = getActivity();
-    final Context context = activity.getApplicationContext();
+    assert activity != null;
+
     final String keyNickname = getString(R.string.key_pref_nickname);
     final String keyMonitor = getString(R.string.key_pref_monitor_clipboard);
     final String keyTheme = getString(R.string.key_pref_theme);
@@ -179,11 +190,11 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     // process changes
     if (key.equals(keyNickname)) {
       setNicknameSummary();
-      MessagingClient.INST(context).sendPing();
+      MessagingClient.INST(activity).sendPing();
     } else if (key.equals(keyMonitor)) {
       // start or stop clipboard service as needed
-      if (Prefs.INST(context).isMonitorClipboard()) {
-        ClipboardWatcherService.startService(getContext(), false);
+      if (Prefs.INST(activity).isMonitorClipboard()) {
+        ClipboardWatcherService.startService(activity, false);
       } else {
         final Intent intent =
           new Intent(activity, ClipboardWatcherService.class);
@@ -197,14 +208,14 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         .addNextIntent(activity.getIntent())
         .startActivities();
     } else if (key.equals(keyNotifications)) {
-      if (Prefs.INST(context).notNotifications()) {
+      if (Prefs.INST(activity).notNotifications()) {
         // remove any currently displayed Notifications
-        Notifications.INST(getContext()).removeAll();
+        Notifications.INST(activity).removeAll();
       }
     } else if (key.equals(keyReceive)) {
-      if (User.INST(context).isLoggedIn()) {
+      if (User.INST(activity).isLoggedIn()) {
         final Context appContext = activity.getApplicationContext();
-        if (Prefs.INST(context).isAllowReceive()) {
+        if (Prefs.INST(activity).isAllowReceive()) {
           // register
           new RegistrationClient
             .RegisterAsyncTask(appContext, activity, null).executeMe();
@@ -215,9 +226,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         }
       }
     } else if (key.equals(keyPush)) {
-      if (Prefs.INST(context).isPushClipboard()) {
+      if (Prefs.INST(activity).isPushClipboard()) {
         // reset error count
-        Prefs.INST(context).setNoDevicesCt(0);
+        Prefs.INST(activity).setNoDevicesCt(0);
       }
     }
   }
@@ -228,33 +239,35 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
    * @param key key of setting to log
    */
   private void logChange(SharedPreferences sp, String key) {
-    final Context context = getContext();
+    final BaseActivity activity = (BaseActivity) getActivity();
+    assert activity != null;
+
     final Preference preference = findPreference(key);
-    final String TAG = ((BaseActivity) getActivity()).getTAG();
-    final String category = Analytics.INST(context).CAT_UI;
+    final String TAG = activity.getTAG();
+    final String category = Analytics.INST(activity).CAT_UI;
     String action = "";
     String label = "";
 
     // log events
     if (preference instanceof SwitchPreferenceCompat) {
-      action = Analytics.INST(context).UI_TOGGLE;
+      action = Analytics.INST(activity).UI_TOGGLE;
       label = key + ": " + sp.getBoolean(key, false);
     } else if (preference instanceof SwitchPreference) {
-      action = Analytics.INST(context).UI_LIST;
+      action = Analytics.INST(activity).UI_LIST;
       label = key + ": " + sp.getBoolean(key, false);
     } else if (preference instanceof ListPreference) {
-      action = Analytics.INST(context).UI_LIST;
+      action = Analytics.INST(activity).UI_LIST;
       label = key + ": " + sp.getString(key, "");
     } else if (preference instanceof MultiSelectListPreference) {
-      action = Analytics.INST(context).UI_MULTI_LIST;
+      action = Analytics.INST(activity).UI_MULTI_LIST;
       label = key + ": " + sp.getStringSet(key, new HashSet<String>(0));
     } else if (preference instanceof EditTextPreference) {
-      action = Analytics.INST(context).UI_EDIT_TEXT;
+      action = Analytics.INST(activity).UI_EDIT_TEXT;
       label = key + ": " + sp.getString(key, "");
     }
 
     if (!TextUtils.isEmpty(action)) {
-      Analytics.INST(context).event(TAG, category, action, label);
+      Analytics.INST(activity).event(TAG, category, action, label);
     }
   }
 
@@ -263,6 +276,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     if (AppUtils.isOreoOrLater()) {
       return;
     }
+    final Context context = getContext();
+    assert context != null;
+
     final Preference preference = findPreference(mRingtoneKey);
     final String value = Prefs.INST(getContext()).getRingtone();
     String title = "";
@@ -280,6 +296,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   /** Update the Nickname summary text */
   private void setNicknameSummary() {
+    final Context context = getContext();
+    assert context != null;
+
     final Preference preference =
       findPreference(getString(R.string.key_pref_nickname));
     String value = Prefs.INST(getContext()).getDeviceNickname();

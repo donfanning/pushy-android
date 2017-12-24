@@ -9,16 +9,17 @@ package com.weebly.opus1269.clipman.ui.base;
 
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 /**
- * TODO: Add description.
+ * This Fragement handles lots of the basic stuff. Make sure you use a standard
+ * naming convention for you Activities views and actions. Extend from this.
  */
 public abstract class BaseFragment extends Fragment {
 
   protected final String TAG = this.getClass().getSimpleName();
 
+  /** findViewById that checks for null getView */
   @Nullable protected <T extends View> T findViewById(int id) {
     final View view = getView();
     if (view == null) {
