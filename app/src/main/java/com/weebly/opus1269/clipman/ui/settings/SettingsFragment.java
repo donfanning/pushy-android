@@ -265,14 +265,15 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     }
     final Preference preference = findPreference(mRingtoneKey);
     final String value = Prefs.INST(getContext()).getRingtone();
-    final String title;
+    String title = "";
     if (TextUtils.isEmpty(value)) {
       title = getString(R.string.key_pref_ringtone_silent);
     } else {
       final Uri uri = Uri.parse(value);
-      final Ringtone ringtone =
-        RingtoneManager.getRingtone(getActivity(), uri);
-      title = ringtone.getTitle(getActivity());
+      final Ringtone ringtone = RingtoneManager.getRingtone(getContext(), uri);
+      if (ringtone != null) {
+        title = ringtone.getTitle(getActivity());
+      }
     }
     preference.setSummary(title);
   }
