@@ -159,7 +159,7 @@ public class Analytics {
   }
 
   /**
-   * Button clicked event
+   * Menu clicked event
    * @param screen Source screen
    * @param item   Source screen
    */
