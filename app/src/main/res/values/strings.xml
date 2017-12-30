@@ -43,6 +43,7 @@
   <string name="action_send">Send clipboard contents</string>
   <string name="action_search">Search</string>
   <string name="action_email">Email support</string>
+  <string name="action_backup">Backup data to Google Drive</string>
   <string name="action_search_web">Search Web</string>
   <string name="action_copy">Copy</string>
   <string name="action_add_clip">Create new</string>

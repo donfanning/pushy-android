@@ -17,6 +17,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -62,6 +64,15 @@ public class BackupActivity extends BaseActivity {
   }
 
   @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    mOptionsMenuID = R.menu.menu_backup;
+
+    final boolean ret = super.onCreateOptionsMenu(menu);
+
+    return ret;
+  }
+
+  @Override
   protected void onResume() {
     super.onResume();
 
@@ -83,6 +94,27 @@ public class BackupActivity extends BaseActivity {
 
     // Unregister since the activity is not visible
     LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    boolean processed = true;
+
+    final int id = item.getItemId();
+    switch (id) {
+      case R.id.action_backup:
+        //TODO backup
+        break;
+      default:
+        processed = false;
+        break;
+    }
+
+    if (processed) {
+      Analytics.INST(this).menuClick(TAG, item);
+    }
+
+    return processed || super.onOptionsItemSelected(item);
   }
 
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
