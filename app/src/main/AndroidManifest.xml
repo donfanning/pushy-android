@@ -94,6 +94,11 @@
       android:label="@string/title_activity_labels_select"
       android:parentActivityName=".ui.main.MainActivity"
       android:theme="@style/AppThemeLight" />
+    <activity
+      android:name=".ui.backup.BackupActivity"
+      android:label="@string/title_activity_backup"
+      android:parentActivityName=".ui.main.MainActivity"
+      android:theme="@style/AppThemeLight" />
 
     <!-- private to app -->
     <provider

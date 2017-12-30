@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<LinearLayout android:id="@+id/content_backup"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:descendantFocusability="beforeDescendants"
+  android:focusableInTouchMode="true"
+  android:orientation="vertical"
+  app:layout_behavior="@string/appbar_scrolling_view_behavior"
+  tools:context=".ui.backup.BackupActivity"
+  tools:showIn="@layout/activity_backup">
+
+  <include layout="@layout/backup_list" />
+
+  <TextView
+    android:id="@+id/info_message"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:padding="10dp"
+    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+    android:visibility="gone"
+    tools:text="Error message here" />
+</LinearLayout>
+

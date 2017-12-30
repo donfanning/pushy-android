@@ -42,6 +42,7 @@ import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
+import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clips.ClipEditorActvity;
 import com.weebly.opus1269.clipman.ui.clips.ClipViewerActivity;
@@ -304,6 +305,9 @@ public class MainActivity extends BaseActivity implements
     switch (id) {
       case R.id.nav_account:
         startActivity(SignInActivity.class);
+        break;
+      case R.id.nav_backup:
+        startActivity(BackupActivity.class);
         break;
       case R.id.nav_devices:
         startActivity(DevicesActivity.class);
@@ -591,8 +595,12 @@ public class MainActivity extends BaseActivity implements
 
     final Menu menu = navigationView.getMenu();
 
+    // set Backup menu state
+    MenuItem menuItem = menu.findItem(R.id.nav_backup);
+    menuItem.setEnabled(User.INST(this).isLoggedIn());
+
     // set Devices menu state
-    MenuItem menuItem = menu.findItem(R.id.nav_devices);
+    menuItem = menu.findItem(R.id.nav_devices);
     menuItem.setEnabled(User.INST(this).isLoggedIn());
 
     // set Error Viewer menu state

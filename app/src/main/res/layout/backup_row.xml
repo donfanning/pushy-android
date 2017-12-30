@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<LinearLayout android:id="@+id/deviceRow"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginStart="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical">
+
+    <ImageButton
+      android:id="@+id/forgetButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="end"
+      android:background="@android:color/transparent"
+      android:contentDescription="@string/device_forget"
+      app:srcCompat="@drawable/ic_clear" />
+
+    <TextView
+      android:id="@+id/deviceText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:maxLines="5"
+      android:textAppearance="?attr/textAppearanceListItem"
+      android:textIsSelectable="false"
+      tools:text="Name: ddd\nModel:\Galaxy 7\nSN: XXX YYY" />
+
+    <TextView
+      android:id="@+id/lastSeenDate"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:maxLines="2"
+      android:textAppearance="?attr/textAppearanceListItemSmall"
+      android:textColor="?android:textColorTertiary"
+      android:textIsSelectable="false"
+      android:text="@string/device_last_seen_fmt"
+      tools:text="Last Seen: yesterday" />
+
+  </LinearLayout>
+
+  <View style="@style/Divider" />
+
+</LinearLayout>
+

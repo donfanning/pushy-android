@@ -29,6 +29,11 @@
     android:icon="@drawable/ic_account_circle_black_24dp"
     android:title="@string/nav_account" />
   <item
+    android:id="@+id/nav_backup"
+    android:enabled="true"
+    android:icon="@drawable/ic_cloud"
+    android:title="@string/nav_backup" />
+  <item
     android:id="@+id/nav_devices"
     android:enabled="true"
     android:icon="@drawable/ic_devices_black_24dp"

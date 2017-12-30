@@ -62,6 +62,7 @@
   <string name="action_help_privacy">Privacy</string>
 
   <string name="nav_account">Manage account</string>
+  <string name="nav_backup">Manage backups</string>
   <string name="nav_devices">Manage devices</string>
   <string name="nav_labels_manage">Manage labels</string>
   <string name="nav_labels">Labels</string>
@@ -348,6 +349,7 @@
   <string name="fcm_deleted_message"><![CDATA[
         Either messages have expired because they are too old,
         or this device has more than 100 undelivered messages.]]></string>
+  <string name="title_activity_backup">Backup and restore data</string>
 
 
 </resources>
