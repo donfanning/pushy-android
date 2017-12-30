@@ -23,12 +23,20 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BackupActivity extends BaseActivity {
+
+  /** The Array of {@link BackupFile} objects */
+  // TODO save restore
+  private List<BackupFile> mFiles = new ArrayList<>(0);
 
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
@@ -127,7 +135,7 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
-  /** Determine if list or error should be shown */
+  /** Determine if list or info. message should be shown */
   private void setupMainView() {
 
     final RecyclerView recyclerView = findViewById(R.id.backupList);
@@ -191,7 +199,15 @@ public class BackupActivity extends BaseActivity {
     };
   }
 
-   /** Refresh the list */
+  /**
+   * Get the list of backups
+   * @return the backups
+   */
+  public List<BackupFile> getFiles() {
+    return mFiles;
+  }
+
+  /** Refresh the list */
   private void refreshList() {
     mAdapter.notifyDataSetChanged();
   }

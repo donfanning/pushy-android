@@ -164,13 +164,13 @@ public class Analytics {
    * @param item   Source screen
    */
   public void menuClick(String screen, MenuItem item) {
-    String label = "";
+    String label = screen + '.';
     if (item.getItemId() == Menu.NONE) {
-      label = "label";
+      label += "label";
     } else {
       final CharSequence title = item.getTitle();
       if (title != null) {
-        label = title.toString();
+        label += title.toString();
       }
     }
     event(screen, CAT_UI, "menuSelect", label);

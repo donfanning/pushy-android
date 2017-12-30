@@ -28,21 +28,21 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Device;
-import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
+
+import java.util.List;
 
 /** Bridge between the Backup RecyclerView and the Backups class */
 class BackupAdapter extends
   RecyclerView.Adapter<BackupAdapter.BackupViewHolder> {
 
   /** Our activity */
-  private final BaseActivity mActivity;
+  private final BackupActivity mActivity;
 
-  BackupAdapter(BaseActivity activity) {
+  BackupAdapter(BackupActivity activity) {
     super();
 
     mActivity = activity;
@@ -67,20 +67,20 @@ class BackupAdapter extends
     tintIcons(holder);
 
     // Get the data model based on position
-    // TODO set File
-    final Device device = Devices.INST(mActivity).get(position);
+    final List<BackupFile> files = mActivity.getFiles();
+    final BackupFile file = files.get(position);
 
     final String desc =
-      context.getString(R.string.backup_nickname_fmt, device.getNickname()) +
+      context.getString(R.string.backup_nickname_fmt, file.getNickname()) +
         '\n' +
-        context.getString(R.string.backup_model_fmt, device.getModel()) + '\n' +
-        context.getString(R.string.backup_SN_fmt, device.getSN()) + '\n' +
-        context.getString(R.string.backup_OS_fmt, device.getOS());
+        context.getString(R.string.backup_model_fmt, file.getModel()) + '\n' +
+        context.getString(R.string.backup_SN_fmt, file.getSN()) + '\n' +
+        context.getString(R.string.backup_OS_fmt, file.getOS());
     final TextView backupTextView = holder.backupTextView;
     backupTextView.setText(desc);
 
     final CharSequence value =
-      AppUtils.getRelativeDisplayTime(context, device.getLastSeen());
+      AppUtils.getRelativeDisplayTime(context, file.getDate());
     final TextView dateTextView = holder.dateTextView;
     dateTextView.setText(context.getString(R.string.backup_date_fmt,
       value));
@@ -89,9 +89,10 @@ class BackupAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Devices.INST(mActivity).remove(device);
+          // TODO Delete
+          files.remove(file);
           Analytics.INST(v.getContext())
-            .imageClick("BackupActivity", "deleteBackup");
+            .imageClick("BaseActivity", "deleteBackup");
         }
       }
     );
@@ -100,16 +101,16 @@ class BackupAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Devices.INST(mActivity).remove(device);
+          // TODO Restore
           Analytics.INST(v.getContext())
-            .imageClick("BackupActivity", "restoreBackup");
+            .imageClick("BaseActivity", "restoreBackup");
         }
       }
     );
   }
 
   @Override
-  public int getItemCount() {return Devices.INST(mActivity).getCount();}
+  public int getItemCount() {return mActivity.getFiles().size();}
 
   /**
    * Color the Vector Drawables based on theme
