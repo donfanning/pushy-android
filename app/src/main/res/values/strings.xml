@@ -239,6 +239,15 @@
   <string name="license" translatable="false"><a href="https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md">Apache 2.0</a></string>
 
 
+  <!-- Related to BackupActivity -->
+  <string name="backup_model_fmt">Model - %s</string>
+  <string name="backup_SN_fmt">SN - %s</string>
+  <string name="backup_OS_fmt">OS - %s</string>
+  <string name="backup_nickname_fmt">Nickname - %s</string>
+  <string name="backup_date_fmt">Backup date - %s</string>
+  <string name="backup_delete">Delete backup</string>
+  <string name="backup_restore">Restore backup</string>
+
   <!-- Related to DevicesActivity -->
   <string name="device_model_fmt">Model - %s</string>
   <string name="device_SN_fmt">SN - %s</string>

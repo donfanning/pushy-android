@@ -62,35 +62,47 @@ class BackupAdapter extends
 
   @Override
   public void onBindViewHolder(BackupViewHolder holder, int position) {
-    final Context context = holder.deviceTextView.getContext();
+    final Context context = holder.backupTextView.getContext();
 
     tintIcons(holder);
 
     // Get the data model based on position
+    // TODO set File
     final Device device = Devices.INST(mActivity).get(position);
 
     final String desc =
-      context.getString(R.string.device_nickname_fmt, device.getNickname()) +
+      context.getString(R.string.backup_nickname_fmt, device.getNickname()) +
         '\n' +
-        context.getString(R.string.device_model_fmt, device.getModel()) + '\n' +
-        context.getString(R.string.device_SN_fmt, device.getSN()) + '\n' +
-        context.getString(R.string.device_OS_fmt, device.getOS());
-    final TextView deviceTextView = holder.deviceTextView;
-    deviceTextView.setText(desc);
+        context.getString(R.string.backup_model_fmt, device.getModel()) + '\n' +
+        context.getString(R.string.backup_SN_fmt, device.getSN()) + '\n' +
+        context.getString(R.string.backup_OS_fmt, device.getOS());
+    final TextView backupTextView = holder.backupTextView;
+    backupTextView.setText(desc);
 
     final CharSequence value =
       AppUtils.getRelativeDisplayTime(context, device.getLastSeen());
-    final TextView lastSeenTextView = holder.lastSeenTextView;
-    lastSeenTextView.setText(context.getString(R.string.device_last_seen_fmt,
+    final TextView dateTextView = holder.dateTextView;
+    dateTextView.setText(context.getString(R.string.backup_date_fmt,
       value));
 
-    holder.forgetButton.setOnClickListener(
+    holder.deleteButton.setOnClickListener(
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
           Devices.INST(mActivity).remove(device);
           Analytics.INST(v.getContext())
-            .imageClick("DevicesActivity", "removeDevice");
+            .imageClick("BackupActivity", "deleteBackup");
+        }
+      }
+    );
+
+    holder.restoreButton.setOnClickListener(
+      new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Devices.INST(mActivity).remove(device);
+          Analytics.INST(v.getContext())
+            .imageClick("BackupActivity", "restoreBackup");
         }
       }
     );
@@ -104,35 +116,45 @@ class BackupAdapter extends
    * @param holder BackupViewHolder
    */
   private void tintIcons(BackupAdapter.BackupViewHolder holder) {
-    final Context context = holder.forgetButton.getContext();
+    final Context context = holder.deleteButton.getContext();
     final int color;
 
     if (Prefs.INST(context).isLightTheme()) {
-      color = android.R.color.primary_text_light;
+      color = R.color.deep_teal_500;
     } else {
-      color = android.R.color.primary_text_dark;
+      color = R.color.deep_teal_200;
     }
 
     DrawableHelper
       .withContext(context)
       .withColor(color)
-      .withDrawable(R.drawable.ic_clear)
+      .withDrawable(R.drawable.ic_delete_black_24dp)
       .tint()
-      .applyTo(holder.forgetButton);
+      .applyTo(holder.deleteButton);
+
+    DrawableHelper
+      .withContext(context)
+      .withColor(color)
+      .withDrawable(R.drawable.ic_cloud_download)
+      .tint()
+      .applyTo(holder.restoreButton);
   }
 
   /** ViewHolder inner class used to display the info. in the RecyclerView. */
   static class BackupViewHolder extends RecyclerView.ViewHolder {
-    final TextView lastSeenTextView;
-    final TextView deviceTextView;
-    final ImageButton forgetButton;
+    final TextView dateTextView;
+    final TextView backupTextView;
+    final ImageButton restoreButton;
+    final ImageButton deleteButton;
+
 
     BackupViewHolder(View view) {
       super(view);
 
-      lastSeenTextView = view.findViewById(R.id.lastSeenDate);
-      deviceTextView = view.findViewById(R.id.deviceText);
-      forgetButton = view.findViewById(R.id.forgetButton);
+      dateTextView = view.findViewById(R.id.backupDate);
+      backupTextView = view.findViewById(R.id.backupText);
+      restoreButton = view.findViewById(R.id.restoreButton);
+      deleteButton = view.findViewById(R.id.deleteButton);
     }
   }
 }

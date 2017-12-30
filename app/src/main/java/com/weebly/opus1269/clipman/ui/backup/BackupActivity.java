@@ -158,7 +158,7 @@ public class BackupActivity extends BaseActivity {
 
   /** Create the {@link BroadcastReceiver} to handle changes to the list */
   private void setupBackupBroadcastReceiver() {
-    // handler for received Intents for the "devices" event
+    // handler for received Intents for the "backup file" event
     mReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
