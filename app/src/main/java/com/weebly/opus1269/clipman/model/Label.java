@@ -23,16 +23,16 @@ public class Label implements Serializable {
 
   /** The name of the label */
   @NonNull
-  private String mName;
+  private String name;
 
   @SuppressWarnings("unused")
-  public Label() {mName = "";}
+  public Label() {name = "";}
 
-  public Label(@NonNull String name) {mName = name;}
+  public Label(@NonNull String name) {this.name = name;}
 
   public Label(Cursor cursor) {
     int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
-    mName = cursor.getString(idx);
+    name = cursor.getString(idx);
   }
 
   /**
@@ -40,7 +40,7 @@ public class Label implements Serializable {
    * @return name
    */
   @NonNull
-  public String getName() {return mName;}
+  public String getName() {return name;}
 
   /**
    * Change name and update database
@@ -51,7 +51,7 @@ public class Label implements Serializable {
     final ContentResolver resolver = context.getContentResolver();
 
     // update Label table
-    final String[] selectionArgs = {mName};
+    final String[] selectionArgs = {this.name};
     final String selection = ClipsContract.Label.COL_NAME + " = ? ";
     ContentValues cv = new ContentValues();
     cv.put(ClipsContract.Label.COL_NAME, name);
@@ -60,16 +60,16 @@ public class Label implements Serializable {
 
     // change labelFilter Pref if it is us
     final String labelFilter = Prefs.INST(context).getLabelFilter();
-    if (labelFilter.equals(mName)) {
+    if (labelFilter.equals(this.name)) {
       Prefs.INST(context).setLabelFilter(name);
     }
 
-    mName = name;
+    this.name = name;
   }
 
   @Override
   public int hashCode() {
-    return mName.hashCode();
+    return name.hashCode();
   }
 
   @Override
@@ -79,7 +79,7 @@ public class Label implements Serializable {
 
     Label label = (Label) o;
 
-    return mName.equals(label.mName);
+    return name.equals(label.name);
   }
 
   /**
@@ -88,7 +88,7 @@ public class Label implements Serializable {
    */
   public ContentValues getContentValues() {
     final ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.Label.COL_NAME, mName);
+    cv.put(ClipsContract.Label.COL_NAME, name);
     return cv;
   }
 
@@ -119,20 +119,20 @@ public class Label implements Serializable {
    * @return true if deleted
    */
   public Boolean delete(Context context) {
-    if (AppUtils.isWhitespace(mName)) {
+    if (AppUtils.isWhitespace(name)) {
       return false;
     }
 
     final ContentResolver resolver = context.getContentResolver();
 
     // delete from Label table
-    final String[] selectionArgs = {mName};
+    final String[] selectionArgs = {name};
     String selection = ClipsContract.Label.COL_NAME + " = ? ";
     resolver.delete(ClipsContract.Label.CONTENT_URI, selection, selectionArgs);
 
     // reset labelFilter Pref if we deleted it
     final String labelFilter = Prefs.INST(context).getLabelFilter();
-    if (labelFilter.equals(mName)) {
+    if (labelFilter.equals(name)) {
       Prefs.INST(context).setLabelFilter("");
     }
 
@@ -148,7 +148,7 @@ public class Label implements Serializable {
 
     final String[] projection = {ClipsContract.Label.COL_NAME};
     final String selection = ClipsContract.Label.COL_NAME + " = ? ";
-    final String[] selectionArgs = {mName};
+    final String[] selectionArgs = {name};
 
     final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
       projection, selection, selectionArgs, null);

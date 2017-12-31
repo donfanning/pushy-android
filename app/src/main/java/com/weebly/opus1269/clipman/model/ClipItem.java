@@ -53,12 +53,12 @@ public class ClipItem implements Serializable {
   private static final String LABELS_LABEL = "ClipItem Labels";
   private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
 
-  private String mText;
-  private DateTime mDate;
-  private Boolean mFav;
-  private Boolean mRemote;
-  private String mDevice;
-  private List<Label> mLabels;
+  private String text;
+  private long date;
+  private Boolean fav;
+  private Boolean remote;
+  private String device;
+  private List<Label> labels;
 
   public ClipItem(Context context) {
     init(context);
@@ -66,7 +66,7 @@ public class ClipItem implements Serializable {
 
   public ClipItem(Context context, String text) {
     init(context);
-    mText = text;
+    this.text = text;
     loadLabels(context);
   }
 
@@ -75,38 +75,38 @@ public class ClipItem implements Serializable {
                   @SuppressWarnings("SameParameterValue") Boolean remote,
                   String device) {
     init(context);
-    mText = text;
-    mDate = new DateTime(date.getMillis());
-    mFav = fav;
-    mRemote = remote;
-    mDevice = device;
+    this.text = text;
+    this.date = date.getMillis();
+    this.fav = fav;
+    this.remote = remote;
+    this.device = device;
     loadLabels(context);
   }
 
   public ClipItem(Context context, Cursor cursor) {
     init(context);
     int idx = cursor.getColumnIndex(ClipsContract.Clip.COL_TEXT);
-    mText = cursor.getString(idx);
+    text = cursor.getString(idx);
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DATE);
-    mDate = new DateTime(cursor.getLong(idx));
+    date = cursor.getLong(idx);
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_FAV);
     final long fav = cursor.getLong(idx);
-    mFav = fav != 0L;
+    this.fav = fav != 0L;
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_REMOTE);
     final long remote = cursor.getLong(idx);
-    mRemote = remote != 0L;
+    this.remote = remote != 0L;
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DEVICE);
-    mDevice = cursor.getString(idx);
+    device = cursor.getString(idx);
     loadLabels(context);
   }
 
   public ClipItem(Context context, ClipItem clipItem) {
     init(context);
-    mText = clipItem.getText();
-    mDate = new DateTime(clipItem.getDate().getMillis());
-    mFav = clipItem.isFav();
-    mRemote = clipItem.isRemote();
-    mDevice = clipItem.getDevice();
+    text = clipItem.getText();
+    date = clipItem.getDate().getMillis();
+    fav = clipItem.isFav();
+    remote = clipItem.isRemote();
+    device = clipItem.getDevice();
     loadLabels(context);
   }
 
@@ -312,12 +312,12 @@ public class ClipItem implements Serializable {
     return list;
   }
 
-  public String getText() {return mText;}
+  public String getText() {return text;}
 
   public void setText(@NonNull Context context, @NonNull String text) {
-    if (!text.equals(mText)) {
-      final String oldText = mText;
-      mText = text;
+    if (!text.equals(this.text)) {
+      final String oldText = this.text;
+      this.text = text;
 
       if (!TextUtils.isEmpty(oldText)) {
         // broadcast change to listeners
@@ -335,30 +335,30 @@ public class ClipItem implements Serializable {
     }
   }
 
-  public DateTime getDate() {return new DateTime(mDate.getMillis());}
+  public DateTime getDate() {return new DateTime(date);}
 
-  public void setDate(long date) {mDate = new DateTime(date);}
+  public void setDate(long date) {this.date = date;}
 
-  public long getTime() {return mDate.getMillis();}
+  public long getTime() {return date;}
 
-  public boolean isFav() {return mFav;}
+  public boolean isFav() {return fav;}
 
-  public void setFav(Boolean fav) {mFav = fav;}
+  public void setFav(Boolean fav) {this.fav = fav;}
 
-  public boolean isRemote() {return mRemote;}
+  public boolean isRemote() {return remote;}
 
-  public void setRemote(Boolean remote) {mRemote = remote;}
+  public void setRemote(Boolean remote) {this.remote = remote;}
 
-  public String getDevice() {return mDevice;}
+  public String getDevice() {return device;}
 
-  public void setDevice(String device) {mDevice = device;}
+  public void setDevice(String device) {this.device = device;}
 
   public List<Label> getLabels() {
-    return mLabels;
+    return labels;
   }
 
   private void setLabels(List<Label> labels) {
-    mLabels = labels;
+    this.labels = labels;
   }
 
   /**
@@ -367,19 +367,19 @@ public class ClipItem implements Serializable {
    * @return true if we have label
    */
   public boolean hasLabel(Label label) {
-    return mLabels.contains(label);
+    return labels.contains(label);
   }
 
   public void addLabel(Context context, Label label) {
     if (!hasLabel(label)) {
-      mLabels.add(label);
+      labels.add(label);
       LabelTables.INST(context).insert(this, label);
     }
   }
 
   public void removeLabel(Context context, Label label) {
     if (hasLabel(label)) {
-      mLabels.remove(label);
+      labels.remove(label);
       LabelTables.INST(context).delete(this, label);
     }
   }
@@ -413,14 +413,14 @@ public class ClipItem implements Serializable {
    * @return value
    */
   public ContentValues getContentValues() {
-    final long fav = mFav ? 1L : 0L;
-    final long remote = mRemote ? 1L : 0L;
+    final long fav = this.fav ? 1L : 0L;
+    final long remote = this.remote ? 1L : 0L;
     final ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.Clip.COL_TEXT, mText);
-    cv.put(ClipsContract.Clip.COL_DATE, mDate.getMillis());
+    cv.put(ClipsContract.Clip.COL_TEXT, text);
+    cv.put(ClipsContract.Clip.COL_DATE, date);
     cv.put(ClipsContract.Clip.COL_FAV, fav);
     cv.put(ClipsContract.Clip.COL_REMOTE, remote);
-    cv.put(ClipsContract.Clip.COL_DEVICE, mDevice);
+    cv.put(ClipsContract.Clip.COL_DEVICE, device);
 
     return cv;
   }
@@ -434,7 +434,7 @@ public class ClipItem implements Serializable {
       public void run() {
         final ClipboardManager clipboard = (ClipboardManager) context
           .getSystemService(Context.CLIPBOARD_SERVICE);
-        final ClipData clip = ClipData.newPlainText(buildClipLabel(), mText);
+        final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
         if (clipboard != null) {
           clipboard.setPrimaryClip(clip);
         }
@@ -447,20 +447,20 @@ public class ClipItem implements Serializable {
    * @return a parsable label with our state
    */
   private CharSequence buildClipLabel() {
-    final long fav = mFav ? 1L : 0L;
+    final long fav = this.fav ? 1L : 0L;
 
     // add prefix and fav value
     CharSequence label = DESC_LABEL + "[" + Long.toString(fav) + "]\n";
 
-    if (mRemote) {
+    if (remote) {
       // add label indicating this is from a remote device
-      label = label + REMOTE_DESC_LABEL + "(" + mDevice + ")\n";
+      label = label + REMOTE_DESC_LABEL + "(" + device + ")\n";
     }
 
-    if (mLabels.size() > 0) {
+    if (labels.size() > 0) {
       // add our labels
       final Gson gson = new Gson();
-      final String labelsString = gson.toJson(mLabels);
+      final String labelsString = gson.toJson(labels);
       label = label + LABELS_LABEL + labelsString + "\n";
     }
 
@@ -473,7 +473,7 @@ public class ClipItem implements Serializable {
    * @param view The {@link View} that is requesting the share
    */
   public void doShare(Context ctxt, @Nullable View view) {
-    if (TextUtils.isEmpty(mText)) {
+    if (TextUtils.isEmpty(text)) {
       if (view != null) {
         Snackbar
           .make(view, R.string.no_share, Snackbar.LENGTH_SHORT)
@@ -482,13 +482,13 @@ public class ClipItem implements Serializable {
       return;
     }
 
-    final long fav = mFav ? 1L : 0L;
+    final long fav = this.fav ? 1L : 0L;
     // add a label with the fav value so our watcher can maintain the state
     CharSequence label = DESC_LABEL;
     label = label + Long.toString(fav);
 
     final Intent intent = new Intent(Intent.ACTION_SEND);
-    intent.putExtra(Intent.EXTRA_TEXT, mText);
+    intent.putExtra(Intent.EXTRA_TEXT, text);
     intent.putExtra(Intent.EXTRA_TITLE, label);
     intent.setType(TEXT_PLAIN);
     final Intent sendIntent = Intent.createChooser(intent,
@@ -574,7 +574,7 @@ public class ClipItem implements Serializable {
 
   /** Get our {@link Label} names from the database */
   public void loadLabels(Context context) {
-    mLabels.clear();
+    labels.clear();
 
     if (ClipItem.isWhitespace(this)) {
       return;
@@ -597,7 +597,7 @@ public class ClipItem implements Serializable {
         final int idx =
           cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
         final String name = cursor.getString(idx);
-        mLabels.add(new Label(name));
+        labels.add(new Label(name));
       }
     } finally {
       cursor.close();
@@ -620,12 +620,12 @@ public class ClipItem implements Serializable {
 
   /** Initialize the members */
   private void init(Context context) {
-    mText = "";
-    mDate = new DateTime();
-    mFav = false;
-    mRemote = false;
-    mDevice = Device.getMyName(context);
-    mLabels = new ArrayList<>(0);
+    text = "";
+    date = new DateTime().getMillis();
+    fav = false;
+    remote = false;
+    device = Device.getMyName(context);
+    labels = new ArrayList<>(0);
   }
 }
 
