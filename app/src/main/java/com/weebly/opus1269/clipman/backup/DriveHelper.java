@@ -125,7 +125,7 @@ public class DriveHelper {
         new OnSuccessListener<DriveFile>() {
           @Override
           public void onSuccess(DriveFile driveFile) {
-              final String fileId = driveFile.getDriveId().encodeToString();
+              final String fileId = driveFile.getDriveId().getResourceId();
               Log.logD(TAG, "fileId: " + fileId);
           }
         })
