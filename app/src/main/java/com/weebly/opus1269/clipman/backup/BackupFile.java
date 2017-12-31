@@ -88,7 +88,7 @@ public class BackupFile {
   }
 
 
-  public boolean IsMine() {
+  public boolean isMine() {
     return mIsMine;
   }
 

@@ -70,6 +70,10 @@ class BackupAdapter extends
     final List<BackupFile> files = mActivity.getFiles();
     final BackupFile file = files.get(position);
 
+    final TextView mineTextView = holder.mineTextView;
+    int visibility = file.isMine() ? View.VISIBLE : View.GONE;
+    mineTextView.setVisibility(visibility);
+
     final String desc =
       context.getString(R.string.backup_nickname_fmt, file.getNickname()) +
         '\n' +
@@ -89,8 +93,9 @@ class BackupAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          // TODO Delete
+          // TODO Delete on drive
           files.remove(file);
+          notifyDataSetChanged();
           Analytics.INST(v.getContext())
             .imageClick("BaseActivity", "deleteBackup");
         }
@@ -101,7 +106,7 @@ class BackupAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          // TODO Restore
+          // TODO Restore from drive
           Analytics.INST(v.getContext())
             .imageClick("BaseActivity", "restoreBackup");
         }
@@ -143,6 +148,7 @@ class BackupAdapter extends
 
   /** ViewHolder inner class used to display the info. in the RecyclerView. */
   static class BackupViewHolder extends RecyclerView.ViewHolder {
+    final TextView mineTextView;
     final TextView dateTextView;
     final TextView backupTextView;
     final ImageButton restoreButton;
@@ -152,6 +158,7 @@ class BackupAdapter extends
     BackupViewHolder(View view) {
       super(view);
 
+      mineTextView = view.findViewById(R.id.mineText);
       dateTextView = view.findViewById(R.id.backupDate);
       backupTextView = view.findViewById(R.id.backupText);
       restoreButton = view.findViewById(R.id.restoreButton);
