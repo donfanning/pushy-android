@@ -11,7 +11,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-/** Singleton to manage Google Drive data backups */
+/** Singleton to manage Google DriveHelper data backups */
 public class Backup {
   // OK, because mContext is the global Application context
   @SuppressLint("StaticFieldLeak")

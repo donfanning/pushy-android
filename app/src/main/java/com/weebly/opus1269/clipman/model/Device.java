@@ -20,6 +20,7 @@ package com.weebly.opus1269.clipman.model;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -63,7 +64,7 @@ public class Device {
     return myName;
   }
 
-  static String getMyModel() {
+  public static String getMyModel() {
     String value;
     final String manufacturer = Build.MANUFACTURER;
     final String model = Build.MODEL;
@@ -79,12 +80,13 @@ public class Device {
     return value;
   }
 
-  private static String getMySN(Context context) {
+  public static String getMySN(Context context) {
     return Prefs.INST(context).getSN();
   }
 
   @SuppressWarnings("SameReturnValue")
-  private static String getMyOS() {
+  @NonNull
+  public static String getMyOS() {
     return "Android";
   }
 
@@ -92,6 +94,7 @@ public class Device {
     return Prefs.INST(context).getDeviceNickname();
   }
 
+  @NonNull
   public static String getMyUniqueName(Context context) {
     return getMyModel() + " - " + getMySN(context) + " - " + getMyOS();
   }

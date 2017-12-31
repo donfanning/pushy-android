@@ -71,6 +71,7 @@ dependencies {
     compile "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
     compile "com.google.android.gms:play-services-identity:${rootProject.ext.gmsVersion}"
     compile "com.google.android.gms:play-services-auth:${rootProject.ext.gmsVersion}"
+    compile "com.google.android.gms:play-services-drive:${rootProject.ext.gmsVersion}"
     // firebase - keep in sync with play-services dependencies
     compile "com.google.firebase:firebase-core:${rootProject.ext.gmsVersion}"
     compile "com.google.firebase:firebase-messaging:${rootProject.ext.gmsVersion}"

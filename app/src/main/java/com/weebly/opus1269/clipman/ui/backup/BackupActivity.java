@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,8 +23,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveClient;
+import com.google.android.gms.drive.DriveResourceClient;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.BackupFile;
+import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -33,6 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BackupActivity extends BaseActivity {
+  // TODO show waiter durning async ops
+
+
+  /** Request code for granting Drive scope */
+  private static final int RC_REQUEST_PERMISSION_SUCCESS = 10;
 
   /** The Array of {@link BackupFile} objects */
   // TODO save restore
@@ -47,6 +60,13 @@ public class BackupActivity extends BaseActivity {
   /** Info. message if list is not visible */
   private String mInfoMessage = "";
 
+  /** Handles high-level drive functions like sync */
+  private DriveClient mDriveClient;
+
+  /** Handle access to Drive resources/files. */
+  private DriveResourceClient mDriveResourceClient;
+
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 
@@ -59,9 +79,8 @@ public class BackupActivity extends BaseActivity {
       fab.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          setupMainView();
-          // TODO update list
           Analytics.INST(v.getContext()).imageClick(TAG, "refreshBackups");
+          refreshList();
         }
       });
     }
@@ -72,12 +91,16 @@ public class BackupActivity extends BaseActivity {
   }
 
   @Override
+  protected void onStart() {
+    super.onStart();
+    checkPermissions();
+  }
+
+  @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     mOptionsMenuID = R.menu.menu_backup;
 
-    final boolean ret = super.onCreateOptionsMenu(menu);
-
-    return ret;
+   return super.onCreateOptionsMenu(menu);
   }
 
   @Override
@@ -125,6 +148,64 @@ public class BackupActivity extends BaseActivity {
     return processed || super.onOptionsItemSelected(item);
   }
 
+  /**
+   * Handles resolution callbacks.
+   */
+  @Override
+  protected void onActivityResult(int requestCode, int resCode, Intent data) {
+    super.onActivityResult(requestCode, resCode, data);
+
+    switch (requestCode) {
+      case RC_REQUEST_PERMISSION_SUCCESS:
+        if (resCode != RESULT_OK) {
+          // Did not accept
+          Log.logE(this, TAG, getString(R.string.err_drive_scope_denied), false);
+          finish();
+          return;
+        } else {
+          initializeDriveClient();
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  /** Request Drive access if needed */
+  private void checkPermissions() {
+    if (!GoogleSignIn.hasPermissions(
+      GoogleSignIn.getLastSignedInAccount(this),
+      Drive.SCOPE_APPFOLDER)) {
+      GoogleSignIn.requestPermissions(
+        this,
+        RC_REQUEST_PERMISSION_SUCCESS,
+        GoogleSignIn.getLastSignedInAccount(this),
+        Drive.SCOPE_APPFOLDER);
+    } else {
+      initializeDriveClient();
+    }
+  }
+
+  /**
+   * Initialize the Drive clients with the current user's account.
+   */
+  private void initializeDriveClient() {
+    mDriveClient = Drive.getDriveClient(getApplicationContext(), getAccount());
+    mDriveResourceClient =
+      Drive.getDriveResourceClient(getApplicationContext(), getAccount());
+    onDriveClientReady();
+  }
+
+  /** Drive can be called */
+  private void onDriveClientReady() {
+    retrieveBackups();
+  }
+
+  /** Get last signed in account */
+  public GoogleSignInAccount getAccount() {
+    return GoogleSignIn.getLastSignedInAccount(this);
+  }
+
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView() {
     final RecyclerView recyclerView = findViewById(R.id.backupList);
@@ -142,7 +223,7 @@ public class BackupActivity extends BaseActivity {
     final TextView textView = findViewById(R.id.info_message);
     final FloatingActionButton fab = findViewById(R.id.fab);
 
-    // TODO chek for no files
+    // TODO check for no files
     //if (!Prefs.INST(getApplicationContext()).isPushClipboard()) {
     //  mInfoMessage = getString(R.string.err_no_push_to_devices);
     //} else if (!Prefs.INST(getApplicationContext()).isAllowReceive()) {
@@ -150,7 +231,6 @@ public class BackupActivity extends BaseActivity {
     //}
 
     if (TextUtils.isEmpty(mInfoMessage)) {
-      refreshList();
 
       textView.setVisibility(View.GONE);
       recyclerView.setVisibility(View.VISIBLE);
@@ -199,6 +279,14 @@ public class BackupActivity extends BaseActivity {
     };
   }
 
+  public DriveClient getDriveClient() {
+    return mDriveClient;
+  }
+
+  public DriveResourceClient getDriveResourceClient() {
+    return mDriveResourceClient;
+  }
+
   /**
    * Get the list of backups
    * @return the backups
@@ -207,8 +295,26 @@ public class BackupActivity extends BaseActivity {
     return mFiles;
   }
 
+  /** Set the list of backups */
+  public void setFiles(@NonNull final ArrayList<BackupFile> files) {
+    mFiles = files;
+    if (mFiles.isEmpty()) {
+      mInfoMessage = getString(R.string.err_no_backups);
+    }
+    else {
+      mInfoMessage = "";
+    }
+    setupMainView();
+    mAdapter.notifyDataSetChanged();
+  }
+
+  /** Load the backup files asynchronously */
+  private void retrieveBackups() {
+    DriveHelper.INST(this).retrieveBackupFiles(this);
+  }
+
   /** Refresh the list */
   private void refreshList() {
-    mAdapter.notifyDataSetChanged();
+    retrieveBackups();
   }
 }

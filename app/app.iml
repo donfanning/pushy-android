@@ -116,6 +116,7 @@
     <orderEntry type="library" name="com.google.api-client:google-api-client:1.23.0@jar" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-iid-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-tagmanager-v4-impl-11.8.0" level="project" />
+    <orderEntry type="library" name="com.google.android.gms:play-services-drive-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-base-license-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.oauth-client:google-oauth-client:1.23.0@jar" level="project" />
     <orderEntry type="library" name="com.androidessence:recyclerviewcursoradapter-1.0.0" level="project" />
@@ -124,6 +125,7 @@
     <orderEntry type="library" name="com.google.firebase:firebase-auth-license-11.8.0" level="project" />
     <orderEntry type="library" name="joda-time:joda-time:2.9.9@jar" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-basement-license-11.8.0" level="project" />
+    <orderEntry type="library" name="com.google.android.gms:play-services-drive-license-11.8.0" level="project" />
     <orderEntry type="library" name="com.android.support.constraint:constraint-layout-solver:1.0.2@jar" level="project" />
     <orderEntry type="library" name="com.android.support.constraint:constraint-layout-1.0.2" level="project" />
     <orderEntry type="library" name="com.google.code.gson:gson:2.8.2@jar" level="project" />

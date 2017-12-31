@@ -18,41 +18,71 @@
 
 package com.weebly.opus1269.clipman.backup;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.google.gson.Gson;
+import com.weebly.opus1269.clipman.model.Device;
 
 import org.joda.time.DateTime;
 
-/** Immutable Class for a Drive file's metadata */
+import java.util.Map;
+
+/** Immutable Class for a backup file's metadata */
 public class BackupFile {
 
   private final Boolean mIsMine;
   private final String mId;
   private final String mName;
-  private final String mNickname;
-  private final String mModel;
-  private final String mSN;
-  private final String mOS;
+  private String mNickname;
+  private String mModel;
+  private String mSN;
+  private String mOS;
   private final long mDate;
 
-  public BackupFile(String model, String sn, String os, String nickname) {
-    mIsMine = false;
-    mId = "";
-    mName = "";
-    mModel = model;
-    mSN = sn;
-    mOS = os;
-    mNickname = nickname;
-    mDate = new DateTime().getMillis();
+  public BackupFile(Context context, final Metadata driveFile) {
+    mId = driveFile.getDriveId().getResourceId();
+    mName = driveFile.getOriginalFilename();
+    mDate = driveFile.getModifiedDate().getTime();
+    mModel = "";
+    mSN = "";
+    mOS = "";
+    mNickname = "";
+
+    final Map<CustomPropertyKey, String> props =
+      driveFile.getCustomProperties();
+    for (Map.Entry<CustomPropertyKey, String> entry : props.entrySet()) {
+      final String key = entry.getKey().getKey();
+      final String value = entry.getValue();
+      switch (key) {
+        case "model":
+          mModel = value;
+          break;
+        case "nickname":
+          mNickname = value;
+          break;
+        case "os":
+          mOS = value;
+          break;
+        case "sn":
+          mSN = value;
+          break;
+        default:
+          break;
+      }
+    }
+
+    mIsMine = isMyFile(context);
   }
 
   /**
-   * Get the appProperties for our device
+   * Get the Drive CustomProperties for our device
    * @return {Gson} key-value pairs
    */
   @NonNull
-  static Gson getAppProperties() {
+  static Gson getCustomeProperties() {
     Gson value = new Gson();
     return value;
   }
@@ -103,5 +133,11 @@ public class BackupFile {
    */
   public boolean isNewer(@NonNull BackupFile file) {
     return this.mDate > file.mDate;
+  }
+
+  private boolean isMyFile(@NonNull final Context context) {
+    return (mSN.equals(Device.getMySN(context)) &&
+      mModel.equals(Device.getMyModel()) &&
+      mOS.equals(Device.getMyOS()));
   }
 }
