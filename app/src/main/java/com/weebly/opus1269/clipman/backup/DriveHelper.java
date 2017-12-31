@@ -11,20 +11,26 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
+import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 /** Singleton to manage interactions with Google DriveHelper */
@@ -68,7 +74,6 @@ public class DriveHelper {
         new OnSuccessListener<DriveFolder>() {
           @Override
           public void onSuccess(DriveFolder folder) {
-            Log.logD(TAG, "appfolder: " + folder.toString());
             getZipFiles(activity, folder);
           }
         })
@@ -77,6 +82,57 @@ public class DriveHelper {
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, activity.getString(R.string.err_app_folder),
             ex, true);
+        }
+      });
+  }
+
+  public void createZipFile(final BackupActivity activity, final String filename, final byte[] data) {
+    final DriveResourceClient resourceClient =
+      activity.getDriveResourceClient();
+
+    final Task<DriveFolder> appFolderTask = resourceClient.getAppFolder();
+    final Task<DriveContents> createContentsTask = resourceClient.createContents();
+
+    Tasks.whenAll(appFolderTask, createContentsTask)
+      .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
+        @Override
+        public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
+          DriveFolder parent = appFolderTask.getResult();
+          DriveContents contents = createContentsTask.getResult();
+          OutputStream outputStream = contents.getOutputStream();
+          //noinspection TryFinallyCanBeTryWithResources
+          try {
+            outputStream.write(data);
+          } finally {
+            outputStream.close();
+          }
+          //try (Writer writer = new OutputStreamWriter(outputStream)) {
+          //  writer.write(data);
+          //}
+
+          MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
+            .setTitle(filename)
+            .setMimeType("application/zip");
+
+          BackupFile.setCustomProperties(mContext, builder);
+
+          final MetadataChangeSet changeSet = builder.build();
+
+          return resourceClient.createFile(parent, changeSet, contents);
+        }
+      })
+      .addOnSuccessListener(activity,
+        new OnSuccessListener<DriveFile>() {
+          @Override
+          public void onSuccess(DriveFile driveFile) {
+              final String fileId = driveFile.getDriveId().encodeToString();
+              Log.logD(TAG, "fileId: " + fileId);
+          }
+        })
+      .addOnFailureListener(activity, new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception ex) {
+          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
         }
       });
   }

@@ -247,6 +247,7 @@
   <string name="backup_date_fmt">Backup date - %s</string>
   <string name="backup_delete">Delete backup</string>
   <string name="backup_restore">Restore backup</string>
+  <string name="this_device">This device</string>
   <string name="err_drive_scope_denied">User did not grant access to Google Drive</string>
   <string name="err_app_folder">Failed to get app folder from Google Drive</string>
   <string name="err_no_backups">No backups exist on Google Drive</string>

@@ -22,8 +22,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
-import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.model.Device;
 
 import org.joda.time.DateTime;
@@ -77,16 +77,24 @@ public class BackupFile {
     mIsMine = isMyFile(context);
   }
 
-  /**
-   * Get the Drive CustomProperties for our device
-   * @return {Gson} key-value pairs
-   */
-  @NonNull
-  static Gson getCustomeProperties() {
-    Gson value = new Gson();
-    return value;
-  }
+  /** Set the Drive CustomProperties for our device */
+  static void setCustomProperties(Context context,
+                                  MetadataChangeSet.Builder builder) {
+    CustomPropertyKey model =
+      new CustomPropertyKey("model", CustomPropertyKey.PRIVATE);
+    CustomPropertyKey sn =
+      new CustomPropertyKey("sn", CustomPropertyKey.PRIVATE);
+    CustomPropertyKey os =
+      new CustomPropertyKey("os", CustomPropertyKey.PRIVATE);
+    CustomPropertyKey nickname =
+      new CustomPropertyKey("nickname", CustomPropertyKey.PRIVATE);
 
+    builder
+      .setCustomProperty(model, Device.getMyModel())
+      .setCustomProperty(sn, Device.getMySN(context))
+      .setCustomProperty(os, Device.getMyOS())
+      .setCustomProperty(nickname, Device.getMyNickname(context));
+  }
 
   public boolean isMine() {
     return mIsMine;

@@ -73,7 +73,7 @@
         android:textAppearance="?attr/textAppearanceListItem"
         android:textIsSelectable="false"
         android:visibility="gone"
-        tools:text="This device" />
+        android:text="@string/this_device" />
 
       <TextView
         android:id="@+id/backupText"

@@ -135,7 +135,7 @@ public class BackupActivity extends BaseActivity {
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_backup:
-        Backup.INST(this).doBackup();
+        Backup.INST(this).doBackup(this);
         break;
       default:
         processed = false;

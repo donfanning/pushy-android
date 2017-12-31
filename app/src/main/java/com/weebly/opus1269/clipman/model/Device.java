@@ -90,7 +90,7 @@ public class Device {
     return "Android";
   }
 
-  private static String getMyNickname(Context context) {
+  public static String getMyNickname(Context context) {
     return Prefs.INST(context).getDeviceNickname();
   }
 
