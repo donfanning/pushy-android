@@ -26,8 +26,6 @@ import android.widget.TextView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveClient;
-import com.google.android.gms.drive.DriveResourceClient;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.Backup;
@@ -59,12 +57,6 @@ public class BackupActivity extends BaseActivity {
 
   /** Info. message if list is not visible */
   private String mInfoMessage = "";
-
-  /** Handles high-level drive functions like sync */
-  private DriveClient mDriveClient;
-
-  /** Handle access to Drive resources/files. */
-  private DriveResourceClient mDriveResourceClient;
 
 
   @Override
@@ -151,7 +143,7 @@ public class BackupActivity extends BaseActivity {
           finish();
           return;
         } else {
-          initializeDriveClient();
+          onDriveClientReady();
         }
         break;
       default:
@@ -169,24 +161,17 @@ public class BackupActivity extends BaseActivity {
 
   /** Request Drive access if needed */
   private void checkDrivePermissions() {
-    GoogleSignInAccount account = User.INST(this).getGoogleAccount();
+    final GoogleSignInAccount account = User.INST(this).getGoogleAccount();
+    if (account == null) {
+      return;
+    }
 
-    if (!GoogleSignIn.hasPermissions(account, Drive.SCOPE_APPFOLDER)) {
+    if (!DriveHelper.INST(this).hasAppFolderPermission()) {
       GoogleSignIn.requestPermissions(this, RC_DRIVE_SUCCESS,
         account, Drive.SCOPE_APPFOLDER);
     } else {
-      initializeDriveClient();
+      onDriveClientReady();
     }
-  }
-
-  /** Initialize the Drive clients with the current user's account */
-  private void initializeDriveClient() {
-    GoogleSignInAccount account = User.INST(this).getGoogleAccount();
-
-    mDriveClient = Drive.getDriveClient(getApplicationContext(), account);
-    mDriveResourceClient =
-      Drive.getDriveResourceClient(getApplicationContext(), account);
-    onDriveClientReady();
   }
 
   /** Drive can be called */
@@ -212,6 +197,8 @@ public class BackupActivity extends BaseActivity {
 
     if (mFiles.isEmpty()) {
       mInfoMessage = getString(R.string.err_no_backups);
+    } else if (!User.INST(getApplicationContext()).isLoggedIn()) {
+      mInfoMessage = getString(R.string.err_not_signed_in);
     } else {
       mInfoMessage = "";
     }
@@ -259,14 +246,6 @@ public class BackupActivity extends BaseActivity {
         }
       }
     };
-  }
-
-  public DriveClient getDriveClient() {
-    return mDriveClient;
-  }
-
-  public DriveResourceClient getDriveResourceClient() {
-    return mDriveResourceClient;
   }
 
   /**

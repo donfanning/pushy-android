@@ -16,7 +16,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 
 /**
  * This {@link BroadcastReceiver} starts the {@link ClipboardWatcherService}
- * and adds a daily alarm to delete old ClipItems when our app is updated
+ * and adds a daily alarm when our app is updated
  */
 public class PackageReplacedReceiver extends BroadcastReceiver {
   private static final String TAG = "PackageReplacedReceiver";
@@ -36,6 +36,6 @@ public class PackageReplacedReceiver extends BroadcastReceiver {
 
     ClipboardWatcherService.startService(appContext, true);
 
-    DeleteOldClipsAlarmReceiver.initialize(TAG, appContext);
+    DailyAlarmReceiver.initialize(TAG, appContext);
   }
 }

@@ -17,8 +17,8 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
 
 /** {@link BroadcastReceiver} that cleans up old entries in the database */
-public class DeleteOldClipsAlarmReceiver extends BroadcastReceiver {
-  private static final String TAG = "DeleteOldClipsAlarmReceiver";
+public class DailyAlarmReceiver extends BroadcastReceiver {
+  private static final String TAG = "DailyAlarmReceiver";
 
   /**
    * Add daily alarm to cleanup database of old entries
@@ -33,7 +33,7 @@ public class DeleteOldClipsAlarmReceiver extends BroadcastReceiver {
         "Failed to start " + TAG + ", null AlarmManager");
       return;
     }
-    final Intent intent = new Intent(ctxt, DeleteOldClipsAlarmReceiver.class);
+    final Intent intent = new Intent(ctxt, DailyAlarmReceiver.class);
     final PendingIntent alarmIntent =
       PendingIntent.getBroadcast(ctxt, 0, intent, 0);
 

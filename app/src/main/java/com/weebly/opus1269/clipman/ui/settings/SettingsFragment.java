@@ -37,6 +37,7 @@ import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -157,8 +158,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         // User did not approve Google Drive permission
         Log.logE(getContext(), "SettingFragment",
           getString(R.string.err_drive_scope_denied), false);
-        Prefs.INST(activity).unsetAutoBackup();
-        setAutoBackupState();
+        unsetAutoBackup(activity);
       }
     } else {
       super.onActivityResult(requestCode, resultCode, data);
@@ -259,11 +259,13 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
   /** Request Drive access if needed */
   private void checkDrivePermissions() {
-    Context context = getContext();
+    final Context context = getContext();
     assert context != null;
-    GoogleSignInAccount account = User.INST(context).getGoogleAccount();
+    final GoogleSignInAccount account = User.INST(context).getGoogleAccount();
 
-    if (!GoogleSignIn.hasPermissions(account, Drive.SCOPE_APPFOLDER)) {
+    if (account == null) {
+      unsetAutoBackup(context);
+    } else if (!DriveHelper.INST(context).hasAppFolderPermission()) {
       GoogleSignIn.requestPermissions(this, RC_DRIVE_SUCCESS,
         account, Drive.SCOPE_APPFOLDER);
     }
@@ -345,13 +347,10 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   }
 
   /** Update the Auto backup toggle */
-  private void setAutoBackupState() {
-    final Context context = getContext();
-    assert context != null;
-
+  private void unsetAutoBackup(Context context) {
+    Prefs.INST(context).unsetAutoBackup();
     final SwitchPreferenceCompat preference = (SwitchPreferenceCompat)
       findPreference(getString(R.string.key_pref_auto_backup));
-    Boolean value = Prefs.INST(getContext()).isAutoBackup();
-    preference.setChecked(value);
+    preference.setChecked(false);
   }
 }

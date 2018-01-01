@@ -186,7 +186,7 @@
 
     <!-- private to app -->
     <receiver
-      android:name=".services.DeleteOldClipsAlarmReceiver"
+      android:name=".services.DailyAlarmReceiver"
       android:enabled="true"
       android:exported="false" />
 

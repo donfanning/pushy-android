@@ -17,6 +17,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -92,6 +93,7 @@ public class User {
   }
 
   /** Get last signed in account */
+  @Nullable
   public GoogleSignInAccount getGoogleAccount() {
     return GoogleSignIn.getLastSignedInAccount(mContext);
   }
@@ -137,8 +139,8 @@ public class User {
   }
 
   /**
-   *  Convert to own pref file.
-   *  Used to be stored in default shared prefs.
+   * Convert to own pref file.
+   * Used to be stored in default shared prefs.
    */
   public void convertPrefs() {
     final String PREF_USER_PHOTO_ENCODED = "prefUserPhotoEncoded";

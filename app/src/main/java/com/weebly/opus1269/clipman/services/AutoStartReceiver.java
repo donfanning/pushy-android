@@ -16,7 +16,7 @@ import com.weebly.opus1269.clipman.model.Prefs;
 
 /**
  * This {@link BroadcastReceiver} starts the {@link ClipboardWatcherService} at
- * boot time and adds a daily alarm to delete old ClipItems
+ * boot time if requested and adds a daily alarm
  * <p>
  * Requires Intent.ACTION_BOOT_COMPLETED
  */
@@ -37,6 +37,6 @@ public class AutoStartReceiver extends BroadcastReceiver {
       ClipboardWatcherService.startService(appContext, true);
     }
 
-    DeleteOldClipsAlarmReceiver.initialize(TAG, appContext);
+    DailyAlarmReceiver.initialize(TAG, appContext);
   }
 }

@@ -42,10 +42,6 @@ public class Backup {
 
   private final String TAG = this.getClass().getSimpleName();
 
-  /** filename in zip file */
-  private final String BACKUP_FILNAME = "backup.txt";
-
-
   private Backup(@NonNull Context context) {
     mContext = context.getApplicationContext();
   }
@@ -84,22 +80,19 @@ public class Backup {
   }
 
   private byte[] getBytes() {
-    ZipEntrySource[] entries = new ZipEntrySource[]{
+    final String BACKUP_FILNAME = "backup.txt";
+    final ZipEntrySource[] entries = new ZipEntrySource[]{
       new ByteSource(BACKUP_FILNAME, getStringData().getBytes())
     };
+    ByteArrayOutputStream data = null;
     BufferedOutputStream out = null;
     BufferedInputStream in = null;
-    ByteArrayOutputStream data = null;
     try {
       data = new ByteArrayOutputStream();
       out = new BufferedOutputStream(data);
       in = new BufferedInputStream(new ByteArrayInputStream(new byte[]{}));
       ZipUtil.addEntries(in, entries, out);
       out.flush();
-      //byte[] output = data.toByteArray();
-      //for (int i = 0; i < output.length; i++) {
-      //  Log.logD(TAG, "" + output[i]);
-      //}
     } catch (Exception ex) {
       Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
     } finally {
