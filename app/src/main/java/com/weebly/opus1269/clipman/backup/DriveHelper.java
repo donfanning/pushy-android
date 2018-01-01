@@ -179,8 +179,11 @@ public class DriveHelper {
       .addOnFailureListener(activity, new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
+          // Unfortunate, but OK
+          // TODO don't even log for not found
           Log.logEx(mContext, TAG,
-            activity.getString(R.string.err_delete_backup), ex, true);
+            activity.getString(R.string.err_delete_backup), ex, false);
+          activity.removeFileFromList(backupFile);
           activity.dismissProgress();
         }
       });

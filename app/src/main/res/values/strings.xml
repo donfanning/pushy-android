@@ -321,8 +321,9 @@
   <string name="signed_out">Signed out</string>
   <string name="signin_help_title">Sign-In Help</string>
   <string name="signin_help"><![CDATA[
-        Sign-in is only required if you want to share items with your other devices.
-         Your email address is used only to guarantee that all messages go to a single account.]]>
+        Sign-In is only required if you want to share data with your other devices
+         or backup/restore your data to Google Drive.
+         Your email address is used only for these purposes.]]>
     </string>
   <string name="sign_out_err">"Sign-out failed. Please try again later"</string>
   <string name="sign_in_err">"Sign-in failed. Please try again later"</string>
