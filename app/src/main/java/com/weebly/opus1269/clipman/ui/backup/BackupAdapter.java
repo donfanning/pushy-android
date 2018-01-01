@@ -19,10 +19,13 @@
 package com.weebly.opus1269.clipman.ui.backup;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -38,10 +41,17 @@ import java.util.List;
 
 /** Bridge between the Backup RecyclerView and the Backups class */
 class BackupAdapter extends
-  RecyclerView.Adapter<BackupAdapter.BackupViewHolder> {
+  RecyclerView.Adapter<BackupAdapter.BackupViewHolder> implements
+  DialogInterface.OnClickListener {
 
   /** Our activity */
   private final BackupActivity mActivity;
+
+  /** Our confirmation dialog */
+  private AlertDialog mDialog;
+
+  /** File that me be operated on */
+  private BackupFile mFile;
 
   BackupAdapter(BackupActivity activity) {
     super();
@@ -97,7 +107,9 @@ class BackupAdapter extends
         public void onClick(View v) {
           Analytics.INST(v.getContext())
             .imageClick(mActivity.getTAG(), "deleteBackup");
-          mActivity.deleteBackup(file);
+          mFile = file;
+          showDialog(R.string.backup_dialog_delete_message,
+            R.string.button_delete);
         }
       }
     );
@@ -106,9 +118,11 @@ class BackupAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          // TODO Restore from drive
           Analytics.INST(v.getContext())
-            .imageClick("BaseActivity", "restoreBackup");
+            .imageClick(mActivity.getTAG(), "restoreBackup");
+          mFile = file;
+          showDialog(R.string.backup_dialog_restore_message,
+            R.string.button_restore);
         }
       }
     );
@@ -116,6 +130,25 @@ class BackupAdapter extends
 
   @Override
   public int getItemCount() {return mActivity.getFiles().size();}
+
+  @Override
+  public void onClick(DialogInterface dialogInterface, int which) {
+    if ((which == DialogInterface.BUTTON_POSITIVE) && (mFile != null)) {
+      final Button button = mDialog.getButton(which);
+      final CharSequence buttonText = button.getText();
+
+      Analytics.INST(mActivity).buttonClick(mActivity.getTAG(), button);
+
+      if(mActivity.getString(R.string.button_delete).equals(buttonText)) {
+        // delete backup file
+        DriveHelper.INST(mActivity).deleteBackupFile(mActivity, mFile);
+      } else if (mActivity.getString(R.string.button_restore)
+        .equals(buttonText)) {
+        // TODO restore backup file
+      }
+      mFile = null;
+    }
+  }
 
   /**
    * Color the Vector Drawables based on theme
@@ -145,6 +178,25 @@ class BackupAdapter extends
       .tint()
       .applyTo(holder.restoreButton);
   }
+
+  /**
+   * Display confirmation dialog on undoable actions
+   * @param msgId resource id of dialog message
+   * @param buttonId resource id of dialog positive button
+   */
+  private void showDialog(int msgId, int buttonId) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+
+    builder
+      .setMessage(msgId)
+      .setTitle(R.string.backup_dialog_title)
+      .setPositiveButton(buttonId, this)
+      .setNegativeButton(R.string.button_cancel, this);
+
+    mDialog = builder.create();
+    mDialog.show();
+  }
+
 
   /** ViewHolder inner class used to display the info. in the RecyclerView. */
   static class BackupViewHolder extends RecyclerView.ViewHolder {

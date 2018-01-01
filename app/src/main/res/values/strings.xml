@@ -259,6 +259,11 @@
   <string name="err_get_backups">Failed to get backups from Google Drive</string>
   <string name="err_create_backup">Failed to create backup on Google Drive</string>
   <string name="err_delete_backup">Failed to delete backup from Google Drive</string>
+  <string name="backup_dialog_title">This operation cannot be undone</string>
+  <string name="backup_dialog_restore_message"><![CDATA[
+        We\'ll replace all your clips and labels with those in the selected
+         backup. Restore backup?]]></string>
+  <string name="backup_dialog_delete_message">Delete backup?</string>
 
   <!-- Related to DevicesActivity -->
   <string name="device_model_fmt">Model - %s</string>
@@ -362,6 +367,8 @@
   <string name="button_cancel" tools:ignore="ButtonCase">CANCEL</string>
   <string name="button_undo">UNDO</string>
   <string name="button_continue">CONTINUE</string>
+  <string name="button_restore">RESTORE</string>
+  <string name="button_sync">SYNC</string>
   <string name="copyright" translatable="false">&#169;2017 Michael A Updike</string>
   <string name="version_fmt">Version %s</string>
   <string name="default_person_name">Tap to sign-in</string>
