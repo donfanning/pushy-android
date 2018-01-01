@@ -43,6 +43,9 @@ android {
             signingConfig signingConfigs.config
         }
         debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
             debuggable true
         }
     }
@@ -53,7 +56,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
     // various fixes for support:preference-v7
