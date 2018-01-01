@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.backup.BackupFile;
+import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -93,11 +94,9 @@ class BackupAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          // TODO Delete on drive
-          files.remove(file);
-          notifyDataSetChanged();
           Analytics.INST(v.getContext())
-            .imageClick("BaseActivity", "deleteBackup");
+            .imageClick(mActivity.getTAG(), "deleteBackup");
+          DriveHelper.INST(mActivity).deleteFile(mActivity, file);
         }
       }
     );

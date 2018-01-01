@@ -21,6 +21,7 @@ package com.weebly.opus1269.clipman.backup;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
@@ -34,7 +35,7 @@ import java.util.Map;
 public class BackupFile {
 
   private final Boolean mIsMine;
-  private final String mId;
+  private final DriveId mId;
   private final String mName;
   private String mNickname;
   private String mModel;
@@ -43,7 +44,7 @@ public class BackupFile {
   private final long mDate;
 
   public BackupFile(Context context, final Metadata driveFile) {
-    mId = driveFile.getDriveId().getResourceId();
+    mId = driveFile.getDriveId();
     mName = driveFile.getOriginalFilename();
     mDate = driveFile.getModifiedDate().getTime();
     mModel = "";
@@ -101,7 +102,7 @@ public class BackupFile {
   }
 
   @NonNull
-  public String getId() {
+  public DriveId getId() {
     return mId;
   }
 

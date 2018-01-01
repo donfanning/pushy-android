@@ -309,6 +309,33 @@ public class BackupActivity extends BaseActivity {
     mAdapter.notifyDataSetChanged();
   }
 
+  /**
+   * Add a flle
+   * @param file file to add
+   */
+  public void addFile(@NonNull final BackupFile file) {
+    mFiles.add(file);
+    mInfoMessage = "";
+    setupMainView();
+    mAdapter.notifyDataSetChanged();
+  }
+
+  /**
+   * Remove a flle
+   * @param file file to remove
+   */
+  public void removeFile(@NonNull final BackupFile file) {
+    mFiles.remove(file);
+    if (mFiles.isEmpty()) {
+      mInfoMessage = getString(R.string.err_no_backups);
+    }
+    else {
+      mInfoMessage = "";
+    }
+    setupMainView();
+    mAdapter.notifyDataSetChanged();
+  }
+
   /** Load the backup files asynchronously */
   private void retrieveBackups() {
     DriveHelper.INST(this).retrieveBackupFiles(this);
