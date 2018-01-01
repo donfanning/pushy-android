@@ -337,9 +337,7 @@ public class SignInActivity extends BaseActivity implements
     // handled in onCompleteListener
   }
 
-  /**
-   * All signout attempts come through here
-   */
+  /** All signout attempts come through here */
   private void handleSigningOut() {
     if (Prefs.INST(this).isDeviceRegistered()) {
       if (Prefs.INST(this).isPushClipboard()) {
@@ -394,7 +392,9 @@ public class SignInActivity extends BaseActivity implements
 
   /** Unregister with App Engine. This will also perform the sign-out */
   private void doUnregister() {
-    new RegistrationClient.UnregisterAsyncTask(getApplicationContext(), SignInActivity.this).executeMe();
+    new RegistrationClient
+      .UnregisterAsyncTask(getApplicationContext(), SignInActivity.this)
+      .executeMe();
   }
 
   /** Remove all {@link User} info. */
@@ -480,7 +480,7 @@ public class SignInActivity extends BaseActivity implements
   }
 
   /**
-   * Display progress
+   * Display progress view
    * @param message - message to display
    */
   private void showProgress(String message) {
@@ -492,9 +492,7 @@ public class SignInActivity extends BaseActivity implements
     setProgressMessage(message);
   }
 
-  /**
-   * Remove progress
-   */
+  /** Remove progress view */
   private void dismissProgress() {
     final View userView = findViewById(R.id.user);
     final View progressView = findViewById(R.id.progress);

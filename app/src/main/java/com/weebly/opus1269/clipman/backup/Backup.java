@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.backup;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.app.Log;
@@ -31,7 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-/** Singleton to manage Google DriveHelper data backups */
+/** Singleton to manage Google Drive data backups */
 public class Backup {
   // OK, because mContext is the global Application context
   @SuppressLint("StaticFieldLeak")
@@ -59,11 +60,17 @@ public class Backup {
     }
   }
 
-  public void doBackup(BackupActivity activity) {
-    DriveHelper.INST(mContext).createBackupFile(activity, getZipFilename(), getBytes());
+  /**
+   * Perform a backup - OK to call without activity
+   * @param activity The calling activity
+   */
+  public void doBackup(@Nullable BackupActivity activity) {
+    DriveHelper.INST(mContext)
+      .createBackupFile(activity, getZipFilename(), getBytes());
   }
 
-  private String getStringData() {
+  /** Get all the data as a JSON string */
+  private String getJSONStringData() {
     // TODO need _id too
     String ret;
     ClipItem[] clipItems = ClipTable.INST(mContext).getAll(true, null);
@@ -79,10 +86,11 @@ public class Backup {
     return ret;
   }
 
+  /** Get all the data as a byte array */
   private byte[] getBytes() {
     final String BACKUP_FILNAME = "backup.txt";
     final ZipEntrySource[] entries = new ZipEntrySource[]{
-      new ByteSource(BACKUP_FILNAME, getStringData().getBytes())
+      new ByteSource(BACKUP_FILNAME, getJSONStringData().getBytes())
     };
     ByteArrayOutputStream data = null;
     BufferedOutputStream out = null;
@@ -102,6 +110,7 @@ public class Backup {
     return data.toByteArray();
   }
 
+  /** Get name of backup file */
   private String getZipFilename() {
     String ret = Device.getMyOS() + Device.getMySN(mContext) + ".zip";
     ret = ret.replace(' ', '_');

@@ -14,35 +14,38 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.backup.Backup;
 import com.weebly.opus1269.clipman.db.ClipTable;
+import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.model.User;
 
-/** {@link BroadcastReceiver} that cleans up old entries in the database */
+/** {@link BroadcastReceiver} that runs once a day */
 public class DailyAlarmReceiver extends BroadcastReceiver {
   private static final String TAG = "DailyAlarmReceiver";
 
   /**
-   * Add daily alarm to cleanup database of old entries
+   * Add daily alarm to delete old DB entries and perform backup
    * @param caller  caller's class name
-   * @param ctxt a Context
+   * @param context a Context
    */
-  public static void initialize(String caller, Context ctxt) {
+  public static void initialize(String caller, Context context) {
     final AlarmManager alarmMgr =
-      (AlarmManager) ctxt.getSystemService(Context.ALARM_SERVICE);
+      (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     if (alarmMgr == null) {
-      Log.logE(ctxt, caller,
+      Log.logE(context, caller,
         "Failed to start " + TAG + ", null AlarmManager");
       return;
     }
-    final Intent intent = new Intent(ctxt, DailyAlarmReceiver.class);
+    final Intent intent = new Intent(context, DailyAlarmReceiver.class);
     final PendingIntent alarmIntent =
-      PendingIntent.getBroadcast(ctxt, 0, intent, 0);
+      PendingIntent.getBroadcast(context, 0, intent, 0);
 
     // setup daily alarm
     alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
       AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, alarmIntent);
 
     // run now
-    ClipTable.INST(ctxt).deleteOldItems();
+    ClipTable.INST(context).deleteOldItems();
 
     Log.logD(TAG, "Initialized");
   }
@@ -50,6 +53,10 @@ public class DailyAlarmReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     Log.logD(TAG, "onReceive");
+
+    if (User.INST(context).isLoggedIn() && Prefs.INST(context).isAutoBackup()) {
+      Backup.INST(context).doBackup(null);
+    }
 
     ClipTable.INST(context).deleteOldItems();
   }

@@ -111,12 +111,12 @@ public class DriveHelper {
   }
 
   /**
-   * Create a new backup
+   * Create a new backup - asynchronous
    * @param activity activity
    * @param filename filename
    * @param data zipfile data
    */
-  public void createBackupFile(final BackupActivity activity,
+  public void createBackupFile(@Nullable final BackupActivity activity,
                                final String filename, final byte[] data) {
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -129,7 +129,9 @@ public class DriveHelper {
     final Task<DriveContents> createContentsTask = resourceClient
       .createContents();
 
-    activity.showProgress();
+    if (activity != null) {
+      activity.showProgress();
+    }
     Tasks.whenAll(appFolderTask, createContentsTask)
       .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
         @Override
@@ -155,7 +157,7 @@ public class DriveHelper {
           return resourceClient.createFile(parent, changeSet, contents);
         }
       })
-      .addOnSuccessListener(activity,
+      .addOnSuccessListener(
         new OnSuccessListener<DriveFile>() {
           @Override
           public void onSuccess(DriveFile driveFile) {
@@ -164,20 +166,24 @@ public class DriveHelper {
             // TODO add new BackupFile
             //final BackupFile backupFile = new BackupFile(mContext, driveFile);
             //activity.addFile(backupFile);
-            activity.dismissProgress();
+            if (activity != null) {
+              activity.dismissProgress();
+            }
           }
         })
-      .addOnFailureListener(activity, new OnFailureListener() {
+      .addOnFailureListener( new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
-          activity.dismissProgress();
+          if (activity != null) {
+            activity.dismissProgress();
+          }
         }
       });
   }
 
   /**
-   * Delete a {@link BackupFile}
+   * Delete a {@link BackupFile}  - asynchronous
    * @param activity   Calling activity
    * @param backupFile file to delete
    */
@@ -239,7 +245,7 @@ public class DriveHelper {
    * Retrieve all the zip files in a folder - asynchronous
    * @param activity Calling activity
    * @param resourceClient Drive access
-   * @param folder   Folder to retireve files from
+   * @param folder   Folder to retrieve files from
    */
   private void getZipFiles(final BackupActivity activity,
                            final DriveResourceClient resourceClient,

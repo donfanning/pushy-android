@@ -42,6 +42,7 @@ import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
+import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.ui.helpers.BitmapHelper;
 
 import java.io.IOException;
@@ -118,6 +119,11 @@ public class User {
       setPhotoUri(photoUrl.toString());
     } else {
       setPhotoUri("");
+    }
+
+    if (!DriveHelper.INST(mContext).hasAppFolderPermission()) {
+      // if new user does not have Drive scope
+      Prefs.INST(mContext).unsetAutoBackup();
     }
 
     // get the avatar and cover photos from the inter-webs
