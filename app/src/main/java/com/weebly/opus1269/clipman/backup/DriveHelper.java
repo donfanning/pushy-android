@@ -73,6 +73,7 @@ public class DriveHelper {
       activity.getDriveResourceClient();
     final Task<DriveFolder> appFolderTask = resourceClient.getAppFolder();
 
+    activity.showProgress();
     appFolderTask
       .addOnSuccessListener(activity,
         new OnSuccessListener<DriveFolder>() {
@@ -86,44 +87,11 @@ public class DriveHelper {
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, activity.getString(R.string.err_app_folder),
             ex, true);
+          activity.dismissProgress();
         }
       });
   }
 
-  /**
-   * Retrieve all the zip files in a folder - asynchronous
-   * @param activity Calling activity
-   * @param folder   Folder to retireve files from
-   */
-  private void getZipFiles(final BackupActivity activity, DriveFolder folder) {
-    final DriveResourceClient resourceClient =
-      activity.getDriveResourceClient();
-    final Query query = new Query.Builder()
-      .addFilter(Filters.eq(SearchableField.MIME_TYPE, "application/zip"))
-      .build();
-    final Task<MetadataBuffer> queryTask =
-      resourceClient.queryChildren(folder, query);
-    queryTask
-      .addOnSuccessListener(activity, new OnSuccessListener<MetadataBuffer>() {
-        @Override
-        public void onSuccess(MetadataBuffer metadataBuffer) {
-          final ArrayList<BackupFile> files = new ArrayList<>(0);
-          for (Metadata metadata : metadataBuffer) {
-            final BackupFile file = new BackupFile(mContext, metadata);
-            files.add(file);
-          }
-          activity.setFiles(files);
-          metadataBuffer.release();
-        }
-      })
-      .addOnFailureListener(activity, new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception ex) {
-          Log.logEx(mContext, TAG, activity.getString(R.string.err_get_backups),
-            ex, true);
-        }
-      });
-  }
 
   /**
    * Create a new backup
@@ -140,6 +108,7 @@ public class DriveHelper {
     final Task<DriveContents> createContentsTask = resourceClient
       .createContents();
 
+    activity.showProgress();
     Tasks.whenAll(appFolderTask, createContentsTask)
       .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
         @Override
@@ -174,12 +143,14 @@ public class DriveHelper {
             // TODO add new BackupFile
             //final BackupFile backupFile = new BackupFile(mContext, driveFile);
             //activity.addFile(backupFile);
+            activity.dismissProgress();
           }
         })
       .addOnFailureListener(activity, new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
+          activity.dismissProgress();
         }
       });
   }
@@ -193,6 +164,8 @@ public class DriveHelper {
                                final BackupFile backupFile) {
     final DriveResourceClient resourceClient =
       activity.getDriveResourceClient();
+
+    activity.showProgress();
     resourceClient
       .delete(backupFile.getId().asDriveFile())
       .addOnSuccessListener(activity,
@@ -200,6 +173,7 @@ public class DriveHelper {
           @Override
           public void onSuccess(Void aVoid) {
             activity.removeFileFromList(backupFile);
+            activity.dismissProgress();
           }
         })
       .addOnFailureListener(activity, new OnFailureListener() {
@@ -207,6 +181,44 @@ public class DriveHelper {
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG,
             activity.getString(R.string.err_delete_backup), ex, true);
+          activity.dismissProgress();
+        }
+      });
+  }
+
+  /**
+   * Retrieve all the zip files in a folder - asynchronous
+   * @param activity Calling activity
+   * @param folder   Folder to retireve files from
+   */
+  private void getZipFiles(final BackupActivity activity, DriveFolder folder) {
+    final DriveResourceClient resourceClient =
+      activity.getDriveResourceClient();
+    final Query query = new Query.Builder()
+      .addFilter(Filters.eq(SearchableField.MIME_TYPE, "application/zip"))
+      .build();
+    final Task<MetadataBuffer> queryTask =
+      resourceClient.queryChildren(folder, query);
+    queryTask
+      .addOnSuccessListener(activity, new OnSuccessListener<MetadataBuffer>() {
+        @Override
+        public void onSuccess(MetadataBuffer metadataBuffer) {
+          final ArrayList<BackupFile> files = new ArrayList<>(0);
+          for (Metadata metadata : metadataBuffer) {
+            final BackupFile file = new BackupFile(mContext, metadata);
+            files.add(file);
+          }
+          activity.setFiles(files);
+          metadataBuffer.release();
+          activity.dismissProgress();
+        }
+      })
+      .addOnFailureListener(activity, new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception ex) {
+          Log.logEx(mContext, TAG, activity.getString(R.string.err_get_backups),
+            ex, true);
+          activity.dismissProgress();
         }
       });
   }

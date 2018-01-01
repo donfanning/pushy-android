@@ -5,10 +5,10 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<LinearLayout android:id="@+id/content_backup"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/content_backup"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:descendantFocusability="beforeDescendants"
@@ -18,16 +18,51 @@
   tools:context=".ui.backup.BackupActivity"
   tools:showIn="@layout/activity_backup">
 
-  <include layout="@layout/backup_list" />
-
-  <TextView
-    android:id="@+id/info_message"
+  <LinearLayout
+    android:id="@+id/drive_progress"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:padding="10dp"
-    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="64dp"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
     android:visibility="gone"
-    tools:text="Error message here" />
+    tools:visibility="visible">
+
+    <ProgressBar
+      style="?android:attr/progressBarStyle"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="16dp" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fadeScrollbars="true"
+      android:gravity="center"
+      android:text="@string/progress_working"
+      android:textAppearance="@style/TextAppearance.AppCompat" />
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:id="@+id/drive_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <include layout="@layout/backup_list" />
+
+    <TextView
+      android:id="@+id/info_message"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:padding="10dp"
+      android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+      android:visibility="gone"
+      tools:text="Error message here" />
+  </LinearLayout>
+
 </LinearLayout>
 

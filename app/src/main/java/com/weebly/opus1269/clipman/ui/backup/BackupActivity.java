@@ -42,11 +42,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BackupActivity extends BaseActivity {
-  // TODO show waiter durning async ops
-
 
   /** Request code for granting Drive scope */
-  private static final int RC_REQUEST_PERMISSION_SUCCESS = 10;
+  private final int RC_DRIVE_SUCCESS = 10;
 
   /** The Array of {@link BackupFile} objects */
   // TODO save restore
@@ -92,19 +90,6 @@ public class BackupActivity extends BaseActivity {
   }
 
   @Override
-  protected void onStart() {
-    super.onStart();
-    checkPermissions();
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    mOptionsMenuID = R.menu.menu_backup;
-
-   return super.onCreateOptionsMenu(menu);
-  }
-
-  @Override
   protected void onResume() {
     super.onResume();
 
@@ -118,11 +103,17 @@ public class BackupActivity extends BaseActivity {
   }
 
   @Override
-  protected void onPause() {
-    super.onPause();
+  public boolean onCreateOptionsMenu(Menu menu) {
+    mOptionsMenuID = R.menu.menu_backup;
 
-    // Unregister since the activity is not visible
-    LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+
+    checkPermissions();
   }
 
   @Override
@@ -146,15 +137,12 @@ public class BackupActivity extends BaseActivity {
     return processed || super.onOptionsItemSelected(item);
   }
 
-  /**
-   * Handles resolution callbacks.
-   */
   @Override
   protected void onActivityResult(int requestCode, int resCode, Intent data) {
     super.onActivityResult(requestCode, resCode, data);
 
     switch (requestCode) {
-      case RC_REQUEST_PERMISSION_SUCCESS:
+      case RC_DRIVE_SUCCESS:
         if (resCode != RESULT_OK) {
           // User id not approve Google Drive permission
           Log.logE(this, TAG, getString(R.string.err_drive_scope_denied),
@@ -170,16 +158,19 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    // Unregister since the activity is not visible
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+  }
+
   /** Request Drive access if needed */
   private void checkPermissions() {
-    if (!GoogleSignIn.hasPermissions(
-      GoogleSignIn.getLastSignedInAccount(this),
-      Drive.SCOPE_APPFOLDER)) {
-      GoogleSignIn.requestPermissions(
-        this,
-        RC_REQUEST_PERMISSION_SUCCESS,
-        GoogleSignIn.getLastSignedInAccount(this),
-        Drive.SCOPE_APPFOLDER);
+    if (!GoogleSignIn.hasPermissions(getAccount(), Drive.SCOPE_APPFOLDER)) {
+      GoogleSignIn.requestPermissions(this, RC_DRIVE_SUCCESS,
+        getAccount(), Drive.SCOPE_APPFOLDER);
     } else {
       initializeDriveClient();
     }
@@ -222,13 +213,11 @@ public class BackupActivity extends BaseActivity {
 
     if (mFiles.isEmpty()) {
       mInfoMessage = getString(R.string.err_no_backups);
-    }
-    else {
+    } else {
       mInfoMessage = "";
     }
 
     if (TextUtils.isEmpty(mInfoMessage)) {
-
       textView.setVisibility(View.GONE);
       recyclerView.setVisibility(View.VISIBLE);
       fab.setVisibility(View.VISIBLE);
@@ -300,10 +289,10 @@ public class BackupActivity extends BaseActivity {
   }
 
   /**
-   * Add a flle
+   * Add a flle to the list
    * @param file file to add
    */
-  public void addFile(@NonNull final BackupFile file) {
+  public void addFileToList(@NonNull final BackupFile file) {
     mFiles.add(file);
     setupMainView();
     mAdapter.notifyDataSetChanged();
@@ -319,7 +308,7 @@ public class BackupActivity extends BaseActivity {
     mAdapter.notifyDataSetChanged();
   }
 
-  /** Delete a backup asynchronously */
+  /** Delete a backup file asynchronously */
   void deleteBackup(BackupFile backupFile) {
     DriveHelper.INST(this).deleteBackupFile(this, backupFile);
   }
@@ -332,5 +321,23 @@ public class BackupActivity extends BaseActivity {
   /** Refresh the list */
   private void refreshList() {
     retrieveBackups();
+  }
+
+  /** Display progress*/
+  public void showProgress() {
+    final View contentView = findViewById(R.id.drive_content);
+    final View progressView = findViewById(R.id.drive_progress);
+
+    contentView.setVisibility(View.GONE);
+    progressView.setVisibility(View.VISIBLE);
+  }
+
+  /** Remove progress */
+  public void dismissProgress() {
+    final View contentView = findViewById(R.id.drive_content);
+    final View progressView = findViewById(R.id.drive_progress);
+
+    contentView.setVisibility(View.VISIBLE);
+    progressView.setVisibility(View.GONE);
   }
 }
