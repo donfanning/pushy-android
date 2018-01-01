@@ -33,7 +33,7 @@ import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-/** Singleton to manage interactions with Google DriveHelper */
+/** Singleton to manage interactions with Google Drive */
 public class DriveHelper {
 
   // OK, because mContext is the global Application context
@@ -64,6 +64,10 @@ public class DriveHelper {
     }
   }
 
+  /**
+   * Retrieve all the backups in our appFolder - asynchronous
+   * @param activity our activity
+   */
   public void retrieveBackupFiles(final BackupActivity activity) {
     final DriveResourceClient resourceClient =
       activity.getDriveResourceClient();
@@ -87,7 +91,7 @@ public class DriveHelper {
   }
 
   /**
-   * Retrieve all the zip files in a folder
+   * Retrieve all the zip files in a folder - asynchronous
    * @param activity Calling activity
    * @param folder   Folder to retireve files from
    */
@@ -105,8 +109,7 @@ public class DriveHelper {
         public void onSuccess(MetadataBuffer metadataBuffer) {
           final ArrayList<BackupFile> files = new ArrayList<>(0);
           for (Metadata metadata : metadataBuffer) {
-            final BackupFile file =
-              new BackupFile(mContext, metadata);
+            final BackupFile file = new BackupFile(mContext, metadata);
             files.add(file);
           }
           activity.setFiles(files);
@@ -122,8 +125,14 @@ public class DriveHelper {
       });
   }
 
-  public void createZipFile(final BackupActivity activity,
-                            final String filename, final byte[] data) {
+  /**
+   * Create a new backup
+   * @param activity activity
+   * @param filename filename
+   * @param data zipfile data
+   */
+  public void createBackupFile(final BackupActivity activity,
+                               final String filename, final byte[] data) {
     final DriveResourceClient resourceClient =
       activity.getDriveResourceClient();
 
@@ -176,12 +185,12 @@ public class DriveHelper {
   }
 
   /**
-   * Delete the file with the given id
+   * Delete a {@link BackupFile}
    * @param activity   Calling activity
    * @param backupFile file to delete
    */
-  public void deleteFile(final BackupActivity activity,
-                          final BackupFile backupFile) {
+  public void deleteBackupFile(final BackupActivity activity,
+                               final BackupFile backupFile) {
     final DriveResourceClient resourceClient =
       activity.getDriveResourceClient();
     resourceClient
@@ -190,7 +199,7 @@ public class DriveHelper {
         new OnSuccessListener<Void>() {
           @Override
           public void onSuccess(Void aVoid) {
-            activity.removeFile(backupFile);
+            activity.removeFileFromList(backupFile);
           }
         })
       .addOnFailureListener(activity, new OnFailureListener() {

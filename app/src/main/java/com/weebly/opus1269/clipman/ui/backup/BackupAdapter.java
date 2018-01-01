@@ -55,7 +55,8 @@ class BackupAdapter extends
     final LayoutInflater inflater = LayoutInflater.from(context);
 
     // Inflate the custom layout
-    final View view = inflater.inflate(R.layout.backup_row, parent, false);
+    final View view =
+      inflater.inflate(R.layout.backup_row, parent, false);
 
     // Return a new holder instance
     return new BackupViewHolder(view);
@@ -96,7 +97,7 @@ class BackupAdapter extends
         public void onClick(View v) {
           Analytics.INST(v.getContext())
             .imageClick(mActivity.getTAG(), "deleteBackup");
-          DriveHelper.INST(mActivity).deleteFile(mActivity, file);
+          mActivity.deleteBackup(file);
         }
       }
     );

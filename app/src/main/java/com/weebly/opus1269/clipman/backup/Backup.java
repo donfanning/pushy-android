@@ -64,7 +64,7 @@ public class Backup {
   }
 
   public void doBackup(BackupActivity activity) {
-    DriveHelper.INST(mContext).createZipFile(activity, getZipFilename(), getBytes());
+    DriveHelper.INST(mContext).createBackupFile(activity, getZipFilename(), getBytes());
   }
 
   private String getStringData() {

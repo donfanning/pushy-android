@@ -115,9 +115,6 @@ public class BackupActivity extends BaseActivity {
 
     // show list or info. message
     setupMainView();
-
-    // TODO get backups
-
   }
 
   @Override
@@ -159,8 +156,9 @@ public class BackupActivity extends BaseActivity {
     switch (requestCode) {
       case RC_REQUEST_PERMISSION_SUCCESS:
         if (resCode != RESULT_OK) {
-          // Did not accept
-          Log.logE(this, TAG, getString(R.string.err_drive_scope_denied), false);
+          // User id not approve Google Drive permission
+          Log.logE(this, TAG, getString(R.string.err_drive_scope_denied),
+            false);
           finish();
           return;
         } else {
@@ -187,9 +185,7 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
-  /**
-   * Initialize the Drive clients with the current user's account.
-   */
+  /** Initialize the Drive clients with the current user's account */
   private void initializeDriveClient() {
     mDriveClient = Drive.getDriveClient(getApplicationContext(), getAccount());
     mDriveResourceClient =
@@ -203,7 +199,7 @@ public class BackupActivity extends BaseActivity {
   }
 
   /** Get last signed in account */
-  public GoogleSignInAccount getAccount() {
+  private GoogleSignInAccount getAccount() {
     return GoogleSignIn.getLastSignedInAccount(this);
   }
 
@@ -224,12 +220,12 @@ public class BackupActivity extends BaseActivity {
     final TextView textView = findViewById(R.id.info_message);
     final FloatingActionButton fab = findViewById(R.id.fab);
 
-    // TODO check for no files
-    //if (!Prefs.INST(getApplicationContext()).isPushClipboard()) {
-    //  mInfoMessage = getString(R.string.err_no_push_to_devices);
-    //} else if (!Prefs.INST(getApplicationContext()).isAllowReceive()) {
-    //  mInfoMessage = getString(R.string.err_no_receive_from_devices);
-    //}
+    if (mFiles.isEmpty()) {
+      mInfoMessage = getString(R.string.err_no_backups);
+    }
+    else {
+      mInfoMessage = "";
+    }
 
     if (TextUtils.isEmpty(mInfoMessage)) {
 
@@ -299,12 +295,6 @@ public class BackupActivity extends BaseActivity {
   /** Set the list of backups */
   public void setFiles(@NonNull final ArrayList<BackupFile> files) {
     mFiles = files;
-    if (mFiles.isEmpty()) {
-      mInfoMessage = getString(R.string.err_no_backups);
-    }
-    else {
-      mInfoMessage = "";
-    }
     setupMainView();
     mAdapter.notifyDataSetChanged();
   }
@@ -315,28 +305,26 @@ public class BackupActivity extends BaseActivity {
    */
   public void addFile(@NonNull final BackupFile file) {
     mFiles.add(file);
-    mInfoMessage = "";
     setupMainView();
     mAdapter.notifyDataSetChanged();
   }
 
   /**
-   * Remove a flle
+   * Remove a flle from the list
    * @param file file to remove
    */
-  public void removeFile(@NonNull final BackupFile file) {
+  public void removeFileFromList(@NonNull final BackupFile file) {
     mFiles.remove(file);
-    if (mFiles.isEmpty()) {
-      mInfoMessage = getString(R.string.err_no_backups);
-    }
-    else {
-      mInfoMessage = "";
-    }
     setupMainView();
     mAdapter.notifyDataSetChanged();
   }
 
-  /** Load the backup files asynchronously */
+  /** Delete a backup asynchronously */
+  void deleteBackup(BackupFile backupFile) {
+    DriveHelper.INST(this).deleteBackupFile(this, backupFile);
+  }
+
+  /** Load the list of backup files asynchronously */
   private void retrieveBackups() {
     DriveHelper.INST(this).retrieveBackupFiles(this);
   }
