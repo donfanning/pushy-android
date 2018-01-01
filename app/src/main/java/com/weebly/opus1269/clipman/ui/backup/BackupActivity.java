@@ -36,6 +36,7 @@ import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class BackupActivity extends BaseActivity {
   protected void onStart() {
     super.onStart();
 
-    checkPermissions();
+    checkDrivePermissions();
   }
 
   @Override
@@ -167,10 +168,12 @@ public class BackupActivity extends BaseActivity {
   }
 
   /** Request Drive access if needed */
-  private void checkPermissions() {
-    if (!GoogleSignIn.hasPermissions(getAccount(), Drive.SCOPE_APPFOLDER)) {
+  private void checkDrivePermissions() {
+    GoogleSignInAccount account = User.INST(this).getGoogleAccount();
+
+    if (!GoogleSignIn.hasPermissions(account, Drive.SCOPE_APPFOLDER)) {
       GoogleSignIn.requestPermissions(this, RC_DRIVE_SUCCESS,
-        getAccount(), Drive.SCOPE_APPFOLDER);
+        account, Drive.SCOPE_APPFOLDER);
     } else {
       initializeDriveClient();
     }
@@ -178,20 +181,17 @@ public class BackupActivity extends BaseActivity {
 
   /** Initialize the Drive clients with the current user's account */
   private void initializeDriveClient() {
-    mDriveClient = Drive.getDriveClient(getApplicationContext(), getAccount());
+    GoogleSignInAccount account = User.INST(this).getGoogleAccount();
+
+    mDriveClient = Drive.getDriveClient(getApplicationContext(), account);
     mDriveResourceClient =
-      Drive.getDriveResourceClient(getApplicationContext(), getAccount());
+      Drive.getDriveResourceClient(getApplicationContext(), account);
     onDriveClientReady();
   }
 
   /** Drive can be called */
   private void onDriveClientReady() {
     retrieveBackups();
-  }
-
-  /** Get last signed in account */
-  private GoogleSignInAccount getAccount() {
-    return GoogleSignIn.getLastSignedInAccount(this);
   }
 
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
@@ -209,24 +209,20 @@ public class BackupActivity extends BaseActivity {
 
     final RecyclerView recyclerView = findViewById(R.id.backupList);
     final TextView textView = findViewById(R.id.info_message);
-    final FloatingActionButton fab = findViewById(R.id.fab);
 
     if (mFiles.isEmpty()) {
       mInfoMessage = getString(R.string.err_no_backups);
     } else {
       mInfoMessage = "";
     }
+    textView.setText(mInfoMessage);
 
     if (TextUtils.isEmpty(mInfoMessage)) {
       textView.setVisibility(View.GONE);
       recyclerView.setVisibility(View.VISIBLE);
-      fab.setVisibility(View.VISIBLE);
-      textView.setText("");
     } else {
-      textView.setText(mInfoMessage);
       textView.setVisibility(View.VISIBLE);
       recyclerView.setVisibility(View.GONE);
-      fab.setVisibility(View.GONE);
     }
   }
 

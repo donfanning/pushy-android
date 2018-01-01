@@ -59,6 +59,7 @@ public class Prefs {
   private final String PREF_DEVICES = "prefDevices";
   private final String PREF_NO_DEVICES_CT = "prefNoDeviceCt";
   private final String PREF_SN = "prefSN";
+  private final String PREF_LAST_BACKUP = "prefLastBackup";
 
 
   private Prefs(@NonNull Context context) {
@@ -146,6 +147,17 @@ public class Prefs {
     return get(key, DEF_DURATION);
   }
 
+  public boolean isAutoBackup() {
+    final String key = mContext.getString(R.string.key_pref_auto_backup);
+    return get(key, false);
+  }
+
+  public void unsetAutoBackup() {
+    final String key = mContext.getString(R.string.key_pref_auto_backup);
+    set(key, false);
+  }
+
+
   private String getTheme() {
     final String key = mContext.getString(R.string.key_pref_theme);
     return get(key, DEF_THEME);
@@ -188,18 +200,15 @@ public class Prefs {
     if (notNotifications()) {
       return false;
     }
-    final String key =
-      mContext.getString(R.string.key_pref_not_types);
+    final String key = mContext.getString(R.string.key_pref_not_types);
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
-    final Set<String> values =
-      preferences.getStringSet(key, DEF_NOTIFICATIONS);
+    final Set<String> values = preferences.getStringSet(key, DEF_NOTIFICATIONS);
     return values.contains(value);
   }
 
   boolean isAudibleOnce() {
-    final String key =
-      mContext.getString(R.string.key_pref_not_audible_once);
+    final String key = mContext.getString(R.string.key_pref_not_audible_once);
     return get(key, true);
   }
 
@@ -330,6 +339,14 @@ public class Prefs {
     }
     // set now. will never change unless re-installed
     set(PREF_SN, sN);
+  }
+
+  public String getLastBackup() {
+    return get(PREF_LAST_BACKUP, "");
+  }
+
+  public void setLastBackup(String value) {
+    set(PREF_LAST_BACKUP, value);
   }
 
   ///////////////////////////////////////////////////////////////////////////

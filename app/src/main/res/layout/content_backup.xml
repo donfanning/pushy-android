@@ -47,8 +47,7 @@
   <LinearLayout
     android:id="@+id/drive_content"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
     <include layout="@layout/backup_list" />

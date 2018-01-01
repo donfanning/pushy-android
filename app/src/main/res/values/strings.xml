@@ -120,13 +120,13 @@
   <string name="ar_heartbeat_fifteen_value" translatable="false">15</string>
 
   <string name="pref_title_priority_msg">High priority message</string>
-  <string name="pref_desc_priority_msg">Wakes android devices for immediate delivery. Uses more battery.</string>
+  <string name="pref_desc_priority_msg">Wakes android devices for immediate delivery.</string>
   <string name="key_pref_priority_msg">priority_clipboard</string>
 
-  <string name="pref_cat_title_general">General</string>
+  <string name="pref_cat_title_general">Device</string>
   <string name="key_pref_cat_general">cat_general</string>
 
-  <string name="pref_title_nickname">Device nickname</string>
+  <string name="pref_title_nickname">Nickname</string>
   <string name="pref_desc_nickname_fmt">%s</string>
   <string name="key_pref_nickname">nickname</string>
   <string name="pref_nickname_hint">e.g. Work Phone</string>
@@ -143,6 +143,10 @@
   <string name="ar_duration_month_value" translatable="false">month</string>
   <string name="ar_duration_year_value" translatable="false">year</string>
   <string name="ar_duration_forever_value" translatable="false">forever</string>
+
+  <string name="pref_title_auto_backup">Auto data backup</string>
+  <string name="pref_desc_auto_backup">Perform a daily backup of all your data to Google Drive.</string>
+  <string name="key_pref_auto_backup">auto_backup</string>
 
   <string name="pref_title_theme">Theme</string>
   <string name="key_pref_theme">theme</string>

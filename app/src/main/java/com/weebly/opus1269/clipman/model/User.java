@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.Scopes;
 import com.google.api.client.googleapis.extensions.android.gms.auth
@@ -88,6 +89,11 @@ public class User {
       }
       return sInstance;
     }
+  }
+
+  /** Get last signed in account */
+  public GoogleSignInAccount getGoogleAccount() {
+    return GoogleSignIn.getLastSignedInAccount(mContext);
   }
 
   /**

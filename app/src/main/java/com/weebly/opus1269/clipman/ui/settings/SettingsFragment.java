@@ -29,10 +29,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.drive.Drive;
 import com.takisoft.fix.support.v7.preference.EditTextPreference;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -45,6 +49,8 @@ import com.weebly.opus1269.clipman.ui.main.MainActivity;
 
 import java.util.HashSet;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Fragment for app Preferences.
  * Supports Material design through {@link PreferenceFragmentCompatDividers}
@@ -52,7 +58,10 @@ import java.util.HashSet;
 public class SettingsFragment extends PreferenceFragmentCompatDividers
   implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-  private static final int REQUEST_CODE_ALERT_RINGTONE = 5;
+  private static final int RC_ALERT_RINGTONE = 5;
+
+  /** Request code for granting Drive scope */
+  private static final int RC_DRIVE_SUCCESS = 10;
 
   private String mRingtoneKey;
 
@@ -60,7 +69,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   public void onCreatePreferencesFix(Bundle bundle, String rootKey) {
     final Context context = getContext();
     assert context != null;
-    
+
     // Load the preferences from an XML resource
     setPreferencesFromResource(R.xml.preferences, rootKey);
 
@@ -76,21 +85,10 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                           @Nullable Bundle savedInstanceState) {
-    try {
-      return super.onCreateView(inflater, container, savedInstanceState);
-    } finally {
-      setDividerPreferences(DIVIDER_PADDING_CHILD |
-        DIVIDER_CATEGORY_AFTER_LAST | DIVIDER_CATEGORY_BETWEEN);
-    }
-  }
-
-  @Override
   public boolean onPreferenceTreeClick(Preference preference) {
     final Context context = getContext();
     assert context != null;
-    
+
     final String key = preference.getKey();
 
     if (mRingtoneKey.equals(key)) {
@@ -123,7 +121,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
           Settings.System.DEFAULT_NOTIFICATION_URI);
       }
 
-      startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
+      startActivityForResult(intent, RC_ALERT_RINGTONE);
 
       return true;
     } else if (getString(R.string.key_pref_manage_not).equals(key)) {
@@ -134,12 +132,12 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
     return super.onPreferenceTreeClick(preference);
   }
-
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if ((requestCode == REQUEST_CODE_ALERT_RINGTONE) && (data != null)) {
-      final BaseActivity activity = (BaseActivity) getActivity();
-      assert activity != null;
+    final BaseActivity activity = (BaseActivity) getActivity();
+    assert activity != null;
+
+    if ((requestCode == RC_ALERT_RINGTONE) && (data != null)) {
 
       // Save the Ringtone preference
       final Uri uri =
@@ -154,8 +152,27 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         Analytics.INST(activity).CAT_UI, Analytics.INST(activity).UI_LIST,
         "ringtone: " + ringTone);
       setRingtoneSummary();
+    } else if (requestCode == RC_DRIVE_SUCCESS) {
+      if (resultCode != RESULT_OK) {
+        // User did not approve Google Drive permission
+        Log.logE(getContext(), "SettingFragment",
+          getString(R.string.err_drive_scope_denied), false);
+        Prefs.INST(activity).unsetAutoBackup();
+        setAutoBackupState();
+      }
     } else {
       super.onActivityResult(requestCode, resultCode, data);
+    }
+  }
+
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           @Nullable Bundle savedInstanceState) {
+    try {
+      return super.onCreateView(inflater, container, savedInstanceState);
+    } finally {
+      setDividerPreferences(DIVIDER_PADDING_CHILD |
+        DIVIDER_CATEGORY_AFTER_LAST | DIVIDER_CATEGORY_BETWEEN);
     }
   }
 
@@ -174,6 +191,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sp, String key) {
+
     final Activity activity = getActivity();
     assert activity != null;
 
@@ -183,6 +201,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
     final String keyNotifications = getString(R.string.key_pref_notifications);
     final String keyReceive = getString(R.string.key_pref_receive_msg);
     final String keyPush = getString(R.string.key_pref_push_msg);
+    final String keyAutoBackup = getString(R.string.key_pref_auto_backup);
 
     // log event
     logChange(sp, key);
@@ -230,6 +249,23 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         // reset error count
         Prefs.INST(activity).setNoDevicesCt(0);
       }
+    } else if (key.equals(keyAutoBackup)) {
+      if (Prefs.INST(activity).isAutoBackup()) {
+        // check for Drive Scope
+        checkDrivePermissions();
+      }
+    }
+  }
+
+  /** Request Drive access if needed */
+  private void checkDrivePermissions() {
+    Context context = getContext();
+    assert context != null;
+    GoogleSignInAccount account = User.INST(context).getGoogleAccount();
+
+    if (!GoogleSignIn.hasPermissions(account, Drive.SCOPE_APPFOLDER)) {
+      GoogleSignIn.requestPermissions(this, RC_DRIVE_SUCCESS,
+        account, Drive.SCOPE_APPFOLDER);
     }
   }
 
@@ -306,5 +342,16 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       value = getResources().getString(R.string.pref_nickname_hint);
     }
     preference.setSummary(value);
+  }
+
+  /** Update the Auto backup toggle */
+  private void setAutoBackupState() {
+    final Context context = getContext();
+    assert context != null;
+
+    final SwitchPreferenceCompat preference = (SwitchPreferenceCompat)
+      findPreference(getString(R.string.key_pref_auto_backup));
+    Boolean value = Prefs.INST(getContext()).isAutoBackup();
+    preference.setChecked(value);
   }
 }
