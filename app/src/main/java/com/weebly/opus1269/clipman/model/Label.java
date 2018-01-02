@@ -25,14 +25,31 @@ public class Label implements Serializable {
   @NonNull
   private String name;
 
+  /** PK of the label - only used for backup/restore */
   @SuppressWarnings("unused")
-  public Label() {name = "";}
+  private long _id;
 
-  public Label(@NonNull String name) {this.name = name;}
+  @SuppressWarnings("unused")
+  public Label() {
+    name = "";
+    _id = -1L;
+  }
+
+  public Label(@NonNull String name, long id) {
+    this.name = name;
+    _id = id;
+  }
+
+  public Label(@NonNull String name) {
+    this.name = name;
+    _id = -1L;
+  }
 
   public Label(Cursor cursor) {
     int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
     name = cursor.getString(idx);
+    idx = cursor.getColumnIndex(ClipsContract.Label._ID);
+    _id = cursor.getLong(idx);
   }
 
   /**

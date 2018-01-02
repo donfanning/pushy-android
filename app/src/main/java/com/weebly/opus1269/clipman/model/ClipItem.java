@@ -60,6 +60,10 @@ public class ClipItem implements Serializable {
   private String device;
   private List<Label> labels;
 
+  /** PK's of the labels - only used for backup/restore */
+  @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+  private List<Long> labelsId;
+
   public ClipItem(Context context) {
     init(context);
   }
@@ -575,6 +579,7 @@ public class ClipItem implements Serializable {
   /** Get our {@link Label} names from the database */
   public void loadLabels(Context context) {
     labels.clear();
+    labelsId.clear();
 
     if (ClipItem.isWhitespace(this)) {
       return;
@@ -592,15 +597,21 @@ public class ClipItem implements Serializable {
       return;
     }
 
+    final List<String> names = new ArrayList<>(0);
     try {
       while (cursor.moveToNext()) {
-        final int idx =
-          cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
+        int idx = cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
         final String name = cursor.getString(idx);
-        labels.add(new Label(name));
+        names.add(name);
       }
     } finally {
       cursor.close();
+    }
+
+    for (String name: names) {
+      long labelId = LabelTables.INST(context).getLabelId(name);
+      labels.add(new Label(name, labelId));
+      labelsId.add(labelId);
     }
   }
 
@@ -626,6 +637,7 @@ public class ClipItem implements Serializable {
     remote = false;
     device = Device.getMyName(context);
     labels = new ArrayList<>(0);
+    labelsId = new ArrayList<>(0);
   }
 }
 

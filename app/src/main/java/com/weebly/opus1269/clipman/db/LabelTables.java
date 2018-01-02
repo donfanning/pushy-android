@@ -49,6 +49,38 @@ public class LabelTables {
 
 
   /**
+   * Get the PK for the given {@link Label} name
+   * @return PK for name, -1L if not found
+   */
+  public long getLabelId(@NonNull String labelName) {
+    long ret = -1L;
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] projection = {ClipsContract.Label._ID};
+    final String selection = ClipsContract.Label.COL_NAME + " = ? ";
+    final String[] selectionArgs = {labelName};
+
+    final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+    if ((cursor == null) || (cursor.getCount() <= 0)) {
+      if (cursor != null) {
+        cursor.close();
+      }
+      return ret;
+    }
+
+    try {
+      cursor.moveToNext();
+      final int idx = cursor.getColumnIndex(ClipsContract.Label._ID);
+      ret = cursor.getLong(idx);
+    } finally {
+      cursor.close();
+    }
+    return ret;
+  }
+
+  /**
    * Get the List of {@link Label} objects
    * @return List of Labels
    */
@@ -67,8 +99,11 @@ public class LabelTables {
 
     try {
       while (cursor.moveToNext()) {
-        final int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
-        list.add(new Label(cursor.getString(idx)));
+        int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
+        final String name = cursor.getString(idx);
+        idx = cursor.getColumnIndex(ClipsContract.Label._ID);
+        final long id = cursor.getLong(idx);
+        list.add(new Label(name, id));
       }
     } finally {
       cursor.close();
@@ -90,7 +125,7 @@ public class LabelTables {
 
     final ContentResolver resolver = mContext.getContentResolver();
 
-    // get total number of ClipItem/Label entrie
+    // get total number of ClipItem/Label entries
     int size = 0;
     for (ClipItem clipItem : clipItems) {
       size += clipItem.getLabels().size();
