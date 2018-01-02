@@ -168,11 +168,28 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            @Nullable Bundle savedInstanceState) {
+    final View view;
     try {
-      return super.onCreateView(inflater, container, savedInstanceState);
+      view = super.onCreateView(inflater, container, savedInstanceState);
     } finally {
       setDividerPreferences(DIVIDER_PADDING_CHILD |
         DIVIDER_CATEGORY_AFTER_LAST | DIVIDER_CATEGORY_BETWEEN);
+    }
+
+    if (view != null) {
+      setEnabledStates(view.getContext());
+    }
+
+    return view;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    final Context context = getContext();
+    if (context != null) {
+      setEnabledStates(context);
     }
   }
 
@@ -255,6 +272,21 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
         checkDrivePermissions();
       }
     }
+  }
+
+  /** Set enabled state based on login */
+  private void setEnabledStates(Context context) {
+    boolean state = User.INST(context).isLoggedIn();
+    Preference preference;
+
+    preference = findPreference(getString(R.string.key_pref_push_msg));
+    preference.setEnabled(state);
+    preference = findPreference(getString(R.string.key_pref_receive_msg));
+    preference.setEnabled(state);
+    preference = findPreference(getString(R.string.key_pref_priority_msg));
+    preference.setEnabled(state);
+    preference = findPreference(getString(R.string.key_pref_auto_backup));
+    preference.setEnabled(state);
   }
 
   /** Request Drive access if needed */
