@@ -71,7 +71,6 @@ public class Backup {
 
   /** Get all the data as a JSON string */
   private String getJSONStringData() {
-    // TODO need _id too
     String ret;
     ClipItem[] clipItems = ClipTable.INST(mContext).getAll(true, null);
     List<Label> labels = LabelTables.INST(mContext).getLabels();

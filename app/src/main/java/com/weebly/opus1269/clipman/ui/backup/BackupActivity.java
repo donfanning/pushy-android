@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.Backup;
@@ -34,6 +35,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 public class BackupActivity extends BaseActivity {
@@ -229,19 +231,33 @@ public class BackupActivity extends BaseActivity {
    * @param file file to add
    */
   public void addFileToList(@NonNull final BackupFile file) {
-    mFiles.add(file);
-    setupMainView();
-    mAdapter.notifyDataSetChanged();
+    boolean added = mFiles.add(file);
+    if (added) {
+      setupMainView();
+      mAdapter.notifyDataSetChanged();
+    }
   }
 
   /**
-   * Remove a flle from the list
-   * @param file file to remove
+   * Remove a flle from the list by DriveId
+   * @param driveId id of file to remove
    */
-  public void removeFileFromList(@NonNull final BackupFile file) {
-    mFiles.remove(file);
-    setupMainView();
-    mAdapter.notifyDataSetChanged();
+  public void removeFileFromList(@NonNull final DriveId driveId) {
+    boolean found = false;
+    for (final Iterator<BackupFile> i = mFiles.iterator(); i.hasNext(); ) {
+      final BackupFile backupFile = i.next();
+      final DriveId tmpId = backupFile.getId();
+      if (tmpId.equals(driveId)) {
+        Log.logD(TAG, "removing from list: " + backupFile.getDate());
+        found = true;
+        i.remove();
+        break;
+      }
+    }
+    if (found) {
+      setupMainView();
+      mAdapter.notifyDataSetChanged();
+    }
   }
 
   /** Sort files - mine first, then by data */

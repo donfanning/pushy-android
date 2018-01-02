@@ -141,7 +141,7 @@ class BackupAdapter extends
 
       if(mActivity.getString(R.string.button_delete).equals(buttonText)) {
         // delete backup file
-        DriveHelper.INST(mActivity).deleteBackupFile(mActivity, mFile);
+        DriveHelper.INST(mActivity).deleteBackupFile(mActivity, mFile.getId());
       } else if (mActivity.getString(R.string.button_restore)
         .equals(buttonText)) {
         // TODO restore backup file
