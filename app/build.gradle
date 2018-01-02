@@ -12,7 +12,6 @@ def keystorePropertiesFile = rootProject.file("secure/keystore.props")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
-//noinspection GroovyMissingReturnStatement
 android {
     signingConfigs {
         config {
@@ -51,50 +50,50 @@ android {
     }
 
     configurations {
-        compile.exclude group: "org.apache.httpcomponents", module: "httpclient"
+        implementation.exclude group: "org.apache.httpcomponents", module: "httpclient"
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     // various fixes for support:preference-v7
-    compile "com.takisoft.fix:preference-v7:${rootProject.ext.supportLibraryVersion}.0"
+    implementation "com.takisoft.fix:preference-v7:${rootProject.ext.supportLibraryVersion}.0"
     // android support libraries
-    compile "com.android.support:support-v4:${rootProject.ext.supportLibraryVersion}"
-    compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibraryVersion}"
-    compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibraryVersion}"
-    compile "com.android.support:design:${rootProject.ext.supportLibraryVersion}"
-    compile "com.android.support:support-vector-drawable:${rootProject.ext.supportLibraryVersion}"
+    implementation "com.android.support:support-v4:${rootProject.ext.supportLibraryVersion}"
+    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibraryVersion}"
+    implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibraryVersion}"
+    implementation "com.android.support:design:${rootProject.ext.supportLibraryVersion}"
+    implementation "com.android.support:support-vector-drawable:${rootProject.ext.supportLibraryVersion}"
 
     // Google Play service
-    compile "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
-    compile "com.google.android.gms:play-services-identity:${rootProject.ext.gmsVersion}"
-    compile "com.google.android.gms:play-services-auth:${rootProject.ext.gmsVersion}"
-    compile "com.google.android.gms:play-services-drive:${rootProject.ext.gmsVersion}"
+    implementation "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
+    implementation "com.google.android.gms:play-services-identity:${rootProject.ext.gmsVersion}"
+    implementation "com.google.android.gms:play-services-auth:${rootProject.ext.gmsVersion}"
+    implementation "com.google.android.gms:play-services-drive:${rootProject.ext.gmsVersion}"
     // firebase - keep in sync with play-services dependencies
-    compile "com.google.firebase:firebase-core:${rootProject.ext.gmsVersion}"
-    compile "com.google.firebase:firebase-messaging:${rootProject.ext.gmsVersion}"
-    compile "com.google.firebase:firebase-auth:${rootProject.ext.gmsVersion}"
-    compile "com.google.firebase:firebase-crash:${rootProject.ext.gmsVersion}"
+    implementation "com.google.firebase:firebase-core:${rootProject.ext.gmsVersion}"
+    implementation "com.google.firebase:firebase-messaging:${rootProject.ext.gmsVersion}"
+    implementation "com.google.firebase:firebase-auth:${rootProject.ext.gmsVersion}"
+    implementation "com.google.firebase:firebase-crash:${rootProject.ext.gmsVersion}"
 
     // Google API
-    compile "com.google.api-client:google-api-client:${rootProject.ext.gapiVersion}"
-    compile "com.google.api-client:google-api-client-android:${rootProject.ext.gapiVersion}"
-    compile "com.google.apis:google-api-services-people:v1-rev158-${rootProject.ext.gapiVersion}"
+    implementation "com.google.api-client:google-api-client:${rootProject.ext.gapiVersion}"
+    implementation "com.google.api-client:google-api-client-android:${rootProject.ext.gapiVersion}"
+    implementation "com.google.apis:google-api-services-people:v1-rev158-${rootProject.ext.gapiVersion}"
 
-    androidTestCompile("com.android.support.test.espresso:espresso-core:2.2.2", {
+    androidTestImplementation("com.android.support.test.espresso:espresso-core:2.2.2", {
         exclude group: "com.android.support", module: "support-annotations"
     })
 
     // third party open source
-    compile 'joda-time:joda-time:2.9.9'
-    compile 'com.google.code.gson:gson:2.8.2'
-    compile 'com.androidessence:recyclerviewcursoradapter:1.0.0'
-    compile 'com.firebase:firebase-jobdispatcher:0.8.4'
-    compile 'org.zeroturnaround:zt-zip:1.12'
-    compile 'com.google.code.findbugs:jsr305:3.0.1'
-    testCompile 'junit:junit:4.12'
+    implementation 'joda-time:joda-time:2.9.9'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.androidessence:recyclerviewcursoradapter:1.0.0'
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.4'
+    implementation 'org.zeroturnaround:zt-zip:1.12'
+    implementation 'com.google.code.findbugs:jsr305:3.0.1'
+    testImplementation 'junit:junit:4.12'
 }
 
 // must be at end
