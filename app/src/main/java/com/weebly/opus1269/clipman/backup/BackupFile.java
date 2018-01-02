@@ -43,17 +43,17 @@ public class BackupFile {
   private String mOS;
   private final long mDate;
 
-  public BackupFile(Context context, final Metadata driveFile) {
-    mId = driveFile.getDriveId();
-    mName = driveFile.getOriginalFilename();
-    mDate = driveFile.getModifiedDate().getTime();
+  BackupFile(Context context, final Metadata metadata) {
+    mId = metadata.getDriveId();
+    mName = metadata.getTitle();
+    mDate = metadata.getModifiedDate().getTime();
     mModel = "";
     mSN = "";
     mOS = "";
     mNickname = "";
 
     final Map<CustomPropertyKey, String> props =
-      driveFile.getCustomProperties();
+      metadata.getCustomProperties();
     for (Map.Entry<CustomPropertyKey, String> entry : props.entrySet()) {
       final String key = entry.getKey().getKey();
       final String value = entry.getValue();
@@ -133,15 +133,6 @@ public class BackupFile {
 
   public DateTime getDate() {
     return new DateTime(mDate);
-  }
-
-  /**
-   * Is this file more recent than the given file
-   * @param file - file to compare to
-   * @return true if newer
-   */
-  public boolean isNewer(@NonNull BackupFile file) {
-    return this.mDate > file.mDate;
   }
 
   private boolean isMyFile(@NonNull final Context context) {

@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
@@ -126,8 +127,8 @@ public class DriveHelper {
     }
 
     final Task<DriveFolder> appFolderTask = resourceClient.getAppFolder();
-    final Task<DriveContents> createContentsTask = resourceClient
-      .createContents();
+    final Task<DriveContents> createContentsTask =
+      resourceClient.createContents();
 
     if (activity != null) {
       activity.showProgress();
@@ -161,14 +162,10 @@ public class DriveHelper {
         new OnSuccessListener<DriveFile>() {
           @Override
           public void onSuccess(DriveFile driveFile) {
-            final String fileId = driveFile.getDriveId().getResourceId();
-            Log.logD(TAG, "fileId: " + fileId);
-            // TODO add new BackupFile
-            //final BackupFile backupFile = new BackupFile(mContext, driveFile);
-            //activity.addFile(backupFile);
-            if (activity != null) {
-              activity.hideProgress();
-            }
+            final String fileString = driveFile.getDriveId().encodeToString();
+            Prefs.INST(mContext).setLastBackup(fileString);
+            Log.logD(TAG, "fileId: " + fileString);
+            addBackupFileToList(activity, resourceClient, driveFile);
           }
         })
       .addOnFailureListener( new OnFailureListener() {
@@ -196,9 +193,11 @@ public class DriveHelper {
       return;
     }
 
+    final DriveFile file = backupFile.getId().asDriveFile();
+    final Task<Void> deleteTask = resourceClient.delete(file);
+
     activity.showProgress();
-    resourceClient
-      .delete(backupFile.getId().asDriveFile())
+    deleteTask
       .addOnSuccessListener(activity,
         new OnSuccessListener<Void>() {
           @Override
@@ -220,25 +219,34 @@ public class DriveHelper {
       });
   }
 
-  @Nullable private DriveClient getDriveClient() {
-    DriveClient ret = null;
-    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
-
-    if (account != null) {
-      ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
-    }
-    return ret;
-  }
-
-  @Nullable private DriveResourceClient getDriveResourceClient() {
-    DriveResourceClient ret = null;
-    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
-
-    if (account != null) {
-      ret =
-        Drive.getDriveResourceClient(mContext.getApplicationContext(), account);
-    }
-    return ret;
+  /**
+   * Add a backup file
+   * @param activity Calling activity
+   * @param resourceClient Drive access
+   * @param file   Folder to retrieve files from
+   */
+  private void addBackupFileToList(final BackupActivity activity,
+                           final DriveResourceClient resourceClient,
+                           final DriveFile file) {
+    final Task<Metadata> metaDataTask = resourceClient.getMetadata(file);
+    metaDataTask
+      .addOnSuccessListener(activity, new OnSuccessListener<Metadata>() {
+        @Override
+        public void onSuccess(Metadata metadata) {
+          final BackupFile file = new BackupFile(mContext, metadata);
+          activity.addFileToList(file);
+          activity.hideProgress();
+        }
+      })
+      .addOnFailureListener(activity, new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception ex) {
+          // TODO message text
+          Log.logEx(mContext, TAG, activity.getString(R.string.err_get_backups),
+            ex, true);
+          activity.hideProgress();
+        }
+      });
   }
 
   /**
@@ -277,5 +285,26 @@ public class DriveHelper {
           activity.hideProgress();
         }
       });
+  }
+
+  @Nullable private DriveClient getDriveClient() {
+    DriveClient ret = null;
+    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
+
+    if (account != null) {
+      ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
+    }
+    return ret;
+  }
+
+  @Nullable private DriveResourceClient getDriveResourceClient() {
+    DriveResourceClient ret = null;
+    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
+
+    if (account != null) {
+      ret =
+        Drive.getDriveResourceClient(mContext.getApplicationContext(), account);
+    }
+    return ret;
   }
 }
