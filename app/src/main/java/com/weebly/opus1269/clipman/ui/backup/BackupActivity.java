@@ -7,14 +7,10 @@
 
 package com.weebly.opus1269.clipman.ui.backup;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -32,12 +28,12 @@ import com.weebly.opus1269.clipman.backup.Backup;
 import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Devices;
-import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class BackupActivity extends BaseActivity {
@@ -51,13 +47,6 @@ public class BackupActivity extends BaseActivity {
 
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
-
-  /** Receiver to be notified of changes */
-  private BroadcastReceiver mReceiver = null;
-
-  /** Info. message if list is not visible */
-  private String mInfoMessage = "";
-
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -78,20 +67,13 @@ public class BackupActivity extends BaseActivity {
     }
 
     setupRecyclerView();
-
-    setupBackupBroadcastReceiver();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
 
-    // Register mReceiver to receive Backup notifications.
-    //TODO add FILTER
-    LocalBroadcastManager.getInstance(this)
-      .registerReceiver(mReceiver, new IntentFilter(Intents.FILTER_DEVICES));
-
-    // show list or info. message
+    // setup UI
     setupMainView();
   }
 
@@ -151,14 +133,6 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
-  @Override
-  protected void onPause() {
-    super.onPause();
-
-    // Unregister since the activity is not visible
-    LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-  }
-
   /** Request Drive access if needed */
   private void checkDrivePermissions() {
     final GoogleSignInAccount account = User.INST(this).getGoogleAccount();
@@ -191,20 +165,21 @@ public class BackupActivity extends BaseActivity {
 
   /** Determine if list or info. message should be shown */
   private void setupMainView() {
-
     final RecyclerView recyclerView = findViewById(R.id.backupList);
     final TextView textView = findViewById(R.id.info_message);
+    String infoMessage;
 
     if (mFiles.isEmpty()) {
-      mInfoMessage = getString(R.string.err_no_backups);
+      infoMessage = getString(R.string.err_no_backups);
     } else if (!User.INST(getApplicationContext()).isLoggedIn()) {
-      mInfoMessage = getString(R.string.err_not_signed_in);
+      infoMessage = getString(R.string.err_not_signed_in);
     } else {
-      mInfoMessage = "";
+      sortFiles();
+      infoMessage = "";
     }
-    textView.setText(mInfoMessage);
+    textView.setText(infoMessage);
 
-    if (TextUtils.isEmpty(mInfoMessage)) {
+    if (TextUtils.isEmpty(infoMessage)) {
       textView.setVisibility(View.GONE);
       recyclerView.setVisibility(View.VISIBLE);
     } else {
@@ -213,39 +188,22 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
-  /** Create the {@link BroadcastReceiver} to handle changes to the list */
-  private void setupBackupBroadcastReceiver() {
-    // handler for received Intents for the "backup file" event
-    mReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
-        if (bundle == null) {
-          return;
-        }
-        final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
-        if (action == null) {
-          return;
-        }
+  /** Display progress UI */
+  public void showProgress() {
+    final View contentView = findViewById(R.id.drive_content);
+    final View progressView = findViewById(R.id.drive_progress);
 
-        switch (action) {
-          case Intents.TYPE_UPDATE_DEVICES:
-            // device list changed - don't ping here
-            if (Devices.INST(getApplicationContext()).getCount() > 0) {
-              mInfoMessage = "";
-            }
-            setupMainView();
-            break;
-          case Intents.TYPE_NO_REMOTE_DEVICES:
-            // detected no remote devices - don't ping here
-            mInfoMessage = getString(R.string.err_no_remote_devices);
-            setupMainView();
-            break;
-          default:
-            break;
-        }
-      }
-    };
+    contentView.setVisibility(View.GONE);
+    progressView.setVisibility(View.VISIBLE);
+  }
+
+  /** Hide progress UI */
+  public void hideProgress() {
+    final View contentView = findViewById(R.id.drive_content);
+    final View progressView = findViewById(R.id.drive_progress);
+
+    contentView.setVisibility(View.VISIBLE);
+    progressView.setVisibility(View.GONE);
   }
 
   /**
@@ -256,7 +214,10 @@ public class BackupActivity extends BaseActivity {
     return mFiles;
   }
 
-  /** Set the list of backups */
+  /**
+   * Set the list of backups
+   * @param files backup files
+   */
   public void setFiles(@NonNull final ArrayList<BackupFile> files) {
     mFiles = files;
     setupMainView();
@@ -283,9 +244,29 @@ public class BackupActivity extends BaseActivity {
     mAdapter.notifyDataSetChanged();
   }
 
-  /** Delete a backup file asynchronously */
-  void deleteBackup(BackupFile backupFile) {
-    DriveHelper.INST(this).deleteBackupFile(this, backupFile);
+  /** Sort files - mine first, then by data */
+  private void sortFiles() {
+    // mine first, then by date
+    // see: https://goo.gl/RZG4u8
+    final Comparator<BackupFile> cmp = new Comparator<BackupFile>() {
+      @Override
+      public int compare(BackupFile lhs, BackupFile rhs) {
+        // mine first
+        Boolean lhMine = lhs.isMine();
+        Boolean rhMine = rhs.isMine();
+        int mineCompare = rhMine.compareTo(lhMine);
+
+        if (mineCompare != 0) {
+          return mineCompare;
+        } else {
+          // newest first
+          Long lhDate = lhs.getDate().getMillis();
+          Long rhDate = rhs.getDate().getMillis();
+          return rhDate.compareTo(lhDate);
+        }
+      }
+    };
+    Collections.sort(mFiles, cmp);
   }
 
   /** Load the list of backup files asynchronously */
@@ -296,23 +277,5 @@ public class BackupActivity extends BaseActivity {
   /** Refresh the list */
   private void refreshList() {
     retrieveBackups();
-  }
-
-  /** Display progress*/
-  public void showProgress() {
-    final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
-
-    contentView.setVisibility(View.GONE);
-    progressView.setVisibility(View.VISIBLE);
-  }
-
-  /** Remove progress */
-  public void dismissProgress() {
-    final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
-
-    contentView.setVisibility(View.VISIBLE);
-    progressView.setVisibility(View.GONE);
   }
 }

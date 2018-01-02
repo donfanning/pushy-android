@@ -105,7 +105,7 @@ public class DriveHelper {
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, activity.getString(R.string.err_get_backups),
             ex, true);
-          activity.dismissProgress();
+          activity.hideProgress();
         }
       });
   }
@@ -116,7 +116,7 @@ public class DriveHelper {
    * @param filename filename
    * @param data zipfile data
    */
-  public void createBackupFile(@Nullable final BackupActivity activity,
+  void createBackupFile(@Nullable final BackupActivity activity,
                                final String filename, final byte[] data) {
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -167,7 +167,7 @@ public class DriveHelper {
             //final BackupFile backupFile = new BackupFile(mContext, driveFile);
             //activity.addFile(backupFile);
             if (activity != null) {
-              activity.dismissProgress();
+              activity.hideProgress();
             }
           }
         })
@@ -176,7 +176,7 @@ public class DriveHelper {
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
           if (activity != null) {
-            activity.dismissProgress();
+            activity.hideProgress();
           }
         }
       });
@@ -204,7 +204,7 @@ public class DriveHelper {
           @Override
           public void onSuccess(Void aVoid) {
             activity.removeFileFromList(backupFile);
-            activity.dismissProgress();
+            activity.hideProgress();
           }
         })
       .addOnFailureListener(activity, new OnFailureListener() {
@@ -215,7 +215,7 @@ public class DriveHelper {
           Log.logEx(mContext, TAG,
             activity.getString(R.string.err_delete_backup), ex, false);
           activity.removeFileFromList(backupFile);
-          activity.dismissProgress();
+          activity.hideProgress();
         }
       });
   }
@@ -266,7 +266,7 @@ public class DriveHelper {
           }
           activity.setFiles(files);
           metadataBuffer.release();
-          activity.dismissProgress();
+          activity.hideProgress();
         }
       })
       .addOnFailureListener(activity, new OnFailureListener() {
@@ -274,7 +274,7 @@ public class DriveHelper {
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, activity.getString(R.string.err_get_backups),
             ex, true);
-          activity.dismissProgress();
+          activity.hideProgress();
         }
       });
   }
