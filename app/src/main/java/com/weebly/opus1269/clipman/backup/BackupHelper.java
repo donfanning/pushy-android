@@ -34,10 +34,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 /** Singleton to manage Google Drive data backups */
-public class Backup {
+public class BackupHelper {
   // OK, because mContext is the global Application context
   @SuppressLint("StaticFieldLeak")
-  private static Backup sInstance;
+  private static BackupHelper sInstance;
 
   /** Global Application Context */
   private final Context mContext;
@@ -48,7 +48,7 @@ public class Backup {
   /** Name of file in the zipfile */
   private final String BACKUP_FILNAME = "backup.txt";
 
-  private Backup(@NonNull Context context) {
+  private BackupHelper(@NonNull Context context) {
     mContext = context.getApplicationContext();
   }
 
@@ -56,10 +56,10 @@ public class Backup {
    * Lazily create our instance
    * @param context any old context
    */
-  public static Backup INST(@NonNull Context context) {
-    synchronized (Backup.class) {
+  public static BackupHelper INST(@NonNull Context context) {
+    synchronized (BackupHelper.class) {
       if (sInstance == null) {
-        sInstance = new Backup(context);
+        sInstance = new BackupHelper(context);
       }
       return sInstance;
     }

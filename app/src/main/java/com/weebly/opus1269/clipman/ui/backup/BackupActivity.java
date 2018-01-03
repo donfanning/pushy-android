@@ -25,7 +25,7 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.backup.Backup;
+import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -103,7 +103,7 @@ public class BackupActivity extends BaseActivity {
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_backup:
-        Backup.INST(this).doBackup(this);
+        BackupHelper.INST(this).doBackup(this);
         break;
       default:
         processed = false;

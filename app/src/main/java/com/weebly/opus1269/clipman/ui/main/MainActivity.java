@@ -594,7 +594,7 @@ public class MainActivity extends BaseActivity implements
 
     final Menu menu = navigationView.getMenu();
 
-    // set Backup menu state
+    // set BackupHelper menu state
     MenuItem menuItem = menu.findItem(R.id.nav_backup);
     menuItem.setEnabled(User.INST(this).isLoggedIn());
 

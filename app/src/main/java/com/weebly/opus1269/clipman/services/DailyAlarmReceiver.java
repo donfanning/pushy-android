@@ -14,7 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.backup.Backup;
+import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -44,10 +44,11 @@ public class DailyAlarmReceiver extends BroadcastReceiver {
     alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
       AlarmManager.INTERVAL_DAY, AlarmManager.INTERVAL_DAY, alarmIntent);
 
-    // run now
-    ClipTable.INST(context).deleteOldItems();
 
     Log.logD(TAG, "Initialized");
+
+    // run now
+    ClipTable.INST(context).deleteOldItems();
   }
 
   @Override
@@ -55,7 +56,7 @@ public class DailyAlarmReceiver extends BroadcastReceiver {
     Log.logD(TAG, "onReceive");
 
     if (User.INST(context).isLoggedIn() && Prefs.INST(context).isAutoBackup()) {
-      Backup.INST(context).doBackup(null);
+      BackupHelper.INST(context).doBackup(null);
     }
 
     ClipTable.INST(context).deleteOldItems();

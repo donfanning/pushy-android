@@ -31,7 +31,7 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.backup.Backup;
+import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -40,7 +40,7 @@ import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 import java.util.List;
 
-/** Bridge between the Backup RecyclerView and the Backups class */
+/** Bridge between the BackupHelper RecyclerView and the Backups class */
 class BackupAdapter extends
   RecyclerView.Adapter<BackupAdapter.BackupViewHolder> implements
   DialogInterface.OnClickListener {
@@ -145,7 +145,7 @@ class BackupAdapter extends
         DriveHelper.INST(mActivity).deleteBackupFile(mActivity, mFile.getId());
       } else if (mActivity.getString(R.string.button_restore)
         .equals(buttonText)) {
-        Backup.INST(mActivity).doRestore(mActivity, mFile);
+        BackupHelper.INST(mActivity).doRestore(mActivity, mFile);
       }
       mFile = null;
     }

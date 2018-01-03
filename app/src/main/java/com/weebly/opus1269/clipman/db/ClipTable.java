@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -31,6 +32,10 @@ public class ClipTable {
 
   /** Global Application Context */
   private final Context mContext;
+
+  /** Class identifier */
+  private final String TAG = this.getClass().getSimpleName();
+
 
   private ClipTable(@NonNull Context context) {
     mContext = context.getApplicationContext();
@@ -202,14 +207,12 @@ public class ClipTable {
       .delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 
-  /**
-   * Delete rows older than the storage duration
-   * @return Number of rows deleted
-   */
-  public int deleteOldItems() {
+  /** Delete rows older than the storage duration */
+  public void deleteOldItems() {
+    Log.logD(TAG, "deleteOldItems called");
     final String value = Prefs.INST(mContext).getDuration();
     if (value.equals(mContext.getString(R.string.ar_duration_forever))) {
-      return 0;
+      return;
     }
 
     DateTime today = DateTime.now();
@@ -229,7 +232,7 @@ public class ClipTable {
         deleteDate = deleteDate.minusYears(1);
         break;
       default:
-        return 0;
+        return;
     }
 
     final long deleteTime = deleteDate.getMillis();
@@ -240,6 +243,6 @@ public class ClipTable {
         ClipsContract.Clip.COL_DATE + " < " + deleteTime + ")";
 
     final ContentResolver resolver = mContext.getContentResolver();
-    return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
+    resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 }
