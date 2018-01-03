@@ -118,8 +118,8 @@ public class LabelTables {
    * @param clipItems the items to add Labels for
    * @return number of items added
    */
-  public int insertLabelsMap(ClipItem[] clipItems) {
-    if (clipItems == null) {
+  int insertLabelsMap(@NonNull List<ClipItem> clipItems) {
+    if (clipItems.size() < 1) {
       return 0;
     }
 

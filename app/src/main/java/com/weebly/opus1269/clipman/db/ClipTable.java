@@ -24,6 +24,9 @@ import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Singleton to manage the Clips.db Clip table */
 public class ClipTable {
   // OK, because mContext is the global Application context
@@ -81,9 +84,10 @@ public class ClipTable {
    * Get all non-favorite and optionally favorite rows for a given {@link Label}
    * @param includeFavs flag to indicate if favorites should be retrieved too
    * @param labelFilter label to filter on
-   * @return Array of {@link ClipItem} objects
+   * @return The {@link ClipItem} objects
    */
-  public ClipItem[] getAll(Boolean includeFavs, String labelFilter) {
+  public List<ClipItem> getAll(Boolean includeFavs, String labelFilter) {
+    final ArrayList<ClipItem> ret = new ArrayList<>(100);
     final ContentResolver resolver = mContext.getContentResolver();
 
     Uri uri = ClipsContract.Clip.CONTENT_URI;
@@ -113,22 +117,18 @@ public class ClipTable {
       null,
       null);
     if (cursor == null) {
-      return new ClipItem[0];
+      return ret;
     }
 
-    final ClipItem[] array;
     try {
-      array = new ClipItem[cursor.getCount()];
-      int count = 0;
       while (cursor.moveToNext()) {
-        array[count] = new ClipItem(mContext, cursor);
-        count++;
+        ret.add(new ClipItem(mContext, cursor));
       }
     } finally {
       cursor.close();
     }
 
-    return array;
+    return ret;
   }
 
   /**
@@ -136,8 +136,8 @@ public class ClipTable {
    * @param clipItems the items to add
    * @return number of items added
    */
-  public int insertClipItems(ClipItem[] clipItems) {
-    if (clipItems == null) {
+  public int insertClipItems(@NonNull List<ClipItem> clipItems) {
+    if (clipItems.size() < 1) {
       return 0;
     }
 
@@ -145,9 +145,9 @@ public class ClipTable {
     int ret;
 
     // add the clips
-    final ContentValues[] clipCVs = new ContentValues[clipItems.length];
-    for (int i = 0; i < clipItems.length; i++) {
-      clipCVs[i] = clipItems[i].getContentValues();
+    final ContentValues[] clipCVs = new ContentValues[clipItems.size()];
+    for (int i = 0; i < clipItems.size(); i++) {
+      clipCVs[i] = clipItems.get(i).getContentValues();
     }
     ret = resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
 

@@ -71,13 +71,23 @@ public class BackupHelper {
   /**
    * Perform a restore
    * @param activity The calling activity
-   * @param file File to restore
+   * @param file     File to restore
    */
   public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
     // This will asynchronously retrieve the file and save to the activity
     // for further processing
     DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
+  }
+
+  /**
+   * Update the database with the restored data
+   * @param activity The calling activity
+   * @param data     database data to restore
+   */
+  public void processRestoredData(@NonNull BackupActivity activity,
+                                  final byte[] data) {
+    final Gson gson = new Gson();
   }
 
   /**
@@ -88,18 +98,15 @@ public class BackupHelper {
     return ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
   }
 
-  /** Get all the data as a JSON string */
+  /** Get the database data as a JSON string */
   private String getJSONStringData() {
     String ret;
-    ClipItem[] clipItems = ClipTable.INST(mContext).getAll(true, null);
+    List<ClipItem> clipItems = ClipTable.INST(mContext).getAll(true, null);
     List<Label> labels = LabelTables.INST(mContext).getLabels();
+    BackupFile.Contents contents = new BackupFile.Contents(labels, clipItems);
     // get stringified JSON
     final Gson gson = new Gson();
-    ret = "{\"labels\":";
-    ret += gson.toJson(labels);
-    ret += ",\"clipItems\":";
-    ret += gson.toJson(clipItems);
-    ret += "}";
+    ret = gson.toJson(contents);
     Log.logD(TAG, ret);
     return ret;
   }

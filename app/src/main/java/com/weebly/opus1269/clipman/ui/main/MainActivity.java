@@ -77,7 +77,7 @@ public class MainActivity extends BaseActivity implements
   private ClipLoaderManager mLoaderManager;
 
   /** Items from last delete operation */
-  private ClipItem[] mUndoItems = null;
+  private List<ClipItem> mUndoItems = null;
 
   /** AppBar setting for pin favs */
   private Boolean mPinFav = false;

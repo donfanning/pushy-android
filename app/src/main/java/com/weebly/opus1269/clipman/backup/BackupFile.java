@@ -25,15 +25,20 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
+import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.Label;
 
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /** Immutable Class for a backup file's metadata */
 public class BackupFile {
 
+  private Contents mContents;
   private final Boolean mIsMine;
   private final DriveId mId;
   private final String mName;
@@ -44,6 +49,7 @@ public class BackupFile {
   private final long mDate;
 
   BackupFile(Context context, final Metadata metadata) {
+    mContents = new Contents();
     mId = metadata.getDriveId();
     mName = metadata.getTitle();
     mDate = metadata.getModifiedDate().getTime();
@@ -96,6 +102,10 @@ public class BackupFile {
         Device.getMyNickname(context));
   }
 
+  public Contents getContents() {
+    return mContents;
+  }
+
   public boolean isMine() {
     return mIsMine;
   }
@@ -138,5 +148,30 @@ public class BackupFile {
     return (mSN.equals(Device.getMySN(context)) &&
       mModel.equals(Device.getMyModel()) &&
       mOS.equals(Device.getMyOS()));
+  }
+
+  /** Inner class for the contents of a backup */
+  static class Contents {
+    private List<Label> labels;
+    private List<ClipItem> clipItems;
+
+    Contents() {
+      this.labels = new ArrayList<>(0);
+      this.clipItems = new ArrayList<>(0);
+    }
+
+    Contents(@NonNull List<Label> labels,
+                    @NonNull List<ClipItem> clipItems) {
+      this.labels = labels;
+      this.clipItems = clipItems;
+    }
+
+    public List<Label> getLabels() {
+      return labels;
+    }
+
+    public List<ClipItem> getClipItems() {
+      return clipItems;
+    }
   }
 }
