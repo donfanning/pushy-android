@@ -39,8 +39,6 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
-import org.zeroturnaround.zip.ZipUtil;
-
 import java.io.BufferedInputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
