@@ -15,6 +15,7 @@ import android.text.TextUtils;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
@@ -184,7 +185,7 @@ public class DriveHelper {
       .addOnSuccessListener(new OnSuccessListener<DriveFile>() {
         @Override
         public void onSuccess(DriveFile driveFile) {
-          replaceBackupFile(activity, resourceClient, driveFile);
+          persistBackupFile(activity, resourceClient, driveFile);
         }
       })
       .addOnFailureListener(new OnFailureListener() {
@@ -238,9 +239,16 @@ public class DriveHelper {
         @Override
         public void onFailure(@NonNull Exception ex) {
           // Unfortunate, but OK
-          // TODO don't even log for not found
-          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
-            false);
+          if (ex instanceof ApiException) {
+            // don't even log not found errors
+            if (((ApiException) ex).getStatusCode() != 1502) {
+              Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+                false);
+            }
+          } else {
+            Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+              false);
+          }
           if (activity != null) {
             activity.hideProgress();
           }
@@ -249,12 +257,12 @@ public class DriveHelper {
   }
 
   /**
-   * Add a backup file - asynchronous
+   * Persist new backup and delete old - asynchronous
    * @param activity       Calling activity
    * @param resourceClient Drive access
    * @param file           Folder to retrieve files from
    */
-  private void replaceBackupFile(@Nullable final BackupActivity activity,
+  private void persistBackupFile(@Nullable final BackupActivity activity,
                                  final DriveResourceClient resourceClient,
                                  final DriveFile file) {
     final String errMessage = "Failed to add to list";
@@ -263,19 +271,23 @@ public class DriveHelper {
       .addOnSuccessListener(new OnSuccessListener<Metadata>() {
         @Override
         public void onSuccess(Metadata metadata) {
-          final BackupFile file = new BackupFile(mContext, metadata);
+
+          // persist to Prefs
           final String oldBackup = Prefs.INST(mContext).getLastBackup();
+          final BackupFile file = new BackupFile(mContext, metadata);
           final String fileString = file.getId().encodeToString();
           Prefs.INST(mContext).setLastBackup(fileString);
           Log.logD(TAG, "created fileId: " + fileString);
           if (activity != null) {
             activity.addFileToList(file);
-            activity.hideProgress();
           }
+
           if (!TextUtils.isEmpty(oldBackup)) {
             // delete old backup
             DriveId driveId = DriveId.decodeFromString(oldBackup);
             deleteBackupFile(activity, driveId);
+          } else if (activity != null) {
+            activity.hideProgress();
           }
         }
       })
