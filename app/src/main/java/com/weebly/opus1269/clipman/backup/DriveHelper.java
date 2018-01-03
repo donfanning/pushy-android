@@ -227,12 +227,12 @@ public class DriveHelper {
 
           final DriveContents contents = task.getResult();
 
-          byte[] bytes = new byte[]{};
+          BackupFile.Contents backupContents = null;
           BufferedInputStream bis = null;
           try {
             bis = new BufferedInputStream(contents.getInputStream());
-            bytes = BackupHelper.INST(mContext).extractFromZipFile(bis);
-            Log.logD(TAG, "retrieved " + bytes.length + " bytes");
+            backupContents =
+              BackupHelper.INST(mContext).extractFromZipFile(bis);
           } catch (Exception ex) {
             Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
               true);
@@ -241,7 +241,7 @@ public class DriveHelper {
             if (bis != null) {
               bis.close();
             }
-            activity.setBackupData(bytes);
+            activity.setBackupContents(backupContents);
           }
 
           return resourceClient.discardContents(contents);

@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.ui.backup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -51,7 +52,7 @@ public class BackupActivity extends BaseActivity {
   private BackupAdapter mAdapter = null;
 
   /** Contents of backup to process */
-  private byte[] mBackupData = null;
+  private BackupFile.Contents mBackupContents = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -289,8 +290,8 @@ public class BackupActivity extends BaseActivity {
   }
 
   /** Set the backup data that needs to be processed */
-  public void setBackupData(byte[] data) {
-    mBackupData = data;
+  public void setBackupContents(@Nullable BackupFile.Contents contents) {
+    mBackupContents = contents;
     // TODO restore it
     hideProgress();
   }

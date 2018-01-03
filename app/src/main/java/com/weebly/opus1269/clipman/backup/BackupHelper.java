@@ -14,6 +14,8 @@ import android.support.annotation.Nullable;
 
 import com.google.android.gms.drive.DriveFile;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
@@ -23,6 +25,11 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Type;
 import java.util.List;
 
 /** Singleton to manage Google Drive data backups */
@@ -94,11 +101,29 @@ public class BackupHelper {
    * Extract the data from a ZipFile
    * @return content of a backup
    */
-  byte[] extractFromZipFile(@NonNull BufferedInputStream bis) {
-    return ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
+  BackupFile.Contents extractFromZipFile(@NonNull BufferedInputStream bis) {
+    final byte[] data =
+      ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
+    return getDBContents(data);
   }
 
-  /** Get the database data as a JSON string */
+  /**
+   * Get the contents
+   * @return content of a backup
+   */
+  private BackupFile.Contents getDBContents(@NonNull byte[] data) {
+    final JsonReader reader =
+      new JsonReader(new InputStreamReader(new ByteArrayInputStream(data)));
+    final Gson gson = new Gson();
+    final Type type = new TypeToken<BackupFile.Contents>() {
+    }.getType();
+    return gson.fromJson(reader, type);
+  }
+
+  /**
+   *  Get the database data as a JSON string
+   *  @return Stringified data
+   */
   private String getJSONStringData() {
     String ret;
     List<ClipItem> clipItems = ClipTable.INST(mContext).getAll(true, null);
@@ -111,7 +136,10 @@ public class BackupHelper {
     return ret;
   }
 
-  /** Get name of backup file */
+  /**
+   *  Get name of backup file
+   *  @return .zip filename
+   */
   private String getZipFilename() {
     String ret = Device.getMyOS() + Device.getMySN(mContext) + ".zip";
     ret = ret.replace(' ', '_');

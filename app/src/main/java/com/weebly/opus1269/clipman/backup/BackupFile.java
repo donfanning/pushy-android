@@ -151,7 +151,7 @@ public class BackupFile {
   }
 
   /** Inner class for the contents of a backup */
-  static class Contents {
+  public static class Contents {
     private List<Label> labels;
     private List<ClipItem> clipItems;
 
@@ -160,7 +160,7 @@ public class BackupFile {
       this.clipItems = new ArrayList<>(0);
     }
 
-    Contents(@NonNull List<Label> labels,
+    public Contents(@NonNull List<Label> labels,
                     @NonNull List<ClipItem> clipItems) {
       this.labels = labels;
       this.clipItems = clipItems;
