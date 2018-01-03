@@ -81,33 +81,53 @@ public class DriveHelper {
   }
 
   /**
-   * Retrieve all the backups in our appFolder - asynchronous
+   * Retrieve the metadata for all the backups in our appFolder - asynchronous
    * @param activity our activity
    */
-  public void retrieveBackupFiles(final BackupActivity activity) {
+  public void retrieveBackupFiles(@NonNull final BackupActivity activity) {
+    final String errMessage = mContext.getString(R.string.err_get_backups);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, mContext.getString(R.string.err_get_backups),
-        true);
+      Log.logE(mContext, TAG, errMessage, true);
       return;
     }
 
-    final Task<DriveFolder> appFolderTask = resourceClient.getAppFolder();
-
     activity.showProgress();
+    final Task<DriveFolder> appFolderTask = resourceClient.getAppFolder();
     appFolderTask
-      .addOnSuccessListener(activity,
-        new OnSuccessListener<DriveFolder>() {
-          @Override
-          public void onSuccess(DriveFolder folder) {
-            getZipFiles(activity, resourceClient, folder);
+      .continueWithTask(new Continuation<DriveFolder, Task<MetadataBuffer>>() {
+        @Override
+        public Task<MetadataBuffer> then(@NonNull Task<DriveFolder> task)
+          throws Exception {
+          final DriveFolder folder = task.getResult();
+
+          final Query query = new Query.Builder()
+            .addFilter(
+              Filters.eq(SearchableField.MIME_TYPE, "application/zip"))
+            .build();
+
+          // query app folder
+          return resourceClient.queryChildren(folder, query);
+        }
+      })
+      .addOnSuccessListener(activity, new OnSuccessListener<MetadataBuffer>() {
+        @Override
+        public void onSuccess(MetadataBuffer metadataBuffer) {
+          // populate the files list
+          final ArrayList<BackupFile> files = new ArrayList<>(0);
+          for (Metadata metadata : metadataBuffer) {
+            final BackupFile file = new BackupFile(mContext, metadata);
+            files.add(file);
           }
-        })
+          metadataBuffer.release();
+          activity.setFiles(files);
+          activity.hideProgress();
+        }
+      })
       .addOnFailureListener(activity, new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
-          Log.logEx(mContext, TAG, activity.getString(R.string.err_get_backups),
-            ex, true);
+          Log.logEx(mContext, TAG, errMessage, ex, true);
           activity.hideProgress();
         }
       });
@@ -265,44 +285,6 @@ public class DriveHelper {
           if (activity != null) {
             activity.hideProgress();
           }
-        }
-      });
-  }
-
-  /**
-   * Retrieve all the zip files in a folder - asynchronous
-   * @param activity       Calling activity
-   * @param resourceClient Drive access
-   * @param folder         Folder to retrieve files from
-   */
-  private void getZipFiles(final BackupActivity activity,
-                           final DriveResourceClient resourceClient,
-                           final DriveFolder folder) {
-    final Query query = new Query.Builder()
-      .addFilter(Filters.eq(SearchableField.MIME_TYPE, "application/zip"))
-      .build();
-    final Task<MetadataBuffer> queryTask =
-      resourceClient.queryChildren(folder, query);
-    queryTask
-      .addOnSuccessListener(activity, new OnSuccessListener<MetadataBuffer>() {
-        @Override
-        public void onSuccess(MetadataBuffer metadataBuffer) {
-          final ArrayList<BackupFile> files = new ArrayList<>(0);
-          for (Metadata metadata : metadataBuffer) {
-            final BackupFile file = new BackupFile(mContext, metadata);
-            files.add(file);
-          }
-          activity.setFiles(files);
-          metadataBuffer.release();
-          activity.hideProgress();
-        }
-      })
-      .addOnFailureListener(activity, new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception ex) {
-          Log.logEx(mContext, TAG, activity.getString(R.string.err_get_backups),
-            ex, true);
-          activity.hideProgress();
         }
       });
   }
