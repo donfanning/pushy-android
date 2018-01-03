@@ -257,7 +257,10 @@
   <string name="err_app_folder">Failed to get app folder from Google Drive</string>
   <string name="err_no_backups">No backups exist on Google Drive</string>
   <string name="err_get_backups">Failed to get backups from Google Drive</string>
+  <string name="err_get_backup">Failed to get backup from Google Drive</string>
   <string name="err_create_backup">Failed to create backup on Google Drive</string>
+  <string name="err_restore_backup">Failed to restore backup from Google Drive</string>
+  <string name="err_sync_backup">Failed to sync backup with Google Drive</string>
   <string name="err_delete_backup">Failed to delete backup from Google Drive</string>
   <string name="backup_dialog_title">This operation cannot be undone</string>
   <string name="backup_dialog_restore_message"><![CDATA[

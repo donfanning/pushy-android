@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.backup.Backup;
 import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -144,7 +145,7 @@ class BackupAdapter extends
         DriveHelper.INST(mActivity).deleteBackupFile(mActivity, mFile.getId());
       } else if (mActivity.getString(R.string.button_restore)
         .equals(buttonText)) {
-        // TODO restore backup file
+        Backup.INST(mActivity).doRestore(mActivity, mFile);
       }
       mFile = null;
     }

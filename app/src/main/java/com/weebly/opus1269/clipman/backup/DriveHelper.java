@@ -39,6 +39,7 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
+import java.io.BufferedInputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
@@ -200,6 +201,64 @@ public class DriveHelper {
       });
   }
 
+  /**
+   * Get the contents of a backup
+   * @param activity activity
+   * @param file     file to retrieve
+   */
+  void getBackupFileContents(@NonNull final BackupActivity activity,
+                             final DriveFile file) {
+    final String errMessage = mContext.getString(R.string.err_get_backup);
+    final DriveResourceClient resourceClient = getDriveResourceClient();
+    if (resourceClient == null) {
+      Log.logE(mContext, TAG, errMessage, true);
+      return;
+    }
+
+    Task<DriveContents> openFileTask =
+      resourceClient.openFile(file, DriveFile.MODE_READ_ONLY);
+
+    activity.showProgress();
+    openFileTask
+      .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
+        @Override
+        public Task<Void> then(@NonNull Task<DriveContents> task)
+          throws Exception {
+
+          final DriveContents contents = task.getResult();
+
+          final ArrayList<Integer> data = new ArrayList<>(10000);
+          BufferedInputStream bis = null;
+          try {
+            bis = new BufferedInputStream(contents.getInputStream());
+            // read until a single byte is available
+            while (bis.available() > 0) {
+              data.add(bis.read());
+            }
+            Log.logD(TAG, "retrieved " + data.size() + " bytes");
+          } catch (Exception ex) {
+            Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+              true);
+            activity.hideProgress();
+          } finally {
+            if (bis != null) {
+              bis.close();
+            }
+            activity.setBackupData(data);
+          }
+
+          return resourceClient.discardContents(contents);
+        }
+      })
+      .addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception ex) {
+          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+            true);
+          activity.hideProgress();
+        }
+      });
+  }
 
   /**
    * Delete a {@link BackupFile} - asynchronous

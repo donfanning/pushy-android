@@ -12,6 +12,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.google.android.gms.drive.DriveFile;
 import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
@@ -71,6 +72,18 @@ public class Backup {
   public void doBackup(@Nullable BackupActivity activity) {
     DriveHelper.INST(mContext)
       .createBackupFile(activity, getZipFilename(), getBytes());
+  }
+
+  /**
+   * Perform a restore
+   * @param activity The calling activity
+   * @param file File to restore
+   */
+  public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
+    final DriveFile driveFile = file.getId().asDriveFile();
+    // This will asynchronously retrieve the file and save to the activity
+    // for further processing
+    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
   }
 
   /** Get all the data as a JSON string */

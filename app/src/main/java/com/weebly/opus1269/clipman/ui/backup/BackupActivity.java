@@ -50,6 +50,9 @@ public class BackupActivity extends BaseActivity {
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
 
+  /** Contents of backup to process */
+  private ArrayList<Integer> mBackupData = null;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 
@@ -283,6 +286,13 @@ public class BackupActivity extends BaseActivity {
       }
     };
     Collections.sort(mFiles, cmp);
+  }
+
+  /** Set the backup data that needs to be processed */
+  public void setBackupData(ArrayList<Integer> data) {
+    mBackupData = data;
+    // TODO restore it
+    hideProgress();
   }
 
   /** Load the list of backup files asynchronously */
