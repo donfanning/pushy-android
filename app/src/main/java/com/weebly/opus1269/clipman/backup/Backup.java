@@ -41,7 +41,11 @@ public class Backup {
   /** Global Application Context */
   private final Context mContext;
 
+  /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
+
+  /** Name of file in the zipfile */
+  private final String BACKUP_FILNAME = "backup.txt";
 
   private Backup(@NonNull Context context) {
     mContext = context.getApplicationContext();
@@ -87,7 +91,6 @@ public class Backup {
 
   /** Get all the data as a byte array */
   private byte[] getBytes() {
-    final String BACKUP_FILNAME = "backup.txt";
     final ZipEntrySource[] entries = new ZipEntrySource[]{
       new ByteSource(BACKUP_FILNAME, getJSONStringData().getBytes())
     };

@@ -16,7 +16,6 @@ import android.text.TextUtils;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
@@ -127,7 +126,8 @@ public class DriveHelper {
       .addOnFailureListener(activity, new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
-          Log.logEx(mContext, TAG, errMessage, ex, true);
+          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+            true);
           activity.hideProgress();
         }
       });
@@ -141,10 +141,10 @@ public class DriveHelper {
    */
   void createBackupFile(@Nullable final BackupActivity activity,
                         final String filename, final byte[] data) {
+    final String errMessage = mContext.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, mContext.getString(R.string.err_create_backup),
-        true);
+      Log.logE(mContext, TAG, errMessage, true);
       return;
     }
 
@@ -159,9 +159,9 @@ public class DriveHelper {
       .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
         @Override
         public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
-          DriveFolder parent = appFolderTask.getResult();
-          DriveContents contents = createContentsTask.getResult();
-          OutputStream outputStream = contents.getOutputStream();
+          final DriveFolder parent = appFolderTask.getResult();
+          final DriveContents contents = createContentsTask.getResult();
+          final OutputStream outputStream = contents.getOutputStream();
           //noinspection TryFinallyCanBeTryWithResources
           try {
             outputStream.write(data);
@@ -169,9 +169,10 @@ public class DriveHelper {
             outputStream.close();
           }
 
-          MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
-            .setTitle(filename)
-            .setMimeType("application/zip");
+          final MetadataChangeSet.Builder builder =
+            new MetadataChangeSet.Builder()
+              .setTitle(filename)
+              .setMimeType("application/zip");
 
           BackupFile.setCustomProperties(mContext, builder);
 
@@ -180,17 +181,17 @@ public class DriveHelper {
           return resourceClient.createFile(parent, changeSet, contents);
         }
       })
-      .addOnSuccessListener(
-        new OnSuccessListener<DriveFile>() {
-          @Override
-          public void onSuccess(DriveFile driveFile) {
-            replaceBackupFile(activity, resourceClient, driveFile);
-          }
-        })
+      .addOnSuccessListener(new OnSuccessListener<DriveFile>() {
+        @Override
+        public void onSuccess(DriveFile driveFile) {
+          replaceBackupFile(activity, resourceClient, driveFile);
+        }
+      })
       .addOnFailureListener(new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
-          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
+          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+            true);
           if (activity != null) {
             activity.hideProgress();
           }
@@ -206,10 +207,10 @@ public class DriveHelper {
    */
   public void deleteBackupFile(@Nullable final BackupActivity activity,
                                @NonNull final DriveId driveId) {
+    final String errMessage = mContext.getString(R.string.err_delete_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, mContext.getString(R.string.err_delete_backup),
-        true);
+      Log.logE(mContext, TAG, errMessage, true);
       return;
     }
 
@@ -223,23 +224,23 @@ public class DriveHelper {
       activity.showProgress();
     }
     deleteTask
-      .addOnSuccessListener(
-        new OnSuccessListener<Void>() {
-          @Override
-          public void onSuccess(Void aVoid) {
-            Log.logD(TAG, "deleted fileId: " + driveId.encodeToString());
-            if (activity != null) {
-              activity.removeFileFromList(driveId);
-              activity.hideProgress();
-            }
+      .addOnSuccessListener(new OnSuccessListener<Void>() {
+        @Override
+        public void onSuccess(Void aVoid) {
+          Log.logD(TAG, "deleted fileId: " + driveId.encodeToString());
+          if (activity != null) {
+            activity.removeFileFromList(driveId);
+            activity.hideProgress();
           }
-        })
+        }
+      })
       .addOnFailureListener(new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
           // Unfortunate, but OK
           // TODO don't even log for not found
-          Log.logEx(mContext, TAG, "Failed to delete backup", ex, false);
+          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+            false);
           if (activity != null) {
             activity.hideProgress();
           }
@@ -256,6 +257,7 @@ public class DriveHelper {
   private void replaceBackupFile(@Nullable final BackupActivity activity,
                                  final DriveResourceClient resourceClient,
                                  final DriveFile file) {
+    final String errMessage = "Failed to add to list";
     final Task<Metadata> metaDataTask = resourceClient.getMetadata(file);
     metaDataTask
       .addOnSuccessListener(new OnSuccessListener<Metadata>() {
@@ -280,8 +282,8 @@ public class DriveHelper {
       .addOnFailureListener(new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
-          Log.logEx(mContext, TAG, "Failed to add Backup to list",
-            ex, true);
+          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+            true);
           if (activity != null) {
             activity.hideProgress();
           }
@@ -289,22 +291,21 @@ public class DriveHelper {
       });
   }
 
-  @Nullable
-  private DriveClient getDriveClient() {
-    DriveClient ret = null;
-    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
-
-    if (account != null) {
-      ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
-    }
-    return ret;
-  }
+  //@Nullable
+  //private DriveClient getDriveClient() {
+  //  DriveClient ret = null;
+  //  final GoogleSignInAccount account = User.INST(mContext)
+  // .getGoogleAccount();
+  //  if (account != null) {
+  //    ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
+  //  }
+  //  return ret;
+  //}
 
   @Nullable
   private DriveResourceClient getDriveResourceClient() {
     DriveResourceClient ret = null;
     final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
-
     if (account != null) {
       ret =
         Drive.getDriveResourceClient(mContext.getApplicationContext(), account);
