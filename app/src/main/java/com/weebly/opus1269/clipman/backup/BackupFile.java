@@ -81,20 +81,19 @@ public class BackupFile {
   /** Set the Drive CustomProperties for our device */
   static void setCustomProperties(Context context,
                                   MetadataChangeSet.Builder builder) {
-    CustomPropertyKey model =
-      new CustomPropertyKey("model", CustomPropertyKey.PRIVATE);
-    CustomPropertyKey sn =
-      new CustomPropertyKey("sn", CustomPropertyKey.PRIVATE);
-    CustomPropertyKey os =
-      new CustomPropertyKey("os", CustomPropertyKey.PRIVATE);
-    CustomPropertyKey nickname =
-      new CustomPropertyKey("nickname", CustomPropertyKey.PRIVATE);
-
     builder
-      .setCustomProperty(model, Device.getMyModel())
-      .setCustomProperty(sn, Device.getMySN(context))
-      .setCustomProperty(os, Device.getMyOS())
-      .setCustomProperty(nickname, Device.getMyNickname(context));
+      .setCustomProperty(
+        new CustomPropertyKey("model", CustomPropertyKey.PRIVATE),
+        Device.getMyModel())
+      .setCustomProperty(
+        new CustomPropertyKey("sn", CustomPropertyKey.PRIVATE),
+        Device.getMySN(context))
+      .setCustomProperty(
+        new CustomPropertyKey("os", CustomPropertyKey.PRIVATE),
+        Device.getMyOS())
+      .setCustomProperty(
+        new CustomPropertyKey("nickname", CustomPropertyKey.PRIVATE),
+        Device.getMyNickname(context));
   }
 
   public boolean isMine() {

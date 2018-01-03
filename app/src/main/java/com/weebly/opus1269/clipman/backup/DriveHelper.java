@@ -39,6 +39,8 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
+import org.zeroturnaround.zip.ZipUtil;
+
 import java.io.BufferedInputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -227,15 +229,12 @@ public class DriveHelper {
 
           final DriveContents contents = task.getResult();
 
-          final ArrayList<Integer> data = new ArrayList<>(10000);
+          byte[] bytes = new byte[]{};
           BufferedInputStream bis = null;
           try {
             bis = new BufferedInputStream(contents.getInputStream());
-            // read until a single byte is available
-            while (bis.available() > 0) {
-              data.add(bis.read());
-            }
-            Log.logD(TAG, "retrieved " + data.size() + " bytes");
+            bytes = BackupHelper.INST(mContext).extractFromZipFile(bis);
+            Log.logD(TAG, "retrieved " + bytes.length + " bytes");
           } catch (Exception ex) {
             Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
               true);
@@ -244,7 +243,7 @@ public class DriveHelper {
             if (bis != null) {
               bis.close();
             }
-            activity.setBackupData(data);
+            activity.setBackupData(bytes);
           }
 
           return resourceClient.discardContents(contents);

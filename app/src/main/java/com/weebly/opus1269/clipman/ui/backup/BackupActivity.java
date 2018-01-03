@@ -51,7 +51,7 @@ public class BackupActivity extends BaseActivity {
   private BackupAdapter mAdapter = null;
 
   /** Contents of backup to process */
-  private ArrayList<Integer> mBackupData = null;
+  private byte[] mBackupData = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -289,7 +289,7 @@ public class BackupActivity extends BaseActivity {
   }
 
   /** Set the backup data that needs to be processed */
-  public void setBackupData(ArrayList<Integer> data) {
+  public void setBackupData(byte[] data) {
     mBackupData = data;
     // TODO restore it
     hideProgress();

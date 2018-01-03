@@ -22,15 +22,7 @@ import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
-import org.zeroturnaround.zip.ByteSource;
-import org.zeroturnaround.zip.ZipEntrySource;
-import org.zeroturnaround.zip.ZipUtil;
-import org.zeroturnaround.zip.commons.IOUtils;
-
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 /** Singleton to manage Google Drive data backups */
@@ -70,8 +62,10 @@ public class BackupHelper {
    * @param activity The calling activity
    */
   public void doBackup(@Nullable BackupActivity activity) {
+    final byte[] zipFile = ZipHelper.INST(mContext)
+      .createZipFile(BACKUP_FILNAME, getJSONStringData().getBytes());
     DriveHelper.INST(mContext)
-      .createBackupFile(activity, getZipFilename(), getBytes());
+      .createBackupFile(activity, getZipFilename(), zipFile);
   }
 
   /**
@@ -84,6 +78,14 @@ public class BackupHelper {
     // This will asynchronously retrieve the file and save to the activity
     // for further processing
     DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
+  }
+
+  /**
+   * Extract the data from a ZipFile
+   * @return content of a backup
+   */
+  byte[] extractFromZipFile(@NonNull BufferedInputStream bis) {
+    return ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
   }
 
   /** Get all the data as a JSON string */
@@ -100,29 +102,6 @@ public class BackupHelper {
     ret += "}";
     Log.logD(TAG, ret);
     return ret;
-  }
-
-  /** Get all the data as a byte array */
-  private byte[] getBytes() {
-    final ZipEntrySource[] entries = new ZipEntrySource[]{
-      new ByteSource(BACKUP_FILNAME, getJSONStringData().getBytes())
-    };
-    ByteArrayOutputStream data = null;
-    BufferedOutputStream out = null;
-    BufferedInputStream in = null;
-    try {
-      data = new ByteArrayOutputStream();
-      out = new BufferedOutputStream(data);
-      in = new BufferedInputStream(new ByteArrayInputStream(new byte[]{}));
-      ZipUtil.addEntries(in, entries, out);
-      out.flush();
-    } catch (Exception ex) {
-      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
-    } finally {
-      IOUtils.closeQuietly(out);
-      IOUtils.closeQuietly(in);
-    }
-    return data.toByteArray();
   }
 
   /** Get name of backup file */
