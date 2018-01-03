@@ -241,10 +241,18 @@ public class DriveHelper {
             if (bis != null) {
               bis.close();
             }
-            activity.setBackupContents(backupContents);
+            BackupHelper.INST(mContext).restoreContents(backupContents);
           }
 
           return resourceClient.discardContents(contents);
+        }
+      })
+      .addOnSuccessListener(new OnSuccessListener<Void>() {
+        @Override
+        public void onSuccess(Void aVoid) {
+          activity.hideProgress();
+          Log.logD(TAG, "restored backup: " +
+            file.getDriveId().toString());
         }
       })
       .addOnFailureListener(new OnFailureListener() {

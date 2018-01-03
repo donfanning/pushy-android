@@ -10,7 +10,6 @@ package com.weebly.opus1269.clipman.ui.backup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -50,9 +49,6 @@ public class BackupActivity extends BaseActivity {
 
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
-
-  /** Contents of backup to process */
-  private BackupFile.Contents mBackupContents = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -287,13 +283,6 @@ public class BackupActivity extends BaseActivity {
       }
     };
     Collections.sort(mFiles, cmp);
-  }
-
-  /** Set the backup data that needs to be processed */
-  public void setBackupContents(@Nullable BackupFile.Contents contents) {
-    mBackupContents = contents;
-    // TODO restore it
-    hideProgress();
   }
 
   /** Load the list of backup files asynchronously */

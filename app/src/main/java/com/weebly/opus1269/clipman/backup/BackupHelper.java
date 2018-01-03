@@ -25,10 +25,8 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -88,13 +86,19 @@ public class BackupHelper {
   }
 
   /**
-   * Update the database with the restored data
-   * @param activity The calling activity
-   * @param data     database data to restore
+   * Replace the database with the restored data
+   * @param contents     database data to restore
    */
-  public void processRestoredData(@NonNull BackupActivity activity,
-                                  final byte[] data) {
-    final Gson gson = new Gson();
+  public void restoreContents(BackupFile.Contents contents) {
+    // clear tables
+    ClipTable.INST(mContext).deleteAll();
+    LabelTables.INST(mContext).deleteAllLabels();
+
+    // add contents
+    final List<Label> labels = contents.getLabels();
+    final List<ClipItem> clipItems = contents.getClipItems();
+    LabelTables.INST(mContext).insertLabels(labels);
+    ClipTable.INST(mContext).insert(clipItems);
   }
 
   /**
@@ -127,7 +131,7 @@ public class BackupHelper {
   private String getJSONStringData() {
     String ret;
     List<ClipItem> clipItems = ClipTable.INST(mContext).getAll(true, null);
-    List<Label> labels = LabelTables.INST(mContext).getLabels();
+    List<Label> labels = LabelTables.INST(mContext).getAllLabels();
     BackupFile.Contents contents = new BackupFile.Contents(labels, clipItems);
     // get stringified JSON
     final Gson gson = new Gson();

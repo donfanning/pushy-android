@@ -136,7 +136,7 @@ public class ClipTable {
    * @param clipItems the items to add
    * @return number of items added
    */
-  public int insertClipItems(@NonNull List<ClipItem> clipItems) {
+  public int insert(@NonNull List<ClipItem> clipItems) {
     if (clipItems.size() < 1) {
       return 0;
     }
@@ -155,6 +155,13 @@ public class ClipTable {
     LabelTables.INST(mContext).insertLabelsMap(clipItems);
 
     return ret;
+  }
+
+  /** Delete all the {@link ClipItem} objects from the db */
+  public void deleteAll() {
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    resolver.delete(ClipsContract.Clip.CONTENT_URI, null, null);
   }
 
   /**

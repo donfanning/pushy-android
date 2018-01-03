@@ -410,7 +410,7 @@ public class MainActivity extends BaseActivity implements
           final Context ctxt = v.getContext();
           Analytics.INST(ctxt)
             .imageClick(getTAG(), getString(R.string.button_undo));
-          ClipTable.INST(ctxt).insertClipItems(mUndoItems);
+          ClipTable.INST(ctxt).insert(mUndoItems);
         }
       }).addCallback(new Snackbar.Callback() {
 
@@ -607,7 +607,7 @@ public class MainActivity extends BaseActivity implements
     menuItem.setEnabled(LastError.exists(this));
 
     // Create Labels sub menu
-    List<Label> labels = LabelTables.INST(this).getLabels();
+    List<Label> labels = LabelTables.INST(this).getAllLabels();
     menu.setGroupVisible(R.id.nav_group_labels, (labels.size() > 0));
     SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
     labelMenu.clear();

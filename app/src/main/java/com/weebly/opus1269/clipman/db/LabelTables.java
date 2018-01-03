@@ -81,10 +81,10 @@ public class LabelTables {
   }
 
   /**
-   * Get the List of {@link Label} objects
+   * Get all the {@link Label} objects
    * @return List of Labels
    */
-  public List<Label> getLabels() {
+  public List<Label> getAllLabels() {
     final ArrayList<Label> list = new ArrayList<>(0);
     final ContentResolver resolver = mContext.getContentResolver();
 
@@ -110,6 +110,30 @@ public class LabelTables {
     }
 
     return list;
+  }
+
+  /** Delete all the {@link Label} objects from the db */
+  public void deleteAllLabels() {
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    resolver.delete(ClipsContract.Label.CONTENT_URI, null, null);
+  }
+
+  /**
+   * Add the {@link Label} objects
+   * @param labels labels to add
+   */
+  public void insertLabels(@NonNull List<Label> labels) {
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final ContentValues[] cvs = new ContentValues[labels.size()];
+    int count = 0;
+    for(Label label: labels) {
+      cvs[count] = label.getContentValues();
+      count++;
+    }
+
+    resolver.bulkInsert(ClipsContract.Label.CONTENT_URI, cvs);
   }
 
   /**
