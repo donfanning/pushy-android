@@ -82,16 +82,18 @@ public class BackupHelper {
    */
   public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
-    // This will asynchronously retrieve the file and save to the activity
-    // for further processing
     DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
   }
 
   /**
    * Replace the database with the restored data
-   * @param contents     database data to restore
+   * @param contents database data to restore
    */
-  void restoreContents(BackupFile.Contents contents) {
+  void restoreContents(@Nullable BackupFile.Contents contents) {
+    if (contents == null) {
+      return;
+    }
+
     // clear tables
     ClipTable.INST(mContext).deleteAll();
     LabelTables.INST(mContext).deleteAllLabels();
@@ -107,10 +109,15 @@ public class BackupHelper {
    * Extract the data from a ZipFile
    * @return content of a backup
    */
+  @Nullable
   BackupFile.Contents extractFromZipFile(@NonNull BufferedInputStream bis) {
     final byte[] data =
       ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
-    return getDBContents(data);
+    if (data != null) {
+      return getDBContents(data);
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -127,8 +134,8 @@ public class BackupHelper {
   }
 
   /**
-   *  Get the database data as a JSON string
-   *  @return Stringified data
+   * Get the database data as a JSON string
+   * @return Stringified data
    */
   private String getJSONStringData() {
     String ret;
@@ -143,8 +150,8 @@ public class BackupHelper {
   }
 
   /**
-   *  Get name of backup file
-   *  @return .zip filename
+   * Get name of backup file
+   * @return .zip filename
    */
   private String getZipFilename() {
     String ret = Device.getMyOS() + Device.getMySN(mContext) + ".zip";

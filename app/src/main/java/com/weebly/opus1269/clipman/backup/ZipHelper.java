@@ -21,7 +21,6 @@ import org.zeroturnaround.zip.commons.IOUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 /** Singleton to manage Zip Files */
@@ -59,26 +58,24 @@ public class ZipHelper {
    * @param contents contents of file to add
    * @return zip file
    */
-  @Nullable byte[] createZipFile(@NonNull final String filename,
+  @Nullable
+  byte[] createZipFile(@NonNull final String filename,
                        @NonNull byte[] contents) {
     final ZipEntrySource[] entries = new ZipEntrySource[]{
       new ByteSource(filename, contents)
     };
-    ByteArrayOutputStream data = null;
+    ByteArrayOutputStream data;
     BufferedOutputStream out = null;
-    BufferedInputStream in = null;
     try {
       data = new ByteArrayOutputStream();
       out = new BufferedOutputStream(data);
-      in = new BufferedInputStream(new ByteArrayInputStream(new byte[]{}));
-      ZipUtil.addEntries(in, entries, out);
+      ZipUtil.pack(entries, out);
       out.flush();
     } catch (Exception ex) {
       Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
       return null;
     } finally {
       IOUtils.closeQuietly(out);
-      IOUtils.closeQuietly(in);
     }
     return data.toByteArray();
   }
@@ -89,8 +86,16 @@ public class ZipHelper {
    * @param bis      zip file
    * @return contents of file
    */
+  @Nullable
   byte[] extractFromZipFile(@NonNull final String filename,
                             @NonNull BufferedInputStream bis) {
-    return ZipUtil.unpackEntry(bis, filename);
+    byte[] ret;
+    try {
+      ret = ZipUtil.unpackEntry(bis, filename);
+    } catch (Exception ex) {
+      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
+      return null;
+    }
+    return ret;
   }
 }
