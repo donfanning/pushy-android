@@ -67,11 +67,15 @@ public class BackupHelper {
    * @param activity The calling activity
    */
   public void doBackup(@Nullable BackupActivity activity) {
-    final byte[] zipFile = ZipHelper.INST(mContext)
-      .createZipFile(BACKUP_FILNAME, getJSONStringData().getBytes());
-    if (zipFile != null) {
-      DriveHelper.INST(mContext)
-        .createBackupFile(activity, getZipFilename(), zipFile);
+    try {
+      final byte[] zipFile = ZipHelper.INST(mContext)
+        .createZipFile(BACKUP_FILNAME, getJSONStringData().getBytes());
+      if (zipFile != null) {
+        DriveHelper.INST(mContext)
+          .createBackupFile(activity, getZipFilename(), zipFile);
+      }
+    } catch (Exception ex) {
+      // noop
     }
   }
 
@@ -122,6 +126,7 @@ public class BackupHelper {
 
   /**
    * Get the contents
+   * @param data raw content
    * @return content of a backup
    */
   private BackupContents getDBContents(@NonNull byte[] data) {
@@ -142,10 +147,9 @@ public class BackupHelper {
     List<ClipItem> clipItems = ClipTable.INST(mContext).getAll(true, null);
     List<Label> labels = LabelTables.INST(mContext).getAllLabels();
     BackupContents contents = new BackupContents(labels, clipItems);
-    // get stringified JSON
+    // stringify it
     final Gson gson = new Gson();
     ret = gson.toJson(contents);
-    Log.logD(TAG, ret);
     return ret;
   }
 
