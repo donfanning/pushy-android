@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.backup;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.weebly.opus1269.clipman.app.Log;
 
@@ -58,7 +59,7 @@ public class ZipHelper {
    * @param contents contents of file to add
    * @return zip file
    */
-  byte[] createZipFile(@NonNull final String filename,
+  @Nullable byte[] createZipFile(@NonNull final String filename,
                        @NonNull byte[] contents) {
     final ZipEntrySource[] entries = new ZipEntrySource[]{
       new ByteSource(filename, contents)
@@ -74,6 +75,7 @@ public class ZipHelper {
       out.flush();
     } catch (Exception ex) {
       Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
+      return null;
     } finally {
       IOUtils.closeQuietly(out);
       IOUtils.closeQuietly(in);

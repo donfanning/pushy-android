@@ -69,8 +69,10 @@ public class BackupHelper {
   public void doBackup(@Nullable BackupActivity activity) {
     final byte[] zipFile = ZipHelper.INST(mContext)
       .createZipFile(BACKUP_FILNAME, getJSONStringData().getBytes());
-    DriveHelper.INST(mContext)
-      .createBackupFile(activity, getZipFilename(), zipFile);
+    if (zipFile != null) {
+      DriveHelper.INST(mContext)
+        .createBackupFile(activity, getZipFilename(), zipFile);
+    }
   }
 
   /**
@@ -89,7 +91,7 @@ public class BackupHelper {
    * Replace the database with the restored data
    * @param contents     database data to restore
    */
-  public void restoreContents(BackupFile.Contents contents) {
+  void restoreContents(BackupFile.Contents contents) {
     // clear tables
     ClipTable.INST(mContext).deleteAll();
     LabelTables.INST(mContext).deleteAllLabels();
