@@ -89,7 +89,7 @@ public class BackupHelper {
    * Replace the database with the restored data
    * @param contents database data to restore
    */
-  void restoreContents(@Nullable BackupFile.Contents contents) {
+  void restoreContents(@Nullable BackupContents contents) {
     if (contents == null) {
       return;
     }
@@ -110,7 +110,7 @@ public class BackupHelper {
    * @return content of a backup
    */
   @Nullable
-  BackupFile.Contents extractFromZipFile(@NonNull BufferedInputStream bis) {
+  BackupContents extractFromZipFile(@NonNull BufferedInputStream bis) {
     final byte[] data =
       ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
     if (data != null) {
@@ -124,11 +124,11 @@ public class BackupHelper {
    * Get the contents
    * @return content of a backup
    */
-  private BackupFile.Contents getDBContents(@NonNull byte[] data) {
+  private BackupContents getDBContents(@NonNull byte[] data) {
     final JsonReader reader =
       new JsonReader(new InputStreamReader(new ByteArrayInputStream(data)));
     final Gson gson = new Gson();
-    final Type type = new TypeToken<BackupFile.Contents>() {
+    final Type type = new TypeToken<BackupContents>() {
     }.getType();
     return gson.fromJson(reader, type);
   }
@@ -141,7 +141,7 @@ public class BackupHelper {
     String ret;
     List<ClipItem> clipItems = ClipTable.INST(mContext).getAll(true, null);
     List<Label> labels = LabelTables.INST(mContext).getAllLabels();
-    BackupFile.Contents contents = new BackupFile.Contents(labels, clipItems);
+    BackupContents contents = new BackupContents(labels, clipItems);
     // get stringified JSON
     final Gson gson = new Gson();
     ret = gson.toJson(contents);
@@ -157,5 +157,25 @@ public class BackupHelper {
     String ret = Device.getMyOS() + Device.getMySN(mContext) + ".zip";
     ret = ret.replace(' ', '_');
     return ret;
+  }
+
+  /** Immutable inner class for the contents of a backup */
+  public static class BackupContents {
+    final private List<Label> labels;
+    final private List<ClipItem> clipItems;
+
+    BackupContents(@NonNull List<Label> labels,
+                   @NonNull List<ClipItem> clipItems) {
+      this.labels = labels;
+      this.clipItems = clipItems;
+    }
+
+    public List<Label> getLabels() {
+      return labels;
+    }
+
+    List<ClipItem> getClipItems() {
+      return clipItems;
+    }
   }
 }

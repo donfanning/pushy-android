@@ -227,7 +227,7 @@ public class DriveHelper {
 
           final DriveContents contents = task.getResult();
 
-          BackupFile.Contents backupContents = null;
+          BackupHelper.BackupContents backupContents = null;
           BufferedInputStream bis = null;
           try {
             bis = new BufferedInputStream(contents.getInputStream());
