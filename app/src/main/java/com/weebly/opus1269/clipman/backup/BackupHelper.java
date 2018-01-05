@@ -166,29 +166,10 @@ public class BackupHelper {
    * Get name of backup file
    * @return .zip filename
    */
+  @NonNull
   private String getZipFilename() {
     String ret = Device.getMyOS() + Device.getMySN(mContext) + ".zip";
     ret = ret.replace(' ', '_');
     return ret;
-  }
-
-  /** Immutable inner class for the contents of a backup */
-  public static class BackupContents {
-    final private List<Label> labels;
-    final private List<ClipItem> clipItems;
-
-    BackupContents(@NonNull List<Label> labels,
-                   @NonNull List<ClipItem> clipItems) {
-      this.labels = labels;
-      this.clipItems = clipItems;
-    }
-
-    public List<Label> getLabels() {
-      return labels;
-    }
-
-    List<ClipItem> getClipItems() {
-      return clipItems;
-    }
   }
 }
