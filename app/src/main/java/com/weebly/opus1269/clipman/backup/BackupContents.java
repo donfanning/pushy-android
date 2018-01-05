@@ -118,57 +118,63 @@ class BackupContents {
    */
   BackupContents merge(@NonNull Context context,
                        @NonNull final BackupContents contents) {
-    final List<Label> labels = new ArrayList<>(this.labels);
-    final List<ClipItem> clipItems = new ArrayList<>(this.clipItems);
+    // Merged items
+    final List<Label> outLabels = new ArrayList<>(this.labels);
+    final List<ClipItem> outClipItems = new ArrayList<>(this.clipItems);
 
-    final List<Label> mergeLabels = contents.getLabels();
-    final List<ClipItem> mergeClipItems = contents.getClipItems();
+    // Items to be merged
+    final List<Label> inLabels = contents.getLabels();
+    final List<ClipItem> inClipItems = contents.getClipItems();
 
-    long newLabelId = getLargestId(labels);
+    // Largest label PK being used by us
+    long newLabelId = getLargestId(outLabels);
     newLabelId++;
 
-    for (Label mergeLabel : mergeLabels) {
-      final int pos = labels.indexOf(mergeLabel);
+    // merge labels
+    for (Label inLabel : inLabels) {
+      final int pos = outLabels.indexOf(inLabel);
       if (pos == -1) {
-        // new label
-        final Label addLabel = new Label(mergeLabel.getName(), newLabelId);
-        labels.add(addLabel);
+        // new label - add one with unique id to outgoing and
+        // update incoming clip references to it
+        final Label addLabel = new Label(inLabel.getName(), newLabelId);
+        outLabels.add(addLabel);
         newLabelId++;
-        updateLabelId(mergeClipItems, addLabel);
+        updateLabelId(inClipItems, addLabel);
       } else {
-        // shared label
-        final Label sharedLabel = labels.get(pos);
-        if (mergeLabel.getId() != sharedLabel.getId()) {
-          updateLabelId(mergeClipItems, sharedLabel);
+        // shared label - update incoming clip references if id's don't match
+        final Label sharedLabel = outLabels.get(pos);
+        if (inLabel.getId() != sharedLabel.getId()) {
+          updateLabelId(inClipItems, sharedLabel);
         }
       }
     }
 
-    for (ClipItem mergeClipItem : mergeClipItems) {
-      final int pos = clipItems.indexOf(mergeClipItem);
+    // merge clips
+    for (ClipItem inClipItem : inClipItems) {
+      final int pos = outClipItems.indexOf(inClipItem);
       if (pos == -1) {
-        // new clip - add
-        final ClipItem addClipItem = new ClipItem(context, mergeClipItem,
-          mergeClipItem.getLabels(), mergeClipItem.getLabelsId());
-        clipItems.add(addClipItem);
+        // new clip - add to outgoing
+        final ClipItem outClipItem = new ClipItem(context, inClipItem,
+          inClipItem.getLabels(), inClipItem.getLabelsId());
+        outClipItems.add(outClipItem);
       } else {
-        // shared clip - merge into target clip
-        final ClipItem targetClipItem = clipItems.get(pos);
-        if (mergeClipItem.isFav()) {
+        // shared clip - merge into outgoing clip
+        final ClipItem outClipItem = outClipItems.get(pos);
+        if (inClipItem.isFav()) {
           // true fav has priority
-          targetClipItem.setFav(true);
+          outClipItem.setFav(true);
         }
-        if (mergeClipItem.getTime() > targetClipItem.getTime()) {
+        if (inClipItem.getTime() > outClipItem.getTime()) {
           // newest has priority
-          targetClipItem.setDate(mergeClipItem.getTime());
-          targetClipItem.setDevice(mergeClipItem.getDevice());
-          targetClipItem.setRemote(true);
+          outClipItem.setDate(inClipItem.getTime());
+          outClipItem.setDevice(inClipItem.getDevice());
+          outClipItem.setRemote(true);
         }
         // merge labels and labelsId
-        targetClipItem.addLabelsNoSave(mergeClipItem.getLabels());
+        outClipItem.addLabelsNoSave(inClipItem.getLabels());
       }
     }
 
-    return new BackupContents(labels, clipItems);
+    return new BackupContents(outLabels, outClipItems);
   }
 }
