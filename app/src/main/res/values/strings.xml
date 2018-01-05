@@ -251,6 +251,7 @@
   <string name="backup_date_fmt">Backup date - %s</string>
   <string name="backup_delete">Delete backup</string>
   <string name="backup_restore">Restore backup</string>
+  <string name="backup_sync">Synchronize backup</string>
   <string name="this_device">This device</string>
   <string name="progress_working">Working&#8230;</string>
   <string name="err_drive_scope_denied">User did not grant access to Google Drive</string>
@@ -265,7 +266,10 @@
   <string name="backup_dialog_title">This operation cannot be undone</string>
   <string name="backup_dialog_restore_message"><![CDATA[
         We\'ll replace all your clips and labels with those in the selected
-         backup. Restore backup?]]></string>
+         backup.\n\nRestore backup?]]></string>
+  <string name="backup_dialog_sync_message"><![CDATA[
+        We\'ll sync all your clips and labels with those in the selected backup.
+         Updates will be made locally and on the cloud.\n\nSync with backup?]]></string>
   <string name="backup_dialog_delete_message">Delete backup?</string>
 
   <!-- Related to DevicesActivity -->

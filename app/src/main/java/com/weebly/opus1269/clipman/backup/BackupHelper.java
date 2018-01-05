@@ -16,7 +16,6 @@ import com.google.android.gms.drive.DriveFile;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -85,6 +84,16 @@ public class BackupHelper {
    * @param file     File to restore
    */
   public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
+    final DriveFile driveFile = file.getId().asDriveFile();
+    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
+  }
+
+  /**
+   * Perform a sync
+   * @param activity The calling activity
+   * @param file     File to restore
+   */
+  public void doSync(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
     DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
   }

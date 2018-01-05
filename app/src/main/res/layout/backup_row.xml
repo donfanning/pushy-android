@@ -15,6 +15,18 @@
   android:layout_height="wrap_content"
   android:orientation="vertical">
 
+  <TextView
+    android:id="@+id/mineText"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_gravity="center_horizontal"
+    android:maxLines="1"
+    android:textAppearance="?attr/textAppearanceListItem"
+    android:textIsSelectable="false"
+    android:visibility="visible"
+    android:text="@string/this_device" />
+
   <LinearLayout
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -23,7 +35,6 @@
     android:layout_marginLeft="@dimen/activity_horizontal_margin"
     android:layout_marginRight="@dimen/activity_horizontal_margin"
     android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
     android:orientation="horizontal">
 
     <LinearLayout
@@ -31,9 +42,7 @@
       android:layout_height="wrap_content"
       android:layout_marginEnd="@dimen/row_image_large_size"
       android:layout_marginRight="@dimen/row_image_large_size"
-      android:layout_gravity="center"
-      android:layout_marginBottom="@dimen/activity_vertical_margin"
-      android:layout_marginTop="@dimen/activity_vertical_margin"
+      android:layout_gravity="center_vertical"
       android:orientation="vertical">
 
       <ImageButton
@@ -46,10 +55,18 @@
         app:srcCompat="@drawable/ic_cloud_download" />
 
       <ImageButton
-        android:id="@+id/deleteButton"
+        android:id="@+id/syncButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/backup_sync"
+        app:srcCompat="@drawable/ic_cloud_sync" />
+
+      <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:background="@android:color/transparent"
         android:contentDescription="@string/backup_delete"
@@ -58,31 +75,20 @@
     </LinearLayout>
 
     <LinearLayout
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/activity_vertical_margin"
       android:layout_marginTop="@dimen/activity_vertical_margin"
       android:orientation="vertical">
 
       <TextView
-        android:id="@+id/mineText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:maxLines="1"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:textIsSelectable="false"
-        android:visibility="gone"
-        android:text="@string/this_device" />
-
-      <TextView
         android:id="@+id/backupText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxLines="5"
+        android:maxLines="4"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textIsSelectable="false"
-        tools:text="Name: ddd\nModel:\Galaxy 7\nSN: XXX YYY" />
+        tools:text="Nickname: bbbb\nModel:\Galaxy 7\nSN: XXX YYY\nOS: Android" />
 
       <TextView
         android:id="@+id/backupDate"
@@ -90,10 +96,10 @@
         android:layout_height="wrap_content"
         android:maxLines="2"
         android:text="@string/backup_date_fmt"
-        android:textAppearance="?attr/textAppearanceListItemSmall"
+        android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="?android:textColorTertiary"
         android:textIsSelectable="false"
-        tools:text="Bckup date: yesterday" />
+        tools:text="Backup date: yesterday" />
 
     </LinearLayout>
 

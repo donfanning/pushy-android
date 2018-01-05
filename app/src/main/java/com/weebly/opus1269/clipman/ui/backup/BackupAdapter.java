@@ -102,19 +102,6 @@ class BackupAdapter extends
     dateTextView.setText(context.getString(R.string.backup_date_fmt,
       value));
 
-    holder.deleteButton.setOnClickListener(
-      new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          Analytics.INST(v.getContext())
-            .imageClick(mActivity.getTAG(), "deleteBackup");
-          mFile = file;
-          showDialog(R.string.backup_dialog_delete_message,
-            R.string.button_delete);
-        }
-      }
-    );
-
     holder.restoreButton.setOnClickListener(
       new View.OnClickListener() {
         @Override
@@ -124,6 +111,32 @@ class BackupAdapter extends
           mFile = file;
           showDialog(R.string.backup_dialog_restore_message,
             R.string.button_restore);
+        }
+      }
+    );
+
+    holder.syncButton.setOnClickListener(
+      new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Analytics.INST(v.getContext())
+            .imageClick(mActivity.getTAG(), "syncBackup");
+          mFile = file;
+          showDialog(R.string.backup_dialog_sync_message,
+            R.string.button_sync);
+        }
+      }
+    );
+
+    holder.deleteButton.setOnClickListener(
+      new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Analytics.INST(v.getContext())
+            .imageClick(mActivity.getTAG(), "deleteBackup");
+          mFile = file;
+          showDialog(R.string.backup_dialog_delete_message,
+            R.string.button_delete);
         }
       }
     );
@@ -140,12 +153,14 @@ class BackupAdapter extends
 
       Analytics.INST(mActivity).buttonClick(mActivity.getTAG(), button);
 
-      if(mActivity.getString(R.string.button_delete).equals(buttonText)) {
+      if (mActivity.getString(R.string.button_delete).equals(buttonText)) {
         // delete backup file
         DriveHelper.INST(mActivity).deleteBackupFile(mActivity, mFile.getId());
       } else if (mActivity.getString(R.string.button_restore)
         .equals(buttonText)) {
         BackupHelper.INST(mActivity).doRestore(mActivity, mFile);
+      } else if (mActivity.getString(R.string.button_sync).equals(buttonText)) {
+        BackupHelper.INST(mActivity).doSync(mActivity, mFile);
       }
       mFile = null;
     }
@@ -168,21 +183,29 @@ class BackupAdapter extends
     DrawableHelper
       .withContext(context)
       .withColor(color)
-      .withDrawable(R.drawable.ic_delete_black_24dp)
+      .withDrawable(R.drawable.ic_cloud_download)
       .tint()
-      .applyTo(holder.deleteButton);
+      .applyTo(holder.restoreButton);
 
     DrawableHelper
       .withContext(context)
       .withColor(color)
-      .withDrawable(R.drawable.ic_cloud_download)
+      .withDrawable(R.drawable.ic_cloud_sync)
       .tint()
-      .applyTo(holder.restoreButton);
+      .applyTo(holder.syncButton);
+
+    DrawableHelper
+      .withContext(context)
+      .withColor(color)
+      .withDrawable(R.drawable.ic_delete_black_24dp)
+      .tint()
+      .applyTo(holder.deleteButton);
+
   }
 
   /**
    * Display confirmation dialog on undoable actions
-   * @param msgId resource id of dialog message
+   * @param msgId    resource id of dialog message
    * @param buttonId resource id of dialog positive button
    */
   private void showDialog(int msgId, int buttonId) {
@@ -205,6 +228,7 @@ class BackupAdapter extends
     final TextView dateTextView;
     final TextView backupTextView;
     final ImageButton restoreButton;
+    final ImageButton syncButton;
     final ImageButton deleteButton;
 
 
@@ -215,6 +239,7 @@ class BackupAdapter extends
       dateTextView = view.findViewById(R.id.backupDate);
       backupTextView = view.findViewById(R.id.backupText);
       restoreButton = view.findViewById(R.id.restoreButton);
+      syncButton = view.findViewById(R.id.syncButton);
       deleteButton = view.findViewById(R.id.deleteButton);
     }
   }
