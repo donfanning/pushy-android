@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -166,6 +167,12 @@ public class DevicesActivity extends BaseActivity {
 
   /** Ping our devices */
   private void ping() {
+    final View fab = findViewById(R.id.fab);
+    if (fab != null) {
+      final Snackbar snack =
+        Snackbar.make(fab, getString(R.string.ping_message), 5000);
+      snack.show();
+    }
     MessagingClient.INST(this).sendPing();
   }
 

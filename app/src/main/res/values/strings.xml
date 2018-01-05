@@ -23,7 +23,7 @@
   <string name="title_activity_error_viewer">Last error</string>
   <string name="title_activity_help">Help &amp; feedback</string>
   <string name="title_activity_sign_in">Manage account</string>
-  <string name="title_activity_devices">Manage devices</string>
+  <string name="title_activity_devices">Remote devices</string>
   <string name="title_activity_labels_edit">Edit labels</string>
   <string name="title_activity_labels_select">Select labels</string>
   <string name="title_activity_clip_editor">Edit clip text</string>
@@ -64,7 +64,7 @@
 
   <string name="nav_account">Manage account</string>
   <string name="nav_backup">Manage backups</string>
-  <string name="nav_devices">Manage devices</string>
+  <string name="nav_devices">Query remote devices</string>
   <string name="nav_labels_manage">Manage labels</string>
   <string name="nav_labels">Labels</string>
   <string name="nav_settings">Settings</string>
@@ -244,11 +244,11 @@
 
 
   <!-- Related to BackupActivity -->
-  <string name="backup_model_fmt">Model - %s</string>
-  <string name="backup_SN_fmt">SN - %s</string>
-  <string name="backup_OS_fmt">OS - %s</string>
-  <string name="backup_nickname_fmt">Nickname - %s</string>
-  <string name="backup_date_fmt">Backup date - %s</string>
+  <string name="backup_model_fmt">Model: %s</string>
+  <string name="backup_SN_fmt">SN: %s</string>
+  <string name="backup_OS_fmt">OS: %s</string>
+  <string name="backup_nickname_fmt">Nickname: %s</string>
+  <string name="backup_date_fmt">Backup date: %s</string>
   <string name="backup_delete">Delete backup</string>
   <string name="backup_restore">Restore backup</string>
   <string name="backup_sync">Synchronize backup</string>
@@ -273,12 +273,13 @@
   <string name="backup_dialog_delete_message">Delete backup?</string>
 
   <!-- Related to DevicesActivity -->
-  <string name="device_model_fmt">Model - %s</string>
-  <string name="device_SN_fmt">SN - %s</string>
-  <string name="device_OS_fmt">OS - %s</string>
-  <string name="device_nickname_fmt">Nickname - %s</string>
-  <string name="device_last_seen_fmt">Last seen - %s</string>
-  <string name="remote_device_fmt">Source - %s</string>
+  <string name="device_model_fmt">Model: %s</string>
+  <string name="device_SN_fmt">SN: %s</string>
+  <string name="device_OS_fmt">OS: %s</string>
+  <string name="device_nickname_fmt">Nickname: %s</string>
+  <string name="device_last_seen_fmt">Last seen: %s</string>
+  <string name="remote_device_fmt">Source: %s</string>
+  <string name="ping_message">Devices may not respond in a timely fashion</string>
 
   <!-- Related to Labels activities -->
   <string name="label_create_hint">Create new label</string>

@@ -108,10 +108,11 @@ class DevicesAdapter extends
     final int color;
 
     if (Prefs.INST(context).isLightTheme()) {
-      color = android.R.color.primary_text_light;
+      color = R.color.deep_teal_500;
     } else {
-      color = android.R.color.primary_text_dark;
+      color = R.color.deep_teal_200;
     }
+
 
     DrawableHelper
       .withContext(context)

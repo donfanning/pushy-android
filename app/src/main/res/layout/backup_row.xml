@@ -85,7 +85,7 @@
         android:id="@+id/backupText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxLines="4"
+        android:maxLines="5"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textIsSelectable="false"
         tools:text="Nickname: bbbb\nModel:\Galaxy 7\nSN: XXX YYY\nOS: Android" />

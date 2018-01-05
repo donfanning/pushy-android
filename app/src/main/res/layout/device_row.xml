@@ -7,54 +7,65 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<LinearLayout android:id="@+id/deviceRow"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/deviceRow"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:orientation="vertical">
 
   <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-    android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginRight="@dimen/activity_horizontal_margin"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/activity_vertical_margin"
-    android:orientation="vertical">
+    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginStart="@dimen/activity_horizontal_margin"
+    android:orientation="horizontal">
 
     <ImageButton
       android:id="@+id/forgetButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_gravity="end"
+      android:layout_gravity="center_vertical"
+      android:layout_marginEnd="@dimen/row_image_large_size"
+      android:layout_marginRight="@dimen/row_image_large_size"
       android:background="@android:color/transparent"
       android:contentDescription="@string/device_forget"
-      app:srcCompat="@drawable/ic_clear" />
+      app:srcCompat="@drawable/ic_cloud" />
 
-    <TextView
-      android:id="@+id/deviceText"
-      android:layout_width="wrap_content"
+    <LinearLayout
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:maxLines="5"
-      android:textAppearance="?attr/textAppearanceListItem"
-      android:textIsSelectable="false"
-      tools:text="Name: ddd\nModel:\Galaxy 7\nSN: XXX YYY" />
+      android:layout_marginTop="@dimen/activity_vertical_margin"
+      android:layout_marginBottom="@dimen/activity_vertical_margin"
+      android:layout_marginEnd="@dimen/activity_horizontal_margin"
+      android:layout_marginRight="@dimen/activity_horizontal_margin"
+      android:orientation="vertical">
 
-    <TextView
-      android:id="@+id/lastSeenDate"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:maxLines="2"
-      android:textAppearance="?attr/textAppearanceListItemSmall"
-      android:textColor="?android:textColorTertiary"
-      android:textIsSelectable="false"
-      android:text="@string/device_last_seen_fmt"
-      tools:text="Last Seen: yesterday" />
+      <TextView
+        android:id="@+id/deviceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="5"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textIsSelectable="false"
+        tools:text="Name: ddd\nModel:\Galaxy 7\nSN: XXX YYY" />
 
+      <TextView
+        android:id="@+id/lastSeenDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        android:text="@string/device_last_seen_fmt"
+        android:textAppearance="?attr/textAppearanceListItemSmall"
+        android:textColor="?android:textColorTertiary"
+        android:textIsSelectable="false"
+        tools:text="Last Seen: yesterday" />
+
+    </LinearLayout>
   </LinearLayout>
 
   <View style="@style/Divider" />
