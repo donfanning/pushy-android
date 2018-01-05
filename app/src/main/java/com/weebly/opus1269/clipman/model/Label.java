@@ -26,8 +26,7 @@ public class Label implements Serializable {
   private String name;
 
   /** PK of the label - only used for backup/restore */
-  @SuppressWarnings("unused")
-  private long _id;
+  final private long _id;
 
   @SuppressWarnings("unused")
   public Label() {
@@ -58,6 +57,12 @@ public class Label implements Serializable {
    */
   @NonNull
   public String getName() {return name;}
+
+  /**
+   * Get id
+   * @return name
+   */
+  public long getId() {return _id;}
 
   /**
    * Change name and update database

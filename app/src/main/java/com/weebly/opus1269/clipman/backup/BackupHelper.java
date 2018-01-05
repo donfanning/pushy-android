@@ -13,9 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.drive.DriveFile;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -24,9 +21,6 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.util.List;
 
 /** Singleton to manage Google Drive data backups */
@@ -66,15 +60,12 @@ public class BackupHelper {
    * @param activity The calling activity
    */
   public void doBackup(@Nullable BackupActivity activity) {
-    try {
-      final byte[] zipFile = ZipHelper.INST(mContext)
-        .createZipFile(BACKUP_FILNAME, getJSONStringData().getBytes());
-      if (zipFile != null) {
-        DriveHelper.INST(mContext)
-          .createBackupFile(activity, getZipFilename(), zipFile);
-      }
-    } catch (Exception ex) {
-      // noop
+    final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
+    final byte[] zipFile =
+      ZipHelper.INST(mContext).createZipFile(BACKUP_FILNAME, data);
+    if (zipFile != null) {
+      final String name = getZipFilename();
+      DriveHelper.INST(mContext).createBackupFile(activity, name, zipFile);
     }
   }
 
@@ -85,7 +76,8 @@ public class BackupHelper {
    */
   public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
-    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
+    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile,
+      false);
   }
 
   /**
@@ -95,7 +87,7 @@ public class BackupHelper {
    */
   public void doSync(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
-    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile);
+    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile, true);
   }
 
   /**
@@ -119,6 +111,32 @@ public class BackupHelper {
   }
 
   /**
+   * Sync the database with the given content
+   * @param contents database data to restore
+   */
+  void syncContents(DriveFile driveFile, @Nullable BackupContents contents) {
+    if (contents == null) {
+      return;
+    }
+
+    // get merged data
+    final BackupContents dbContents = BackupContents.getDB(mContext);
+    final BackupContents merged = dbContents.merge(mContext, contents);
+
+    // clear tables
+    ClipTable.INST(mContext).deleteAll();
+    LabelTables.INST(mContext).deleteAllLabels();
+
+    // add contents
+    final List<Label> labels = merged.getLabels();
+    final List<ClipItem> clipItems = merged.getClipItems();
+    LabelTables.INST(mContext).insertLabels(labels);
+    ClipTable.INST(mContext).insert(clipItems);
+
+    // TODO now back it up to orginal file
+  }
+
+  /**
    * Extract the data from a ZipFile
    * @return content of a backup
    */
@@ -127,39 +145,10 @@ public class BackupHelper {
     final byte[] data =
       ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
     if (data != null) {
-      return getDBContents(data);
+      return BackupContents.get(data);
     } else {
       return null;
     }
-  }
-
-  /**
-   * Get the contents
-   * @param data raw content
-   * @return content of a backup
-   */
-  private BackupContents getDBContents(@NonNull byte[] data) {
-    final JsonReader reader =
-      new JsonReader(new InputStreamReader(new ByteArrayInputStream(data)));
-    final Gson gson = new Gson();
-    final Type type = new TypeToken<BackupContents>() {
-    }.getType();
-    return gson.fromJson(reader, type);
-  }
-
-  /**
-   * Get the database data as a JSON string
-   * @return Stringified data
-   */
-  private String getJSONStringData() {
-    String ret;
-    List<ClipItem> clipItems = ClipTable.INST(mContext).getAll(true, null);
-    List<Label> labels = LabelTables.INST(mContext).getAllLabels();
-    BackupContents contents = new BackupContents(labels, clipItems);
-    // stringify it
-    final Gson gson = new Gson();
-    ret = gson.toJson(contents);
-    return ret;
   }
 
   /**

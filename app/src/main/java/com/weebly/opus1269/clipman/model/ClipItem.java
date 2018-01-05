@@ -61,7 +61,6 @@ public class ClipItem implements Serializable {
   private List<Label> labels;
 
   /** PK's of the labels - only used for backup/restore */
-  @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
   private List<Long> labelsId;
 
   public ClipItem(Context context) {
@@ -90,9 +89,9 @@ public class ClipItem implements Serializable {
   public ClipItem(Context context, Cursor cursor) {
     init(context);
     int idx = cursor.getColumnIndex(ClipsContract.Clip.COL_TEXT);
-    text = cursor.getString(idx);
+    this.text = cursor.getString(idx);
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DATE);
-    date = cursor.getLong(idx);
+    this.date = cursor.getLong(idx);
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_FAV);
     final long fav = cursor.getLong(idx);
     this.fav = fav != 0L;
@@ -100,18 +99,107 @@ public class ClipItem implements Serializable {
     final long remote = cursor.getLong(idx);
     this.remote = remote != 0L;
     idx = cursor.getColumnIndex(ClipsContract.Clip.COL_DEVICE);
-    device = cursor.getString(idx);
+    this.device = cursor.getString(idx);
     loadLabels(context);
   }
 
   public ClipItem(Context context, ClipItem clipItem) {
     init(context);
-    text = clipItem.getText();
-    date = clipItem.getDate().getMillis();
-    fav = clipItem.isFav();
-    remote = clipItem.isRemote();
-    device = clipItem.getDevice();
+    this.text = clipItem.getText();
+    this.date = clipItem.getDate().getMillis();
+    this.fav = clipItem.isFav();
+    this.remote = clipItem.isRemote();
+    this.device = clipItem.getDevice();
     loadLabels(context);
+  }
+
+  public ClipItem(Context context, ClipItem clipItem,
+                  List<Label> labels, List<Long> labelsId) {
+    init(context);
+    this.text = clipItem.getText();
+    this.date = clipItem.getDate().getMillis();
+    this.fav = clipItem.isFav();
+    this.remote = clipItem.isRemote();
+    this.device = clipItem.getDevice();
+    this.labels = new ArrayList<>(labels);
+    this.labelsId = new ArrayList<>(labelsId);
+  }
+
+  public String getText() {return text;}
+
+  public void setText(@NonNull Context context, @NonNull String text) {
+    if (!text.equals(this.text)) {
+      final String oldText = this.text;
+      this.text = text;
+
+      if (!TextUtils.isEmpty(oldText)) {
+        // broadcast change to listeners
+        final Intent intent = new Intent(Intents.FILTER_CLIP_ITEM);
+        final Bundle bundle = new Bundle();
+        bundle.putString(Intents.ACTION_TYPE_CLIP_ITEM,
+          Intents.TYPE_TEXT_CHANGED_CLIP_ITEM);
+        bundle.putSerializable(Intents.EXTRA_CLIP_ITEM, this);
+        bundle.putString(Intents.EXTRA_TEXT, oldText);
+        intent.putExtra(Intents.BUNDLE_CLIP_ITEM, bundle);
+        LocalBroadcastManager
+          .getInstance(context)
+          .sendBroadcast(intent);
+      }
+    }
+  }
+
+  public DateTime getDate() {return new DateTime(date);}
+
+  public void setDate(long date) {this.date = date;}
+
+  public long getTime() {return date;}
+
+  public boolean isFav() {return fav;}
+
+  public void setFav(Boolean fav) {this.fav = fav;}
+
+  public boolean isRemote() {return remote;}
+
+  public void setRemote(Boolean remote) {this.remote = remote;}
+
+  public String getDevice() {return device;}
+
+  public void setDevice(String device) {this.device = device;}
+
+  public List<Label> getLabels() {
+    return labels;
+  }
+
+  private void setLabels(List<Label> labels) {
+    this.labels = labels;
+  }
+
+  public List<Long> getLabelsId() {
+    return labelsId;
+  }
+
+  /**
+   * Do we have the given label
+   * @param label a label
+   * @return true if we have label
+   */
+  public boolean hasLabel(Label label) {
+    return this.labels.contains(label);
+  }
+
+  @Override
+  public int hashCode() {
+    return text.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ClipItem clipItem = (ClipItem) o;
+
+    return text.equals(clipItem.text);
   }
 
   /**
@@ -316,74 +404,47 @@ public class ClipItem implements Serializable {
     return list;
   }
 
-  public String getText() {return text;}
+  /**
+   * Update the label id with the id of the given label - don't save
+   * @param theLabel label to modify
+   */
+  public void updateLabelIdNoSave(@NonNull Label theLabel) {
+    long id = theLabel.getId();
 
-  public void setText(@NonNull Context context, @NonNull String text) {
-    if (!text.equals(this.text)) {
-      final String oldText = this.text;
-      this.text = text;
+    int pos = this.labels.indexOf(theLabel);
+    if (pos != -1) {
+      this.labels.set(pos, theLabel);
+    }
 
-      if (!TextUtils.isEmpty(oldText)) {
-        // broadcast change to listeners
-        final Intent intent = new Intent(Intents.FILTER_CLIP_ITEM);
-        final Bundle bundle = new Bundle();
-        bundle.putString(Intents.ACTION_TYPE_CLIP_ITEM,
-          Intents.TYPE_TEXT_CHANGED_CLIP_ITEM);
-        bundle.putSerializable(Intents.EXTRA_CLIP_ITEM, this);
-        bundle.putString(Intents.EXTRA_TEXT, oldText);
-        intent.putExtra(Intents.BUNDLE_CLIP_ITEM, bundle);
-        LocalBroadcastManager
-          .getInstance(context)
-          .sendBroadcast(intent);
+    pos = this.labelsId.indexOf(id);
+    if (pos != -1) {
+      this.labelsId.set(pos, id);
+    }
+  }
+
+  /**
+   * Add the given labels if they don't exit - don't save
+   * @param labels label list to add from
+   */
+  public void addLabelsNoSave(@NonNull List<Label> labels) {
+    for (Label label: labels) {
+      if (!hasLabel(label)) {
+        this.labels.add(label);
+        this.labelsId.add(label.getId());
       }
     }
   }
 
-  public DateTime getDate() {return new DateTime(date);}
-
-  public void setDate(long date) {this.date = date;}
-
-  public long getTime() {return date;}
-
-  public boolean isFav() {return fav;}
-
-  public void setFav(Boolean fav) {this.fav = fav;}
-
-  public boolean isRemote() {return remote;}
-
-  public void setRemote(Boolean remote) {this.remote = remote;}
-
-  public String getDevice() {return device;}
-
-  public void setDevice(String device) {this.device = device;}
-
-  public List<Label> getLabels() {
-    return labels;
-  }
-
-  private void setLabels(List<Label> labels) {
-    this.labels = labels;
-  }
-
-  /**
-   * Do we have the given label
-   * @param label a label
-   * @return true if we have label
-   */
-  public boolean hasLabel(Label label) {
-    return labels.contains(label);
-  }
-
   public void addLabel(Context context, Label label) {
     if (!hasLabel(label)) {
-      labels.add(label);
+      this.labels.add(label);
       LabelTables.INST(context).insert(this, label);
     }
   }
 
   public void removeLabel(Context context, Label label) {
     if (hasLabel(label)) {
-      labels.remove(label);
+      this.labels.remove(label);
       LabelTables.INST(context).delete(this, label);
     }
   }
@@ -461,10 +522,10 @@ public class ClipItem implements Serializable {
       label = label + REMOTE_DESC_LABEL + "(" + device + ")\n";
     }
 
-    if (labels.size() > 0) {
+    if (this.labels.size() > 0) {
       // add our labels
       final Gson gson = new Gson();
-      final String labelsString = gson.toJson(labels);
+      final String labelsString = gson.toJson(this.labels);
       label = label + LABELS_LABEL + labelsString + "\n";
     }
 
@@ -578,8 +639,8 @@ public class ClipItem implements Serializable {
 
   /** Get our {@link Label} names from the database */
   public void loadLabels(Context context) {
-    labels.clear();
-    labelsId.clear();
+    this.labels.clear();
+    this.labelsId.clear();
 
     if (ClipItem.isWhitespace(this)) {
       return;
@@ -610,8 +671,8 @@ public class ClipItem implements Serializable {
 
     for (String name: names) {
       long labelId = LabelTables.INST(context).getLabelId(name);
-      labels.add(new Label(name, labelId));
-      labelsId.add(labelId);
+      this.labels.add(new Label(name, labelId));
+      this.labelsId.add(labelId);
     }
   }
 

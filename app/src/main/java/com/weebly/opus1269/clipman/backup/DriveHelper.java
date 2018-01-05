@@ -205,9 +205,10 @@ public class DriveHelper {
    * Get the contents of a backup
    * @param activity activity
    * @param file     file to retrieve
+   * @param fromSync true if sync rather than restore
    */
   void getBackupFileContents(@NonNull final BackupActivity activity,
-                             final DriveFile file) {
+                             final DriveFile file, final boolean fromSync) {
     final String errMessage = mContext.getString(R.string.err_get_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -241,7 +242,12 @@ public class DriveHelper {
             if (bis != null) {
               bis.close();
             }
-            BackupHelper.INST(mContext).restoreContents(backupContents);
+
+            if (fromSync) {
+              BackupHelper.INST(mContext).syncContents(file, backupContents);
+            } else {
+              BackupHelper.INST(mContext).restoreContents(backupContents);
+            }
           }
 
           return resourceClient.discardContents(contents);
