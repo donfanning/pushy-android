@@ -216,7 +216,9 @@ public class DriveHelper {
       return;
     }
 
-    Task<DriveContents> openFileTask =
+    final BackupContents backupContents = new BackupContents();
+
+    final Task<DriveContents> openFileTask =
       resourceClient.openFile(file, DriveFile.MODE_READ_ONLY);
 
     activity.showProgress();
@@ -228,12 +230,10 @@ public class DriveHelper {
 
           final DriveContents contents = task.getResult();
 
-          BackupContents backupContents = null;
           BufferedInputStream bis = null;
           try {
             bis = new BufferedInputStream(contents.getInputStream());
-            backupContents =
-              BackupHelper.INST(mContext).extractFromZipFile(bis);
+            BackupHelper.INST(mContext).extractFromZipFile(bis, backupContents);
           } catch (Exception ex) {
             Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
               true);
@@ -241,12 +241,6 @@ public class DriveHelper {
           } finally {
             if (bis != null) {
               bis.close();
-            }
-
-            if (fromSync) {
-              BackupHelper.INST(mContext).syncContents(file, backupContents);
-            } else {
-              BackupHelper.INST(mContext).restoreContents(backupContents);
             }
           }
 
@@ -256,9 +250,14 @@ public class DriveHelper {
       .addOnSuccessListener(new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
-          activity.hideProgress();
           Log.logD(TAG, "restored backup: " +
             file.getDriveId().toString());
+          if (fromSync) {
+            BackupHelper.INST(mContext).syncContents(file, backupContents);
+          } else {
+            BackupHelper.INST(mContext).restoreContents(backupContents);
+          }
+          activity.hideProgress();
         }
       })
       .addOnFailureListener(new OnFailureListener() {

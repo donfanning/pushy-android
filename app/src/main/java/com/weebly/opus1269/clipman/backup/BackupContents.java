@@ -25,13 +25,18 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Immutable class for the contents of a backup */
+/** Class for the contents of a backup */
 class BackupContents {
-  final private List<Label> labels;
-  final private List<ClipItem> clipItems;
+  private List<Label> labels;
+  private List<ClipItem> clipItems;
+
+  BackupContents() {
+    this.labels = new ArrayList<>(0);
+    this.clipItems = new ArrayList<>(0);
+  }
 
   private BackupContents(@NonNull List<Label> labels,
-                         @NonNull List<ClipItem> clipItems) {
+                 @NonNull List<ClipItem> clipItems) {
     this.labels = labels;
     this.clipItems = clipItems;
   }
@@ -105,10 +110,19 @@ class BackupContents {
     return labels;
   }
 
+  void setLabels(@NonNull List<Label> labels) {
+    this.labels = labels;
+  }
+
   @NonNull
   List<ClipItem> getClipItems() {
     return clipItems;
   }
+
+  void setClipItems(@NonNull List<ClipItem> clipItems) {
+    this.clipItems = clipItems;
+  }
+
 
   /**
    * Merge the contents of the given item with this and return new

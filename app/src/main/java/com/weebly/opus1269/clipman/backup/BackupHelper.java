@@ -94,7 +94,7 @@ public class BackupHelper {
    * Replace the database with the restored data
    * @param contents database data to restore
    */
-  void restoreContents(@Nullable BackupContents contents) {
+  public void restoreContents(@Nullable BackupContents contents) {
     if (contents == null) {
       return;
     }
@@ -114,7 +114,7 @@ public class BackupHelper {
    * Sync the database with the given content
    * @param contents database data to restore
    */
-  void syncContents(DriveFile driveFile, @Nullable BackupContents contents) {
+  public void syncContents(DriveFile driveFile, @Nullable BackupContents contents) {
     if (contents == null) {
       return;
     }
@@ -138,16 +138,17 @@ public class BackupHelper {
 
   /**
    * Extract the data from a ZipFile
-   * @return content of a backup
+   * @param bis stream of data
+   * @param contents will contain the contents
    */
-  @Nullable
-  BackupContents extractFromZipFile(@NonNull BufferedInputStream bis) {
+  void extractFromZipFile(@NonNull BufferedInputStream bis,
+                          @NonNull BackupContents contents) {
     final byte[] data =
       ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
     if (data != null) {
-      return BackupContents.get(data);
-    } else {
-      return null;
+      final BackupContents zipContents =  BackupContents.get(data);
+      contents.setLabels(zipContents.getLabels());
+      contents.setClipItems(zipContents.getClipItems());
     }
   }
 
