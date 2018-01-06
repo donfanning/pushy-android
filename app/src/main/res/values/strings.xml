@@ -248,7 +248,7 @@
   <string name="backup_SN_fmt">SN: %s</string>
   <string name="backup_OS_fmt">OS: %s</string>
   <string name="backup_nickname_fmt">Nickname: %s</string>
-  <string name="backup_date_fmt">Backup date: %s</string>
+  <string name="backup_date_fmt">Last modified: %s</string>
   <string name="backup_delete">Delete backup</string>
   <string name="backup_restore">Restore backup</string>
   <string name="backup_sync">Synchronize backup</string>
