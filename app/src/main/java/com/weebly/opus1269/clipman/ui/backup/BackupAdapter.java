@@ -33,7 +33,6 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.BackupFile;
-import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -75,7 +74,7 @@ class BackupAdapter extends
 
   @Override
   public void onBindViewHolder(BackupViewHolder holder, int position) {
-    final Context context = holder.backupTextView.getContext();
+    final Context ctxt = holder.backupTextView.getContext();
 
     tintIcons(holder);
 
@@ -88,18 +87,17 @@ class BackupAdapter extends
     mineTextView.setVisibility(visibility);
 
     final String desc =
-      context.getString(R.string.backup_nickname_fmt, file.getNickname()) +
-        '\n' +
-        context.getString(R.string.backup_model_fmt, file.getModel()) + '\n' +
-        context.getString(R.string.backup_SN_fmt, file.getSN()) + '\n' +
-        context.getString(R.string.backup_OS_fmt, file.getOS());
+      ctxt.getString(R.string.backup_nickname_fmt, file.getNickname()) + '\n' +
+        ctxt.getString(R.string.backup_model_fmt, file.getModel()) + '\n' +
+        ctxt.getString(R.string.backup_SN_fmt, file.getSN()) + '\n' +
+        ctxt.getString(R.string.backup_OS_fmt, file.getOS());
     final TextView backupTextView = holder.backupTextView;
     backupTextView.setText(desc);
 
     final CharSequence value =
-      AppUtils.getRelativeDisplayTime(context, file.getDate());
+      AppUtils.getRelativeDisplayTime(ctxt, file.getDate());
     final TextView dateTextView = holder.dateTextView;
-    dateTextView.setText(context.getString(R.string.backup_date_fmt,
+    dateTextView.setText(ctxt.getString(R.string.backup_date_fmt,
       value));
 
     holder.restoreButton.setOnClickListener(
@@ -149,17 +147,15 @@ class BackupAdapter extends
   public void onClick(DialogInterface dialogInterface, int which) {
     if ((which == DialogInterface.BUTTON_POSITIVE) && (mFile != null)) {
       final Button button = mDialog.getButton(which);
-      final CharSequence buttonText = button.getText();
+      final CharSequence btnText = button.getText();
 
       Analytics.INST(mActivity).buttonClick(mActivity.getTAG(), button);
 
-      if (mActivity.getString(R.string.button_delete).equals(buttonText)) {
-        // delete backup file
-        DriveHelper.INST(mActivity).deleteBackupFile(mActivity, mFile.getId());
-      } else if (mActivity.getString(R.string.button_restore)
-        .equals(buttonText)) {
+      if (mActivity.getString(R.string.button_delete).equals(btnText)) {
+        BackupHelper.INST(mActivity).doDelete(mActivity, mFile);
+      } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
         BackupHelper.INST(mActivity).doRestore(mActivity, mFile);
-      } else if (mActivity.getString(R.string.button_sync).equals(buttonText)) {
+      } else if (mActivity.getString(R.string.button_sync).equals(btnText)) {
         BackupHelper.INST(mActivity).doSync(mActivity, mFile);
       }
       mFile = null;

@@ -32,9 +32,6 @@ public class BackupHelper {
   /** Global Application Context */
   private final Context mContext;
 
-  /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
-
   /** Name of file in the zipfile */
   private final String BACKUP_FILNAME = "backup.txt";
 
@@ -62,10 +59,10 @@ public class BackupHelper {
   public void doBackup(@Nullable BackupActivity activity) {
     final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
     final byte[] zipFile =
-      ZipHelper.INST(mContext).createZipFile(BACKUP_FILNAME, data);
+      ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
     if (zipFile != null) {
       final String name = getZipFilename();
-      DriveHelper.INST(mContext).createBackupFile(activity, name, zipFile);
+      DriveHelper.INST(mContext).createBackup(activity, name, zipFile);
     }
   }
 
@@ -76,18 +73,27 @@ public class BackupHelper {
    */
   public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
-    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile,
+    DriveHelper.INST(mContext).getBackupContents(activity, driveFile,
       false);
   }
 
   /**
    * Perform a sync
    * @param activity The calling activity
-   * @param file     File to restore
+   * @param file     File to sync
    */
   public void doSync(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
-    DriveHelper.INST(mContext).getBackupFileContents(activity, driveFile, true);
+    DriveHelper.INST(mContext).getBackupContents(activity, driveFile, true);
+  }
+
+  /**
+   * Perform a delete
+   * @param activity The calling activity
+   * @param file     File to delete
+   */
+  public void doDelete(@NonNull BackupActivity activity, BackupFile file) {
+    DriveHelper.INST(mContext).deleteBackup(activity, file.getId());
   }
 
   /**
@@ -99,22 +105,19 @@ public class BackupHelper {
       return;
     }
 
-    // clear tables
-    ClipTable.INST(mContext).deleteAll();
-    LabelTables.INST(mContext).deleteAllLabels();
+    // replace database
+    replaceDB(contents);
 
-    // add contents
-    final List<Label> labels = contents.getLabels();
-    final List<ClipItem> clipItems = contents.getClipItems();
-    LabelTables.INST(mContext).insertLabels(labels);
-    ClipTable.INST(mContext).insert(clipItems);
   }
 
   /**
    * Sync the database with the given content
-   * @param contents database data to restore
+   * @param activity activity
+   * @param driveFile source of data
+   * @param contents data to merge
    */
-  public void syncContents(BackupActivity activity, DriveFile driveFile, @Nullable BackupContents contents) {
+  public void syncContents(BackupActivity activity, DriveFile driveFile,
+                           @Nullable BackupContents contents) {
     if (contents == null) {
       return;
     }
@@ -123,23 +126,16 @@ public class BackupHelper {
     final BackupContents dbContents = BackupContents.getDB(mContext);
     final BackupContents merged = dbContents.merge(mContext, contents);
 
-    // clear tables
-    ClipTable.INST(mContext).deleteAll();
-    LabelTables.INST(mContext).deleteAllLabels();
-
-    // add contents
-    final List<Label> labels = merged.getLabels();
-    final List<ClipItem> clipItems = merged.getClipItems();
-    LabelTables.INST(mContext).insertLabels(labels);
-    ClipTable.INST(mContext).insert(clipItems);
+    // replace database
+    replaceDB(merged);
 
     // send new contents to the cloud
     final byte[] data = merged.getAsJSON().getBytes();
     final byte[] zipFile =
-      ZipHelper.INST(mContext).createZipFile(BACKUP_FILNAME, data);
+      ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
     if (zipFile != null) {
       //final String name = getZipFilename();
-      DriveHelper.INST(mContext).updateBackupFile(activity, driveFile, zipFile);
+      DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
     }
   }
 
@@ -151,12 +147,28 @@ public class BackupHelper {
   void extractFromZipFile(@NonNull BufferedInputStream bis,
                           @NonNull BackupContents contents) {
     final byte[] data =
-      ZipHelper.INST(mContext).extractFromZipFile(BACKUP_FILNAME, bis);
+      ZipHelper.INST(mContext).extractContents(BACKUP_FILNAME, bis);
     if (data != null) {
       final BackupContents zipContents =  BackupContents.get(data);
       contents.setLabels(zipContents.getLabels());
       contents.setClipItems(zipContents.getClipItems());
     }
+  }
+
+  /**
+   * Replace the contents of the database
+   * @param contents new contents
+   */
+  private void replaceDB(@NonNull BackupContents contents) {
+    // clear tables
+    ClipTable.INST(mContext).deleteAll();
+    LabelTables.INST(mContext).deleteAllLabels();
+
+    // add contents
+    final List<Label> labels = contents.getLabels();
+    final List<ClipItem> clipItems = contents.getClipItems();
+    LabelTables.INST(mContext).insertLabels(labels);
+    ClipTable.INST(mContext).insert(clipItems);
   }
 
   /**

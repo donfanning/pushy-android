@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Class for the contents of a backup */
-class BackupContents {
+public class BackupContents {
   private List<Label> labels;
   private List<ClipItem> clipItems;
 

@@ -43,7 +43,7 @@ public class BackupFile {
   private String mOS;
   private final long mDate;
 
-  BackupFile(Context context, final Metadata metadata) {
+  public BackupFile(Context context, final Metadata metadata) {
     mId = metadata.getDriveId();
     mName = metadata.getTitle();
     mDate = metadata.getModifiedDate().getTime();

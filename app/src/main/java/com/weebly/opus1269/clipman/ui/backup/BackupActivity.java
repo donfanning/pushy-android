@@ -22,13 +22,18 @@ import android.widget.TextView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.backup.BackupContents;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
@@ -39,7 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class BackupActivity extends BaseActivity {
-
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;
 
@@ -135,6 +139,104 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
+  /**
+   * Get the list of backups
+   * @return the backups
+   */
+  List<BackupFile> getFiles() {
+    return mFiles;
+  }
+
+  /**
+   * Set the list of backups
+   * @param metadataBuffer - buffer containing list of files
+   */
+  public void setFiles(@NonNull MetadataBuffer metadataBuffer) {
+    final ArrayList<BackupFile> files = new ArrayList<>(0);
+    for (Metadata metadata : metadataBuffer) {
+      final BackupFile file = new BackupFile(this, metadata);
+      files.add(file);
+    }
+    mFiles = files;
+    setupMainView();
+    mAdapter.notifyDataSetChanged();
+  }
+
+  /**
+   * Add a flle to the list
+   * @param metadata file to add
+   */
+  public void addFileToList(Metadata metadata) {
+    final BackupFile file = new BackupFile(this, metadata);
+    // persist to Prefs
+    final String fileString = file.getId().encodeToString();
+    Prefs.INST(this).setLastBackup(fileString);
+    Log.logD(TAG, "created fileId: " + fileString);
+    boolean added = mFiles.add(file);
+    if (added) {
+      setupMainView();
+      mAdapter.notifyDataSetChanged();
+    }
+  }
+
+  /**
+   * Remove a flle from the list by DriveId
+   * @param driveId id of file to remove
+   */
+  public void removeFileFromList(@NonNull final DriveId driveId) {
+    boolean found = false;
+    for (final Iterator<BackupFile> i = mFiles.iterator(); i.hasNext(); ) {
+      final BackupFile backupFile = i.next();
+      if (backupFile.getId().equals(driveId)) {
+        Log.logD(TAG, "removing from list: " + backupFile.getDate());
+        found = true;
+        i.remove();
+        break;
+      }
+    }
+    if (found) {
+      setupMainView();
+      mAdapter.notifyDataSetChanged();
+    }
+  }
+
+  /**
+   * Contents of backup has been retrieved
+   * @param driveFile source file
+   */
+  public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
+                                          @NonNull BackupContents contents,
+                                          boolean isSync) {
+    if (isSync) {
+      BackupHelper.INST(this).syncContents(this, driveFile, contents);
+    } else {
+      BackupHelper.INST(this).restoreContents(contents);
+    }
+  }
+
+  /** Refresh the list */
+  public void refreshList() {
+    retrieveBackups();
+  }
+
+  /** Display progress UI */
+  public void showProgress() {
+    final View contentView = findViewById(R.id.drive_content);
+    final View progressView = findViewById(R.id.drive_progress);
+
+    contentView.setVisibility(View.GONE);
+    progressView.setVisibility(View.VISIBLE);
+  }
+
+  /** Hide progress UI */
+  public void hideProgress() {
+    final View contentView = findViewById(R.id.drive_content);
+    final View progressView = findViewById(R.id.drive_progress);
+
+    contentView.setVisibility(View.VISIBLE);
+    progressView.setVisibility(View.GONE);
+  }
+
   /** Request Drive access if needed */
   private void checkDrivePermissions() {
     final GoogleSignInAccount account = User.INST(this).getGoogleAccount();
@@ -148,6 +250,31 @@ public class BackupActivity extends BaseActivity {
     } else {
       onDriveClientReady();
     }
+  }
+
+  /** Sort files - mine first, then by data */
+  private void sortFiles() {
+    // mine first, then by date
+    // see: https://goo.gl/RZG4u8
+    final Comparator<BackupFile> cmp = new Comparator<BackupFile>() {
+      @Override
+      public int compare(BackupFile lhs, BackupFile rhs) {
+        // mine first
+        Boolean lhMine = lhs.isMine();
+        Boolean rhMine = rhs.isMine();
+        int mineCompare = rhMine.compareTo(lhMine);
+
+        if (mineCompare != 0) {
+          return mineCompare;
+        } else {
+          // newest first
+          Long lhDate = lhs.getDate().getMillis();
+          Long rhDate = rhs.getDate().getMillis();
+          return rhDate.compareTo(lhDate);
+        }
+      }
+    };
+    Collections.sort(mFiles, cmp);
   }
 
   /** Drive can be called */
@@ -190,109 +317,8 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
-  /** Display progress UI */
-  public void showProgress() {
-    final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
-
-    contentView.setVisibility(View.GONE);
-    progressView.setVisibility(View.VISIBLE);
-  }
-
-  /** Hide progress UI */
-  public void hideProgress() {
-    final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
-
-    contentView.setVisibility(View.VISIBLE);
-    progressView.setVisibility(View.GONE);
-  }
-
-  /**
-   * Get the list of backups
-   * @return the backups
-   */
-  public List<BackupFile> getFiles() {
-    return mFiles;
-  }
-
-  /**
-   * Set the list of backups
-   * @param files backup files
-   */
-  public void setFiles(@NonNull final ArrayList<BackupFile> files) {
-    mFiles = files;
-    setupMainView();
-    mAdapter.notifyDataSetChanged();
-  }
-
-  /**
-   * Add a flle to the list
-   * @param file file to add
-   */
-  public void addFileToList(@NonNull final BackupFile file) {
-    boolean added = mFiles.add(file);
-    if (added) {
-      setupMainView();
-      mAdapter.notifyDataSetChanged();
-    }
-  }
-
-  /**
-   * Remove a flle from the list by DriveId
-   * @param driveId id of file to remove
-   */
-  public void removeFileFromList(@NonNull final DriveId driveId) {
-    boolean found = false;
-    for (final Iterator<BackupFile> i = mFiles.iterator(); i.hasNext(); ) {
-      final BackupFile backupFile = i.next();
-      final DriveId tmpId = backupFile.getId();
-      if (tmpId.equals(driveId)) {
-        Log.logD(TAG, "removing from list: " + backupFile.getDate());
-        found = true;
-        i.remove();
-        break;
-      }
-    }
-    if (found) {
-      setupMainView();
-      mAdapter.notifyDataSetChanged();
-    }
-  }
-
-  /** Sort files - mine first, then by data */
-  private void sortFiles() {
-    // mine first, then by date
-    // see: https://goo.gl/RZG4u8
-    final Comparator<BackupFile> cmp = new Comparator<BackupFile>() {
-      @Override
-      public int compare(BackupFile lhs, BackupFile rhs) {
-        // mine first
-        Boolean lhMine = lhs.isMine();
-        Boolean rhMine = rhs.isMine();
-        int mineCompare = rhMine.compareTo(lhMine);
-
-        if (mineCompare != 0) {
-          return mineCompare;
-        } else {
-          // newest first
-          Long lhDate = lhs.getDate().getMillis();
-          Long rhDate = rhs.getDate().getMillis();
-          return rhDate.compareTo(lhDate);
-        }
-      }
-    };
-    Collections.sort(mFiles, cmp);
-  }
-
-  /** Refresh the list */
-  public void refreshList() {
-    retrieveBackups();
-  }
-
   /** Load the list of backup files asynchronously */
   private void retrieveBackups() {
-    DriveHelper.INST(this).retrieveBackupFiles(this);
+    DriveHelper.INST(this).getBackups(this);
   }
-
 }

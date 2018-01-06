@@ -53,14 +53,14 @@ public class ZipHelper {
   }
 
   /**
-   * Create a zip file with one file as a byte array
+   * Create the contents of a zip file with one file
    * @param filename name of file to add
    * @param contents contents of file to add
-   * @return zip file
+   * @return zip file contents
    */
   @Nullable
-  byte[] createZipFile(@NonNull final String filename,
-                       @NonNull byte[] contents) {
+  byte[] createContents(@NonNull final String filename,
+                        @NonNull byte[] contents) {
     final ZipEntrySource[] entries = new ZipEntrySource[]{
       new ByteSource(filename, contents)
     };
@@ -83,18 +83,18 @@ public class ZipHelper {
   /**
    * Extract the data for a file from a ZipFile
    * @param filename file to extract
-   * @param bis      zip file
+   * @param bis      zip file contents
    * @return contents of file
    */
   @Nullable
-  byte[] extractFromZipFile(@NonNull final String filename,
-                            @NonNull BufferedInputStream bis) {
+  byte[] extractContents(@NonNull final String filename,
+                         @NonNull BufferedInputStream bis) {
     byte[] ret;
     try {
       ret = ZipUtil.unpackEntry(bis, filename);
     } catch (Exception ex) {
       Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
-      return null;
+      ret = null;
     }
     return ret;
   }
