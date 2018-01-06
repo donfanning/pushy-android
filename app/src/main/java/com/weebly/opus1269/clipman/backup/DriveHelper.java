@@ -203,31 +203,27 @@ public class DriveHelper {
   }
 
   /**
-   * Update a backup backup - asynchronous
+   * Update a backup - asynchronous
    * @param activity activity
-   * @param file existing drive file
+   * @param file     existing drive file
    * @param data     zipfile data
    */
-  void updateBackupFile(@Nullable final BackupActivity activity,
+  void updateBackupFile(@NonNull final BackupActivity activity,
                         @NonNull final DriveFile file, final byte[] data) {
-    final String errMessage = mContext.getString(R.string.err_create_backup);
+    final String errMessage = mContext.getString(R.string.err_update_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       Log.logE(mContext, TAG, errMessage, true);
       return;
     }
 
-    final Task<DriveContents> openFileTask =
-      resourceClient.openFile(file, DriveFile.MODE_WRITE_ONLY);
-
-    if (activity != null) {
-      activity.showProgress();
-    }
-    openFileTask
+    activity.showProgress();
+    resourceClient.openFile(file, DriveFile.MODE_WRITE_ONLY)
       .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
         @Override
-        public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
-          DriveContents contents = task.getResult();
+        public Task<Void> then(@NonNull Task<DriveContents> task)
+          throws Exception {
+          final DriveContents contents = task.getResult();
 
           final OutputStream outputStream = contents.getOutputStream();
           //noinspection TryFinallyCanBeTryWithResources
@@ -237,21 +233,14 @@ public class DriveHelper {
             outputStream.close();
           }
 
-          //MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-          //  .setStarred(true)
-          //  .setLastViewedByMeDate(new DateTime().toDate())
-          //  .build();
-
-          return getDriveResourceClient().commitContents(contents, null);
+          return resourceClient.commitContents(contents, null);
         }
       })
       .addOnSuccessListener(new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
-          if (activity != null) {
-            activity.refreshList();
-            activity.hideProgress();
-          }
+          activity.refreshList();
+          activity.hideProgress();
         }
       })
       .addOnFailureListener(new OnFailureListener() {
@@ -259,9 +248,7 @@ public class DriveHelper {
         public void onFailure(@NonNull Exception ex) {
           Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
             true);
-          if (activity != null) {
-            activity.hideProgress();
-          }
+          activity.hideProgress();
         }
       });
   }
@@ -283,26 +270,18 @@ public class DriveHelper {
 
     final BackupContents backupContents = new BackupContents();
 
-    final Task<DriveContents> openFileTask =
-      resourceClient.openFile(file, DriveFile.MODE_READ_ONLY);
-
     activity.showProgress();
-    openFileTask
+    resourceClient.openFile(file, DriveFile.MODE_READ_ONLY)
       .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
         @Override
         public Task<Void> then(@NonNull Task<DriveContents> task)
           throws Exception {
-
           final DriveContents contents = task.getResult();
 
           BufferedInputStream bis = null;
           try {
             bis = new BufferedInputStream(contents.getInputStream());
             BackupHelper.INST(mContext).extractFromZipFile(bis, backupContents);
-          } catch (Exception ex) {
-            Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
-              true);
-            activity.hideProgress();
           } finally {
             if (bis != null) {
               bis.close();
@@ -352,9 +331,6 @@ public class DriveHelper {
 
     final DriveFile file = driveId.asDriveFile();
     final Task<Void> deleteTask = resourceClient.delete(file);
-    if (activity != null) {
-      activity.removeFileFromList(driveId);
-    }
 
     if (activity != null) {
       activity.showProgress();
@@ -401,8 +377,8 @@ public class DriveHelper {
                                  final DriveResourceClient resourceClient,
                                  final DriveFile file) {
     final String errMessage = "Failed to add to list";
-    final Task<Metadata> metaDataTask = resourceClient.getMetadata(file);
-    metaDataTask
+
+    resourceClient.getMetadata(file)
       .addOnSuccessListener(new OnSuccessListener<Metadata>() {
         @Override
         public void onSuccess(Metadata metadata) {
