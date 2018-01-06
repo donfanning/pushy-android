@@ -55,6 +55,12 @@ public class DevicesActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
           setupMainView();
+          final View fab = findViewById(R.id.fab);
+          if (fab != null) {
+            final Snackbar snack =
+              Snackbar.make(fab, getString(R.string.ping_message), 5000);
+            snack.show();
+          }
           ping();
           Analytics.INST(v.getContext()).imageClick(TAG, "refreshDevices");
         }
@@ -167,12 +173,6 @@ public class DevicesActivity extends BaseActivity {
 
   /** Ping our devices */
   private void ping() {
-    final View fab = findViewById(R.id.fab);
-    if (fab != null) {
-      final Snackbar snack =
-        Snackbar.make(fab, getString(R.string.ping_message), 5000);
-      snack.show();
-    }
     MessagingClient.INST(this).sendPing();
   }
 

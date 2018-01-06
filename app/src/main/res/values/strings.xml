@@ -279,7 +279,7 @@
   <string name="device_nickname_fmt">Nickname: %s</string>
   <string name="device_last_seen_fmt">Last seen: %s</string>
   <string name="remote_device_fmt">Source: %s</string>
-  <string name="ping_message">Devices may not respond in a timely fashion</string>
+  <string name="ping_message">Devices responses may be delayed</string>
 
   <!-- Related to Labels activities -->
   <string name="label_create_hint">Create new label</string>
