@@ -17,6 +17,7 @@ import com.google.gson.stream.JsonReader;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Label;
 
 import java.io.ByteArrayInputStream;
@@ -179,6 +180,11 @@ public class BackupContents {
       final int pos = outClipItems.indexOf(inClipItem);
       if (pos == -1) {
         // new clip - add to outgoing
+        if (inClipItem.getDevice().equals(Device.getMyName(context))) {
+          inClipItem.setRemote(false);
+        } else {
+          inClipItem.setRemote(true);
+        }
         final ClipItem outClipItem = new ClipItem(context, inClipItem,
           inClipItem.getLabels(), inClipItem.getLabelsId());
         outClipItems.add(outClipItem);
@@ -192,8 +198,12 @@ public class BackupContents {
         if (inClipItem.getTime() > outClipItem.getTime()) {
           // newest has priority
           outClipItem.setDate(inClipItem.getTime());
+          if (inClipItem.getDevice().equals(Device.getMyName(context))) {
+            outClipItem.setRemote(false);
+          } else {
+            outClipItem.setRemote(true);
+          }
           outClipItem.setDevice(inClipItem.getDevice());
-          outClipItem.setRemote(true);
         }
         // merge labels and labelsId
         outClipItem.addLabelsNoSave(inClipItem.getLabels());

@@ -17,11 +17,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResourceClient;
+import com.google.android.gms.drive.DriveStatusCodes;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
@@ -87,6 +89,11 @@ public class DriveHelper {
    */
   public void getBackups(@NonNull final BackupActivity activity) {
     final String errMessage = mContext.getString(R.string.err_get_backups);
+    final DriveClient driveClient = getDriveClient();
+    if (driveClient == null) {
+      Log.logE(mContext, TAG, errMessage, true);
+      return;
+    }
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       Log.logE(mContext, TAG, errMessage, true);
@@ -94,7 +101,16 @@ public class DriveHelper {
     }
 
     activity.showProgress();
-    resourceClient.getAppFolder()
+    // sync with drive
+    driveClient.requestSync()
+      .continueWithTask(new Continuation<Void, Task<DriveFolder>>() {
+        @Override
+        public Task<DriveFolder> then(@NonNull Task<Void> task)
+          throws Exception {
+          // get app folder
+          return resourceClient.getAppFolder();
+        }
+      })
       .continueWithTask(new Continuation<DriveFolder, Task<MetadataBuffer>>() {
         @Override
         public Task<MetadataBuffer> then(@NonNull Task<DriveFolder> task)
@@ -121,7 +137,20 @@ public class DriveHelper {
       .addOnFailureListener(activity, new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
-          onTaskFailure(activity, errMessage, ex);
+          if (ex instanceof ApiException) {
+            // may have been rate limited, just use old list
+            if (((ApiException) ex).getStatusCode() !=
+              DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
+              Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
+                errMessage, false);
+            } else {
+              Log.logD(TAG, "rate limited");
+            }
+          } else {
+            Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+              false);
+          }
+          activity.hideProgress();
         }
       });
   }
@@ -331,7 +360,7 @@ public class DriveHelper {
    * @param driveId  driveId to delete
    */
   void deleteBackup(@Nullable final BackupActivity activity,
-                           @NonNull final DriveId driveId) {
+                    @NonNull final DriveId driveId) {
     final String errMessage = mContext.getString(R.string.err_delete_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -384,7 +413,8 @@ public class DriveHelper {
     if (!"OK".equals(ex.getMessage())) {
       if (ex instanceof ApiException) {
         // don't even log not found errors
-        if (((ApiException) ex).getStatusCode() != 1502) {
+        if (((ApiException) ex).getStatusCode() !=
+          DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
           Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
             msg, false);
         }
@@ -405,7 +435,7 @@ public class DriveHelper {
    * @param ex       - causing exception
    */
   private void onTaskFailure(BackupActivity activity, String msg,
-                               Exception ex) {
+                             Exception ex) {
     Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, msg,
       true);
     if (activity != null) {
@@ -413,16 +443,16 @@ public class DriveHelper {
     }
   }
 
-  //@Nullable
-  //private DriveClient getDriveClient() {
-  //  DriveClient ret = null;
-  //  final GoogleSignInAccount account = User.INST(mContext)
-  // .getGoogleAccount();
-  //  if (account != null) {
-  //    ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
-  //  }
-  //  return ret;
-  //}
+  @Nullable
+  private DriveClient getDriveClient() {
+    DriveClient ret = null;
+    final GoogleSignInAccount account = User.INST(mContext)
+      .getGoogleAccount();
+    if (account != null) {
+      ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
+    }
+    return ret;
+  }
 
   @Nullable
   private DriveResourceClient getDriveResourceClient() {
