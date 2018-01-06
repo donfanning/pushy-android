@@ -123,6 +123,17 @@ class BackupContents {
     this.clipItems = clipItems;
   }
 
+  /**
+   * Get the our data as a JSON string
+   * @return Stringified data
+   */
+  String getAsJSON() {
+    String ret;
+    // stringify it
+    final Gson gson = new Gson();
+    ret = gson.toJson(this);
+    return ret;
+  }
 
   /**
    * Merge the contents of the given item with this and return new

@@ -114,7 +114,7 @@ public class BackupHelper {
    * Sync the database with the given content
    * @param contents database data to restore
    */
-  public void syncContents(DriveFile driveFile, @Nullable BackupContents contents) {
+  public void syncContents(BackupActivity activity, DriveFile driveFile, @Nullable BackupContents contents) {
     if (contents == null) {
       return;
     }
@@ -133,7 +133,14 @@ public class BackupHelper {
     LabelTables.INST(mContext).insertLabels(labels);
     ClipTable.INST(mContext).insert(clipItems);
 
-    // TODO now back it up to orginal file
+    // send new contents to the cloud
+    final byte[] data = merged.getAsJSON().getBytes();
+    final byte[] zipFile =
+      ZipHelper.INST(mContext).createZipFile(BACKUP_FILNAME, data);
+    if (zipFile != null) {
+      //final String name = getZipFilename();
+      DriveHelper.INST(mContext).updateBackupFile(activity, driveFile, zipFile);
+    }
   }
 
   /**

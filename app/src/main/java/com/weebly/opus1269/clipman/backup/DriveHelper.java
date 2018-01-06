@@ -163,6 +163,7 @@ public class DriveHelper {
         public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
           final DriveFolder parent = appFolderTask.getResult();
           final DriveContents contents = createContentsTask.getResult();
+
           final OutputStream outputStream = contents.getOutputStream();
           //noinspection TryFinallyCanBeTryWithResources
           try {
@@ -187,6 +188,70 @@ public class DriveHelper {
         @Override
         public void onSuccess(DriveFile driveFile) {
           persistBackupFile(activity, resourceClient, driveFile);
+        }
+      })
+      .addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception ex) {
+          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
+            true);
+          if (activity != null) {
+            activity.hideProgress();
+          }
+        }
+      });
+  }
+
+  /**
+   * Update a backup backup - asynchronous
+   * @param activity activity
+   * @param file existing drive file
+   * @param data     zipfile data
+   */
+  void updateBackupFile(@Nullable final BackupActivity activity,
+                        @NonNull final DriveFile file, final byte[] data) {
+    final String errMessage = mContext.getString(R.string.err_create_backup);
+    final DriveResourceClient resourceClient = getDriveResourceClient();
+    if (resourceClient == null) {
+      Log.logE(mContext, TAG, errMessage, true);
+      return;
+    }
+
+    final Task<DriveContents> openFileTask =
+      resourceClient.openFile(file, DriveFile.MODE_WRITE_ONLY);
+
+    if (activity != null) {
+      activity.showProgress();
+    }
+    openFileTask
+      .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
+        @Override
+        public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
+          DriveContents contents = task.getResult();
+
+          final OutputStream outputStream = contents.getOutputStream();
+          //noinspection TryFinallyCanBeTryWithResources
+          try {
+            outputStream.write(data);
+          } finally {
+            outputStream.close();
+          }
+
+          //MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+          //  .setStarred(true)
+          //  .setLastViewedByMeDate(new DateTime().toDate())
+          //  .build();
+
+          return getDriveResourceClient().commitContents(contents, null);
+        }
+      })
+      .addOnSuccessListener(new OnSuccessListener<Void>() {
+        @Override
+        public void onSuccess(Void aVoid) {
+          if (activity != null) {
+            activity.refreshList();
+            activity.hideProgress();
+          }
         }
       })
       .addOnFailureListener(new OnFailureListener() {
@@ -253,7 +318,8 @@ public class DriveHelper {
           Log.logD(TAG, "restored backup: " +
             file.getDriveId().toString());
           if (fromSync) {
-            BackupHelper.INST(mContext).syncContents(file, backupContents);
+            BackupHelper.INST(mContext)
+              .syncContents(activity, file, backupContents);
           } else {
             BackupHelper.INST(mContext).restoreContents(backupContents);
           }

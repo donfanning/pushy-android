@@ -285,13 +285,14 @@ public class BackupActivity extends BaseActivity {
     Collections.sort(mFiles, cmp);
   }
 
+  /** Refresh the list */
+  public void refreshList() {
+    retrieveBackups();
+  }
+
   /** Load the list of backup files asynchronously */
   private void retrieveBackups() {
     DriveHelper.INST(this).retrieveBackupFiles(this);
   }
 
-  /** Refresh the list */
-  private void refreshList() {
-    retrieveBackups();
-  }
 }
