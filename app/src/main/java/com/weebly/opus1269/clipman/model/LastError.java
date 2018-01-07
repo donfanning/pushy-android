@@ -136,22 +136,16 @@ public class LastError implements Serializable {
     mMessage = message;
     mTime = DateTime.now().getMillis();
 
+    mStack = "";
     if (ex != null) {
-      mStack = "";
       final String exMsg = ex.getLocalizedMessage();
       final String exTrace = Log.getStackTraceString(ex);
       if (!TextUtils.isEmpty(exMsg) && !exMsg.equals(message)) {
         mStack += exMsg + '\n';
       }
-      if (!TextUtils.isEmpty(exMsg) && !TextUtils.isEmpty(exTrace) &&
-        !exMsg.equals(exTrace)) {
+      if (!TextUtils.isEmpty(exTrace)) {
         mStack += exTrace;
       }
-      if (TextUtils.isEmpty(mStack) || mStack.equals(exMsg + '\n')) {
-        mStack += Log.getStackTraceString(new Exception());
-      }
-    } else {
-      mStack = Log.getStackTraceString(new Exception());
     }
 
     persist(ctxt);

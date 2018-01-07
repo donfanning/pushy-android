@@ -22,6 +22,7 @@ import org.zeroturnaround.zip.commons.IOUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /** Singleton to manage Zip Files */
 public class ZipHelper {
@@ -60,7 +61,7 @@ public class ZipHelper {
    */
   @Nullable
   byte[] createContents(@NonNull final String filename,
-                        @NonNull byte[] contents) {
+                        @NonNull byte[] contents) throws IOException {
     final ZipEntrySource[] entries = new ZipEntrySource[]{
       new ByteSource(filename, contents)
     };
@@ -71,9 +72,6 @@ public class ZipHelper {
       out = new BufferedOutputStream(data);
       ZipUtil.pack(entries, out);
       out.flush();
-    } catch (Exception ex) {
-      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
-      return null;
     } finally {
       IOUtils.closeQuietly(out);
     }
@@ -89,13 +87,6 @@ public class ZipHelper {
   @Nullable
   byte[] extractContents(@NonNull final String filename,
                          @NonNull BufferedInputStream bis) {
-    byte[] ret;
-    try {
-      ret = ZipUtil.unpackEntry(bis, filename);
-    } catch (Exception ex) {
-      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, true);
-      ret = null;
-    }
-    return ret;
+    return ZipUtil.unpackEntry(bis, filename);
   }
 }

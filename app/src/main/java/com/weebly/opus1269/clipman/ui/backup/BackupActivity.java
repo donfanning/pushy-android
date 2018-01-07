@@ -226,7 +226,7 @@ public class BackupActivity extends BaseActivity implements
   }
 
   /**
-   * Contents of backup has been retrieved
+   * Contents of a backup has been retrieved
    * @param driveFile source file
    */
   public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
@@ -242,8 +242,8 @@ public class BackupActivity extends BaseActivity implements
     } catch (Exception ex) {
       final String title = getString(R.string.err_update_db);
       final String msg = ex.getLocalizedMessage();
-      Log.logEx(this, TAG, msg, ex, title, true);
-      showMessage(title, msg, true);
+      Log.logEx(this, TAG, msg, ex, title, false);
+      showMessage(title, msg);
     }
   }
 
@@ -253,12 +253,11 @@ public class BackupActivity extends BaseActivity implements
   }
 
   /**
-   * Display a message in a dilaog
+   * Display a message in a dialog
    * @param title dialog title
    * @param msg dialog meesage
    */
-  public void showMessage(@NonNull String title, @NonNull String msg,
-                          boolean isException) {
+  public void showMessage(@NonNull String title, @NonNull String msg) {
     hideProgress();
     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder
@@ -266,9 +265,7 @@ public class BackupActivity extends BaseActivity implements
       .setMessage(msg)
       .setPositiveButton(R.string.button_dismiss, this);
 
-    if (isException) {
       builder.setNegativeButton(R.string.button_details, this);
-    }
 
     builder.create().show();
   }

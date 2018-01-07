@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import com.google.android.gms.drive.DriveFile;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
@@ -27,6 +28,7 @@ import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 import org.zeroturnaround.zip.ZipException;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.util.List;
 
 /** Singleton to manage Google Drive data backups */
@@ -37,6 +39,9 @@ public class BackupHelper {
 
   /** Global Application Context */
   private final Context mContext;
+
+  /** Class Indentifier */
+  private final String TAG = this.getClass().getSimpleName();
 
   /** Name of file in the zipfile */
   private final String BACKUP_FILNAME = "backup.txt";
@@ -63,14 +68,19 @@ public class BackupHelper {
    * @param activity The calling activity
    */
   public void doBackup(@Nullable BackupActivity activity) {
-    final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
-    final byte[] zipContents =
-      ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
-    if (zipContents != null) {
-      final String lastBackup = Prefs.INST(mContext).getLastBackup();
-      final String zipFilename = getZipFilename();
-      DriveHelper.INST(mContext)
-        .createBackup(activity, zipFilename, zipContents, lastBackup);
+    try {
+      final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
+      final byte[] zipContents =
+        ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
+      if (zipContents != null) {
+        final String lastBackup = Prefs.INST(mContext).getLastBackup();
+        final String zipFilename = getZipFilename();
+        DriveHelper.INST(mContext)
+          .createBackup(activity, zipFilename, zipContents, lastBackup);
+      }
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_create_backup);
+      showMessage(activity, errMessage, ex);
     }
   }
 
@@ -80,14 +90,19 @@ public class BackupHelper {
    */
   public void doUpdate(@NonNull BackupActivity activity,
                        @NonNull DriveFile driveFile,
-                       @NonNull BackupContents contents) throws ZipException {
-    final byte[] data = contents.getAsJSON().getBytes();
-    final byte[] zipFile =
-      ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
-    if (zipFile != null) {
-      DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
-    } else {
-      throw new ZipException(mContext.getString(R.string.err_create_zip));
+                       @NonNull BackupContents contents) {
+    try {
+      final byte[] data = contents.getAsJSON().getBytes();
+      final byte[] zipFile =
+        ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
+      if (zipFile != null) {
+        DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
+      } else {
+        throw new ZipException(mContext.getString(R.string.err_create_zip));
+      }
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_update_backup);
+      showMessage(activity, errMessage, ex);
     }
   }
 
@@ -97,9 +112,14 @@ public class BackupHelper {
    * @param file     File to restore
    */
   public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
-    final DriveFile driveFile = file.getId().asDriveFile();
-    activity.setIsSync(false);
-    DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
+    try {
+      final DriveFile driveFile = file.getId().asDriveFile();
+      activity.setIsSync(false);
+      DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_get_backup);
+      showMessage(activity, errMessage, ex);
+    }
   }
 
   /**
@@ -108,9 +128,14 @@ public class BackupHelper {
    * @param file     File to sync
    */
   public void doSync(@NonNull BackupActivity activity, BackupFile file) {
-    final DriveFile driveFile = file.getId().asDriveFile();
-    activity.setIsSync(true);
-    DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
+    try {
+      final DriveFile driveFile = file.getId().asDriveFile();
+      activity.setIsSync(true);
+      DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_get_backup);
+      showMessage(activity, errMessage, ex);
+    }
   }
 
   /**
@@ -119,7 +144,12 @@ public class BackupHelper {
    * @param file     File to delete
    */
   public void doDelete(@NonNull BackupActivity activity, BackupFile file) {
-    DriveHelper.INST(mContext).deleteBackup(activity, file.getId());
+    try {
+      DriveHelper.INST(mContext).deleteBackup(activity, file.getId());
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_delete_backup);
+      showMessage(activity, errMessage, ex);
+    }
   }
 
   /**
@@ -128,9 +158,9 @@ public class BackupHelper {
    * @throws Exception if database update failed
    */
   public void saveContentsToDB(
-    @Nullable BackupContents contents) throws Exception {
+    @Nullable BackupContents contents) throws IOException, SQLException {
     if (contents == null) {
-      throw new Exception(mContext.getString(R.string.err_no_contents));
+      throw new IOException(mContext.getString(R.string.err_no_contents));
     }
 
     // replace database
@@ -143,9 +173,9 @@ public class BackupHelper {
    * @throws Exception if database update failed
    */
   public void saveMergedContentsToDB(
-    @Nullable BackupContents contents) throws Exception {
+    @Nullable BackupContents contents) throws IOException, SQLException {
     if (contents == null) {
-      throw new Exception(mContext.getString(R.string.err_no_contents));
+      throw new IOException(mContext.getString(R.string.err_no_contents));
     }
 
     final BackupContents dbContents = BackupContents.getDB(mContext);
@@ -199,5 +229,20 @@ public class BackupHelper {
     String ret = Device.getMyOS() + Device.getMySN(mContext) + ".zip";
     ret = ret.replace(' ', '_');
     return ret;
+  }
+
+  /**
+   * Log exception and show message
+   * @param activity - activity
+   * @param msg      - message
+   * @param ex       exception
+   */
+  private void showMessage(BackupActivity activity, @NonNull String msg,
+                           @NonNull Exception ex) {
+    final String exMsg = ex.getLocalizedMessage();
+    Log.logEx(mContext, TAG, exMsg, ex, msg, false);
+    if (activity != null) {
+      activity.showMessage(msg, exMsg);
+    }
   }
 }

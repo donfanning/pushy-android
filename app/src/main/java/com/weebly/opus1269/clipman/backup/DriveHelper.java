@@ -392,10 +392,10 @@ public class DriveHelper {
    * @param title    - action type
    */
   private void onClientError(BackupActivity activity, @NonNull String title) {
-    Log.logE(mContext, TAG, title, false);
+    final String msg = mContext.getString(R.string.err_internal_drive);
+    Log.logE(mContext, TAG, msg, title, false);
     if (activity != null) {
-      activity.showMessage(title,
-        mContext.getString(R.string.err_internal_drive), false);
+      activity.showMessage(title, msg);
     }
   }
 
@@ -410,7 +410,7 @@ public class DriveHelper {
     final String exMsg = ex.getLocalizedMessage();
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
     if (activity != null) {
-      activity.showMessage(msg, exMsg, true);
+      activity.showMessage(msg, exMsg);
     }
   }
 

@@ -62,6 +62,10 @@ public final class Log {
    */
   public static String logE(Context ctxt, String tag, String message,
                             String title, boolean notify) {
+    if (TextUtils.isEmpty(message)) {
+      message = ctxt.getString(R.string.err_unknown);
+    }
+
     String msg = "";
     if (!TextUtils.isEmpty(title)) {
       msg += title;
@@ -133,6 +137,10 @@ public final class Log {
    */
   public static String logEx(Context ctxt, String tag, String message,
                              Exception ex, String title, Boolean notify) {
+    if (TextUtils.isEmpty(message)) {
+      message = ctxt.getString(R.string.err_error);
+    }
+
     String msg = "";
     if (!TextUtils.isEmpty(title)) {
       msg += title;
