@@ -13,6 +13,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -47,6 +48,33 @@ public class LabelTables {
     }
   }
 
+
+  /**
+   * Is a {@link Label} with the given name in the database
+   * @param labelName the name
+   * @return true if label exists
+   */
+  public boolean exists(String labelName) {
+    if (TextUtils.isEmpty(labelName)) {
+      return false;
+    }
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] projection = {ClipsContract.Label.COL_NAME};
+    final String selection = ClipsContract.Label.COL_NAME + " = ? ";
+    final String[] selectionArgs = {labelName};
+
+    final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      // found it
+      cursor.close();
+      return true;
+    }
+    return false;
+  }
 
   /**
    * Get the PK for the given {@link Label} name

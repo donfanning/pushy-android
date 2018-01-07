@@ -166,6 +166,9 @@ public class MainActivity extends BaseActivity implements
   protected void onResume() {
     super.onResume();
 
+    // in case filter changed
+    mLabelFilter = Prefs.INST(this).getLabelFilter();
+
     setTitle();
 
     updateNavView();
@@ -174,7 +177,7 @@ public class MainActivity extends BaseActivity implements
 
     Notifications.INST(this).removeClips();
 
-    // so relative dates get updated
+    // update clips
     mLoaderManager.getAdapter().notifyDataSetChanged();
   }
 

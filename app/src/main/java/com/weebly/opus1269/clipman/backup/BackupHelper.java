@@ -11,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.google.android.gms.drive.DriveFile;
 import com.weebly.opus1269.clipman.db.ClipTable;
@@ -18,6 +19,7 @@ import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
 import java.io.BufferedInputStream;
@@ -169,6 +171,13 @@ public class BackupHelper {
     final List<ClipItem> clipItems = contents.getClipItems();
     LabelTables.INST(mContext).insertLabels(labels);
     ClipTable.INST(mContext).insert(clipItems);
+
+    // reset label filter if it was deleted
+    final String labelfilter = Prefs.INST(mContext).getLabelFilter();
+    if (!TextUtils.isEmpty(labelfilter) &&
+      !LabelTables.INST(mContext).exists(labelfilter)) {
+      Prefs.INST(mContext).setLabelFilter("");
+    }
   }
 
   /**
