@@ -38,7 +38,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
@@ -157,22 +156,20 @@ public class DriveHelper {
 
   /**
    * Create a new backup - asynchronous
-   * @param activity activity
-   * @param filename filename
-   * @param data     zipfile data
+   * @param activity   activity
+   * @param filename   zip filename
+   * @param data       zipfile data
+   * @param lastBackup encoded last backup, may not exist
    */
   void createBackup(@Nullable final BackupActivity activity,
-                    final String filename, final byte[] data) {
+                    final String filename, final byte[] data,
+                    final String lastBackup) {
     final String errMessage = mContext.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       Log.logE(mContext, TAG, errMessage, true);
       return;
     }
-
-    // file to delete on success
-    // TODO pass in
-    final String oldBackup = Prefs.INST(mContext).getLastBackup();
 
     final Task<DriveFolder> appFolderTask = resourceClient.getAppFolder();
     final Task<DriveContents> createContentsTask =
@@ -225,12 +222,12 @@ public class DriveHelper {
             activity.addFileToList(metadata);
           }
 
-          if (TextUtils.isEmpty(oldBackup)) {
+          if (TextUtils.isEmpty(lastBackup)) {
             // no backup to delete - no big deal
             throw new Exception("OK");
           }
 
-          final DriveId driveId = DriveId.decodeFromString(oldBackup);
+          final DriveId driveId = DriveId.decodeFromString(lastBackup);
 
           // delete old backup
           return resourceClient.delete(driveId.asDriveFile());
@@ -239,7 +236,7 @@ public class DriveHelper {
       .addOnSuccessListener(new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
-          onDeleteSuccess(activity, DriveId.decodeFromString(oldBackup));
+          onDeleteSuccess(activity, DriveId.decodeFromString(lastBackup));
         }
       })
       .addOnFailureListener(new OnFailureListener() {

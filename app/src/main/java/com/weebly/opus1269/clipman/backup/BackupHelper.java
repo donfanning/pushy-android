@@ -64,22 +64,23 @@ public class BackupHelper {
    */
   public void doBackup(@Nullable BackupActivity activity) {
     final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
-    final byte[] zipFile =
+    final byte[] zipContents =
       ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
-    if (zipFile != null) {
-      final String name = getZipFilename();
-      DriveHelper.INST(mContext).createBackup(activity, name, zipFile);
+    if (zipContents != null) {
+      final String lastBackup = Prefs.INST(mContext).getLastBackup();
+      final String zipFilename = getZipFilename();
+      DriveHelper.INST(mContext)
+        .createBackup(activity, zipFilename, zipContents, lastBackup);
     }
   }
 
- /**
+  /**
    * Update the contents of a backup
    * @param activity The calling activity
    */
   public void doUpdate(@NonNull BackupActivity activity,
                        @NonNull DriveFile driveFile,
                        @NonNull BackupContents contents) throws ZipException {
-
     final byte[] data = contents.getAsJSON().getBytes();
     final byte[] zipFile =
       ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
@@ -124,12 +125,12 @@ public class BackupHelper {
   /**
    * Replace the database with the restored data
    * @param contents database data to restore
-   * @throws SQLException if database update failed
+   * @throws Exception if database update failed
    */
-  public void restoreContents(@Nullable BackupContents contents)
-    throws SQLException {
+  public void restoreContents(
+    @Nullable BackupContents contents) throws Exception {
     if (contents == null) {
-      return;
+      throw new Exception(mContext.getString(R.string.err_no_contents));
     }
 
     // replace database
