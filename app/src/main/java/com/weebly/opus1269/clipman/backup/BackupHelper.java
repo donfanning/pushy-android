@@ -9,12 +9,13 @@ package com.weebly.opus1269.clipman.backup;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.SQLException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.google.android.gms.drive.DriveFile;
-import com.weebly.opus1269.clipman.db.ClipTable;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
@@ -101,25 +102,28 @@ public class BackupHelper {
   /**
    * Replace the database with the restored data
    * @param contents database data to restore
+   * @throws SQLException if database update failed
    */
-  public void restoreContents(@Nullable BackupContents contents) {
+  public void restoreContents(@Nullable BackupContents contents)
+    throws SQLException {
     if (contents == null) {
       return;
     }
 
     // replace database
     replaceDB(contents);
-
   }
 
   /**
    * Sync the database with the given content
-   * @param activity activity
+   * @param activity  activity
    * @param driveFile source of data
-   * @param contents data to merge
+   * @param contents  data to merge
+   * @throws SQLException if database update failed
    */
   public void syncContents(BackupActivity activity, DriveFile driveFile,
-                           @Nullable BackupContents contents) {
+                           @Nullable BackupContents contents)
+    throws SQLException {
     if (contents == null) {
       return;
     }
@@ -136,14 +140,13 @@ public class BackupHelper {
     final byte[] zipFile =
       ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
     if (zipFile != null) {
-      //final String name = getZipFilename();
       DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
     }
   }
 
   /**
    * Extract the data from a ZipFile
-   * @param bis stream of data
+   * @param bis      stream of data
    * @param contents will contain the contents
    */
   void extractFromZipFile(@NonNull BufferedInputStream bis,
@@ -151,7 +154,7 @@ public class BackupHelper {
     final byte[] data =
       ZipHelper.INST(mContext).extractContents(BACKUP_FILNAME, bis);
     if (data != null) {
-      final BackupContents zipContents =  BackupContents.get(data);
+      final BackupContents zipContents = BackupContents.get(data);
       contents.setLabels(zipContents.getLabels());
       contents.setClipItems(zipContents.getClipItems());
     }
@@ -160,17 +163,13 @@ public class BackupHelper {
   /**
    * Replace the contents of the database
    * @param contents new contents
+   * @throws SQLException - if database update failed
    */
-  private void replaceDB(@NonNull BackupContents contents) {
-    // clear tables
-    ClipTable.INST(mContext).deleteAll();
-    LabelTables.INST(mContext).deleteAllLabels();
-
-    // add contents
+  private void replaceDB(@NonNull BackupContents contents) throws SQLException {
+    // replace database contents
     final List<Label> labels = contents.getLabels();
     final List<ClipItem> clipItems = contents.getClipItems();
-    LabelTables.INST(mContext).insertLabels(labels);
-    ClipTable.INST(mContext).insert(clipItems);
+    App.getDbHelper().replaceDB(labels, clipItems);
 
     // reset label filter if it was deleted
     final String labelfilter = Prefs.INST(mContext).getLabelFilter();

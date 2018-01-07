@@ -9,14 +9,18 @@ package com.weebly.opus1269.clipman.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 
 import org.joda.time.DateTime;
+
+import java.util.List;
 
 /** Manage access to and versioning of the Clips.db */
 public class ClipsDatabaseHelper extends SQLiteOpenHelper {
@@ -98,6 +102,32 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   @Override
   public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     onUpgrade(db, oldVersion, newVersion);
+  }
+
+  /**
+   * Replace the contents of the database
+   * @param labels new labels
+   * @param clipItems new clips
+   * @throws SQLException - if database update failed
+   */
+  public void replaceDB(@NonNull List<Label> labels,
+                        @NonNull List<ClipItem> clipItems) throws SQLException {
+    final SQLiteDatabase db = getWritableDatabase();
+
+    db.beginTransaction();
+    try {
+      // clear tables
+      ClipTable.INST(mContext).deleteAll();
+      LabelTables.INST(mContext).deleteAllLabels();
+
+      // add contents
+      LabelTables.INST(mContext).insertLabels(labels);
+      ClipTable.INST(mContext).insert(clipItems);
+
+      db.setTransactionSuccessful();
+    } finally {
+      db.endTransaction();
+    }
   }
 
   /**

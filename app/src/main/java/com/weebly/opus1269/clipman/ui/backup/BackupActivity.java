@@ -207,10 +207,15 @@ public class BackupActivity extends BaseActivity {
   public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
                                           @NonNull BackupContents contents,
                                           boolean isSync) {
-    if (isSync) {
-      BackupHelper.INST(this).syncContents(this, driveFile, contents);
-    } else {
-      BackupHelper.INST(this).restoreContents(contents);
+    try {
+      if (isSync) {
+        BackupHelper.INST(this).syncContents(this, driveFile, contents);
+      } else {
+        BackupHelper.INST(this).restoreContents(contents);
+      }
+    } catch (Exception ex) {
+      Log.logEx(this, TAG, ex.getLocalizedMessage(), ex,
+        getString(R.string.err_update_db), true);
     }
   }
 

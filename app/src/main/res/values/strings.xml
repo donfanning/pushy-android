@@ -264,6 +264,7 @@
   <string name="err_restore_backup">Failed to restore backup from Google Drive</string>
   <string name="err_sync_backup">Failed to sync backup with Google Drive</string>
   <string name="err_delete_backup">Failed to delete backup from Google Drive</string>
+  <string name="err_update_db">Failed to update database</string>
   <string name="backup_dialog_title">This operation cannot be undone</string>
   <string name="backup_dialog_restore_message"><![CDATA[
         We\'ll replace all your clips and labels with those in the selected

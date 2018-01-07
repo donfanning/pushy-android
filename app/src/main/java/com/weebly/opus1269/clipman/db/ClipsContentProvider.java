@@ -193,13 +193,13 @@ public class ClipsContentProvider extends ContentProvider {
     // this will insert or update as needed.
     // If it updates, it will be a new PRIMARY_KEY
     final SQLiteDatabase db = App.getDbHelper().getWritableDatabase();
-    final long row = db.replace(table, null, values);
+    final long row = db.replaceOrThrow(table, null, values);
 
     if (row != -1) {
       newUri = ContentUris.withAppendedId(uri, row);
 
-      Log.logD(TAG, "Added or updated row from insert: " + row + " in " +
-        "table: " + table);
+      Log.logD(TAG, "Added or updated row from insert: " + row +
+        " in table: " + table);
       if (labelGA != null) {
         Analytics.INST(mContext).eventDB(actionGA, labelGA);
       }
@@ -238,15 +238,18 @@ public class ClipsContentProvider extends ContentProvider {
     }
 
     db.beginTransaction();
-    for (final ContentValues value : values) {
-      final long id = db.insert(table, null,
-        value);
-      if (id > 0) {
-        insertCount++;
+    try {
+      for (final ContentValues value : values) {
+        final long id = db.insertOrThrow(table, null,
+          value);
+        if (id > 0) {
+          insertCount++;
+        }
       }
+      db.setTransactionSuccessful();
+    } finally {
+      db.endTransaction();
     }
-    db.setTransactionSuccessful();
-    db.endTransaction();
 
     Log.logD(TAG, "Bulk insert rows: " + insertCount + " into table: " + table);
     if (labelGA != null) {
