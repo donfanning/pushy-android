@@ -127,7 +127,7 @@ public class BackupHelper {
    * @param contents database data to restore
    * @throws Exception if database update failed
    */
-  public void restoreContents(
+  public void saveContentsToDB(
     @Nullable BackupContents contents) throws Exception {
     if (contents == null) {
       throw new Exception(mContext.getString(R.string.err_no_contents));
@@ -135,6 +135,24 @@ public class BackupHelper {
 
     // replace database
     replaceDB(contents);
+  }
+
+  /**
+   * Replace the database with a merge of the restored data
+   * @param contents database data to restore
+   * @throws Exception if database update failed
+   */
+  public void saveMergedContentsToDB(
+    @Nullable BackupContents contents) throws Exception {
+    if (contents == null) {
+      throw new Exception(mContext.getString(R.string.err_no_contents));
+    }
+
+    final BackupContents dbContents = BackupContents.getDB(mContext);
+    dbContents.merge(mContext, contents);
+
+    // replace database
+    replaceDB(dbContents);
   }
 
   /**

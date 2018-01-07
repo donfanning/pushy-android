@@ -7,10 +7,12 @@
 
 package com.weebly.opus1269.clipman.ui.backup;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -27,6 +29,7 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.BackupContents;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
@@ -36,6 +39,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
+import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +47,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-public class BackupActivity extends BaseActivity {
+public class BackupActivity extends BaseActivity implements
+  DialogInterface.OnClickListener {
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;
 
@@ -143,6 +148,14 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
+  @Override
+  public void onClick(DialogInterface dialogInterface, int which) {
+    if (which == DialogInterface.BUTTON_NEGATIVE) {
+      final Intent intent = new Intent(this, ErrorViewerActivity.class);
+      AppUtils.startActivity(this, intent);
+    }
+  }
+
   /**
    * Set the sync flag
    * @param value true if performing sync operation
@@ -219,20 +232,45 @@ public class BackupActivity extends BaseActivity {
   public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
                                           @NonNull BackupContents contents) {
     try {
-      BackupHelper.INST(this).restoreContents(contents);
       if (mIsSync) {
+        BackupHelper.INST(this).saveMergedContentsToDB(contents);
         // update on cloud
         BackupHelper.INST(this).doUpdate(this, driveFile, contents);
+      } else {
+        BackupHelper.INST(this).saveContentsToDB(contents);
       }
     } catch (Exception ex) {
-      Log.logEx(this, TAG, ex.getLocalizedMessage(), ex,
-        getString(R.string.err_update_db), true);
+      final String title = getString(R.string.err_update_db);
+      final String msg = ex.getLocalizedMessage();
+      Log.logEx(this, TAG, msg, ex, title, true);
+      showMessage(title, msg, true);
     }
   }
 
   /** Refresh the list */
   public void refreshList() {
     retrieveBackups();
+  }
+
+  /**
+   * Display a message in a dilaog
+   * @param title dialog title
+   * @param msg dialog meesage
+   */
+  public void showMessage(@NonNull String title, @NonNull String msg,
+                          boolean isException) {
+    hideProgress();
+    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder
+      .setTitle(title)
+      .setMessage(msg)
+      .setPositiveButton(R.string.button_dismiss, this);
+
+    if (isException) {
+      builder.setNegativeButton(R.string.button_details, this);
+    }
+
+    builder.create().show();
   }
 
   /** Display progress UI */

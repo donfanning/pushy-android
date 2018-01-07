@@ -90,12 +90,12 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_get_backups);
     final DriveClient driveClient = getDriveClient();
     if (driveClient == null) {
-      Log.logE(mContext, TAG, errMessage, true);
+      onClientError(activity, errMessage);
       return;
     }
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, errMessage, true);
+      onClientError(activity, errMessage);
       return;
     }
 
@@ -128,6 +128,7 @@ public class DriveHelper {
         @Override
         public void onSuccess(MetadataBuffer metadataBuffer) {
           // populate the files list
+          Log.logD(TAG, "got list of files");
           activity.setFiles(metadataBuffer);
           metadataBuffer.release();
           activity.hideProgress();
@@ -137,17 +138,15 @@ public class DriveHelper {
         @Override
         public void onFailure(@NonNull Exception ex) {
           if (ex instanceof ApiException) {
-            // may have been rate limited, just use old list
-            if (((ApiException) ex).getStatusCode() !=
-              DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
-              Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
-                errMessage, false);
+            final int code = ((ApiException) ex).getStatusCode();
+            if (code != DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
+              // don't show rate limit errors
+              showMessage(activity, errMessage, ex);
             } else {
               Log.logD(TAG, "rate limited");
             }
           } else {
-            Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, errMessage,
-              false);
+            showMessage(activity, errMessage, ex);
           }
           activity.hideProgress();
         }
@@ -167,7 +166,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, errMessage, true);
+      onClientError(activity, errMessage);
       return;
     }
 
@@ -258,7 +257,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_update_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, errMessage, true);
+      onClientError(activity, errMessage);
       return;
     }
 
@@ -308,7 +307,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_get_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, errMessage, true);
+      onClientError(activity, errMessage);
       return;
     }
 
@@ -362,7 +361,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_delete_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      Log.logE(mContext, TAG, errMessage, true);
+      onClientError(activity, errMessage);
       return;
     }
 
@@ -388,6 +387,34 @@ public class DriveHelper {
   }
 
   /**
+   * Error getting Drive client
+   * @param activity - activity
+   * @param title    - action type
+   */
+  private void onClientError(BackupActivity activity, @NonNull String title) {
+    Log.logE(mContext, TAG, title, false);
+    if (activity != null) {
+      activity.showMessage(title,
+        mContext.getString(R.string.err_internal_drive), false);
+    }
+  }
+
+  /**
+   * Log exception and show message
+   * @param activity - activity
+   * @param msg      - message
+   * @param ex       exception
+   */
+  private void showMessage(BackupActivity activity, @NonNull String msg,
+                           @NonNull Exception ex) {
+    final String exMsg = ex.getLocalizedMessage();
+    Log.logEx(mContext, TAG, exMsg, ex, msg, false);
+    if (activity != null) {
+      activity.showMessage(msg, exMsg, true);
+    }
+  }
+
+  /**
    * After deletion success
    * @param activity - activity
    * @param driveId  - deleted id
@@ -408,17 +435,15 @@ public class DriveHelper {
    */
   private void onDeleteFailure(BackupActivity activity, String msg,
                                Exception ex) {
-    if (!"OK".equals(ex.getMessage())) {
+    if (!"OK".equals(ex.getLocalizedMessage())) {
       if (ex instanceof ApiException) {
         // don't even log not found errors
-        if (((ApiException) ex).getStatusCode() !=
-          DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
-          Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
-            msg, false);
+        final int code = ((ApiException) ex).getStatusCode();
+        if (code != DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
+          showMessage(activity, msg, ex);
         }
       } else {
-        Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, msg,
-          false);
+        showMessage(activity, msg, ex);
       }
     }
     if (activity != null) {
@@ -434,8 +459,7 @@ public class DriveHelper {
    */
   private void onTaskFailure(BackupActivity activity, String msg,
                              Exception ex) {
-    Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, msg,
-      true);
+    showMessage(activity, msg, ex);
     if (activity != null) {
       activity.hideProgress();
     }

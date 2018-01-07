@@ -255,6 +255,7 @@
   <string name="this_device">This device</string>
   <string name="progress_working">Working&#8230;</string>
   <string name="err_drive_scope_denied">User did not grant access to Google Drive</string>
+  <string name="err_internal_drive">Unable to access Google Drive</string>
   <string name="err_app_folder">Failed to get app folder from Google Drive</string>
   <string name="err_no_backups">No backups exist on Google Drive</string>
   <string name="err_get_backups">Failed to get backups from Google Drive</string>
@@ -381,6 +382,7 @@
   <string name="button_continue">CONTINUE</string>
   <string name="button_restore">RESTORE</string>
   <string name="button_sync">SYNC</string>
+  <string name="button_details">DETAILS</string>
   <string name="copyright" translatable="false">&#169;2017 Michael A Updike</string>
   <string name="version_fmt">Version %s</string>
   <string name="default_person_name">Tap to sign-in</string>

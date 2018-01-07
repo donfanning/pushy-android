@@ -137,16 +137,15 @@ public class BackupContents {
   }
 
   /**
-   * Merge the contents of the given item with this and return new
+   * Merge the contents of the given item with this
    * @param context - A Context
    * @param contents - contents to merge
-   * @return new object with merged content
    */
-  BackupContents merge(@NonNull Context context,
+  void merge(@NonNull Context context,
                        @NonNull final BackupContents contents) {
     // Merged items
-    final List<Label> outLabels = new ArrayList<>(this.labels);
-    final List<ClipItem> outClipItems = new ArrayList<>(this.clipItems);
+    final List<Label> outLabels = this.labels;
+    final List<ClipItem> outClipItems = this.clipItems;
 
     // Items to be merged
     final List<Label> inLabels = contents.getLabels();
@@ -209,7 +208,5 @@ public class BackupContents {
         outClipItem.addLabelsNoSave(inClipItem.getLabels());
       }
     }
-
-    return new BackupContents(outLabels, outClipItems);
   }
 }
