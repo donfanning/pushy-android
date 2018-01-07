@@ -287,6 +287,8 @@ public class DriveHelper {
       .addOnSuccessListener(new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
+          Log.logD(TAG, "updated backup: " +
+            file.getDriveId().encodeToString());
           activity.refreshList();
           activity.hideProgress();
         }
@@ -303,10 +305,9 @@ public class DriveHelper {
    * Get the contents of a backup
    * @param activity activity
    * @param file     file to retrieve
-   * @param fromSync true if sync rather than restore
    */
   void getBackupContents(@NonNull final BackupActivity activity,
-                         final DriveFile file, final boolean fromSync) {
+                         final DriveFile file) {
     final String errMessage = mContext.getString(R.string.err_get_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -342,7 +343,7 @@ public class DriveHelper {
         public void onSuccess(Void aVoid) {
           Log.logD(TAG, "restored backup: " +
             file.getDriveId().encodeToString());
-          activity.onGetBackupContentsComplete(file, backupContents, fromSync);
+          activity.onGetBackupContentsComplete(file, backupContents);
           activity.hideProgress();
         }
       })

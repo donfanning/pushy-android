@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.google.android.gms.drive.DriveFile;
+import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -22,6 +23,8 @@ import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
+
+import org.zeroturnaround.zip.ZipException;
 
 import java.io.BufferedInputStream;
 import java.util.List;
@@ -69,6 +72,24 @@ public class BackupHelper {
     }
   }
 
+ /**
+   * Update the contents of a backup
+   * @param activity The calling activity
+   */
+  public void doUpdate(@NonNull BackupActivity activity,
+                       @NonNull DriveFile driveFile,
+                       @NonNull BackupContents contents) throws ZipException {
+
+    final byte[] data = contents.getAsJSON().getBytes();
+    final byte[] zipFile =
+      ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
+    if (zipFile != null) {
+      DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
+    } else {
+      throw new ZipException(mContext.getString(R.string.err_create_zip));
+    }
+  }
+
   /**
    * Perform a restore
    * @param activity The calling activity
@@ -76,8 +97,8 @@ public class BackupHelper {
    */
   public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
-    DriveHelper.INST(mContext).getBackupContents(activity, driveFile,
-      false);
+    activity.setIsSync(false);
+    DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
   }
 
   /**
@@ -87,7 +108,8 @@ public class BackupHelper {
    */
   public void doSync(@NonNull BackupActivity activity, BackupFile file) {
     final DriveFile driveFile = file.getId().asDriveFile();
-    DriveHelper.INST(mContext).getBackupContents(activity, driveFile, true);
+    activity.setIsSync(true);
+    DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
   }
 
   /**
@@ -112,36 +134,6 @@ public class BackupHelper {
 
     // replace database
     replaceDB(contents);
-  }
-
-  /**
-   * Sync the database with the given content
-   * @param activity  activity
-   * @param driveFile source of data
-   * @param contents  data to merge
-   * @throws SQLException if database update failed
-   */
-  public void syncContents(BackupActivity activity, DriveFile driveFile,
-                           @Nullable BackupContents contents)
-    throws SQLException {
-    if (contents == null) {
-      return;
-    }
-
-    // get merged data
-    final BackupContents dbContents = BackupContents.getDB(mContext);
-    final BackupContents merged = dbContents.merge(mContext, contents);
-
-    // replace database
-    replaceDB(merged);
-
-    // send new contents to the cloud
-    final byte[] data = merged.getAsJSON().getBytes();
-    final byte[] zipFile =
-      ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
-    if (zipFile != null) {
-      DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
-    }
   }
 
   /**

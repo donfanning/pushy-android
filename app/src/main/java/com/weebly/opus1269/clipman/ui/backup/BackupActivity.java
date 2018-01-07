@@ -51,6 +51,10 @@ public class BackupActivity extends BaseActivity {
   // TODO save restore
   private List<BackupFile> mFiles = new ArrayList<>(0);
 
+  // TODO save restore
+  /** Are we doing a sync rather than a restore */
+  private boolean mIsSync = false;
+
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
 
@@ -140,6 +144,14 @@ public class BackupActivity extends BaseActivity {
   }
 
   /**
+   * Set the sync flag
+   * @param value true if performing sync operation
+   */
+  public void setIsSync(boolean value) {
+    mIsSync = value;
+  }
+
+  /**
    * Get the list of backups
    * @return the backups
    */
@@ -205,13 +217,12 @@ public class BackupActivity extends BaseActivity {
    * @param driveFile source file
    */
   public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
-                                          @NonNull BackupContents contents,
-                                          boolean isSync) {
+                                          @NonNull BackupContents contents) {
     try {
-      if (isSync) {
-        BackupHelper.INST(this).syncContents(this, driveFile, contents);
-      } else {
-        BackupHelper.INST(this).restoreContents(contents);
+      BackupHelper.INST(this).restoreContents(contents);
+      if (mIsSync) {
+        // update on cloud
+        BackupHelper.INST(this).doUpdate(this, driveFile, contents);
       }
     } catch (Exception ex) {
       Log.logEx(this, TAG, ex.getLocalizedMessage(), ex,
