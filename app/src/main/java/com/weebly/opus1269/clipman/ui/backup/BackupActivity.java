@@ -255,8 +255,11 @@ public class BackupActivity extends BaseActivity {
         .OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int i) {
-          BackupHelper.INST(BackupActivity.this)
-            .doBackup(BackupActivity.this);
+          final BackupActivity activity = BackupActivity.this;
+          dialogInterface.cancel();
+          Analytics.INST(activity).buttonClick
+            (activity.getTAG(), getString(R.string.button_backup));
+          BackupHelper.INST(activity).doBackup(activity);
         }
       })
       .create()
