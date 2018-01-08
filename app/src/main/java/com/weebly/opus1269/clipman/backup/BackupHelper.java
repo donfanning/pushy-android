@@ -117,7 +117,7 @@ public class BackupHelper {
       activity.setIsSync(false);
       DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
     } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_get_backup);
+      final String errMessage = mContext.getString(R.string.err_restore_backup);
       showMessage(activity, errMessage, ex);
     }
   }
@@ -133,7 +133,7 @@ public class BackupHelper {
       activity.setIsSync(true);
       DriveHelper.INST(mContext).getBackupContents(activity, driveFile);
     } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_get_backup);
+      final String errMessage = mContext.getString(R.string.err_sync_backup);
       showMessage(activity, errMessage, ex);
     }
   }
@@ -155,7 +155,8 @@ public class BackupHelper {
   /**
    * Replace the database with the restored data
    * @param contents database data to restore
-   * @throws Exception if database update failed
+   * @throws IOException if no contents
+   * @throws SQLException if database update failed
    */
   public void saveContentsToDB(
     @Nullable BackupContents contents) throws IOException, SQLException {
@@ -170,7 +171,8 @@ public class BackupHelper {
   /**
    * Replace the database with a merge of the restored data
    * @param contents database data to restore
-   * @throws Exception if database update failed
+   * @throws IOException if no contents
+   * @throws SQLException if database update failed
    */
   public void saveMergedContentsToDB(
     @Nullable BackupContents contents) throws IOException, SQLException {

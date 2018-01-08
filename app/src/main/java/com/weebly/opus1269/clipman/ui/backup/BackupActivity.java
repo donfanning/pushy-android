@@ -47,8 +47,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-public class BackupActivity extends BaseActivity implements
-  DialogInterface.OnClickListener {
+public class BackupActivity extends BaseActivity {
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;
 
@@ -113,7 +112,7 @@ public class BackupActivity extends BaseActivity implements
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_backup:
-        BackupHelper.INST(this).doBackup(this);
+        showConfirmDialog();
         break;
       default:
         processed = false;
@@ -145,14 +144,6 @@ public class BackupActivity extends BaseActivity implements
         break;
       default:
         break;
-    }
-  }
-
-  @Override
-  public void onClick(DialogInterface dialogInterface, int which) {
-    if (which == DialogInterface.BUTTON_NEGATIVE) {
-      final Intent intent = new Intent(this, ErrorViewerActivity.class);
-      AppUtils.startActivity(this, intent);
     }
   }
 
@@ -252,10 +243,30 @@ public class BackupActivity extends BaseActivity implements
     retrieveBackups();
   }
 
+
+  /** Display confirmation dialog on undoable action */
+  private void showConfirmDialog() {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder
+      .setMessage(R.string.backup_dialog_backup_message)
+      .setTitle(R.string.backup_dialog_title)
+      .setNegativeButton(R.string.button_cancel, null)
+      .setPositiveButton(R.string.button_backup, new AlertDialog
+        .OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+          BackupHelper.INST(BackupActivity.this)
+            .doBackup(BackupActivity.this);
+        }
+      })
+      .create()
+      .show();
+  }
+
   /**
    * Display a message in a dialog
    * @param title dialog title
-   * @param msg dialog meesage
+   * @param msg   dialog meesage
    */
   public void showMessage(@NonNull String title, @NonNull String msg) {
     hideProgress();
@@ -263,9 +274,16 @@ public class BackupActivity extends BaseActivity implements
     builder
       .setTitle(title)
       .setMessage(msg)
-      .setPositiveButton(R.string.button_dismiss, this);
-
-      builder.setNegativeButton(R.string.button_details, this);
+      .setPositiveButton(R.string.button_dismiss, null)
+      .setNegativeButton(R.string.button_details, new AlertDialog
+        .OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+          final Intent intent = new Intent(BackupActivity.this,
+            ErrorViewerActivity.class);
+          AppUtils.startActivity(BackupActivity.this, intent);
+        }
+      });
 
     builder.create().show();
   }

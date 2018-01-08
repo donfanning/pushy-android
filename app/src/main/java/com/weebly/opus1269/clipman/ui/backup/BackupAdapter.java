@@ -217,7 +217,6 @@ class BackupAdapter extends
     mDialog.show();
   }
 
-
   /** ViewHolder inner class used to display the info. in the RecyclerView. */
   static class BackupViewHolder extends RecyclerView.ViewHolder {
     final TextView mineTextView;

@@ -16,11 +16,11 @@
     android:id="@+id/action_save_changes"
     android:icon="@drawable/ic_done"
     android:title="@string/action_save_changes"
-    app:showAsAction="always" />
+    app:showAsAction="ifRoom" />
 
   <item
     android:id="@+id/action_discard_changes"
     android:icon="@drawable/ic_clear"
     android:title="@string/action_discard_changes"
-    app:showAsAction="always" />
+    app:showAsAction="ifRoom" />
 </menu>

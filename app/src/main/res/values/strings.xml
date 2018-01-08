@@ -269,6 +269,9 @@
   <string name="err_update_db">Failed to update database</string>
   <string name="err_create_zip">Failed to create zip file</string>
   <string name="backup_dialog_title">This operation cannot be undone</string>
+  <string name="backup_dialog_backup_message"><![CDATA[
+        We\'ll backup all your clips and labels.\nAny existing backup will
+         be replaced.\n\nBackup data?]]></string>
   <string name="backup_dialog_restore_message"><![CDATA[
         We\'ll replace all your clips and labels with those in the selected
          backup.\n\nRestore backup?]]></string>
@@ -381,6 +384,7 @@
   <string name="button_cancel" tools:ignore="ButtonCase">CANCEL</string>
   <string name="button_undo">UNDO</string>
   <string name="button_continue">CONTINUE</string>
+  <string name="button_backup">BACKUP</string>
   <string name="button_restore">RESTORE</string>
   <string name="button_sync">SYNC</string>
   <string name="button_details">DETAILS</string>
