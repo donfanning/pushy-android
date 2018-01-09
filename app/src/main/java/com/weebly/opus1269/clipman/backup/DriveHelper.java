@@ -250,12 +250,13 @@ public class DriveHelper {
 
   /**
    * Update a backup - asynchronous
-   * @param activity activity
-   * @param file     existing drive file
-   * @param data     zipfile data
+   * @param activity       activity
+   * @param file           existing drive file
+   * @param backupContents data for zip file
    */
   void updateBackup(@NonNull final BackupActivity activity,
-                    @NonNull final DriveFile file, final byte[] data) {
+                    @NonNull final DriveFile file,
+                    @NonNull final BackupContents backupContents) {
     final String errMessage = mContext.getString(R.string.err_update_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -270,6 +271,10 @@ public class DriveHelper {
         public Task<Void> then(@NonNull Task<DriveContents> task)
           throws Exception {
           final DriveContents contents = task.getResult();
+
+          final byte[] dbData = backupContents.getAsJSON().getBytes();
+          final byte[] data =
+            BackupHelper.INST(mContext).createZipFileContents(dbData);
 
           final OutputStream outputStream = contents.getOutputStream();
           //noinspection TryFinallyCanBeTryWithResources
@@ -303,9 +308,10 @@ public class DriveHelper {
    * Get the contents of a backup
    * @param activity activity
    * @param file     file to retrieve
+   * @param isSync   true is syncing with a backup
    */
   void getBackupContents(@NonNull final BackupActivity activity,
-                         final DriveFile file) {
+                         final DriveFile file, final boolean isSync) {
     final String errMessage = mContext.getString(R.string.err_get_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -333,6 +339,12 @@ public class DriveHelper {
             }
           }
 
+          if (isSync) {
+            BackupHelper.INST(activity).saveMergedContentsToDB(backupContents);
+          } else {
+            BackupHelper.INST(activity).saveContentsToDB(backupContents);
+          }
+
           return resourceClient.discardContents(contents);
         }
       })
@@ -341,7 +353,7 @@ public class DriveHelper {
         public void onSuccess(Void aVoid) {
           Log.logD(TAG, "restored backup: " +
             file.getDriveId().encodeToString());
-          activity.onGetBackupContentsComplete(file, backupContents);
+          activity.onGetBackupContentsComplete(file, backupContents, isSync);
           activity.hideProgress();
         }
       })

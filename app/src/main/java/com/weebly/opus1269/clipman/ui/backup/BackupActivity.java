@@ -52,12 +52,7 @@ public class BackupActivity extends BaseActivity {
   private final int RC_DRIVE_SUCCESS = 10;
 
   /** The Array of {@link BackupFile} objects */
-  // TODO save restore
   private List<BackupFile> mFiles = new ArrayList<>(0);
-
-  // TODO save restore
-  /** Are we doing a sync rather than a restore */
-  private boolean mIsSync = false;
 
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
@@ -148,14 +143,6 @@ public class BackupActivity extends BaseActivity {
   }
 
   /**
-   * Set the sync flag
-   * @param value true if performing sync operation
-   */
-  public void setIsSync(boolean value) {
-    mIsSync = value;
-  }
-
-  /**
    * Get the list of backups
    * @return the backups
    */
@@ -219,16 +206,16 @@ public class BackupActivity extends BaseActivity {
   /**
    * Contents of a backup has been retrieved
    * @param driveFile source file
+   * @param contents contents of backup
+   * @param isSync true if called during a backup sync operation
    */
   public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
-                                          @NonNull BackupContents contents) {
+                                          @NonNull BackupContents contents,
+                                          boolean isSync) {
     try {
-      if (mIsSync) {
-        BackupHelper.INST(this).saveMergedContentsToDB(contents);
+      if (isSync) {
         // update on cloud
         BackupHelper.INST(this).doUpdate(this, driveFile, contents);
-      } else {
-        BackupHelper.INST(this).saveContentsToDB(contents);
       }
     } catch (Exception ex) {
       final String title = getString(R.string.err_update_db);
