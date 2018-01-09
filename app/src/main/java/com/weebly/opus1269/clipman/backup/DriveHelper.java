@@ -156,12 +156,11 @@ public class DriveHelper {
   /**
    * Create a new backup - asynchronous
    * @param activity   activity
-   * @param filename   zip filename
-   * @param data       zipfile data
+   * @param filename   name of file
    * @param lastBackup encoded last backup, may not exist
    */
   void createBackup(@Nullable final BackupActivity activity,
-                    final String filename, final byte[] data,
+                    final String filename,
                     final String lastBackup) {
     final String errMessage = mContext.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
@@ -183,6 +182,9 @@ public class DriveHelper {
         public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
           final DriveFolder appFolder = appFolderTask.getResult();
           final DriveContents contents = createContentsTask.getResult();
+
+          final byte[] data =
+            BackupHelper.INST(mContext).createZipFileContentsFromDB();
 
           final OutputStream outputStream = contents.getOutputStream();
           //noinspection TryFinallyCanBeTryWithResources

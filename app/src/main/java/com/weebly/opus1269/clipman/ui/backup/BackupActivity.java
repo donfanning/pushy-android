@@ -256,7 +256,6 @@ public class BackupActivity extends BaseActivity {
         @Override
         public void onClick(DialogInterface dialog, int which) {
           final BackupActivity activity = BackupActivity.this;
-          dialog.cancel();
           Analytics.INST(activity).buttonClick
             (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
           BackupHelper.INST(activity).doBackup(activity);

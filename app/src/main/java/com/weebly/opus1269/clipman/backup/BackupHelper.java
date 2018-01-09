@@ -69,39 +69,11 @@ public class BackupHelper {
    */
   public void doBackup(@Nullable BackupActivity activity) {
     try {
-      final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
-      final byte[] zipContents =
-        ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
-      if (zipContents != null) {
-        final String lastBackup = Prefs.INST(mContext).getLastBackup();
-        final String zipFilename = getZipFilename();
-        DriveHelper.INST(mContext)
-          .createBackup(activity, zipFilename, zipContents, lastBackup);
-      }
+      final String lastBackup = Prefs.INST(mContext).getLastBackup();
+      final String filename = getZipFilename();
+      DriveHelper.INST(mContext).createBackup(activity, filename, lastBackup);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
-      showMessage(activity, errMessage, ex);
-    }
-  }
-
-  /**
-   * Update the contents of a backup
-   * @param activity The calling activity
-   */
-  public void doUpdate(@NonNull BackupActivity activity,
-                       @NonNull DriveFile driveFile,
-                       @NonNull BackupContents contents) {
-    try {
-      final byte[] data = contents.getAsJSON().getBytes();
-      final byte[] zipFile =
-        ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
-      if (zipFile != null) {
-        DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
-      } else {
-        throw new ZipException(mContext.getString(R.string.err_create_zip));
-      }
-    } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_update_backup);
       showMessage(activity, errMessage, ex);
     }
   }
@@ -139,6 +111,28 @@ public class BackupHelper {
   }
 
   /**
+   * Update the contents of a backup
+   * @param activity The calling activity
+   */
+  public void doUpdate(@NonNull BackupActivity activity,
+                       @NonNull DriveFile driveFile,
+                       @NonNull BackupContents contents) {
+    try {
+      final byte[] data = contents.getAsJSON().getBytes();
+      final byte[] zipFile =
+        ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
+      if (zipFile != null) {
+        DriveHelper.INST(mContext).updateBackup(activity, driveFile, zipFile);
+      } else {
+        throw new ZipException(mContext.getString(R.string.err_create_zip));
+      }
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_update_backup);
+      showMessage(activity, errMessage, ex);
+    }
+  }
+
+  /**
    * Perform a delete
    * @param activity The calling activity
    * @param file     File to delete
@@ -155,7 +149,7 @@ public class BackupHelper {
   /**
    * Replace the database with the restored data
    * @param contents database data to restore
-   * @throws IOException if no contents
+   * @throws IOException  if no contents
    * @throws SQLException if database update failed
    */
   public void saveContentsToDB(
@@ -171,7 +165,7 @@ public class BackupHelper {
   /**
    * Replace the database with a merge of the restored data
    * @param contents database data to restore
-   * @throws IOException if no contents
+   * @throws IOException  if no contents
    * @throws SQLException if database update failed
    */
   public void saveMergedContentsToDB(
@@ -188,7 +182,27 @@ public class BackupHelper {
   }
 
   /**
-   * Extract the data from a ZipFile
+   * Create the contents of a Zip file from the database
+   * @return zip file contents
+   * @throws IOException on processing data
+   */
+  byte[] createZipFileContentsFromDB() throws IOException {
+    final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
+    return createZipFileContents(data);
+  }
+
+  /**
+   * Create the contents of a Zip file as a byte array
+   * @param data contents of zip file
+   * @return zip file contents
+   * @throws IOException if no contents
+   */
+  byte[] createZipFileContents(@NonNull byte[] data) throws IOException {
+    return ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
+  }
+
+  /**
+   * Extract the data from a ZipFile into a BackupContents
    * @param bis      stream of data
    * @param contents will contain the contents
    */
