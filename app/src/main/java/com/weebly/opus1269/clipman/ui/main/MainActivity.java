@@ -405,7 +405,7 @@ public class MainActivity extends BaseActivity implements
         break;
     }
     final Snackbar snack =
-      Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
+      Snackbar.make(findViewById(R.id.fab), message, 5000);
     if (nRows > 0) {
       snack.setAction(R.string.button_undo, new View.OnClickListener() {
         @Override
