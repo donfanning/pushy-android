@@ -159,15 +159,6 @@ public class Analytics {
   }
 
   /**
-   * Button clicked event
-   * @param screen Source screen
-   * @param text   button text
-   */
-  public void buttonClick(String screen, String text) {
-    event(screen, CAT_UI, "buttonClicked", text);
-  }
-
-  /**
    * Menu clicked event
    * @param screen Source screen
    * @param item   Source screen

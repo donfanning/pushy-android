@@ -254,11 +254,11 @@ public class BackupActivity extends BaseActivity {
       .setPositiveButton(R.string.button_backup, new AlertDialog
         .OnClickListener() {
         @Override
-        public void onClick(DialogInterface dialogInterface, int i) {
+        public void onClick(DialogInterface dialog, int which) {
           final BackupActivity activity = BackupActivity.this;
-          dialogInterface.cancel();
+          dialog.cancel();
           Analytics.INST(activity).buttonClick
-            (activity.getTAG(), getString(R.string.button_backup));
+            (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
           BackupHelper.INST(activity).doBackup(activity);
         }
       })
