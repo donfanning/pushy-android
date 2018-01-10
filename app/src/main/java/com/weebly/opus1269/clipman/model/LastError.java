@@ -14,9 +14,9 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.app.AppUtils;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 
 import java.io.Serializable;
 
@@ -36,7 +36,7 @@ public class LastError implements Serializable {
   private LastError() {
     mTag = "";
     mTitle = "";
-    mTime = DateTime.now().getMillis();
+    mTime = Instant.now().toEpochMilli();
     mMessage = "";
     mStack = Log.getStackTraceString(new Exception());
   }
@@ -94,9 +94,9 @@ public class LastError implements Serializable {
 
   @Override
   public String toString() {
-    DateTime dt = new DateTime(mTime);
-    DateTimeFormatter fmt = DateTimeFormat.forStyle("MM");
-    String date = fmt.print(dt);
+    Instant instant = Instant.ofEpochMilli(mTime);
+    LocalDateTime dt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    String date = dt.toString();
 
     return mTitle + "\n  on " +
       date + "\n\n" +
@@ -110,7 +110,7 @@ public class LastError implements Serializable {
    * @return relative time
    */
   public CharSequence getRelativeTime(Context ctxt) {
-    return AppUtils.getRelativeDisplayTime(ctxt, new DateTime(mTime));
+    return AppUtils.getRelativeDisplayTime(ctxt, mTime);
   }
 
   /**
@@ -134,7 +134,7 @@ public class LastError implements Serializable {
     mTag = tag;
     mTitle = title;
     mMessage = message;
-    mTime = DateTime.now().getMillis();
+    mTime = Instant.now().toEpochMilli();
 
     mStack = "";
     if (ex != null) {

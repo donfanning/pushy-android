@@ -18,7 +18,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 
-import org.joda.time.DateTime;
+import org.threeten.bp.Instant;
 
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
       db.execSQL(SQL_CREATE_LABEL_MAP);
 
       // show how the new Label feature works
-      createExampleLabel(db, DateTime.now().getMillis());
+      createExampleLabel(db, Instant.now().toEpochMilli());
     }
   }
 

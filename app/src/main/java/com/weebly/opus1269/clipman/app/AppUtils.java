@@ -24,11 +24,12 @@ import android.widget.Toast;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.threeten.bp.Instant;
 
 import java.util.Random;
+
+import static android.text.format.DateUtils.formatDateTime;
+import static android.text.format.DateUtils.getRelativeDateTimeString;
 
 /**
  * General static constants and utility methods
@@ -116,8 +117,8 @@ public class AppUtils {
 
   /**
    * Try to start an activity
-   * @param ctxt A Context
-   * @param intent  Activity intent
+   * @param ctxt   A Context
+   * @param intent Activity intent
    */
   public static void startActivity(Context ctxt, Intent intent) {
     try {
@@ -130,7 +131,7 @@ public class AppUtils {
 
   /**
    * Try to start an activity as a new task
-   * @param ctxt A Context
+   * @param ctxt   A Context
    * @param intent Activity intent
    * @return true if successful
    */
@@ -211,28 +212,24 @@ public class AppUtils {
   /**
    * Get a time string relative to now
    * @param ctxt A Context
-   * @param date A {@link DateTime}
+   * @param time epoch time
    * @return CharSequence time
    */
   public static CharSequence getRelativeDisplayTime(Context ctxt,
-                                                    DateTime date) {
-    final CharSequence value;
-    long now = System.currentTimeMillis();
-    long time = date.getMillis();
+                                                    long time) {
+    final CharSequence ret;
+    long now = Instant.now().toEpochMilli();
     long delta = now - time;
 
     if (delta <= DateUtils.SECOND_IN_MILLIS) {
-      DateTimeFormatter fmt =
-        DateTimeFormat.forPattern(ctxt.getString(R.string
-          .joda_time_fmt_pattern));
-      value = ctxt.getString(R.string.now_fmt, date.toString(fmt));
+      final String timeString =
+        formatDateTime(ctxt, time, DateUtils.FORMAT_SHOW_TIME);
+      ret = ctxt.getString(R.string.now_fmt, timeString);
     } else {
-      value =
-        DateUtils.getRelativeDateTimeString(ctxt, time,
-          DateUtils.SECOND_IN_MILLIS, DateUtils.DAY_IN_MILLIS,
-          DateUtils.FORMAT_ABBREV_ALL);
+      ret = getRelativeDateTimeString(ctxt, time, DateUtils.SECOND_IN_MILLIS,
+        DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL);
     }
-    return value;
+    return ret;
   }
 
   /**

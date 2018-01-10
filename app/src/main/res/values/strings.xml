@@ -392,7 +392,6 @@
   <string name="version_fmt">Version %s</string>
   <string name="default_person_name">Tap to sign-in</string>
   <string name="now_fmt">just now, %s</string>
-  <string name="joda_time_fmt_pattern">h:mm a</string>
   <string name="content_description_send">Send current clipboard contents</string>
   <string name="email_error_info">Please provide any additional info. on what led to the error.</string>
   <string name="fcm_deleted_message"><![CDATA[

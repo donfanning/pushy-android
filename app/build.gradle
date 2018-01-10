@@ -13,87 +13,96 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    signingConfigs {
-        config {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-        }
+  signingConfigs {
+    config {
+      storeFile file(keystoreProperties['storeFile'])
+      storePassword keystoreProperties['storePassword']
+      keyAlias keystoreProperties['keyAlias']
+      keyPassword keystoreProperties['keyPassword']
     }
+  }
 
-    compileSdkVersion rootProject.sdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
+  compileSdkVersion rootProject.ext.sdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
 
-    defaultConfig {
-        applicationId "com.weebly.opus1269.clipman"
-        minSdkVersion rootProject.minSdkVersion
-        targetSdkVersion rootProject.sdkVersion
-        versionCode 222006
-        versionName "2.1.0"
+  defaultConfig {
+    applicationId "com.weebly.opus1269.clipman"
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.sdkVersion
+    versionCode 222006
+    versionName "2.1.0"
 
-        vectorDrawables.useSupportLibrary = true
+    vectorDrawables.useSupportLibrary = true
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'),
+          'proguard-rules.pro'
+      signingConfig signingConfigs.config
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
-        }
-        debug {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'),
-                    'proguard-rules.pro'
-            debuggable true
-        }
+    debug {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'),
+          'proguard-rules.pro'
+      debuggable true
     }
+  }
 
-    configurations {
-        implementation.exclude group: "org.apache.httpcomponents", module: "httpclient"
-    }
+  configurations {
+    implementation.exclude group: "org.apache.httpcomponents",
+        module: "httpclient"
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_7
+    targetCompatibility JavaVersion.VERSION_1_7
+  }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    // various fixes for support:preference-v7
-    implementation "com.takisoft.fix:preference-v7:${rootProject.ext.supportLibraryVersion}.0"
-    // android support libraries
-    implementation "com.android.support:support-v4:${rootProject.ext.supportLibraryVersion}"
-    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibraryVersion}"
-    implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibraryVersion}"
-    implementation "com.android.support:design:${rootProject.ext.supportLibraryVersion}"
-    implementation "com.android.support:support-vector-drawable:${rootProject.ext.supportLibraryVersion}"
+  // various fixes for support:preference-v7
+  implementation "com.takisoft.fix:preference-v7:${rootProject.ext.supportLibraryVersion}.0"
 
-    // Google Play service
-    implementation "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
-    implementation "com.google.android.gms:play-services-identity:${rootProject.ext.gmsVersion}"
-    implementation "com.google.android.gms:play-services-auth:${rootProject.ext.gmsVersion}"
-    implementation "com.google.android.gms:play-services-drive:${rootProject.ext.gmsVersion}"
-    // firebase - keep in sync with play-services dependencies
-    implementation "com.google.firebase:firebase-core:${rootProject.ext.gmsVersion}"
-    implementation "com.google.firebase:firebase-messaging:${rootProject.ext.gmsVersion}"
-    implementation "com.google.firebase:firebase-auth:${rootProject.ext.gmsVersion}"
-    implementation "com.google.firebase:firebase-crash:${rootProject.ext.gmsVersion}"
+  // android support libraries
+  implementation "com.android.support:support-v4:${rootProject.ext.supportLibraryVersion}"
+  implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibraryVersion}"
+  implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibraryVersion}"
+  implementation "com.android.support:design:${rootProject.ext.supportLibraryVersion}"
+  implementation "com.android.support:support-vector-drawable:${rootProject.ext.supportLibraryVersion}"
 
-    // Google API
-    implementation "com.google.api-client:google-api-client:${rootProject.ext.gapiVersion}"
-    implementation "com.google.api-client:google-api-client-android:${rootProject.ext.gapiVersion}"
-    implementation "com.google.apis:google-api-services-people:v1-rev158-${rootProject.ext.gapiVersion}"
+  // Google Play service
+  implementation "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
+  implementation "com.google.android.gms:play-services-identity:${rootProject.ext.gmsVersion}"
+  implementation "com.google.android.gms:play-services-auth:${rootProject.ext.gmsVersion}"
+  implementation "com.google.android.gms:play-services-drive:${rootProject.ext.gmsVersion}"
 
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:2.2.2", {
+  // firebase - keep in sync with play-services dependencies
+  implementation "com.google.firebase:firebase-core:${rootProject.ext.gmsVersion}"
+  implementation "com.google.firebase:firebase-messaging:${rootProject.ext.gmsVersion}"
+  implementation "com.google.firebase:firebase-auth:${rootProject.ext.gmsVersion}"
+  implementation "com.google.firebase:firebase-crash:${rootProject.ext.gmsVersion}"
+
+  // Google API
+  implementation "com.google.api-client:google-api-client:${rootProject.ext.gapiVersion}"
+  implementation "com.google.api-client:google-api-client-android:${rootProject.ext.gapiVersion}"
+  implementation "com.google.apis:google-api-services-people:v1-rev158-${rootProject.ext.gapiVersion}"
+  androidTestImplementation("com.android.support.test.espresso:espresso-core:2.2.2",
+      {
         exclude group: "com.android.support", module: "support-annotations"
-    })
+      })
 
-    // third party open source
-    implementation 'joda-time:joda-time:2.9.9'
-    implementation 'com.google.code.gson:gson:2.8.2'
-    implementation 'com.androidessence:recyclerviewcursoradapter:1.0.0'
-    implementation 'com.firebase:firebase-jobdispatcher:0.8.4'
-    implementation 'org.zeroturnaround:zt-zip:1.12'
-    implementation 'com.google.code.findbugs:jsr305:3.0.1'
-    testImplementation 'junit:junit:4.12'
+  // third party open source
+  implementation 'com.google.code.gson:gson:2.8.2'
+  implementation 'com.androidessence:recyclerviewcursoradapter:1.0.0'
+  implementation 'com.firebase:firebase-jobdispatcher:0.8.4'
+  implementation 'com.jakewharton.threetenabp:threetenabp:1.0.5'
+  implementation 'org.zeroturnaround:zt-zip:1.12'
+  implementation 'com.google.code.findbugs:jsr305:3.0.1'
+  testImplementation 'junit:junit:4.12'
 }
 
 // must be at end

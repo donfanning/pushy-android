@@ -24,7 +24,7 @@ import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
-import org.joda.time.DateTime;
+import org.threeten.bp.Instant;
 
 /** Activity to edit the text of a ClipItem */
 public class ClipEditorActvity extends BaseActivity {
@@ -131,7 +131,7 @@ public class ClipEditorActvity extends BaseActivity {
             // save and send new or changed
             mClipItem.setText(this, newText);
             mClipItem.setRemote(false);
-            mClipItem.setDate(new DateTime().getMillis());
+            mClipItem.setDate(Instant.now().toEpochMilli());
             mClipItem.save(this);
             mClipItem.copyToClipboard(this);
             finish();

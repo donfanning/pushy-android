@@ -326,8 +326,8 @@ public class BackupActivity extends BaseActivity {
           return mineCompare;
         } else {
           // newest first
-          Long lhDate = lhs.getDate().getMillis();
-          Long rhDate = rhs.getDate().getMillis();
+          Long lhDate = lhs.getDate();
+          Long rhDate = rhs.getDate();
           return rhDate.compareTo(lhDate);
         }
       }

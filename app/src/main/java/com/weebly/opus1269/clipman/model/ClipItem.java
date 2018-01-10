@@ -36,8 +36,7 @@ import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 
-import org.joda.time.DateTime;
-import org.joda.time.ReadableInstant;
+import org.threeten.bp.Instant;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -73,13 +72,13 @@ public class ClipItem implements Serializable {
     loadLabels(context);
   }
 
-  public ClipItem(Context context, String text, ReadableInstant date,
+  public ClipItem(Context context, String text, Instant instant,
                   Boolean fav,
                   @SuppressWarnings("SameParameterValue") Boolean remote,
                   String device) {
     init(context);
     this.text = text;
-    this.date = date.getMillis();
+    this.date = instant.toEpochMilli();
     this.fav = fav;
     this.remote = remote;
     this.device = device;
@@ -106,7 +105,7 @@ public class ClipItem implements Serializable {
   public ClipItem(Context context, ClipItem clipItem) {
     init(context);
     this.text = clipItem.getText();
-    this.date = clipItem.getDate().getMillis();
+    this.date = clipItem.getDate();
     this.fav = clipItem.isFav();
     this.remote = clipItem.isRemote();
     this.device = clipItem.getDevice();
@@ -117,12 +116,27 @@ public class ClipItem implements Serializable {
                   List<Label> labels, List<Long> labelsId) {
     init(context);
     this.text = clipItem.getText();
-    this.date = clipItem.getDate().getMillis();
+    this.date = clipItem.getDate();
     this.fav = clipItem.isFav();
     this.remote = clipItem.isRemote();
     this.device = clipItem.getDevice();
     this.labels = new ArrayList<>(labels);
     this.labelsId = new ArrayList<>(labelsId);
+  }
+
+  @Override
+  public int hashCode() {
+    return text.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ClipItem clipItem = (ClipItem) o;
+
+    return text.equals(clipItem.text);
   }
 
   public String getText() {return text;}
@@ -148,7 +162,7 @@ public class ClipItem implements Serializable {
     }
   }
 
-  public DateTime getDate() {return new DateTime(date);}
+  public long getDate() {return date;}
 
   public void setDate(long date) {this.date = date;}
 
@@ -185,21 +199,6 @@ public class ClipItem implements Serializable {
    */
   public boolean hasLabel(Label label) {
     return this.labels.contains(label);
-  }
-
-  @Override
-  public int hashCode() {
-    return text.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    ClipItem clipItem = (ClipItem) o;
-
-    return text.equals(clipItem.text);
   }
 
   /**
@@ -693,7 +692,7 @@ public class ClipItem implements Serializable {
   /** Initialize the members */
   private void init(Context context) {
     text = "";
-    date = new DateTime().getMillis();
+    date = Instant.now().toEpochMilli();
     fav = false;
     remote = false;
     device = Device.getMyName(context);

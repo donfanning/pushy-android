@@ -79,8 +79,8 @@ public class Devices {
       @Override
       public int compare(Device lhs, Device rhs) {
         // newest first
-        return ((Long) rhs.getLastSeen().getMillis())
-          .compareTo(lhs.getLastSeen().getMillis());
+        return ((Long) rhs.getLastSeen())
+          .compareTo(lhs.getLastSeen());
       }
     };
     // sort by lastSeen

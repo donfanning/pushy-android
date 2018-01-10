@@ -12,10 +12,6 @@
 
 ### [License](https://github.com/google/gson/blob/master/LICENSE)
 
-## joda-time
-
-### [License](https://github.com/JodaOrg/joda-time/blob/master/LICENSE.txt)
-
 ## MenuTintHelper
 
 
@@ -37,4 +33,9 @@
 ## RecyclerViewCursorAdapter
 
 ### [License](https://github.com/androidessence/RecyclerViewCursorAdapter/blob/master/LICENSE.md)
+
+## ThreeTenABP
+
+### [License](https://github.com/JakeWharton/ThreeTenABP/blob/master/LICENSE.txt)
+
 

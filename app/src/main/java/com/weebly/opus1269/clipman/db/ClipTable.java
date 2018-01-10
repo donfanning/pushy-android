@@ -22,7 +22,9 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.Prefs;
 
-import org.joda.time.DateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -222,9 +224,7 @@ public class ClipTable {
       return;
     }
 
-    DateTime today = DateTime.now();
-    today = today.withTimeAtStartOfDay();
-    DateTime deleteDate = today;
+    LocalDateTime deleteDate = LocalDate.now().atStartOfDay();
     switch (value) {
       case "day":
         deleteDate = deleteDate.minusDays(1);
@@ -242,7 +242,8 @@ public class ClipTable {
         return;
     }
 
-    final long deleteTime = deleteDate.getMillis();
+    final long deleteTime =
+      deleteDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
     // Select all non-favorites older than the calculated time
     final String selection =

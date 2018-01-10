@@ -35,7 +35,7 @@ import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.model.Notifications;
 
-import org.joda.time.DateTime;
+import org.threeten.bp.Instant;
 
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final String favString = data.get(Msg.FAV);
     Boolean fav = "1".equals(favString);
     final String deviceName = device.getDisplayName();
-    final DateTime date = new DateTime();
+    final Instant date = Instant.now();
     final ClipItem clipItem;
 
     if (!fav && ClipItem.hasClipWithFav(ctxt, clipTxt)) {

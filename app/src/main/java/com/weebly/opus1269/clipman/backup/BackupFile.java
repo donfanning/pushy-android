@@ -27,8 +27,6 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.weebly.opus1269.clipman.model.Device;
 
-import org.joda.time.DateTime;
-
 import java.util.Map;
 
 /** Immutable Class for a backup file's metadata */
@@ -134,8 +132,8 @@ public class BackupFile {
     return mNickname;
   }
 
-  public DateTime getDate() {
-    return new DateTime(mDate);
+  public long getDate() {
+    return mDate;
   }
 
   /**

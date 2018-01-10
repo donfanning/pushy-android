@@ -25,7 +25,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
 
-import org.joda.time.DateTime;
+import org.threeten.bp.Instant;
 
 /**
  * Immutable Class that represents a (hopefully) unique device
@@ -48,7 +48,7 @@ public class Device {
     mSN = sn;
     mOS = os;
     mNickname = nickname;
-    mLastSeen = new DateTime().getMillis();
+    mLastSeen = Instant.now().toEpochMilli();
   }
 
   public static Device getMyDevice(Context context) {
@@ -115,9 +115,7 @@ public class Device {
     return mNickname;
   }
 
-  public DateTime getLastSeen() {
-    return new DateTime(mLastSeen);
-  }
+  public long getLastSeen() {return mLastSeen;}
 
   public String getDisplayName() {
     String name = getNickname();
