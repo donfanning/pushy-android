@@ -25,7 +25,7 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
-import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.devices.Device;
 
 import java.util.Map;
 

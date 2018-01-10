@@ -28,6 +28,7 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.weebly.opus1269.clipman.model.devices.Device;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

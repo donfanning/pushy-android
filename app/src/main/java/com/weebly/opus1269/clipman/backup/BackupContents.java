@@ -17,7 +17,7 @@ import com.google.gson.stream.JsonReader;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.devices.Device;
 import com.weebly.opus1269.clipman.model.Label;
 
 import java.io.ByteArrayInputStream;

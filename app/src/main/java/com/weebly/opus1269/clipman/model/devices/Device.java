@@ -16,7 +16,7 @@
  *
  */
 
-package com.weebly.opus1269.clipman.model;
+package com.weebly.opus1269.clipman.model.devices;
 
 import android.content.Context;
 import android.os.Build;
@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.threeten.bp.Instant;
 

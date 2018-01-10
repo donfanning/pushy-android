@@ -15,6 +15,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.devices.Device;
 
 /** Singleton for sending emails */
 public enum Email {
