@@ -280,7 +280,7 @@ public class BackupActivity extends BaseActivity {
   /** Display progress UI */
   public void showProgress() {
     final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
+    final View progressView = findViewById(R.id.progress_layout);
 
     contentView.setVisibility(View.GONE);
     progressView.setVisibility(View.VISIBLE);
@@ -289,7 +289,7 @@ public class BackupActivity extends BaseActivity {
   /** Hide progress UI */
   public void hideProgress() {
     final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
+    final View progressView = findViewById(R.id.progress_layout);
 
     contentView.setVisibility(View.VISIBLE);
     progressView.setVisibility(View.GONE);

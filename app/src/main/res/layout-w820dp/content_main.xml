@@ -18,30 +18,44 @@ master/detail flow.
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:baselineAligned="false"
-  android:divider="?android:attr/dividerHorizontal"
-  android:orientation="horizontal"
+  android:orientation="vertical"
   android:showDividers="middle"
-  app:layout_behavior="@string/appbar_scrolling_view_behavior"
   tools:context=".ui.main.MainActivity"
-  tools:showIn="@layout/activity_main">
+  tools:showIn="@layout/activity_main"
+  app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-  <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="@dimen/clip_item_width"
-    android:layout_height="match_parent">
-
-    <include layout="@layout/clip_list" />
-
-  </FrameLayout>
-
-  <FrameLayout
-    android:id="@+id/clip_viewer_container"
-    android:layout_width="0dp"
+    android:id="@+id/clip_container_layout"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="3"
-    android:animateLayoutChanges="true">
+    android:divider="?android:attr/dividerHorizontal"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:showDividers="middle">
 
-  </FrameLayout>
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      android:layout_width="@dimen/clip_item_width"
+      android:layout_height="match_parent">
+
+      <include layout="@layout/clip_list" />
+
+    </FrameLayout>
+
+    <FrameLayout
+      android:id="@+id/clip_viewer_container"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_weight="3"
+      android:animateLayoutChanges="true">
+
+    </FrameLayout>
+
+  </LinearLayout>
+
+  <include layout="@layout/progress_layout" />
 
 </LinearLayout>

@@ -31,6 +31,8 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.CustomAsyncTask;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -56,6 +58,7 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Top level Activity for the app */
@@ -77,7 +80,7 @@ public class MainActivity extends BaseActivity implements
   private ClipLoaderManager mLoaderManager;
 
   /** Items from last delete operation */
-  private List<ClipItem> mUndoItems = null;
+  private List<ClipItem> mUndoItems = new ArrayList<>(0);
 
   /** AppBar setting for pin favs */
   private Boolean mPinFav = false;
@@ -229,7 +232,7 @@ public class MainActivity extends BaseActivity implements
   protected void onPause() {
     super.onPause();
 
-    mUndoItems = null;
+    mUndoItems = new ArrayList<>(0);;
   }
 
   @Override
@@ -388,46 +391,7 @@ public class MainActivity extends BaseActivity implements
 
   @Override
   public void onDeleteDialogPositiveClick(Boolean deleteFavs) {
-    // save items for undo
-    mUndoItems = ClipTable.INST(this).getAll(deleteFavs, mLabelFilter);
-
-    final int nRows = ClipTable.INST(this).deleteAll(deleteFavs, mLabelFilter);
-
-    String message = nRows + getResources().getString(R.string.items_deleted);
-    switch (nRows) {
-      case 0:
-        message = getResources().getString(R.string.item_delete_empty);
-        break;
-      case 1:
-        message = getResources().getString(R.string.item_deleted_one);
-        break;
-      default:
-        break;
-    }
-    final Snackbar snack =
-      Snackbar.make(findViewById(R.id.fab), message, 5000);
-    if (nRows > 0) {
-      snack.setAction(R.string.button_undo, new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          final Context ctxt = v.getContext();
-          Analytics.INST(ctxt)
-            .imageClick(getTAG(), getString(R.string.button_undo));
-          ClipTable.INST(ctxt).insert(mUndoItems);
-        }
-      }).addCallback(new Snackbar.Callback() {
-
-        @Override
-        public void onShown(Snackbar snackbar) {
-        }
-
-        @Override
-        public void onDismissed(Snackbar snackbar, int event) {
-          mUndoItems = null;
-        }
-      });
-    }
-    snack.show();
+    new DeleteAsyncTask(this, deleteFavs).executeMe();
   }
 
   @Override
@@ -454,6 +418,38 @@ public class MainActivity extends BaseActivity implements
   String getQueryString() {return mQueryString;}
 
   ClipLoaderManager getClipLoaderManager() {return mLoaderManager;}
+
+  /** Display progress UI */
+  public void showProgress() {
+    final View contentView;
+    if (AppUtils.isDualPane(this)) {
+      contentView = findViewById(R.id.clip_container_layout);
+      final View fabView = findViewById(R.id.fab);
+      fabView.setVisibility(View.GONE);
+    } else {
+      contentView = findViewById(R.id.clipList);
+    }
+    final View progressView = findViewById(R.id.progress_layout);
+
+    contentView.setVisibility(View.GONE);
+    progressView.setVisibility(View.VISIBLE);
+  }
+
+  /** Hide progress UI */
+  public void hideProgress() {
+    final View contentView;
+    if (AppUtils.isDualPane(this)) {
+      contentView = findViewById(R.id.clip_container_layout);
+      final View fabView = findViewById(R.id.fab);
+      fabView.setVisibility(View.VISIBLE);
+    } else {
+      contentView = findViewById(R.id.clipList);
+    }
+    final View progressView = findViewById(R.id.progress_layout);
+
+    contentView.setVisibility(View.VISIBLE);
+    progressView.setVisibility(View.GONE);
+  }
 
   /**
    * Start the {@link ClipViewerActivity}
@@ -679,6 +675,92 @@ public class MainActivity extends BaseActivity implements
       }
       final int favFilterColor = ContextCompat.getColor(this, colorID);
       MenuTintHelper.colorMenuItem(favFilterMenu, favFilterColor, 255);
+    }
+  }
+
+  /** AsyncTask to delete items */
+  private static class DeleteAsyncTask extends
+    CustomAsyncTask<Void, Void, Integer> {
+
+    private final String TAG = this.getClass().getSimpleName();
+    private final boolean mDeleteFavs;
+
+    DeleteAsyncTask(MainActivity activity, boolean deleteFavs) {
+      super(activity);
+      activity.showProgress();
+      mDeleteFavs = deleteFavs;
+    }
+
+    @Override
+    protected Integer doInBackground(Void... params) {
+      Integer ret = 0;
+      // save items for undo
+      if (mActivity != null) {
+        ((MainActivity) mActivity).mUndoItems = ClipTable.INST(mActivity)
+          .getAll(mDeleteFavs, ((MainActivity) mActivity).mLabelFilter);
+      }
+
+      if (mActivity != null) {
+        // delete items
+        ret = ClipTable.INST(mActivity)
+          .deleteAll(mDeleteFavs, ((MainActivity) mActivity).mLabelFilter);
+      }
+
+      return ret;
+    }
+
+    @Override
+    protected void onPostExecute(@NonNull Integer ret) {
+      if (mActivity != null) {
+        ((MainActivity) mActivity).hideProgress();
+      }
+      final int nRows = ret;
+
+      if (mActivity != null) {
+        String message = nRows + mActivity.getString(R.string.items_deleted);
+
+        switch (nRows) {
+          case 0:
+            message = mActivity.getString(R.string.item_delete_empty);
+            break;
+          case 1:
+            message = mActivity.getString(R.string.item_deleted_one);
+            break;
+          default:
+            break;
+        }
+        final Snackbar snack =
+          Snackbar.make(mActivity.findViewById(R.id.fab), message, 10000);
+        if (nRows > 0) {
+          snack.setAction(R.string.button_undo, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              final Context ctxt = v.getContext();
+              Analytics.INST(ctxt)
+                .imageClick(TAG, ctxt.getString(R.string.button_undo));
+              if (mActivity != null) {
+                ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mUndoItems);
+              } else {
+                Log.logD(TAG, "No activity to undo delete with");
+              }
+            }
+          }).addCallback(new Snackbar.Callback() {
+
+            @Override
+            public void onShown(Snackbar snackbar) {
+            }
+
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+              if (mActivity != null) {
+                ((MainActivity) mActivity).mUndoItems =
+                  new ArrayList<>(0);
+              }
+            }
+          });
+        }
+        snack.show();
+      }
     }
   }
 }

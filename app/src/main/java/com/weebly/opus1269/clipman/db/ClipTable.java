@@ -147,7 +147,7 @@ public class ClipTable {
    * @param labelFilter label to filter on
    * @return The {@link ClipItem} objects
    */
-  public List<ClipItem> getAll(Boolean includeFavs, String labelFilter) {
+  public ArrayList<ClipItem> getAll(Boolean includeFavs, String labelFilter) {
     final ArrayList<ClipItem> ret = new ArrayList<>(100);
     final ContentResolver resolver = mContext.getContentResolver();
 

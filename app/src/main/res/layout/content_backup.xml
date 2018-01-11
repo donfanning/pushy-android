@@ -18,31 +18,7 @@
   tools:context=".ui.backup.BackupActivity"
   tools:showIn="@layout/activity_backup">
 
-  <LinearLayout
-    android:id="@+id/drive_progress"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="64dp"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:visibility="gone"
-    tools:visibility="visible">
-
-    <ProgressBar
-      style="?android:attr/progressBarStyle"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:padding="16dp" />
-
-    <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:fadeScrollbars="true"
-      android:gravity="center"
-      android:text="@string/progress_working"
-      android:textAppearance="@style/TextAppearance.AppCompat" />
-
-  </LinearLayout>
+  <include layout="@layout/progress_layout" />
 
   <LinearLayout
     android:id="@+id/drive_content"
