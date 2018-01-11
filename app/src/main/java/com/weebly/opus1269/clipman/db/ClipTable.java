@@ -9,11 +9,13 @@ package com.weebly.opus1269.clipman.db;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -27,6 +29,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Singleton to manage the Clips.db Clip table */
@@ -83,6 +86,62 @@ public class ClipTable {
   }
 
   /**
+   * Doea a {@link ClipItem} with the given text and fav state exist
+   * @param clipText text to query
+   * @param fav state of favorite
+   * @return true if in db
+   */
+  public boolean exists(@NonNull String clipText, boolean fav) {
+    if (TextUtils.isEmpty(clipText)) {
+      return false;
+    }
+
+    boolean ret = false;
+    final String favString = fav ? "1" : "0";
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] projection = {ClipsContract.Clip._ID};
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ? AND " +
+      ClipsContract.Clip.COL_FAV + " = ? ";
+    final String[] selectionArgs = {clipText, favString};
+
+    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      ret = true;
+      cursor.close();
+    }
+    return ret;
+  }
+
+  /**
+   * Get the PK of a {@link ClipItem}
+   * @param clipItem clip
+   * @return PK, -1L if not found
+   */
+  public long getId(@NonNull ClipItem clipItem) {
+    long ret = -1L;
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] projection = {ClipsContract.Clip._ID};
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
+    final String[] selectionArgs = {clipItem.getText()};
+
+    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
+      projection, selection, selectionArgs, null);
+
+    if ((cursor != null) && (cursor.getCount() > 0)) {
+      cursor.moveToNext();
+      ret = cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip._ID));
+      cursor.close();
+      return ret;
+    }
+    return ret;
+  }
+
+  /**
    * Get all non-favorite and optionally favorite rows for a given {@link Label}
    * @param includeFavs flag to indicate if favorites should be retrieved too
    * @param labelFilter label to filter on
@@ -134,6 +193,45 @@ public class ClipTable {
   }
 
   /**
+   * Save a {@link ClipItem} to the databse
+   * @param clipItem the item to save
+   * @param onNewOnly if true, only save if it doesn't exist in db
+   * @return true if added
+   */
+  public boolean save(@NonNull ClipItem clipItem, Boolean onNewOnly) {
+    if (ClipItem.isWhitespace(clipItem)) {
+      return false;
+    }
+
+    final long id = getId(clipItem);
+    final boolean exists = (id != -1L);
+
+    if (onNewOnly && exists) {
+      // already exists
+      return false;
+    }
+
+    final ContentResolver resolver = mContext.getContentResolver();
+    final ContentValues cvs = clipItem.getContentValues();
+
+    if (exists) {
+      // update
+      final Uri uri =
+        ContentUris.withAppendedId(ClipsContract.Clip.CONTENT_URI, id);
+      resolver.update(uri, cvs, null, null);
+    } else {
+      // insert new
+      resolver.insert(ClipsContract.Clip.CONTENT_URI, cvs);
+
+      // add the LabelMap
+      LabelTables.INST(mContext)
+        .insertLabelsMap(new ArrayList<>(Collections.singleton(clipItem)));
+    }
+
+    return true;
+  }
+
+  /**
    * Add a group of {@link ClipItem} objects to the databse
    * @param clipItems the items to add
    * @return number of items added
@@ -157,6 +255,26 @@ public class ClipTable {
     LabelTables.INST(mContext).insertLabelsMap(clipItems);
 
     return ret;
+  }
+
+  /**
+   * Delete the {@link ClipItem}
+   * @param clipItem item to delete
+   * @return true if deleted
+   */
+  public boolean delete(@NonNull ClipItem clipItem) {
+    if (ClipItem.isWhitespace(clipItem)) {
+      return false;
+    }
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
+    final String[] selectionArgs = {clipItem.getText()};
+
+    final long nRows = resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, selectionArgs);
+
+    return (nRows != -1L);
   }
 
   /** Delete all the {@link ClipItem} objects from the db */

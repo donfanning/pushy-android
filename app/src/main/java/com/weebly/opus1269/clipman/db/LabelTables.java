@@ -109,6 +109,43 @@ public class LabelTables {
   }
 
   /**
+   * Get the {@link Label} objects for the given {@link ClipItem}
+   * @param clipItem the clip
+   * @return List of labels
+   */
+  public List<Label> getLabels(@NonNull ClipItem clipItem) {
+    List<Label> ret = new ArrayList<>(0);
+    if (ClipItem.isWhitespace(clipItem)) {
+      return ret;
+    }
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
+    final long id = clipItem.getId(mContext);
+    final String selection = ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
+
+    Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
+      projection, selection, null, null);
+    if (cursor == null) {
+      return ret;
+    }
+
+    try {
+      while (cursor.moveToNext()) {
+        int idx = cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
+        final String name = cursor.getString(idx);
+        long labelId = getLabelId(name);
+        ret.add(new Label(name, labelId));
+      }
+    } finally {
+      cursor.close();
+    }
+
+    return ret;
+  }
+
+  /**
    * Get all the {@link Label} objects
    * @return List of Labels
    */

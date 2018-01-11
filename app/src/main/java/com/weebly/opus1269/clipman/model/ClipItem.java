@@ -10,13 +10,10 @@ package com.weebly.opus1269.clipman.model;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -308,22 +306,7 @@ public class ClipItem implements Serializable {
    * @return true if exists and fav is true
    */
   public static boolean hasClipWithFav(Context context, String clipText) {
-    boolean ret = false;
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String[] projection = {ClipsContract.Clip._ID};
-    final String selection = ClipsContract.Clip.COL_TEXT + " = ? AND " +
-      ClipsContract.Clip.COL_FAV + " = 1 ";
-    final String[] selectionArgs = {clipText};
-
-    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
-      projection, selection, selectionArgs, null);
-
-    if ((cursor != null) && (cursor.getCount() > 0)) {
-      ret = true;
-      cursor.close();
-    }
-    return ret;
+    return ClipTable.INST(context).exists(clipText, true);
   }
 
   /**
@@ -453,23 +436,7 @@ public class ClipItem implements Serializable {
    * @return table row, -1L if not found
    */
   public long getId(Context context) {
-    long ret = -1L;
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String[] projection = {ClipsContract.Clip._ID};
-    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
-    final String[] selectionArgs = {getText()};
-
-    final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
-      projection, selection, selectionArgs, null);
-
-    if ((cursor != null) && (cursor.getCount() > 0)) {
-      cursor.moveToNext();
-      ret = cursor.getLong(cursor.getColumnIndex(ClipsContract.Clip._ID));
-      cursor.close();
-      return ret;
-    }
-    return ret;
+    return ClipTable.INST(context).getId(this);
   }
 
   /**
@@ -567,36 +534,7 @@ public class ClipItem implements Serializable {
    */
   @NonNull
   private Boolean save(Context context, Boolean onNewOnly) {
-    if (ClipItem.isWhitespace(this)) {
-      return false;
-    }
-    final long id = getId(context);
-    final boolean exists = (id != -1L);
-
-    if (onNewOnly && exists) {
-      // already exists
-      return false;
-    }
-
-    final ContentResolver resolver = context.getContentResolver();
-
-    if (exists) {
-      // update
-      final Uri uri =
-        ContentUris.withAppendedId(ClipsContract.Clip.CONTENT_URI, id);
-      resolver.update(uri, getContentValues(), null, null);
-    } else {
-      // insert new
-      resolver.insert(ClipsContract.Clip.CONTENT_URI, getContentValues());
-
-      // add the label map entries
-      List<Label> labels = getLabels();
-      for (Label label : labels) {
-        LabelTables.INST(context).insert(this, label);
-      }
-    }
-
-    return true;
+    return ClipTable.INST(context).save(this, onNewOnly);
   }
 
   /**
@@ -619,21 +557,8 @@ public class ClipItem implements Serializable {
    * Delete from database
    * @return true if deleted
    */
-  public Boolean delete(Context context) {
-    if (ClipItem.isWhitespace(this)) {
-      return false;
-    }
-
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
-    final String[] selectionArgs = {getText()};
-
-    // do it
-    final int nRows =
-      resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, selectionArgs);
-
-    return (nRows == 1);
+  public boolean delete(Context context) {
+    return ClipTable.INST(context).delete(this);
   }
 
   /** Get our {@link Label} names from the database */
@@ -641,37 +566,11 @@ public class ClipItem implements Serializable {
     this.labels.clear();
     this.labelsId.clear();
 
-    if (ClipItem.isWhitespace(this)) {
-      return;
-    }
+    final List<Label> labels = LabelTables.INST(context).getLabels(this);
 
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final long id = getId(context);
-    final String selection = ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
-
-    Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
-      projection, selection, null, null);
-    if (cursor == null) {
-      return;
-    }
-
-    final List<String> names = new ArrayList<>(0);
-    try {
-      while (cursor.moveToNext()) {
-        int idx = cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
-        final String name = cursor.getString(idx);
-        names.add(name);
-      }
-    } finally {
-      cursor.close();
-    }
-
-    for (String name: names) {
-      long labelId = LabelTables.INST(context).getLabelId(name);
-      this.labels.add(new Label(name, labelId));
-      this.labelsId.add(labelId);
+    this.labels = labels;
+    for (Label label: labels) {
+      this.labelsId.add(label.getId());
     }
   }
 
