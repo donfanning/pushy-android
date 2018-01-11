@@ -30,22 +30,23 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.devices.Device;
-import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.ui.base.BaseActivity;
+import com.weebly.opus1269.clipman.model.devices.DeviceDatabase;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-/** Bridge between the Devices RecyclerView and the Devices class */
+import java.util.List;
+
+/** Bridge between the RecyclerView and the DeviceListViewModel */
 class DevicesAdapter extends
   RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
 
-  /** Our activity */
-  private final BaseActivity mActivity;
+  /** Our data */
+  private List<Device> mDevices;
 
-  DevicesAdapter(BaseActivity activity) {
+  DevicesAdapter(List<Device> devices) {
     super();
 
-    mActivity = activity;
+    mDevices = devices;
   }
 
   @Override
@@ -67,14 +68,14 @@ class DevicesAdapter extends
     tintIcons(holder);
 
     // Get the data model based on position
-    final Device device = Devices.INST(mActivity).get(position);
+    final Device device = mDevices.get(position);
 
     final String desc =
       context.getString(R.string.device_nickname_fmt, device.getNickname()) +
         '\n' +
         context.getString(R.string.device_model_fmt, device.getModel()) + '\n' +
-        context.getString(R.string.device_SN_fmt, device.getSN()) + '\n' +
-        context.getString(R.string.device_OS_fmt, device.getOS());
+        context.getString(R.string.device_SN_fmt, device.getSn()) + '\n' +
+        context.getString(R.string.device_OS_fmt, device.getOs());
     final TextView deviceTextView = holder.deviceTextView;
     deviceTextView.setText(desc);
 
@@ -88,7 +89,7 @@ class DevicesAdapter extends
       new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Devices.INST(mActivity).remove(device);
+          DeviceDatabase.INST(v.getContext()).remove(device);
           Analytics.INST(v.getContext())
             .imageClick("DevicesActivity", "removeDevice");
         }
@@ -97,7 +98,13 @@ class DevicesAdapter extends
   }
 
   @Override
-  public int getItemCount() {return Devices.INST(mActivity).getCount();}
+  public int getItemCount() {return mDevices.size();}
+
+
+  public void addItems(List<Device> devices) {
+    this.mDevices = devices;
+    notifyDataSetChanged();
+  }
 
   /**
    * Color the Vector Drawables based on theme

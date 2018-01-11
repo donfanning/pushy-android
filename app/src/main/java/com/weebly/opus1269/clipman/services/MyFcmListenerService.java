@@ -31,6 +31,7 @@ import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.devices.Device;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.model.devices.DeviceDatabase;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -140,28 +141,28 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     switch (action) {
       case Msg.ACTION_MESSAGE:
         // normal message, save and copy to clipboard
-        Devices.INST(this).add(device, true);
+        DeviceDatabase.INST(this).add(device);
         saveClipItem(this, data, device);
         break;
       case Msg.ACTION_PING:
         // We were pinged
-        Devices.INST(this).add(device, true);
+        DeviceDatabase.INST(this).add(device);
         MessagingClient.INST(this).sendPingResponse(data.get(Msg.SRC_REG_ID));
         break;
       case Msg.ACTION_PING_RESPONSE:
         // Device responded to a ping
-        Devices.INST(this).add(device, true);
+        DeviceDatabase.INST(this).add(device);
         Log.logD(TAG, device.getDisplayName() +
           " told me he is around.");
         break;
       case Msg.ACTION_DEVICE_ADDED:
         // A new device was added
-        Devices.INST(this).add(device, true);
+        DeviceDatabase.INST(this).add(device);
         Notifications.INST(this).show(action, device.getDisplayName());
         break;
       case Msg.ACTION_DEVICE_REMOVED:
         // A device was removed
-        Devices.INST(this).remove(device);
+        DeviceDatabase.INST(this).remove(device);
         Notifications.INST(this).show(action, device.getDisplayName());
         break;
       default:

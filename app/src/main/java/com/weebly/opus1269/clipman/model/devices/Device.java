@@ -18,6 +18,10 @@
 
 package com.weebly.opus1269.clipman.model.devices;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -32,26 +36,32 @@ import org.threeten.bp.Instant;
  * Immutable Class that represents a (hopefully) unique device
  * Emulators don't have good names and serial numbers
  */
+@Entity(tableName = "devices",
+  indices = {@Index(value = {"model", "sn", "os"}, unique = true)})
 public class Device {
-  // IMPORTANT Only use primitives because we go to Preferences as a list of
-  // devices
+  @PrimaryKey(autoGenerate = true)
+  @ColumnInfo(name = "id")
+  private int id;
 
   // These three should be unique (not for emulators)
-  private final String mModel;
-  private final String mSN;
-  private final String mOS;
+  private final String model;
+  private final String sn;
+  private final String os;
 
-  private final String mNickname;
-  private final long mLastSeen;
+  private final String nickname;
+
+  @ColumnInfo(name = "last_seen")
+  private long lastSeen;
 
   public Device(String model, String sn, String os, String nickname) {
-    mModel = model;
-    mSN = sn;
-    mOS = os;
-    mNickname = nickname;
-    mLastSeen = Instant.now().toEpochMilli();
+    this.model = model;
+    this.sn = sn;
+    this.os = os;
+    this.nickname = nickname;
+    this.lastSeen = Instant.now().toEpochMilli();
   }
 
+  @NonNull
   public static Device getMyDevice(Context context) {
     return new Device(getMyModel(), getMySN(context), getMyOS(),
       Prefs.INST(context).getDeviceNickname());
@@ -100,33 +110,43 @@ public class Device {
     return getMyModel() + " - " + getMySN(context) + " - " + getMyOS();
   }
 
+  public int getId() {return id;}
+
+  public void setId(int uid) {
+    this.id = uid;
+  }
+
   public String getModel() {
-    return mModel;
+    return model;
   }
 
-  public String getSN() {
-    return mSN;
+  public String getSn() {
+    return sn;
   }
 
-  public String getOS() {
-    return mOS;
+  public String getOs() {
+    return os;
   }
 
   public String getNickname() {
-    return mNickname;
+    return nickname;
   }
 
-  public long getLastSeen() {return mLastSeen;}
+  public long getLastSeen() {return lastSeen;}
+
+  public void setLastSeen(long lastSeen) {
+    this.lastSeen = lastSeen;
+  }
 
   public String getDisplayName() {
     String name = getNickname();
     if (TextUtils.isEmpty(name)) {
-      name = getModel() + " - " + getSN() + " - " + getOS();
+      name = getModel() + " - " + getSn() + " - " + getOs();
     }
     return name;
   }
 
   public String getUniqueName() {
-    return getModel() + " - " + getSN() + " - " + getOS();
+    return getModel() + " - " + getSn() + " - " + getOs();
   }
 }

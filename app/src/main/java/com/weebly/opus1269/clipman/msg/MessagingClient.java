@@ -207,8 +207,8 @@ public class MessagingClient extends Endpoint {
       data.put(Msg.ACTION, action);
       data.put(Msg.MESSAGE, message);
       data.put(Msg.DEVICE_MODEL, Device.getMyDevice(mContext).getModel());
-      data.put(Msg.DEVICE_SN, Device.getMyDevice(mContext).getSN());
-      data.put(Msg.DEVICE_OS, Device.getMyDevice(mContext).getOS());
+      data.put(Msg.DEVICE_SN, Device.getMyDevice(mContext).getSn());
+      data.put(Msg.DEVICE_OS, Device.getMyDevice(mContext).getOs());
       data.put(Msg.DEVICE_NICKNAME, Device.getMyDevice(mContext).getNickname());
     } catch (JSONException ex) {
       Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,

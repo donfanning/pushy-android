@@ -7,11 +7,14 @@
 
 package com.weebly.opus1269.clipman.ui.devices;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
@@ -26,12 +29,20 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.model.devices.Device;
+import com.weebly.opus1269.clipman.model.devices.DeviceListViewModel;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Activity to manage our connected devices */
 public class DevicesActivity extends BaseActivity {
+
+  /** Our data */
+  private DeviceListViewModel mViewModel = null;
 
   /** Adapter being used to display the list's data */
   private DevicesAdapter mAdapter = null;
@@ -69,7 +80,16 @@ public class DevicesActivity extends BaseActivity {
 
     setupRecyclerView();
 
-    setupDevicesBroadcastReceiver();
+    mViewModel = ViewModelProviders.of(this).get(DeviceListViewModel.class);
+
+    mViewModel.getDeviceList().observe(DevicesActivity.this, new Observer<List<Device>>() {
+      @Override
+      public void onChanged(@Nullable List<Device> devices) {
+        mAdapter.addItems(devices);
+      }
+    });
+
+    //setupDevicesBroadcastReceiver();
   }
 
   @Override
@@ -102,7 +122,7 @@ public class DevicesActivity extends BaseActivity {
   private void setupRecyclerView() {
     final RecyclerView recyclerView = findViewById(R.id.deviceList);
     if (recyclerView != null) {
-      mAdapter = new DevicesAdapter(this);
+      mAdapter = new DevicesAdapter(new ArrayList<Device>());
       recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
