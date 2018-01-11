@@ -88,7 +88,7 @@ public class ClipTable {
   /**
    * Doea a {@link ClipItem} with the given text and fav state exist
    * @param clipText text to query
-   * @param fav state of favorite
+   * @param fav      state of favorite
    * @return true if in db
    */
   public boolean exists(@NonNull String clipText, boolean fav) {
@@ -194,7 +194,7 @@ public class ClipTable {
 
   /**
    * Save a {@link ClipItem} to the databse
-   * @param clipItem the item to save
+   * @param clipItem  the item to save
    * @param onNewOnly if true, only save if it doesn't exist in db
    * @return true if added
    */
@@ -272,16 +272,20 @@ public class ClipTable {
     final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
     final String[] selectionArgs = {clipItem.getText()};
 
-    final long nRows = resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, selectionArgs);
+    final long nRows = resolver.delete(ClipsContract.Clip.CONTENT_URI,
+      selection, selectionArgs);
 
     return (nRows != -1L);
   }
 
-  /** Delete all the {@link ClipItem} objects from the db */
-  public void deleteAll() {
+  /**
+   * Delete all the {@link ClipItem} objects from the db
+   * @return Number of rows deleted
+   */
+  public int deleteAll() {
     final ContentResolver resolver = mContext.getContentResolver();
 
-    resolver.delete(ClipsContract.Clip.CONTENT_URI, null, null);
+    return resolver.delete(ClipsContract.Clip.CONTENT_URI, null, null);
   }
 
   /**
@@ -292,8 +296,12 @@ public class ClipTable {
    * @return Number of rows deleted
    */
   public int deleteAll(Boolean deleteFavs, String labelFilter) {
-    final ContentResolver resolver = mContext.getContentResolver();
+    if (deleteFavs && AppUtils.isWhitespace(labelFilter)) {
+      // delete all
+      return deleteAll();
+    }
 
+    final ContentResolver resolver = mContext.getContentResolver();
 
     String selection;
     if (!AppUtils.isWhitespace(labelFilter)) {
@@ -330,8 +338,7 @@ public class ClipTable {
       }
     }
 
-    return resolver
-      .delete(ClipsContract.Clip.CONTENT_URI, selection, null);
+    return resolver.delete(ClipsContract.Clip.CONTENT_URI, selection, null);
   }
 
   /** Delete rows older than the storage duration */
