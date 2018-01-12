@@ -142,12 +142,44 @@ public class ClipTable {
   }
 
   /**
+   * Get all {@link ClipItem} objects
+   * @return The {@link ClipItem} objects
+   */
+  public ArrayList<ClipItem> getAll() {
+    final ArrayList<ClipItem> ret = new ArrayList<>(100);
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    Uri uri = ClipsContract.Clip.CONTENT_URI;
+    final String[] projection = ClipsContract.Clip.FULL_PROJECTION;
+
+    final Cursor cursor = resolver.query(uri, projection, null, null, null);
+    if (cursor == null) {
+      return ret;
+    }
+
+    try {
+      while (cursor.moveToNext()) {
+        ret.add(new ClipItem(mContext, cursor));
+      }
+    } finally {
+      cursor.close();
+    }
+
+    return ret;
+  }
+
+  /**
    * Get all non-favorite and optionally favorite rows for a given {@link Label}
    * @param includeFavs flag to indicate if favorites should be retrieved too
    * @param labelFilter label to filter on
    * @return The {@link ClipItem} objects
    */
   public ArrayList<ClipItem> getAll(Boolean includeFavs, String labelFilter) {
+    if (includeFavs && AppUtils.isWhitespace(labelFilter)) {
+      // get all
+      return getAll();
+    }
+
     final ArrayList<ClipItem> ret = new ArrayList<>(100);
     final ContentResolver resolver = mContext.getContentResolver();
 
@@ -164,7 +196,7 @@ public class ClipTable {
     }
 
     if (!AppUtils.isWhitespace(labelFilter)) {
-      // speical Uri to JOIN
+      // special Uri to JOIN
       uri = ClipsContract.Clip.CONTENT_URI_JOIN;
       // filter by Label name
       selection += " AND (" + ClipsContract.LabelMap.COL_LABEL_NAME +

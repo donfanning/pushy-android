@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import com.google.android.gms.drive.DriveFile;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -248,6 +249,43 @@ public class BackupHelper {
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
     if (activity != null) {
       activity.showMessage(msg, exMsg);
+    }
+  }
+
+  /** AsyncTask to restore the contents of a backup */
+  public static class RestoreContentsAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+
+    private final BackupFile mBackupFile;
+    private final boolean mIsSync;
+
+    public RestoreContentsAsyncTask(BackupActivity activity,
+                                    BackupFile backupFile, boolean isSync) {
+      super(activity);
+      activity.showProgress();
+      mBackupFile = backupFile;
+      mIsSync = isSync;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        if (mIsSync) {
+          BackupHelper.INST(mActivity)
+            .doSync((BackupActivity)mActivity, mBackupFile);
+        } else {
+          BackupHelper.INST(mActivity)
+            .doRestore((BackupActivity)mActivity, mBackupFile);
+        }
+      }
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+      //if (mActivity != null) {
+      //  ((BackupActivity) mActivity).hideProgress();
+      //}
     }
   }
 }

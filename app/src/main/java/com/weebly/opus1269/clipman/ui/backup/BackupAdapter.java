@@ -154,9 +154,11 @@ class BackupAdapter extends
       if (mActivity.getString(R.string.button_delete).equals(btnText)) {
         BackupHelper.INST(mActivity).doDelete(mActivity, mFile);
       } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
-        BackupHelper.INST(mActivity).doRestore(mActivity, mFile);
+        new BackupHelper
+          .RestoreContentsAsyncTask(mActivity, mFile, false).executeMe();
       } else if (mActivity.getString(R.string.button_sync).equals(btnText)) {
-        BackupHelper.INST(mActivity).doSync(mActivity, mFile);
+        new BackupHelper
+          .RestoreContentsAsyncTask(mActivity, mFile, true).executeMe();
       }
       mFile = null;
     }
