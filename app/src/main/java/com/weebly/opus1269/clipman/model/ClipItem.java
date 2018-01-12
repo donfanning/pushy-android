@@ -388,19 +388,19 @@ public class ClipItem implements Serializable {
 
   /**
    * Update the label id with the id of the given label - don't save
-   * @param theLabel label to modify
+   * @param theLabel label with new id
    */
   public void updateLabelIdNoSave(@NonNull Label theLabel) {
-    long id = theLabel.getId();
+    long newId = theLabel.getId();
 
     int pos = this.labels.indexOf(theLabel);
     if (pos != -1) {
+      final long oldId = this.labels.get(pos).getId();
       this.labels.set(pos, theLabel);
-    }
-
-    pos = this.labelsId.indexOf(id);
-    if (pos != -1) {
-      this.labelsId.set(pos, id);
+      final int idPos = this.labelsId.indexOf(oldId);
+      if (idPos != -1) {
+        this.labelsId.set(idPos, newId);
+      }
     }
   }
 
