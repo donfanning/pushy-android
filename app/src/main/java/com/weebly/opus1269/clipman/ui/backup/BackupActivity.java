@@ -36,7 +36,6 @@ import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
@@ -171,12 +170,9 @@ public class BackupActivity extends BaseActivity {
    */
   public void addFileToList(Metadata metadata) {
     final BackupFile file = new BackupFile(this, metadata);
-    // persist to Prefs
-    final String fileString = file.getId().encodeToString();
-    Prefs.INST(this).setLastBackup(fileString);
-    Log.logD(TAG, "created fileId: " + fileString);
     boolean added = mFiles.add(file);
     if (added) {
+      Log.logD(TAG, "added file to list");
       setupMainView();
       mAdapter.notifyDataSetChanged();
     }
@@ -191,13 +187,13 @@ public class BackupActivity extends BaseActivity {
     for (final Iterator<BackupFile> i = mFiles.iterator(); i.hasNext(); ) {
       final BackupFile backupFile = i.next();
       if (backupFile.getId().equals(driveId)) {
-        Log.logD(TAG, "removing from list: " + backupFile.getDate());
         found = true;
         i.remove();
         break;
       }
     }
     if (found) {
+      Log.logD(TAG, "removed file from list");
       setupMainView();
       mAdapter.notifyDataSetChanged();
     }

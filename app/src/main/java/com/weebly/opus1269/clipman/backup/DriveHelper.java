@@ -38,6 +38,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
@@ -223,8 +224,13 @@ public class DriveHelper {
             activity.addFileToList(metadata);
           }
 
+          // persist to Prefs
+          final String fileString = metadata.getDriveId().encodeToString();
+          Prefs.INST(mContext).setLastBackup(fileString);
+
           if (TextUtils.isEmpty(lastBackup)) {
             // no backup to delete - no big deal
+            Log.logD(TAG, "no old backup to delete");
             throw new Exception("OK");
           }
 
@@ -450,11 +456,14 @@ public class DriveHelper {
   private void onDeleteFailure(BackupActivity activity, String msg,
                                Exception ex) {
     if (!"OK".equals(ex.getLocalizedMessage())) {
+      Log.logD(TAG, "failed to delete backup");
       if (ex instanceof ApiException) {
         // don't even log not found errors
         final int code = ((ApiException) ex).getStatusCode();
         if (code != DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
           showMessage(activity, msg, ex);
+        } else {
+          Log.logD(TAG, "old backup not found");
         }
       } else {
         showMessage(activity, msg, ex);
