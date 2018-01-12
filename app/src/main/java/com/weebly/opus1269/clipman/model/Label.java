@@ -7,14 +7,13 @@
 
 package com.weebly.opus1269.clipman.model;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
+import com.weebly.opus1269.clipman.db.LabelTables;
 
 import java.io.Serializable;
 
@@ -51,6 +50,21 @@ public class Label implements Serializable {
     _id = cursor.getLong(idx);
   }
 
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Label label = (Label) o;
+
+    return name.equals(label.name);
+  }
+
   /**
    * Get name
    * @return name
@@ -70,15 +84,8 @@ public class Label implements Serializable {
    * @param name    The new name
    */
   public void setName(Context context, @NonNull String name) {
-    final ContentResolver resolver = context.getContentResolver();
-
-    // update Label table
-    final String[] selectionArgs = {this.name};
-    final String selection = ClipsContract.Label.COL_NAME + " = ? ";
-    ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.Label.COL_NAME, name);
-    resolver.update(ClipsContract.Label.CONTENT_URI, cv, selection,
-      selectionArgs);
+    // update db
+    LabelTables.INST(context).updateLabel(name, this.name);
 
     // change labelFilter Pref if it is us
     final String labelFilter = Prefs.INST(context).getLabelFilter();
@@ -87,21 +94,6 @@ public class Label implements Serializable {
     }
 
     this.name = name;
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    Label label = (Label) o;
-
-    return name.equals(label.name);
   }
 
   /**
@@ -119,21 +111,7 @@ public class Label implements Serializable {
    * @return true if saved
    */
   public Boolean save(Context context) {
-    if (AppUtils.isWhitespace(getName())) {
-      return false;
-    }
-
-    final ContentResolver resolver = context.getContentResolver();
-
-    if (exists(context)) {
-      // already in db
-      return false;
-    }
-
-    // insert into db
-    resolver.insert(ClipsContract.Label.CONTENT_URI, getContentValues());
-
-    return true;
+    return LabelTables.INST(context).addLabel(this);
   }
 
   /**
@@ -141,45 +119,16 @@ public class Label implements Serializable {
    * @return true if deleted
    */
   public Boolean delete(Context context) {
-    if (AppUtils.isWhitespace(name)) {
-      return false;
+    final boolean deleted = LabelTables.INST(context).deleteLabel(this);
+
+    if (deleted) {
+      // reset labelFilter Pref if we deleted it
+      final String labelFilter = Prefs.INST(context).getLabelFilter();
+      if (labelFilter.equals(name)) {
+        Prefs.INST(context).setLabelFilter("");
+      }
     }
 
-    final ContentResolver resolver = context.getContentResolver();
-
-    // delete from Label table
-    final String[] selectionArgs = {name};
-    String selection = ClipsContract.Label.COL_NAME + " = ? ";
-    resolver.delete(ClipsContract.Label.CONTENT_URI, selection, selectionArgs);
-
-    // reset labelFilter Pref if we deleted it
-    final String labelFilter = Prefs.INST(context).getLabelFilter();
-    if (labelFilter.equals(name)) {
-      Prefs.INST(context).setLabelFilter("");
-    }
-
-    return true;
-  }
-
-  /**
-   * Are we in the database
-   * @return if true, label exists
-   */
-  private boolean exists(Context context) {
-    final ContentResolver resolver = context.getContentResolver();
-
-    final String[] projection = {ClipsContract.Label.COL_NAME};
-    final String selection = ClipsContract.Label.COL_NAME + " = ? ";
-    final String[] selectionArgs = {name};
-
-    final Cursor cursor = resolver.query(ClipsContract.Label.CONTENT_URI,
-      projection, selection, selectionArgs, null);
-
-    if ((cursor != null) && (cursor.getCount() > 0)) {
-      // found it
-      cursor.close();
-      return true;
-    }
-    return false;
+    return deleted;
   }
 }

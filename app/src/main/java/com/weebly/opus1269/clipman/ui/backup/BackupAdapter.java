@@ -152,11 +152,13 @@ class BackupAdapter extends
       Analytics.INST(mActivity).buttonClick(mActivity.getTAG(), button);
 
       if (mActivity.getString(R.string.button_delete).equals(btnText)) {
-        BackupHelper.INST(mActivity).doDelete(mActivity, mFile);
+        new BackupHelper.DeleteBackupAsyncTask(mActivity, mFile).executeMe();
       } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
-        BackupHelper.INST(mActivity).doRestore(mActivity, mFile);
+        new BackupHelper
+          .GetBackupContentsAsyncTask(mActivity, mFile, false).executeMe();
       } else if (mActivity.getString(R.string.button_sync).equals(btnText)) {
-        BackupHelper.INST(mActivity).doSync(mActivity, mFile);
+        new BackupHelper
+          .GetBackupContentsAsyncTask(mActivity, mFile, true).executeMe();
       }
       mFile = null;
     }

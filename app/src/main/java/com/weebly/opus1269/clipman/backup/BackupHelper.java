@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import com.google.android.gms.drive.DriveFile;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -65,43 +66,16 @@ public class BackupHelper {
    * Perform a backup - OK to call without activity
    * @param activity The calling activity
    */
-  public void doBackup(@Nullable BackupActivity activity) {
+  public void createBackup(@Nullable BackupActivity activity) {
     try {
       final String lastBackup = Prefs.INST(mContext).getLastBackup();
-      final String filename = getZipFilename();
-      DriveHelper.INST(mContext).createBackup(activity, filename, lastBackup);
+      final String zipName = getZipFilename();
+      final byte[] zipData =
+        BackupHelper.INST(mContext).createZipFileContentsFromDB();
+      DriveHelper.INST(mContext).createBackup(activity, zipName, zipData,
+        lastBackup);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
-      showMessage(activity, errMessage, ex);
-    }
-  }
-
-  /**
-   * Perform a restore
-   * @param activity The calling activity
-   * @param file     File to restore
-   */
-  public void doRestore(@NonNull BackupActivity activity, BackupFile file) {
-    try {
-      final DriveFile driveFile = file.getId().asDriveFile();
-      DriveHelper.INST(mContext).getBackupContents(activity, driveFile, false);
-    } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_restore_backup);
-      showMessage(activity, errMessage, ex);
-    }
-  }
-
-  /**
-   * Perform a sync
-   * @param activity The calling activity
-   * @param file     File to sync
-   */
-  public void doSync(@NonNull BackupActivity activity, BackupFile file) {
-    try {
-      final DriveFile driveFile = file.getId().asDriveFile();
-      DriveHelper.INST(mContext).getBackupContents(activity, driveFile, true);
-    } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_sync_backup);
       showMessage(activity, errMessage, ex);
     }
   }
@@ -111,7 +85,7 @@ public class BackupHelper {
    * @param activity The calling activity
    * @param file     File to delete
    */
-  public void doDelete(@NonNull BackupActivity activity, BackupFile file) {
+  void deleteBackup(@NonNull BackupActivity activity, BackupFile file) {
     try {
       DriveHelper.INST(mContext).deleteBackup(activity, file.getId());
     } catch (Exception ex) {
@@ -121,16 +95,52 @@ public class BackupHelper {
   }
 
   /**
-   * Update the contents of a backup
+   * Get the contents of a backup
    * @param activity The calling activity
+   * @param file     File to restore
    */
-  public void doUpdate(@NonNull BackupActivity activity,
-                       @NonNull DriveFile driveFile,
-                       @NonNull BackupContents contents) {
+  void getBackupContents(@NonNull BackupActivity activity, BackupFile file,
+                         boolean isSync) {
     try {
-      DriveHelper.INST(mContext).updateBackup(activity, driveFile, contents);
+      final DriveFile driveFile = file.getId().asDriveFile();
+      DriveHelper.INST(mContext).getBackupContents(activity, driveFile, isSync);
     } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_update_backup);
+      final String errMessage = mContext.getString(R.string.err_no_contents);
+      showMessage(activity, errMessage, ex);
+    }
+  }
+
+  /**
+   * Perform a restore
+   * @param activity The calling activity
+   * @param contents contents to restore
+   */
+  void restoreBackup(@NonNull BackupActivity activity, BackupContents
+    contents) {
+    try {
+      BackupHelper.INST(activity).saveContentsToDB(contents);
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_restore_backup);
+      showMessage(activity, errMessage, ex);
+    }
+  }
+
+  /**
+   * Perform a sync
+   * @param activity The calling activity
+   * @param contents contents to restore
+   */
+  void syncBackup(@NonNull BackupActivity activity, DriveFile driveFile,
+                  BackupContents contents) {
+    try {
+      final BackupContents mergedContents =
+        BackupHelper.INST(activity).saveMergedContentsToDB(contents);
+      final byte[] mergedData = mergedContents.getAsJSON().getBytes();
+      final byte[] data =
+        BackupHelper.INST(mContext).createZipFileContents(mergedData);
+      DriveHelper.INST(mContext).updateBackup(activity, driveFile, data);
+    } catch (Exception ex) {
+      final String errMessage = mContext.getString(R.string.err_sync_backup);
       showMessage(activity, errMessage, ex);
     }
   }
@@ -141,7 +151,7 @@ public class BackupHelper {
    * @throws IOException  if no contents
    * @throws SQLException if database update failed
    */
-  void saveContentsToDB(
+  private void saveContentsToDB(
     @Nullable BackupContents contents) throws IOException, SQLException {
     if (contents == null) {
       throw new IOException(mContext.getString(R.string.err_no_contents));
@@ -152,12 +162,13 @@ public class BackupHelper {
   }
 
   /**
-   * Replace the database with a merge of the restored data
-   * @param contents database data to restore
+   * Replace the database with a merge of the given data
+   * @param contents data to merge with db
    * @throws IOException  if no contents
    * @throws SQLException if database update failed
+   * @return merged contents
    */
-  void saveMergedContentsToDB(
+  private BackupContents saveMergedContentsToDB(
     @Nullable BackupContents contents) throws IOException, SQLException {
     if (contents == null) {
       throw new IOException(mContext.getString(R.string.err_no_contents));
@@ -168,6 +179,8 @@ public class BackupHelper {
 
     // replace database
     replaceDB(dbContents);
+
+    return dbContents;
   }
 
   /**
@@ -175,7 +188,7 @@ public class BackupHelper {
    * @return zip file contents
    * @throws IOException on processing data
    */
-  byte[] createZipFileContentsFromDB() throws IOException {
+  private byte[] createZipFileContentsFromDB() throws IOException {
     final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
     return createZipFileContents(data);
   }
@@ -186,7 +199,8 @@ public class BackupHelper {
    * @return zip file contents
    * @throws IOException if no contents
    */
-  byte[] createZipFileContents(@NonNull byte[] data) throws IOException {
+  private byte[] createZipFileContents(@NonNull byte[] data) throws
+    IOException {
     return ZipHelper.INST(mContext).createContents(BACKUP_FILNAME, data);
   }
 
@@ -238,8 +252,8 @@ public class BackupHelper {
 
   /**
    * Log exception and show message
-   * @param activity - activity
-   * @param msg      - message
+   * @param activity activity
+   * @param msg      message
    * @param ex       exception
    */
   private void showMessage(BackupActivity activity, @NonNull String msg,
@@ -248,6 +262,157 @@ public class BackupHelper {
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
     if (activity != null) {
       activity.showMessage(msg, exMsg);
+    }
+  }
+
+  /** AsyncTask to get the list of backups */
+  public static class GetBackupsAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+
+    public GetBackupsAsyncTask(BackupActivity activity) {
+      super(activity);
+
+      activity.showProgress();
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        DriveHelper.INST(mActivity).getBackups((BackupActivity) mActivity);
+      }
+      return null;
+    }
+  }
+
+  /** AsyncTask to get the contents of a backup */
+  public static class GetBackupContentsAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+
+    /** BackupFile to restore */
+    private final BackupFile mBackupFile;
+    /** true if we are synchronizing the backup with the local db */
+    private final boolean mIsSync;
+
+    public GetBackupContentsAsyncTask(BackupActivity activity,
+                                      BackupFile backupFile, boolean isSync) {
+      super(activity);
+
+      activity.showProgress();
+      mBackupFile = backupFile;
+      mIsSync = isSync;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        BackupHelper.INST(mActivity)
+          .getBackupContents((BackupActivity) mActivity, mBackupFile, mIsSync);
+      }
+      return null;
+    }
+  }
+
+  /** AsyncTask to create a backup of our db */
+  public static class CreateBackupAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+
+    public CreateBackupAsyncTask(BackupActivity activity) {
+      super(activity);
+
+      activity.showProgress();
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        BackupHelper.INST(mActivity).createBackup((BackupActivity) mActivity);
+      }
+      return null;
+    }
+  }
+
+  /** AsyncTask to restore a backup */
+  public static class RestoreBackupAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+    /** New contents */
+    private final BackupContents mContents;
+
+    public RestoreBackupAsyncTask(BackupActivity activity,
+                                  BackupContents contents) {
+      super(activity);
+
+      activity.showProgress();
+      mContents = contents;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+      super.onPostExecute(aVoid);
+
+      if (mActivity != null) {
+        ((BackupActivity) mActivity).hideProgress();
+      }
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        BackupHelper.INST(mActivity)
+          .restoreBackup((BackupActivity) mActivity, mContents);
+      }
+      return null;
+    }
+  }
+
+  /** AsyncTask to sync a backup */
+  public static class SyncBackupAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+    /** File to sync with */
+    private final DriveFile mDriveFile;
+    /** Contents to sync with db */
+    private final BackupContents mContents;
+
+    public SyncBackupAsyncTask(BackupActivity activity,
+                               DriveFile driveFile,
+                               BackupContents contents) {
+      super(activity);
+
+      activity.showProgress();
+      mDriveFile = driveFile;
+      mContents = contents;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        BackupHelper.INST(mActivity)
+          .syncBackup((BackupActivity) mActivity, mDriveFile, mContents);
+      }
+      return null;
+    }
+  }
+
+  /** AsyncTask to delete a backup */
+  public static class DeleteBackupAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+    /** File to delete */
+    private final BackupFile mBackupFile;
+
+    public DeleteBackupAsyncTask(BackupActivity activity,
+                                 BackupFile backupFile) {
+      super(activity);
+
+      activity.showProgress();
+      mBackupFile = backupFile;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        BackupHelper.INST(mActivity)
+          .deleteBackup((BackupActivity) mActivity, mBackupFile);
+      }
+      return null;
     }
   }
 }

@@ -112,6 +112,11 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
     // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
 
+    if (!User.INST(this).isLoggedIn()) {
+      // ignore if logged out
+      return;
+    }
+
     final Map<String, String> data = message.getData();
     final String action = data.get(Msg.ACTION);
     final String model = data.get(Msg.DEVICE_MODEL);
@@ -128,9 +133,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
     if (device.getUniqueName().equals(Device.getMyUniqueName(this))) {
       // ignore our own messages
-      return;
-    } else if (!User.INST(this).isLoggedIn()) {
-      // ignore if logged out
       return;
     }
 

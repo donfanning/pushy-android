@@ -210,8 +210,11 @@ public class BackupActivity extends BaseActivity {
                                           boolean isSync) {
     try {
       if (isSync) {
-        // update on cloud
-        BackupHelper.INST(this).doUpdate(this, driveFile, contents);
+        new BackupHelper
+          .SyncBackupAsyncTask(this, driveFile, contents).executeMe();
+      } else {
+        new BackupHelper
+          .RestoreBackupAsyncTask(this, contents).executeMe();
       }
     } catch (Exception ex) {
       final String title = getString(R.string.err_update_db);
@@ -241,7 +244,7 @@ public class BackupActivity extends BaseActivity {
           final BackupActivity activity = BackupActivity.this;
           Analytics.INST(activity).buttonClick
             (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
-          BackupHelper.INST(activity).doBackup(activity);
+          new BackupHelper.CreateBackupAsyncTask(activity).executeMe();
         }
       })
       .create()
@@ -276,18 +279,22 @@ public class BackupActivity extends BaseActivity {
   /** Display progress UI */
   public void showProgress() {
     final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
+    final View fabView = findViewById(R.id.fab);
+    final View progressView = findViewById(R.id.progress_layout);
 
     contentView.setVisibility(View.GONE);
+    fabView.setVisibility(View.GONE);
     progressView.setVisibility(View.VISIBLE);
   }
 
   /** Hide progress UI */
   public void hideProgress() {
     final View contentView = findViewById(R.id.drive_content);
-    final View progressView = findViewById(R.id.drive_progress);
+    final View fabView = findViewById(R.id.fab);
+    final View progressView = findViewById(R.id.progress_layout);
 
     contentView.setVisibility(View.VISIBLE);
+    fabView.setVisibility(View.VISIBLE);
     progressView.setVisibility(View.GONE);
   }
 
@@ -373,6 +380,6 @@ public class BackupActivity extends BaseActivity {
 
   /** Load the list of backup files asynchronously */
   private void retrieveBackups() {
-    DriveHelper.INST(this).getBackups(this);
+    new BackupHelper.GetBackupsAsyncTask(this).executeMe();
   }
 }

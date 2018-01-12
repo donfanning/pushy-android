@@ -48,7 +48,7 @@ public class BackupContents {
    */
   @NonNull
   static BackupContents getDB(Context context) {
-    List<ClipItem> clipItems = ClipTable.INST(context).getAll(true, null);
+    List<ClipItem> clipItems = ClipTable.INST(context).getAll();
     List<Label> labels = LabelTables.INST(context).getAllLabels();
     return new BackupContents(labels, clipItems);
   }

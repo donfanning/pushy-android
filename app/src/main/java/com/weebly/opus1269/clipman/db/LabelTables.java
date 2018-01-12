@@ -109,6 +109,43 @@ public class LabelTables {
   }
 
   /**
+   * Get the {@link Label} objects for the given {@link ClipItem}
+   * @param clipItem the clip
+   * @return List of labels
+   */
+  public List<Label> getLabels(@NonNull ClipItem clipItem) {
+    List<Label> ret = new ArrayList<>(0);
+    if (ClipItem.isWhitespace(clipItem)) {
+      return ret;
+    }
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
+    final long id = clipItem.getId(mContext);
+    final String selection = ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
+
+    Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
+      projection, selection, null, null);
+    if (cursor == null) {
+      return ret;
+    }
+
+    try {
+      while (cursor.moveToNext()) {
+        int idx = cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
+        final String name = cursor.getString(idx);
+        long labelId = getLabelId(name);
+        ret.add(new Label(name, labelId));
+      }
+    } finally {
+      cursor.close();
+    }
+
+    return ret;
+  }
+
+  /**
    * Get all the {@link Label} objects
    * @return List of Labels
    */
@@ -148,6 +185,47 @@ public class LabelTables {
   }
 
   /**
+   * Update the name of a {@link Label}
+   * @param newName new name
+   * @param oldName current name
+   */
+  public void updateLabel(@NonNull String newName,
+                          @NonNull String oldName) {
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    // update Label
+    final String[] selectionArgs = {oldName};
+    final String selection = ClipsContract.Label.COL_NAME + " = ? ";
+    ContentValues cv = new ContentValues();
+    cv.put(ClipsContract.Label.COL_NAME, newName);
+    resolver.update(ClipsContract.Label.CONTENT_URI, cv, selection,
+      selectionArgs);
+  }
+
+  /**
+   * Add a {@link Label}
+   * @param label Label to add
+   * @return true if added
+   */
+  public boolean addLabel(@NonNull Label label) {
+    final String name = label.getName();
+    if (AppUtils.isWhitespace(name)) {
+      return false;
+    }
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    if (exists(name)) {
+      return false;
+    }
+
+    // insert into db
+    resolver.insert(ClipsContract.Label.CONTENT_URI, label.getContentValues());
+
+    return true;
+  }
+
+  /**
    * Add the {@link Label} objects
    * @param labels labels to add
    */
@@ -156,7 +234,7 @@ public class LabelTables {
 
     final ContentValues[] cvs = new ContentValues[labels.size()];
     int count = 0;
-    for(Label label: labels) {
+    for (Label label : labels) {
       cvs[count] = label.getContentValues();
       count++;
     }
@@ -246,11 +324,33 @@ public class LabelTables {
     final long id = clipItem.getId(mContext);
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
-      ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
+        ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
     final String[] selectionArgs = {label.getName()};
 
     resolver.delete(ClipsContract.LabelMap.CONTENT_URI, selection,
       selectionArgs);
+  }
+
+  /**
+   * Delete a {@link Label}
+   * @param label the label
+   * @return true if deleted
+   */
+  public boolean deleteLabel(@NonNull Label label) {
+    final String name = label.getName();
+    if (AppUtils.isWhitespace(name)) {
+      return false;
+    }
+
+    final ContentResolver resolver = mContext.getContentResolver();
+
+    final String[] selectionArgs = {name};
+    String selection = ClipsContract.Label.COL_NAME + " = ? ";
+
+    long nRows = resolver.delete(ClipsContract.Label.CONTENT_URI, selection,
+      selectionArgs);
+
+    return (nRows != 1L);
   }
 
   /**
@@ -265,7 +365,7 @@ public class LabelTables {
     final long id = clipItem.getId(mContext);
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
-      ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
+        ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
     final String[] selectionArgs = {label.getName()};
 
     final Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,

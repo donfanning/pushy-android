@@ -32,23 +32,23 @@ import java.util.Map;
 /** Immutable Class for a backup file's metadata */
 public class BackupFile {
 
-  private final Boolean mIsMine;
-  private final DriveId mId;
-  private final String mName;
-  private String mNickname;
-  private String mModel;
-  private String mSN;
-  private String mOS;
-  private final long mDate;
+  private final Boolean isMine;
+  private final DriveId id;
+  private final String name;
+  private String nickname;
+  private String model;
+  private String SN;
+  private String OS;
+  private final long date;
 
   public BackupFile(Context context, final Metadata metadata) {
-    mId = metadata.getDriveId();
-    mName = metadata.getTitle();
-    mDate = metadata.getModifiedDate().getTime();
-    mModel = "";
-    mSN = "";
-    mOS = "";
-    mNickname = "";
+    id = metadata.getDriveId();
+    name = metadata.getTitle();
+    date = metadata.getModifiedDate().getTime();
+    model = "";
+    SN = "";
+    OS = "";
+    nickname = "";
 
     final Map<CustomPropertyKey, String> props =
       metadata.getCustomProperties();
@@ -57,23 +57,23 @@ public class BackupFile {
       final String value = entry.getValue();
       switch (key) {
         case "model":
-          mModel = value;
+          model = value;
           break;
         case "nickname":
-          mNickname = value;
+          nickname = value;
           break;
         case "os":
-          mOS = value;
+          OS = value;
           break;
         case "sn":
-          mSN = value;
+          SN = value;
           break;
         default:
           break;
       }
     }
 
-    mIsMine = isMyFile(context);
+    isMine = isMyFile(context);
   }
 
   /**
@@ -83,57 +83,54 @@ public class BackupFile {
    */
   static void setCustomProperties(Context context,
                                   MetadataChangeSet.Builder builder) {
+    final int visibility = CustomPropertyKey.PRIVATE;
     builder
-      .setCustomProperty(
-        new CustomPropertyKey("model", CustomPropertyKey.PRIVATE),
+      .setCustomProperty(new CustomPropertyKey("model", visibility),
         Device.getMyModel())
-      .setCustomProperty(
-        new CustomPropertyKey("sn", CustomPropertyKey.PRIVATE),
+      .setCustomProperty(new CustomPropertyKey("sn", visibility),
         Device.getMySN(context))
-      .setCustomProperty(
-        new CustomPropertyKey("os", CustomPropertyKey.PRIVATE),
+      .setCustomProperty(new CustomPropertyKey("os", visibility),
         Device.getMyOS())
-      .setCustomProperty(
-        new CustomPropertyKey("nickname", CustomPropertyKey.PRIVATE),
+      .setCustomProperty(new CustomPropertyKey("nickname", visibility),
         Device.getMyNickname(context));
   }
 
   public boolean isMine() {
-    return mIsMine;
+    return isMine;
   }
 
   @NonNull
   public DriveId getId() {
-    return mId;
+    return id;
   }
 
   @NonNull
   public String getName() {
-    return mName;
+    return name;
   }
 
   @NonNull
   public String getModel() {
-    return mModel;
+    return model;
   }
 
   @NonNull
   public String getSN() {
-    return mSN;
+    return SN;
   }
 
   @NonNull
   public String getOS() {
-    return mOS;
+    return OS;
   }
 
   @NonNull
   public String getNickname() {
-    return mNickname;
+    return nickname;
   }
 
   public long getDate() {
-    return mDate;
+    return date;
   }
 
   /**
@@ -142,8 +139,8 @@ public class BackupFile {
    * @return true if from this device
    */
   private boolean isMyFile(@NonNull final Context context) {
-    return (mSN.equals(Device.getMySN(context)) &&
-      mModel.equals(Device.getMyModel()) &&
-      mOS.equals(Device.getMyOS()));
+    return (SN.equals(Device.getMySN(context)) &&
+      model.equals(Device.getMyModel()) &&
+      OS.equals(Device.getMyOS()));
   }
 }
