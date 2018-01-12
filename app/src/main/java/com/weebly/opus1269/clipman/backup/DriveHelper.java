@@ -249,12 +249,12 @@ public class DriveHelper {
   /**
    * Update a backup - asynchronous
    * @param activity       activity
-   * @param file           existing drive file
-   * @param backupContents data for zip file
+   * @param file           file to update
+   * @param data update data
    */
   void updateBackup(@NonNull final BackupActivity activity,
                     @NonNull final DriveFile file,
-                    @NonNull final BackupContents backupContents) {
+                    @NonNull final byte[] data) {
     final String errMessage = mContext.getString(R.string.err_update_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -270,10 +270,6 @@ public class DriveHelper {
           throws Exception {
           final DriveContents contents = task.getResult();
 
-          final byte[] dbData = backupContents.getAsJSON().getBytes();
-          final byte[] data =
-            BackupHelper.INST(mContext).createZipFileContents(dbData);
-
           final OutputStream outputStream = contents.getOutputStream();
           //noinspection TryFinallyCanBeTryWithResources
           try {
@@ -288,8 +284,7 @@ public class DriveHelper {
       .addOnSuccessListener(activity, new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
-          Log.logD(TAG, "updated backup: " +
-            file.getDriveId().encodeToString());
+          Log.logD(TAG, "updated backup");
           activity.refreshList();
         }
       })
@@ -336,20 +331,13 @@ public class DriveHelper {
             }
           }
 
-          if (isSync) {
-            BackupHelper.INST(activity).saveMergedContentsToDB(backupContents);
-          } else {
-            BackupHelper.INST(activity).saveContentsToDB(backupContents);
-          }
-
           return resourceClient.discardContents(contents);
         }
       })
       .addOnSuccessListener(activity, new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
-          Log.logD(TAG, "restored backup: " +
-            file.getDriveId().encodeToString());
+          Log.logD(TAG, "got backup contents");
           activity.onGetBackupContentsComplete(file, backupContents, isSync);
         }
       })
@@ -430,7 +418,7 @@ public class DriveHelper {
    * @param driveId  - deleted id
    */
   private void onDeleteSuccess(BackupActivity activity, DriveId driveId) {
-    Log.logD(TAG, "deleted file: " + driveId.encodeToString());
+    Log.logD(TAG, "deleted file");
     if (activity != null) {
       activity.removeFileFromList(driveId);
       activity.hideProgress();
@@ -478,8 +466,7 @@ public class DriveHelper {
   @Nullable
   private DriveClient getDriveClient() {
     DriveClient ret = null;
-    final GoogleSignInAccount account = User.INST(mContext)
-      .getGoogleAccount();
+    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
     if (account != null) {
       ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
     }

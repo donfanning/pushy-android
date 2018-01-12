@@ -214,11 +214,11 @@ public class BackupActivity extends BaseActivity {
                                           boolean isSync) {
     try {
       if (isSync) {
-        // update on cloud
         new BackupHelper
-          .UpdateContentsAsyncTask(this, driveFile, contents).executeMe();
+          .SyncBackupAsyncTask(this, driveFile, contents).executeMe();
       } else {
-        hideProgress();
+        new BackupHelper
+          .RestoreBackupAsyncTask(this, contents).executeMe();
       }
     } catch (Exception ex) {
       final String title = getString(R.string.err_update_db);
