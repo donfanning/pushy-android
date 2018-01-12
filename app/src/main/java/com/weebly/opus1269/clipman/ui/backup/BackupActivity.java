@@ -217,6 +217,8 @@ public class BackupActivity extends BaseActivity {
         // update on cloud
         new BackupHelper
           .UpdateContentsAsyncTask(this, driveFile, contents).executeMe();
+      } else {
+        hideProgress();
       }
     } catch (Exception ex) {
       final String title = getString(R.string.err_update_db);
@@ -246,7 +248,7 @@ public class BackupActivity extends BaseActivity {
           final BackupActivity activity = BackupActivity.this;
           Analytics.INST(activity).buttonClick
             (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
-          BackupHelper.INST(activity).createBackup(activity);
+          new BackupHelper.CreateBackupAsyncTask(activity).executeMe();
         }
       })
       .create()
@@ -382,6 +384,6 @@ public class BackupActivity extends BaseActivity {
 
   /** Load the list of backup files asynchronously */
   private void retrieveBackups() {
-    DriveHelper.INST(this).getBackups(this);
+    new BackupHelper.GetBackupsAsyncTask(this).executeMe();
   }
 }

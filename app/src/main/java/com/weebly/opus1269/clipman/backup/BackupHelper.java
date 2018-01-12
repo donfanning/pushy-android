@@ -69,8 +69,10 @@ public class BackupHelper {
   public void createBackup(@Nullable BackupActivity activity) {
     try {
       final String lastBackup = Prefs.INST(mContext).getLastBackup();
-      final String filename = getZipFilename();
-      DriveHelper.INST(mContext).createBackup(activity, filename, lastBackup);
+      final String zipName = getZipFilename();
+      final byte[] zipData =
+        BackupHelper.INST(mContext).createZipFileContentsFromDB();
+      DriveHelper.INST(mContext).createBackup(activity, zipName, zipData, lastBackup);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
       showMessage(activity, errMessage, ex);
@@ -249,6 +251,45 @@ public class BackupHelper {
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
     if (activity != null) {
       activity.showMessage(msg, exMsg);
+    }
+  }
+
+  /** AsyncTask to create a backup of our db */
+  public static class CreateBackupAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+
+    public CreateBackupAsyncTask(BackupActivity activity) {
+      super(activity);
+
+      activity.showProgress();
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        BackupHelper.INST(mActivity).createBackup((BackupActivity) mActivity);
+      }
+      return null;
+    }
+  }
+
+
+  /** AsyncTask to get the list of backups */
+  public static class GetBackupsAsyncTask extends
+    CustomAsyncTask<Void, Void, Void> {
+
+    public GetBackupsAsyncTask(BackupActivity activity) {
+      super(activity);
+
+      activity.showProgress();
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      if (mActivity != null) {
+        DriveHelper.INST(mActivity).getBackups((BackupActivity) mActivity);
+      }
+      return null;
     }
   }
 

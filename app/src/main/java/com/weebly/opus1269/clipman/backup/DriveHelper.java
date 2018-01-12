@@ -86,7 +86,7 @@ public class DriveHelper {
    * Retrieve the metadata for all the backups in our appFolder - asynchronous
    * @param activity our activity
    */
-  public void getBackups(@NonNull final BackupActivity activity) {
+  void getBackups(@NonNull final BackupActivity activity) {
     final String errMessage = mContext.getString(R.string.err_get_backups);
     final DriveClient driveClient = getDriveClient();
     if (driveClient == null) {
@@ -157,10 +157,11 @@ public class DriveHelper {
    * Create a new backup - asynchronous
    * @param activity   activity
    * @param filename   name of file
+   * @param data       contents of file
    * @param lastBackup encoded last backup, may not exist
    */
   void createBackup(@Nullable final BackupActivity activity,
-                    final String filename,
+                    final String filename, final byte[] data,
                     final String lastBackup) {
     final String errMessage = mContext.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
@@ -182,9 +183,6 @@ public class DriveHelper {
         public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
           final DriveFolder appFolder = appFolderTask.getResult();
           final DriveContents contents = createContentsTask.getResult();
-
-          final byte[] data =
-            BackupHelper.INST(mContext).createZipFileContentsFromDB();
 
           final OutputStream outputStream = contents.getOutputStream();
           //noinspection TryFinallyCanBeTryWithResources
@@ -287,16 +285,15 @@ public class DriveHelper {
           return resourceClient.commitContents(contents, null);
         }
       })
-      .addOnSuccessListener(new OnSuccessListener<Void>() {
+      .addOnSuccessListener(activity, new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
           Log.logD(TAG, "updated backup: " +
             file.getDriveId().encodeToString());
           activity.refreshList();
-          activity.hideProgress();
         }
       })
-      .addOnFailureListener(new OnFailureListener() {
+      .addOnFailureListener(activity, new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
           onTaskFailure(activity, errMessage, ex);
@@ -348,16 +345,15 @@ public class DriveHelper {
           return resourceClient.discardContents(contents);
         }
       })
-      .addOnSuccessListener(new OnSuccessListener<Void>() {
+      .addOnSuccessListener(activity, new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
           Log.logD(TAG, "restored backup: " +
             file.getDriveId().encodeToString());
           activity.onGetBackupContentsComplete(file, backupContents, isSync);
-          activity.hideProgress();
         }
       })
-      .addOnFailureListener(new OnFailureListener() {
+      .addOnFailureListener(activity, new OnFailureListener() {
         @Override
         public void onFailure(@NonNull Exception ex) {
           onTaskFailure(activity, errMessage, ex);
