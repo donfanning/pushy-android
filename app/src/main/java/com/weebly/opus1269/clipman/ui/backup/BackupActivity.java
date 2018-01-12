@@ -215,7 +215,8 @@ public class BackupActivity extends BaseActivity {
     try {
       if (isSync) {
         // update on cloud
-        BackupHelper.INST(this).doUpdate(this, driveFile, contents);
+        new BackupHelper
+          .UpdateContentsAsyncTask(this, driveFile, contents).executeMe();
       }
     } catch (Exception ex) {
       final String title = getString(R.string.err_update_db);
@@ -245,7 +246,7 @@ public class BackupActivity extends BaseActivity {
           final BackupActivity activity = BackupActivity.this;
           Analytics.INST(activity).buttonClick
             (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
-          BackupHelper.INST(activity).doBackup(activity);
+          BackupHelper.INST(activity).createBackup(activity);
         }
       })
       .create()

@@ -56,7 +56,7 @@ public class DailyAlarmReceiver extends BroadcastReceiver {
     Log.logD(TAG, "onReceive");
 
     if (User.INST(context).isLoggedIn() && Prefs.INST(context).isAutoBackup()) {
-      BackupHelper.INST(context).doBackup(null);
+      BackupHelper.INST(context).createBackup(null);
     }
 
     ClipTable.INST(context).deleteOldItems();

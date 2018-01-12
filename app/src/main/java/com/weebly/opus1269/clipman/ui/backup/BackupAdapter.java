@@ -152,7 +152,7 @@ class BackupAdapter extends
       Analytics.INST(mActivity).buttonClick(mActivity.getTAG(), button);
 
       if (mActivity.getString(R.string.button_delete).equals(btnText)) {
-        BackupHelper.INST(mActivity).doDelete(mActivity, mFile);
+        BackupHelper.INST(mActivity).deleteBackup(mActivity, mFile);
       } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
         new BackupHelper
           .RestoreContentsAsyncTask(mActivity, mFile, false).executeMe();
