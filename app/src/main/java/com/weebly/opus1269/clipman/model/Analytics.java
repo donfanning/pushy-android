@@ -149,19 +149,28 @@ public class Analytics {
   /**
    * Button clicked event
    * @param screen Source screen
-   * @param view   Source screen
+   * @param label   label
+   */
+  public void buttonClick(String screen, String label) {
+    event(screen, CAT_UI, "buttonClicked", label);
+  }
+
+  /**
+   * Button clicked event
+   * @param screen Source screen
+   * @param view   button
    */
   public void buttonClick(String screen, View view) {
     if (view instanceof Button) {
       final String label = ((Button) view).getText().toString();
-      event(screen, CAT_UI, "buttonClicked", label);
+      buttonClick(screen, label);
     }
   }
 
   /**
    * Menu clicked event
    * @param screen Source screen
-   * @param item   Source screen
+   * @param item   menu item
    */
   public void menuClick(String screen, MenuItem item) {
     String label = screen + '.';
@@ -174,6 +183,15 @@ public class Analytics {
       }
     }
     event(screen, CAT_UI, "menuSelect", label);
+  }
+
+  /**
+   * Keyboard event
+   * @param screen Source screen
+   * @param label  description
+   */
+  public void keyClick(String screen, String label) {
+    event(screen, CAT_UI, "keyClicked", label);
   }
 
   /**

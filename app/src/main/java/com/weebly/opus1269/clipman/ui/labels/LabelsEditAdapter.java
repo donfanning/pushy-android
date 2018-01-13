@@ -21,6 +21,7 @@ package com.weebly.opus1269.clipman.ui.labels;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,6 +55,7 @@ class LabelsEditAdapter extends
   private AlertDialog mDialog;
 
   /** Label that may be deleted */
+  @Nullable
   private Label mDeleteLabel;
 
   LabelsEditAdapter(BaseActivity activity) {
@@ -97,10 +99,14 @@ class LabelsEditAdapter extends
     labelEditText.setText(holder.label.getName());
     labelEditText.addTextChangedListener(new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {}
+      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
+        // noop
+      }
 
       @Override
-      public void onTextChanged(CharSequence text, int i, int i1, int i2) {}
+      public void onTextChanged(CharSequence text, int i, int i1, int i2) {
+        // noop
+      }
 
       @Override
       public void afterTextChanged(Editable editable) {
@@ -112,6 +118,9 @@ class LabelsEditAdapter extends
         } else if (!text.equals(holder.label.getName())) {
           // text changed
           DrawableHelper.setImageViewEnabled(holder.deleteButton, false);
+        } else {
+          // original text
+          DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
         }
       }
     });
@@ -163,7 +172,7 @@ class LabelsEditAdapter extends
       mDeleteLabel.delete(mContext);
       mDeleteLabel = null;
       Analytics.INST(mContext)
-        .buttonClick(mActivity.getTAG(), mDialog.getButton(which));
+        .buttonClick(mActivity.getTAG(), "deleteLabel");
     }
   }
 

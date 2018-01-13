@@ -65,6 +65,7 @@ public class LabelCreateFragement extends BaseFragment implements
     if (textView.getId() == R.id.addText) {
       if (id == EditorInfo.IME_ACTION_DONE) {
         createLabel();
+        Analytics.INST(textView.getContext()).keyClick(TAG, "addLabel");
         return true;
       } else if (keyEvent != null) {
         final int keyAction = keyEvent.getAction();
@@ -73,6 +74,7 @@ public class LabelCreateFragement extends BaseFragment implements
           return true;
         } else if (keyAction == KeyEvent.ACTION_UP) {
           createLabel();
+          Analytics.INST(textView.getContext()).keyClick(TAG, "addLabel");
           return true;
         }
       }
