@@ -50,7 +50,7 @@ public class Devices {
   private final Context mContext;
 
   /** {@link Device} list */
-  private List<Device> sDevices = load();
+  private List<Device> sDevices;
 
   private Devices(@NonNull Context context) {
     mContext = context.getApplicationContext();
@@ -108,7 +108,7 @@ public class Devices {
       sDevices = new ArrayList<>(0);
     } else {
       final Gson gson = new Gson();
-      final Type type = new TypeToken<ArrayList<Device>>() {
+      final Type type = new TypeToken<ArrayList<DeviceImpl>>() {
       }.getType();
       sDevices = gson.fromJson(devicesString, type);
     }

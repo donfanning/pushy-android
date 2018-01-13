@@ -17,8 +17,8 @@ import com.google.gson.stream.JsonReader;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.MyDevice;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
@@ -179,7 +179,8 @@ public class BackupContents {
       final int pos = outClipItems.indexOf(inClipItem);
       if (pos == -1) {
         // new clip - add to outgoing
-        if (inClipItem.getDevice().equals(Device.getMyName(context))) {
+        if (inClipItem.getDevice()
+          .equals(MyDevice.INST(context).getDisplayName())) {
           inClipItem.setRemote(false);
         } else {
           inClipItem.setRemote(true);
@@ -197,7 +198,8 @@ public class BackupContents {
         if (inClipItem.getTime() > outClipItem.getTime()) {
           // newest has priority
           outClipItem.setDate(inClipItem.getTime());
-          if (inClipItem.getDevice().equals(Device.getMyName(context))) {
+          if (inClipItem.getDevice()
+            .equals(MyDevice.INST(context).getDisplayName())) {
             outClipItem.setRemote(false);
           } else {
             outClipItem.setRemote(true);

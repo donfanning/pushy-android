@@ -103,7 +103,7 @@ public class HelpActivity extends BaseActivity {
       case R.id.emailQuestion:
       case R.id.emailBug:
       case R.id.emailFeature:
-        final String body = Email.INST.getBody();
+        final String body = Email.INST.getBody(this);
         Email.INST.send(this, (String) textView.getTag(), body);
         break;
       case R.id.githubIssue:

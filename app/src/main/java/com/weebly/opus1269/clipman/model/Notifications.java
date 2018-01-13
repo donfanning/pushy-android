@@ -294,7 +294,7 @@ public class Notifications {
 
     // Email support action
     final String emailSubject = mContext.getString(R.string.last_error);
-    String emailBody = Email.INST.getBody() + lastError + " \n" +
+    String emailBody = Email.INST.getBody(mContext) + lastError + " \n" +
       mContext.getString(R.string.email_error_info) + " \n \n";
 
     pIntent = NotificationReceiver.getPIntent(mContext,

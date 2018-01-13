@@ -25,8 +25,8 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
@@ -198,7 +198,7 @@ class ClipLoaderManager implements
 
   private void onCopyClicked(ClipCursorAdapter.ClipViewHolder holder) {
     holder.clipItem.setRemote(false);
-    holder.clipItem.setDevice(Device.getMyName(mMainActivity));
+    holder.clipItem.setDevice(MyDevice.INST(mMainActivity).getDisplayName());
     holder.clipItem.copyToClipboard(mMainActivity);
     if (!Prefs.INST(mMainActivity).isMonitorClipboard()) {
       AppUtils.showMessage(mMainActivity, mMainActivity.getFab(),

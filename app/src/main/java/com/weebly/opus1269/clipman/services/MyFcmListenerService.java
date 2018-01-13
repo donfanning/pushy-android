@@ -29,7 +29,9 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.DeviceImpl;
 import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
@@ -123,7 +125,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final String SN = data.get(Msg.DEVICE_SN);
     final String OS = data.get(Msg.DEVICE_OS);
     final String nickname = data.get(Msg.DEVICE_NICKNAME);
-    final Device device = new Device(model, SN, OS, nickname);
+    final Device device = new DeviceImpl(model, SN, OS, nickname);
 
     // decode message text
     final String msg = data.get(Msg.MESSAGE);
@@ -131,7 +133,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       data.put(Msg.MESSAGE, Uri.decode(msg));
     }
 
-    if (device.getUniqueName().equals(Device.getMyUniqueName(this))) {
+    if (device.getUniqueName().equals(MyDevice.INST(this).getUniqueName())) {
       // ignore our own messages
       return;
     }

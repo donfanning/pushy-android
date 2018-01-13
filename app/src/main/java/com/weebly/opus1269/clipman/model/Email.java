@@ -27,10 +27,10 @@ public enum Email {
    * Get system info. for body of support requests
    * @return Email body
    */
-  public String getBody() {
+  public String getBody(Context context) {
     return "Pushy Clipboard Version: " + BuildConfig.VERSION_NAME + '\n' +
       "Android Version: " + Build.VERSION.RELEASE + '\n' +
-      "Device: " + Device.getMyModel() + " \n \n \n";
+      "Device: " + MyDevice.INST(context).getModel() + " \n \n \n";
   }
 
   /**

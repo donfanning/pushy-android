@@ -25,7 +25,7 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
-import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.model.MyDevice;
 
 import java.util.Map;
 
@@ -86,13 +86,13 @@ public class BackupFile {
     final int visibility = CustomPropertyKey.PRIVATE;
     builder
       .setCustomProperty(new CustomPropertyKey("model", visibility),
-        Device.getMyModel())
+        MyDevice.INST(context).getModel())
       .setCustomProperty(new CustomPropertyKey("sn", visibility),
-        Device.getMySN(context))
+        MyDevice.INST(context).getSN())
       .setCustomProperty(new CustomPropertyKey("os", visibility),
-        Device.getMyOS())
+        MyDevice.INST(context).getOS())
       .setCustomProperty(new CustomPropertyKey("nickname", visibility),
-        Device.getMyNickname(context));
+        MyDevice.INST(context).getNickname());
   }
 
   public boolean isMine() {
@@ -139,8 +139,8 @@ public class BackupFile {
    * @return true if from this device
    */
   private boolean isMyFile(@NonNull final Context context) {
-    return (SN.equals(Device.getMySN(context)) &&
-      model.equals(Device.getMyModel()) &&
-      OS.equals(Device.getMyOS()));
+    return (SN.equals(MyDevice.INST(context).getSN()) &&
+      model.equals(MyDevice.INST(context).getModel()) &&
+      OS.equals(MyDevice.INST(context).getOS()));
   }
 }

@@ -21,8 +21,8 @@ import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
@@ -85,7 +85,7 @@ public class BackupHelper {
    * @param activity The calling activity
    * @param file     File to delete
    */
-  void deleteBackup(@NonNull BackupActivity activity, BackupFile file) {
+  private void deleteBackup(@NonNull BackupActivity activity, BackupFile file) {
     try {
       DriveHelper.INST(mContext).deleteBackup(activity, file.getId());
     } catch (Exception ex) {
@@ -99,7 +99,7 @@ public class BackupHelper {
    * @param activity The calling activity
    * @param file     File to restore
    */
-  void getBackupContents(@NonNull BackupActivity activity, BackupFile file,
+  private void getBackupContents(@NonNull BackupActivity activity, BackupFile file,
                          boolean isSync) {
     try {
       final DriveFile driveFile = file.getId().asDriveFile();
@@ -115,7 +115,7 @@ public class BackupHelper {
    * @param activity The calling activity
    * @param contents contents to restore
    */
-  void restoreBackup(@NonNull BackupActivity activity, BackupContents
+  private void restoreBackup(@NonNull BackupActivity activity, BackupContents
     contents) {
     try {
       BackupHelper.INST(activity).saveContentsToDB(contents);
@@ -130,7 +130,7 @@ public class BackupHelper {
    * @param activity The calling activity
    * @param contents contents to restore
    */
-  void syncBackup(@NonNull BackupActivity activity, DriveFile driveFile,
+  private void syncBackup(@NonNull BackupActivity activity, DriveFile driveFile,
                   BackupContents contents) {
     try {
       final BackupContents mergedContents =
@@ -245,7 +245,8 @@ public class BackupHelper {
    */
   @NonNull
   private String getZipFilename() {
-    String ret = Device.getMyOS() + Device.getMySN(mContext) + ".zip";
+    String ret = MyDevice.INST(mContext).getOS() +
+      MyDevice.INST(mContext).getSN() + ".zip";
     ret = ret.replace(' ', '_');
     return ret;
   }

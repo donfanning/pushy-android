@@ -230,7 +230,7 @@ public class ClipItem implements Serializable {
 
     // parse the description for special instructions
     Boolean remote = false;
-    String sourceDevice = Device.getMyName(context);
+    String sourceDevice = MyDevice.INST(context).getDisplayName();
     final ClipDescription desc = clipData.getDescription();
 
     // set fav state if the copy is from us
@@ -594,7 +594,7 @@ public class ClipItem implements Serializable {
     date = Instant.now().toEpochMilli();
     fav = false;
     remote = false;
-    device = Device.getMyName(context);
+    device = MyDevice.INST(context).getDisplayName();
     labels = new ArrayList<>(0);
     labelsId = new ArrayList<>(0);
   }

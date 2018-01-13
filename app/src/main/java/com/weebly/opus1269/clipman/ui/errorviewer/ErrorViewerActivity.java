@@ -89,7 +89,7 @@ public class ErrorViewerActivity extends BaseActivity
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_email:
-        String body = Email.INST.getBody() + mLastError + " \n" +
+        String body = Email.INST.getBody(this) + mLastError + " \n" +
           getString(R.string.email_error_info) + " \n \n";
         Email.INST.send(this, getString(R.string.last_error), body);
         break;

@@ -32,8 +32,8 @@ import com.weebly.opus1269.clipman.backend.messaging.Messaging;
 import com.weebly.opus1269.clipman.backend.messaging.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.json.JSONException;
@@ -206,10 +206,10 @@ public class MessagingClient extends Endpoint {
       data = new JSONObject();
       data.put(Msg.ACTION, action);
       data.put(Msg.MESSAGE, message);
-      data.put(Msg.DEVICE_MODEL, Device.getMyDevice(mContext).getModel());
-      data.put(Msg.DEVICE_SN, Device.getMyDevice(mContext).getSN());
-      data.put(Msg.DEVICE_OS, Device.getMyDevice(mContext).getOS());
-      data.put(Msg.DEVICE_NICKNAME, Device.getMyDevice(mContext).getNickname());
+      data.put(Msg.DEVICE_MODEL, MyDevice.INST(mContext).getModel());
+      data.put(Msg.DEVICE_SN, MyDevice.INST(mContext).getSN());
+      data.put(Msg.DEVICE_OS, MyDevice.INST(mContext).getOS());
+      data.put(Msg.DEVICE_NICKNAME, MyDevice.INST(mContext).getNickname());
     } catch (JSONException ex) {
       Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex,
         ERROR_SEND);
