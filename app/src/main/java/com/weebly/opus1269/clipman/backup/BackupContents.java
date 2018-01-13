@@ -18,7 +18,7 @@ import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.MyDevice;
+import com.weebly.opus1269.clipman.model.device.MyDevice;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;

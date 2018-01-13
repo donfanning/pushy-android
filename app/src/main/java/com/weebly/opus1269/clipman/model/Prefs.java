@@ -311,7 +311,7 @@ public class Prefs {
   }
 
   /** Get Serial number. Create if not set */
-  String getSN() {
+  public String getSN() {
     final SharedPreferences preferences =
       PreferenceManager.getDefaultSharedPreferences(mContext);
     String sN;

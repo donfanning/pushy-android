@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.model;
+package com.weebly.opus1269.clipman.model.device;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.threeten.bp.Instant;
 

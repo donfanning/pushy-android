@@ -32,6 +32,7 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.db.LabelTables;
+import com.weebly.opus1269.clipman.model.device.MyDevice;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 
 import org.threeten.bp.Instant;

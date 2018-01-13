@@ -33,7 +33,7 @@ import com.weebly.opus1269.clipman.backend.messaging.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Devices;
-import com.weebly.opus1269.clipman.model.MyDevice;
+import com.weebly.opus1269.clipman.model.device.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.json.JSONException;

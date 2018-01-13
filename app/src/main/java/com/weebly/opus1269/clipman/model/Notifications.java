@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.device.Device;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;

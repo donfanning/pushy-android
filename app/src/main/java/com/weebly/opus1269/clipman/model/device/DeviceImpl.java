@@ -16,7 +16,7 @@
  *
  */
 
-package com.weebly.opus1269.clipman.model;
+package com.weebly.opus1269.clipman.model.device;
 
 import android.text.TextUtils;
 
