@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
@@ -306,8 +307,8 @@ public class SignInActivity extends BaseActivity implements
    * All SignIn attempts will come through here
    * @param result The {@link GoogleSignInResult} of any SignIn attempt
    */
-  private void handleSignInResult(GoogleSignInResult result) {
-    if (!mConnectionFailed) {
+  private void handleSignInResult(@Nullable GoogleSignInResult result) {
+    if (!mConnectionFailed && (result != null)) {
       mErrorMessage = "";
       if (result.isSuccess()) {
         mAccount = result.getSignInAccount();
