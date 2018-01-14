@@ -51,19 +51,13 @@ public class DevicesActivity extends BaseActivity {
 
     final FloatingActionButton fab = findViewById(R.id.fab);
     if (fab != null) {
-      fab.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          setupMainView();
-          final View fab = findViewById(R.id.fab);
-          if (fab != null) {
-            final Snackbar snack =
-              Snackbar.make(fab, getString(R.string.ping_message), 5000);
-            snack.show();
-          }
-          ping();
-          Analytics.INST(v.getContext()).imageClick(TAG, "refreshDevices");
-        }
+      fab.setOnClickListener(v -> {
+        setupMainView();
+        final Snackbar snack =
+          Snackbar.make(fab, getString(R.string.ping_message), 5000);
+        snack.show();
+        ping();
+        Analytics.INST(v.getContext()).imageClick(TAG, "refreshDevices");
       });
     }
 
