@@ -51,7 +51,7 @@ public class BackupActivity extends BaseActivity {
   private final int RC_DRIVE_SUCCESS = 10;
 
   /** The Array of {@link BackupFile} objects */
-  private List<BackupFile> mFiles = new ArrayList<>(0);
+  private final List<BackupFile> mFiles = new ArrayList<>(0);
 
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
@@ -142,24 +142,15 @@ public class BackupActivity extends BaseActivity {
   }
 
   /**
-   * Get the list of backups
-   * @return the backups
-   */
-  List<BackupFile> getFiles() {
-    return mFiles;
-  }
-
-  /**
    * Set the list of backups
    * @param metadataBuffer - buffer containing list of files
    */
   public void setFiles(@NonNull MetadataBuffer metadataBuffer) {
-    final ArrayList<BackupFile> files = new ArrayList<>(0);
+    mFiles.clear();
     for (Metadata metadata : metadataBuffer) {
       final BackupFile file = new BackupFile(this, metadata);
-      files.add(file);
+      mFiles.add(file);
     }
-    mFiles = files;
     setupMainView();
     mAdapter.notifyDataSetChanged();
   }
@@ -347,7 +338,7 @@ public class BackupActivity extends BaseActivity {
   private void setupRecyclerView() {
     final RecyclerView recyclerView = findViewById(R.id.backupList);
     if (recyclerView != null) {
-      mAdapter = new BackupAdapter(this);
+      mAdapter = new BackupAdapter(this, mFiles);
       recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
