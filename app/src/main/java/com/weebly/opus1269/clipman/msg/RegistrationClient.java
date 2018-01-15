@@ -33,8 +33,8 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backend.registration.Registration;
 import com.weebly.opus1269.clipman.backend.registration.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.model.device.MyDevice;
 
 import java.io.IOException;
 
@@ -243,12 +243,12 @@ public class RegistrationClient extends Endpoint {
       if (mActivity != null) {
         if (!TextUtils.isEmpty(error)) {
           // notifiy listeners
-          Devices.INST(mActivity).notifyMyDeviceRegisterError(error);
+          MyDevice.INST(mActivity).notifyRegisterError(error);
         } else {
           // let others know we are here
           MessagingClient.INST(mAppContext).sendDeviceAdded();
           // notifiy listeners
-          Devices.INST(mActivity).notifyMyDeviceRegistered();
+          MyDevice.INST(mActivity).notifyRegistered();
         }
       } else {
         Log.logE(mAppContext, "RegisterAsyncTask", NO_ACTIVITY, false);
@@ -295,7 +295,7 @@ public class RegistrationClient extends Endpoint {
       super.onPostExecute(error);
 
       // SignInActivity will be notified that it can now sign-out
-      Devices.INST(mAppContext).notifyMyDeviceUnregistered();
+      MyDevice.INST(mAppContext).notifyUnregistered();
     }
   }
 }

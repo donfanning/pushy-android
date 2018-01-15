@@ -32,7 +32,6 @@ import com.weebly.opus1269.clipman.backend.messaging.Messaging;
 import com.weebly.opus1269.clipman.backend.messaging.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.device.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 
@@ -335,7 +334,7 @@ public class MessagingClient extends Endpoint {
         mRetryOnError = false;
 
         // let listeners know
-        Devices.INST(mAppContext).notifyNoRemoteDevicesError();
+        MyDevice.INST(mAppContext).notifyNoRemoteDevicesError();
 
         int noDevicesCt = Prefs.INST(mAppContext).getNoDevicesCt();
         if (noDevicesCt >= MAX_NO_DEVICES_CT) {
@@ -359,7 +358,7 @@ public class MessagingClient extends Endpoint {
         if (Msg.ACTION_DEVICE_REMOVED.equals(mAction)) {
           // remove device notification. SignInActivity will be notified that it
           // can now unregister and sign-out
-          Devices.INST(mAppContext).notifyMyDeviceRemoved();
+          MyDevice.INST(mAppContext).notifyRemoved();
         }
       }
     }

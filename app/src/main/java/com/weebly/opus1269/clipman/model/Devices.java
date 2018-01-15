@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -164,61 +163,11 @@ public class Devices {
 
   /**
    * Remove all devices
+   * @param broadcast if true, broadcast changes
    */
-  void clear() {
+  public void clear(boolean broadcast) {
     sDevices.clear();
-    save(true);
-  }
-
-  /**
-   * Notify listeners that our {@link Device} was removed
-   */
-  public void notifyMyDeviceRemoved() {
-    clear();
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_REMOVED);
-  }
-
-  /**
-   * Notify listeners that our {@link Device} was registered
-   */
-  public void notifyMyDeviceRegistered() {
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTERED);
-  }
-
-  /**
-   * Notify listeners that our {@link Device} was unregistered
-   */
-  public void notifyMyDeviceUnregistered() {
-    clear();
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_UNREGISTERED);
-  }
-
-  /**
-   * Notify listeners that registration failed
-   * @param message error message
-   */
-  public void notifyMyDeviceRegisterError(String message) {
-    clear();
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
-      message);
-  }
-
-  /**
-   * Notify listeners that no remote devices are registered
-   */
-  public void notifyNoRemoteDevicesError() {
-    clear();
-    sendBroadcast(Intents.TYPE_NO_REMOTE_DEVICES, "", "");
-  }
-
-
-  /**
-   * Get the {@link Device} at the given position
-   * @param pos Position in list
-   * @return A {@link Device}
-   */
-  public Device get(int pos) {
-    return sDevices.get(pos);
+    save(broadcast);
   }
 
   /**
@@ -232,27 +181,12 @@ public class Devices {
   /**
    * Broadcast changes to listeners
    * @param action     the type of the change
-   * @param extra      extra String info type
-   * @param extraValue value of extra
    */
-  private void sendBroadcast(String action, String extra, String extraValue) {
+  private void sendBroadcast(String action) {
     final Intent intent = new Intent(Intents.FILTER_DEVICES);
     final Bundle bundle = new Bundle();
     bundle.putString(Intents.ACTION_TYPE_DEVICES, action);
-    if (!TextUtils.isEmpty(extra)) {
-      bundle.putString(extra, extraValue);
-    }
     intent.putExtra(Intents.BUNDLE_DEVICES, bundle);
-    LocalBroadcastManager
-      .getInstance(mContext)
-      .sendBroadcast(intent);
-  }
-
-  /**
-   * Broadcast changes to listeners
-   * @param action the type of the change
-   */
-  private void sendBroadcast(String action) {
-    sendBroadcast(action, "", "");
+    LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
   }
 }

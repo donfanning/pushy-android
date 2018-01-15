@@ -9,11 +9,16 @@ package com.weebly.opus1269.clipman.model.device;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.threeten.bp.Instant;
@@ -88,5 +93,59 @@ public class MyDevice implements Device {
   /** A String that is unique for a Device */
   public String getUniqueName() {
     return getModel() + " - " + getSN() + " - " + getOS();
+  }
+
+  /** Notify listeners that our {@link Device} was removed */
+  public void notifyRemoved() {
+    Devices.INST(mContext).clear(true);
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_REMOVED, "", "");
+  }
+
+  /** Notify listeners that our {@link Device} was registered */
+  public void notifyRegistered() {
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTERED, "", "");
+  }
+
+  /** Notify listeners that our {@link Device} was unregistered */
+  public void notifyUnregistered() {
+    Devices.INST(mContext).clear(true);
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_UNREGISTERED, "", "");
+  }
+
+  /**
+   * Notify listeners that registration failed
+   * @param message error message
+   */
+  public void notifyRegisterError(String message) {
+    Devices.INST(mContext).clear(true);
+    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
+      message);
+  }
+
+  /**
+   * Notify listeners that no remote devices are registered
+   */
+  public void notifyNoRemoteDevicesError() {
+    Devices.INST(mContext).clear(true);
+    sendBroadcast(Intents.TYPE_NO_REMOTE_DEVICES, "", "");
+  }
+
+  /**
+   * Broadcast changes to listeners
+   * @param action     the type of the change
+   * @param extra      extra String info type
+   * @param extraValue value of extra
+   */
+  private void sendBroadcast(String action, String extra, String extraValue) {
+    final Intent intent = new Intent(Intents.FILTER_DEVICES);
+    final Bundle bundle = new Bundle();
+    bundle.putString(Intents.ACTION_TYPE_DEVICES, action);
+    if (!TextUtils.isEmpty(extra)) {
+      bundle.putString(extra, extraValue);
+    }
+    intent.putExtra(Intents.BUNDLE_DEVICES, bundle);
+    LocalBroadcastManager
+      .getInstance(mContext)
+      .sendBroadcast(intent);
   }
 }

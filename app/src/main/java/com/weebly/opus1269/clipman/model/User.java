@@ -141,7 +141,7 @@ public class User {
     setCoverPhotoBitmap(null);
 
     // clear Devices list
-    Devices.INST(mContext).clear();
+    Devices.INST(mContext).clear(true);
   }
 
   /**
