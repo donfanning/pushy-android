@@ -15,8 +15,8 @@
   <data>
     <import type="com.weebly.opus1269.clipman.app.AppUtils"/>
     <variable
-      name="device"
-      type="com.weebly.opus1269.clipman.model.device.Device" />
+      name="vm"
+      type="com.weebly.opus1269.clipman.model.viewmodel.DeviceViewModel" />
     <variable
       name="handlers"
       type="com.weebly.opus1269.clipman.ui.devices.DevicesHandlers" />
@@ -44,7 +44,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginEnd="@dimen/row_image_large_size"
         android:layout_marginRight="@dimen/row_image_large_size"
-        android:onClick="@{() -> handlers.onForgetClick(context, device)}"
+        android:onClick="@{() -> handlers.onForgetClick(context, vm)}"
         android:background="@android:color/transparent"
         android:contentDescription="@string/device_forget"
         app:srcCompat="@drawable/ic_clear" />
@@ -64,7 +64,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/device_nickname_fmt(device.nickname)}"
+          android:text="@{@string/device_nickname_fmt(vm.device.nickname)}"
           tools:text="Nickname: " />
 
         <TextView
@@ -73,7 +73,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/device_model_fmt(device.model)}"
+          android:text="@{@string/device_model_fmt(vm.device.model)}"
           tools:text="Model: " />
 
         <TextView
@@ -82,7 +82,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/device_SN_fmt(device.SN)}"
+          android:text="@{@string/device_SN_fmt(vm.device.SN)}"
           tools:text="SN: " />
 
         <TextView
@@ -91,14 +91,14 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/device_OS_fmt(device.OS)}"
+          android:text="@{@string/device_OS_fmt(vm.device.OS)}"
           tools:text="OS: " />
 
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:maxLines="2"
-          android:text="@{@string/device_last_seen_fmt(AppUtils.getRelativeDisplayTime(context, device.lastSeen))}"
+          android:text="@{@string/device_last_seen_fmt(AppUtils.getRelativeDisplayTime(context, vm.device.lastSeen))}"
           android:textAppearance="?attr/textAppearanceListItemSmall"
           android:textColor="?android:textColorTertiary"
           android:textIsSelectable="false"

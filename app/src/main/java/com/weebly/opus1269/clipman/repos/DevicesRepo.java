@@ -7,6 +7,8 @@
 
 package com.weebly.opus1269.clipman.repos;
 
+import android.annotation.SuppressLint;
+import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.BroadcastReceiver;
@@ -26,22 +28,34 @@ import com.weebly.opus1269.clipman.msg.MessagingClient;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Repository for {@link Device} objects */
+/** Singleton - Repository for {@link Device} objects */
 public class DevicesRepo {
-  /** Application context */
-  private Context mAppCtxt;
+  @SuppressLint("StaticFieldLeak")
+  private static DevicesRepo sInstance;
 
-  /** Class Indentifier */
-  private final String TAG = this.getClass().getSimpleName();
+  /** Application */
+  private final Application mApp;
 
   /** Info message */
-  private MutableLiveData<String> infoMessage = new MutableLiveData<>();
+  private final MutableLiveData<String> infoMessage = new MutableLiveData<>();
 
   /** Device List */
-  private MutableLiveData<List<Device>> deviceList = new MutableLiveData<>();
-  
-  public DevicesRepo(Context appContext) {
-    mAppCtxt = appContext;
+  private final MutableLiveData<List<Device>> deviceList =
+    new MutableLiveData<>();
+
+  public static DevicesRepo INST(final Application app) {
+    if (sInstance == null) {
+      synchronized (DevicesRepo.class) {
+        if (sInstance == null) {
+          sInstance = new DevicesRepo(app);
+        }
+      }
+    }
+    return sInstance;
+  }
+
+  private DevicesRepo(Application app) {
+    mApp = app;
 
     resetInfoMessage();
 
@@ -62,18 +76,18 @@ public class DevicesRepo {
 
   public void updateList() {
     loadList();
-    MessagingClient.INST(mAppCtxt).sendPing();
+    MessagingClient.INST(mApp).sendPing();
   }
 
   public void removeDevice(Device device) {
-    Devices.INST(mAppCtxt).remove(device);
+    Devices.INST(mApp).remove(device);
   }
 
   private void loadList() {
     deviceList.setValue(new ArrayList<>());
     List<Device> devices = deviceList.getValue();
     if (devices != null) {
-      devices.addAll(Devices.INST(mAppCtxt).getList());
+      devices.addAll(Devices.INST(mApp).getList());
     }
   }
 
@@ -82,10 +96,10 @@ public class DevicesRepo {
   }
 
   private void resetInfoMessage() {
-    if (!Prefs.INST(mAppCtxt).isPushClipboard()) {
-      setInfoMessage(mAppCtxt.getString(R.string.err_no_push_to_devices));
-    } else if (!Prefs.INST(mAppCtxt).isAllowReceive()) {
-      setInfoMessage(mAppCtxt.getString(R.string.err_no_receive_from_devices));
+    if (!Prefs.INST(mApp).isPushClipboard()) {
+      setInfoMessage(mApp.getString(R.string.err_no_push_to_devices));
+    } else if (!Prefs.INST(mApp).isAllowReceive()) {
+      setInfoMessage(mApp.getString(R.string.err_no_receive_from_devices));
     } else {
       setInfoMessage("");
     }
@@ -109,7 +123,7 @@ public class DevicesRepo {
         switch (action) {
           case Intents.TYPE_UPDATE_DEVICES:
             // device list changed - don't ping here
-            if (Devices.INST(mAppCtxt).getCount() > 0) {
+            if (Devices.INST(mApp).getCount() > 0) {
               setInfoMessage("");
             } else {
               resetInfoMessage();
@@ -118,7 +132,7 @@ public class DevicesRepo {
             break;
           case Intents.TYPE_NO_REMOTE_DEVICES:
             // detected no remote devices - don't ping here
-            setInfoMessage(mAppCtxt.getString(R.string.err_no_remote_devices));
+            setInfoMessage(mApp.getString(R.string.err_no_remote_devices));
             break;
           default:
             break;
@@ -127,7 +141,7 @@ public class DevicesRepo {
     };
 
     // Register mReceiver to receive Device notifications.
-    LocalBroadcastManager.getInstance(mAppCtxt)
+    LocalBroadcastManager.getInstance(mApp)
       .registerReceiver(receiver, new IntentFilter(Intents.FILTER_DEVICES));
   }
 }

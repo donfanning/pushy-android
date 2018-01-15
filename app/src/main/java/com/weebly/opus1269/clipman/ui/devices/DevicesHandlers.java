@@ -13,11 +13,10 @@ import android.support.design.widget.Snackbar;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Devices;
-import com.weebly.opus1269.clipman.model.device.Device;
+import com.weebly.opus1269.clipman.model.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel;
 
-/** Handler for UI events */
+/** Handlers for UI events */
 public class DevicesHandlers {
   private final String TAG;
 
@@ -45,11 +44,11 @@ public class DevicesHandlers {
   /**
    * Click on forget button of a device
    * @param context A context
-   * @param device  The device
+   * @param vm  Our viewmodel
    */
-  public void onForgetClick(Context context, Device device) {
-    Devices.INST(context).remove(device);
+  public void onForgetClick(Context context, DeviceViewModel vm) {
+    vm.remove();
     Analytics.INST(context)
-      .imageClick("DevicesActivity", "removeDevice");
+      .imageClick(TAG, "removeDevice");
   }
 }

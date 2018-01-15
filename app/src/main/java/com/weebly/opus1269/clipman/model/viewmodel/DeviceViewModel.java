@@ -9,35 +9,31 @@ package com.weebly.opus1269.clipman.model.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.model.device.Device;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
-import java.util.List;
-
-
-/** ViewModel for a collection of Devices */
-public class DevicesViewModel extends AndroidViewModel {
+/** ViewModel for a {@link Device} */
+public class DeviceViewModel extends AndroidViewModel {
   /** Device Repo */
   private final DevicesRepo mRepo;
 
-  public DevicesViewModel(@NonNull Application app) {
+  /** Our Device */
+  private final Device device;
+
+  public DeviceViewModel(@NonNull Application app, Device device) {
     super(app);
 
+    this.device = device;
     mRepo = DevicesRepo.INST(app);
   }
 
-  public LiveData<String> getInfoMessage() {
-    return mRepo.getInfoMessage();
+  public Device getDevice() {
+    return device;
   }
 
-  public LiveData<List<Device>> getDeviceList() {
-    return mRepo.getDeviceList();
-  }
-
-  public void updateList() {
-    mRepo.updateList();
+  public void remove() {
+    mRepo.removeDevice(device);
   }
 }

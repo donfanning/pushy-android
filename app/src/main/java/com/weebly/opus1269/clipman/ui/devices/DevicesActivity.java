@@ -19,14 +19,6 @@ import com.weebly.opus1269.clipman.model.Notifications;
 
 /** Activity to manage our connected devices */
 public class DevicesActivity extends BaseActivity {
-  /** Our ViewModel */
-  private DevicesViewModel vm;
-
-  /** Our event handlers */
-  private DevicesHandlers handlers;
-
-  /** Our binding */
-  private ActivityDevicesBinding binding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +29,9 @@ public class DevicesActivity extends BaseActivity {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    vm = new DevicesViewModel(getApplication());
-    handlers = new DevicesHandlers(getTAG());
-    binding = (ActivityDevicesBinding) mBinding;
+    final DevicesViewModel vm = new DevicesViewModel(getApplication());
+    final DevicesHandlers handlers = new DevicesHandlers(getTAG());
+    final ActivityDevicesBinding binding = (ActivityDevicesBinding) mBinding;
     binding.setVm(vm);
     binding.setHandlers(handlers);
 
