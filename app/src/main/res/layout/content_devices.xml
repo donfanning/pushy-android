@@ -5,29 +5,48 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<LinearLayout android:id="@+id/content_devices"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:descendantFocusability="beforeDescendants"
-  android:focusableInTouchMode="true"
-  android:orientation="vertical"
-  app:layout_behavior="@string/appbar_scrolling_view_behavior"
-  tools:context=".ui.devices.DevicesActivity"
-  tools:showIn="@layout/activity_devices">
+  xmlns:bind="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <include layout="@layout/device_list" />
+  <data>
+    <import type="java.util.List" />
+    <import type="android.text.TextUtils" />
+    <import type="android.view.View" />
 
-  <TextView
-    android:id="@+id/info_message"
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel" />
+    <variable
+      name="handlers"
+      type="com.weebly.opus1269.clipman.ui.devices.DevicesHandlers" />
+  </data>
+
+  <LinearLayout
+    android:id="@+id/content_devices"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:padding="10dp"
-    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-    android:visibility="gone"
-    tools:text="Error message here" />
-</LinearLayout>
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ui.devices.DevicesActivity"
+    tools:showIn="@layout/activity_devices">
 
+    <include layout="@layout/device_list" bind:vm="@{vm}" bind:handlers="@{handlers}"/>
+
+    <TextView
+      android:id="@+id/info_message"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:padding="10dp"
+      android:text="@{vm.infoMessage}"
+      android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+      android:visibility="@{!TextUtils.isEmpty(vm.infoMessage) ? View.VISIBLE : View.GONE}"
+      tools:text="Error message here" />
+
+  </LinearLayout>
+
+</layout>

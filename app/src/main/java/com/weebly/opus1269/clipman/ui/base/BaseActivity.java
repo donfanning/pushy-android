@@ -9,6 +9,8 @@ package com.weebly.opus1269.clipman.ui.base;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -47,16 +49,32 @@ public abstract class BaseActivity extends AppCompatActivity implements
     AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
   }
 
+  /** Class identifier */
   protected final String TAG = this.getClass().getSimpleName();
+
+  /** Content view resource id */
   protected int mLayoutID = -1;
+
+  /** True is using data binding */
+  protected boolean mIsbound = false;
+
+  /** Our data bining */
+  protected ViewDataBinding mBinding = null;
+
+  /** Option menu resource id */
   protected int mOptionsMenuID = -1;
+
+  /** Our Option menu */
   protected Menu mOptionsMenu = null;
+
+  /** True if we should have back arrow in toolbar */
   protected boolean mHomeUpEnabled = true;
+
+  /** Current search string */
   protected String mQueryString = "";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-
     setTheme();
 
     super.onCreate(savedInstanceState);
@@ -70,8 +88,12 @@ public abstract class BaseActivity extends AppCompatActivity implements
       restoreInstanceState(savedInstanceState);
     }
 
-    if (mLayoutID != -1) {
-      setContentView(mLayoutID);
+    if ((mLayoutID != -1)) {
+      if (mIsbound) {
+        mBinding = DataBindingUtil.setContentView(this, mLayoutID);
+      } else {
+        setContentView(mLayoutID);
+      }
     }
 
     Toolbar toolbar = findViewById(R.id.toolbar);
@@ -257,12 +279,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
         // moved expandActionView out of run.
         // did not always work.
         searchItem.expandActionView();
-        searchView.post(new Runnable() {
-          @Override
-          public void run() {
-            searchView.setQuery(localQueryString, true);
-          }
-        });
+        searchView.post(() -> searchView.setQuery(localQueryString, true));
       }
     }
   }

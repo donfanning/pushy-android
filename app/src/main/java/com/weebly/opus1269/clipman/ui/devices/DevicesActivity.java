@@ -18,20 +18,22 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.databinding.ActivityDevicesBinding;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 
 /** Activity to manage our connected devices */
 public class DevicesActivity extends BaseActivity {
+  /** The ViewModel */
+  private DevicesViewModel vm;
 
   /** Adapter being used to display the list's data */
   private DevicesAdapter mAdapter = null;
@@ -39,15 +41,17 @@ public class DevicesActivity extends BaseActivity {
   /** Receiver to be notified of changes */
   private BroadcastReceiver mReceiver = null;
 
-  /** Info. message if list is not visible */
-  private String mInfoMessage = "";
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 
     mLayoutID = R.layout.activity_devices;
+    mIsbound = true;
 
     super.onCreate(savedInstanceState);
+
+    // setup ViewModel and data binding
+    vm = new DevicesViewModel(getApplication());
+    ((ActivityDevicesBinding) mBinding).setVm(vm);
 
     final FloatingActionButton fab = findViewById(R.id.fab);
     if (fab != null) {
@@ -104,29 +108,14 @@ public class DevicesActivity extends BaseActivity {
 
   /** Determine if list or error should be shown */
   private void setupMainView() {
-
-    final RecyclerView recyclerView = findViewById(R.id.deviceList);
-    final TextView textView = findViewById(R.id.info_message);
-    final FloatingActionButton fab = findViewById(R.id.fab);
-
     if (!Prefs.INST(getApplicationContext()).isPushClipboard()) {
-      mInfoMessage = getString(R.string.err_no_push_to_devices);
+      vm.setInfoMessage(getString(R.string.err_no_push_to_devices));
     } else if (!Prefs.INST(getApplicationContext()).isAllowReceive()) {
-      mInfoMessage = getString(R.string.err_no_receive_from_devices);
+      vm.setInfoMessage(getString(R.string.err_no_receive_from_devices));
     }
 
-    if (TextUtils.isEmpty(mInfoMessage)) {
+    if (TextUtils.isEmpty(vm.getInfoMessage())) {
       refreshList();
-
-      textView.setVisibility(View.GONE);
-      recyclerView.setVisibility(View.VISIBLE);
-      fab.setVisibility(View.VISIBLE);
-      textView.setText("");
-    } else {
-      textView.setText(mInfoMessage);
-      textView.setVisibility(View.VISIBLE);
-      recyclerView.setVisibility(View.GONE);
-      fab.setVisibility(View.GONE);
     }
   }
 
@@ -149,13 +138,13 @@ public class DevicesActivity extends BaseActivity {
           case Intents.TYPE_UPDATE_DEVICES:
             // device list changed - don't ping here
             if (Devices.INST(getApplicationContext()).getCount() > 0) {
-              mInfoMessage = "";
+              vm.setInfoMessage("");
             }
             setupMainView();
             break;
           case Intents.TYPE_NO_REMOTE_DEVICES:
             // detected no remote devices - don't ping here
-            mInfoMessage = getString(R.string.err_no_remote_devices);
+            vm.setInfoMessage(getString(R.string.err_no_remote_devices));
             setupMainView();
             break;
           default:

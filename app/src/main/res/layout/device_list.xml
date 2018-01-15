@@ -7,12 +7,30 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<android.support.v7.widget.RecyclerView android:id="@+id/deviceList"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:scrollbars="vertical"
-  app:layoutManager="LinearLayoutManager"
-  tools:listitem="@layout/device_row" />
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+    <import type="java.util.List" />
+    <import type="android.text.TextUtils" />
+    <import type="android.view.View" />
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel" />
+    <variable
+      name="handlers"
+      type="com.weebly.opus1269.clipman.ui.devices.DevicesHandlers" />
+  </data>
+
+  <android.support.v7.widget.RecyclerView
+    android:id="@+id/deviceList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical"
+    app:layoutManager="LinearLayoutManager"
+    android:visibility="@{TextUtils.isEmpty(vm.infoMessage) ? View.VISIBLE : View.GONE}"
+    tools:listitem="@layout/device_row" />
+
+</layout>
