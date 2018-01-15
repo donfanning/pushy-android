@@ -43,7 +43,9 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_devices" bind:vm="@{vm}" bind:handlers="@{handlers}"/>
+    <include
+      layout="@layout/content_devices"
+      bind:vm="@{vm}"/>
 
     <android.support.design.widget.FloatingActionButton
       android:id="@+id/fab"
@@ -51,8 +53,8 @@
       android:layout_height="wrap_content"
       android:layout_gravity="bottom|end"
       android:layout_margin="@dimen/fab_margin"
-      android:onClick="@{() -> handlers.onFabClick()}"
-      android:visibility="@{TextUtils.isEmpty(vm.infoMessage) ? View.VISIBLE : View.GONE}"
+      android:onClick="@{() -> handlers.onFabClick(vm, fab)}"
+      android:visibility="@{TextUtils.isEmpty(vm.infoMessage.getValue()) ? View.VISIBLE : View.GONE}"
       android:tint="@color/icons"
       app:srcCompat="@drawable/ic_refresh_black_24dp" />
 

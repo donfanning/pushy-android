@@ -10,25 +10,23 @@ package com.weebly.opus1269.clipman.ui.devices;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.databinding.ActivityDevicesBinding;
 import com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel;
-import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 
 /** Activity to manage our connected devices */
 public class DevicesActivity extends BaseActivity {
-  /** The ViewModel */
+  /** Our ViewModel */
   private DevicesViewModel vm;
 
   /** Our event handlers */
   private DevicesHandlers handlers;
 
-  /** Adapter being used to display the list's data */
-  private DevicesAdapter mAdapter = null;
+  /** Our binding */
+  private ActivityDevicesBinding binding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +38,19 @@ public class DevicesActivity extends BaseActivity {
 
     // setup ViewModel and data binding
     vm = new DevicesViewModel(getApplication());
-    handlers = new DevicesHandlers(this);
-    ((ActivityDevicesBinding) mBinding).setVm(vm);
-    ((ActivityDevicesBinding) mBinding).setHandlers(handlers);
+    handlers = new DevicesHandlers(getTAG());
+    binding = (ActivityDevicesBinding) mBinding;
+    binding.setVm(vm);
+    binding.setHandlers(handlers);
 
-    setupRecyclerView();
+    // setup RecyclerView
+    final RecyclerView recyclerView = findViewById(R.id.deviceList);
+    if (recyclerView != null) {
+      final DevicesAdapter adapter =
+        new DevicesAdapter(this, handlers, vm.getDeviceList());
+      recyclerView.setAdapter(adapter);
+      recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
   }
 
   @Override
@@ -53,33 +59,5 @@ public class DevicesActivity extends BaseActivity {
 
     // remove any displayed device notifications
     Notifications.INST(this).removeDevices();
-
-    // force update of adapter
-    refreshList();
-
-    // ping devices
-    ping();
-  }
-
-  /** Connect the {@link DevicesAdapter} to the {@link RecyclerView} */
-  private void setupRecyclerView() {
-    final RecyclerView recyclerView = findViewById(R.id.deviceList);
-    if (recyclerView != null) {
-      mAdapter = new DevicesAdapter(this, handlers, vm.getDeviceList());
-      recyclerView.setAdapter(mAdapter);
-      recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
-  }
-
-  /** Ping our devices */
-  void ping() {
-    MessagingClient.INST(this).sendPing();
-  }
-
-  /** Refresh the list */
-  void refreshList() {
-    if (TextUtils.isEmpty(vm.getInfoMessage())) {
-      mAdapter.notifyDataSetChanged();
-    }
   }
 }
