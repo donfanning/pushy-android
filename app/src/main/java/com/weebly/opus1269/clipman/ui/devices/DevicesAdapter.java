@@ -45,10 +45,11 @@ class DevicesAdapter extends
   private List<? extends Device> mDevices = null;
 
   DevicesAdapter(DevicesActivity activity,
+                 DevicesHandlers handlers,
                  LiveData<List<Device>> deviceList) {
     super();
 
-    mHandlers = new DevicesHandlers();
+    mHandlers = handlers;
     mDevices = deviceList.getValue();
 
     // Observe devices

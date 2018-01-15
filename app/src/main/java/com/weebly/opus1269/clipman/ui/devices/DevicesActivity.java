@@ -8,15 +8,12 @@
 package com.weebly.opus1269.clipman.ui.devices;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.databinding.ActivityDevicesBinding;
-import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -26,6 +23,9 @@ import com.weebly.opus1269.clipman.model.Notifications;
 public class DevicesActivity extends BaseActivity {
   /** The ViewModel */
   private DevicesViewModel vm;
+
+  /** Our event handlers */
+  private DevicesHandlers handlers;
 
   /** Adapter being used to display the list's data */
   private DevicesAdapter mAdapter = null;
@@ -40,19 +40,9 @@ public class DevicesActivity extends BaseActivity {
 
     // setup ViewModel and data binding
     vm = new DevicesViewModel(getApplication());
+    handlers = new DevicesHandlers(this);
     ((ActivityDevicesBinding) mBinding).setVm(vm);
-
-    final FloatingActionButton fab = findViewById(R.id.fab);
-    if (fab != null) {
-      fab.setOnClickListener(v -> {
-        refreshList();
-        final Snackbar snack =
-          Snackbar.make(fab, getString(R.string.ping_message), 5000);
-        snack.show();
-        ping();
-        Analytics.INST(v.getContext()).imageClick(TAG, "refreshDevices");
-      });
-    }
+    ((ActivityDevicesBinding) mBinding).setHandlers(handlers);
 
     setupRecyclerView();
   }
@@ -75,19 +65,19 @@ public class DevicesActivity extends BaseActivity {
   private void setupRecyclerView() {
     final RecyclerView recyclerView = findViewById(R.id.deviceList);
     if (recyclerView != null) {
-      mAdapter = new DevicesAdapter(this, vm.getDeviceList());
+      mAdapter = new DevicesAdapter(this, handlers, vm.getDeviceList());
       recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
   }
 
   /** Ping our devices */
-  private void ping() {
+  void ping() {
     MessagingClient.INST(this).sendPing();
   }
 
   /** Refresh the list */
-  private void refreshList() {
+  void refreshList() {
     if (TextUtils.isEmpty(vm.getInfoMessage())) {
       mAdapter.notifyDataSetChanged();
     }

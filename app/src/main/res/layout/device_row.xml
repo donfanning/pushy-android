@@ -46,7 +46,7 @@
         android:layout_marginRight="@dimen/row_image_large_size"
         android:background="@android:color/transparent"
         android:contentDescription="@string/device_forget"
-        android:onClick="@{() -> handlers.onForgetClick(context, device)}"
+        android:onClick="@{() -> handlers.onForgetClick(device)}"
         app:srcCompat="@drawable/ic_clear" />
 
       <LinearLayout
