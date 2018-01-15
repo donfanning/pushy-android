@@ -12,7 +12,6 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
-    <import type="java.util.List" />
     <import type="android.text.TextUtils" />
     <import type="android.view.View" />
 

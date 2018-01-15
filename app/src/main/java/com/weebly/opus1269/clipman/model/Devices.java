@@ -73,17 +73,22 @@ public class Devices {
   }
 
   /**
+   * Get the list
+   * @return our list
+   */
+  public List<Device> getList() {
+    return sDevices;
+  }
+
+  /**
    * Save list to persistant storage
    * @param broadcast broadcast result to listeners if true
    */
   private void save(Boolean broadcast) {
-    final Comparator<Device> cmp = new Comparator<Device>() {
-      @Override
-      public int compare(Device lhs, Device rhs) {
-        // newest first
-        return ((Long) rhs.getLastSeen())
-          .compareTo(lhs.getLastSeen());
-      }
+    final Comparator<Device> cmp = (lhs, rhs) -> {
+      // newest first
+      return ((Long) rhs.getLastSeen())
+        .compareTo(lhs.getLastSeen());
     };
     // sort by lastSeen
     Collections.sort(sDevices, cmp);
