@@ -28,9 +28,7 @@ import com.weebly.opus1269.clipman.model.device.Device;
 
 import org.threeten.bp.Instant;
 
-/**
- * A (hopefully) unique hardware device
- */
+/** A (hopefully) unique hardware device */
 @Entity(tableName = "devices",
   indices = {@Index(value = {"model", "SN", "OS"}, unique = true)})
 public class DeviceEntity implements Device {

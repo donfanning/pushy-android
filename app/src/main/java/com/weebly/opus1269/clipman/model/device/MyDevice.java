@@ -22,19 +22,17 @@ import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
-import org.threeten.bp.Instant;
-
-/** Singleton representing our device */
-public class MyDevice implements Device {
-  // OK, because mContext is the global Application context
+/** Singleton - immutable representing our device */
+public class MyDevice {
+  // OK, because mAppContext is the global Application context
   @SuppressLint("StaticFieldLeak")
   private static MyDevice sInstance;
 
   /** Global Application Context */
-  private final Context mContext;
+  private final Context mAppContext;
 
   private MyDevice(@NonNull Context context) {
-    mContext = context.getApplicationContext();
+    mAppContext = context.getApplicationContext();
   }
 
   /**
@@ -67,19 +65,16 @@ public class MyDevice implements Device {
   }
 
   public String getSN() {
-    return Prefs.INST(mContext).getSN();
+    return Prefs.INST(mAppContext).getSN();
   }
 
+  @SuppressWarnings("SameReturnValue")
   public String getOS() {
     return "Android";
   }
 
   public String getNickname() {
-    return Prefs.INST(mContext).getDeviceNickname();
-  }
-
-  public long getLastSeen() {
-    return Instant.now().getEpochSecond();
+    return Prefs.INST(mAppContext).getDeviceNickname();
   }
 
   /** A String suitable for display */
@@ -99,18 +94,18 @@ public class MyDevice implements Device {
   /** Notify listeners that our {@link Device} was removed */
   public void notifyRemoved() {
     DevicesRepo.INST(App.INST()).removeAll();
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_REMOVED, "", "");
+    sendBroadcast(Intents.TYPE_MY_DEVICE_REMOVED, "", "");
   }
 
   /** Notify listeners that our {@link Device} was registered */
   public void notifyRegistered() {
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTERED, "", "");
+    sendBroadcast(Intents.TYPE_MY_DEVICE_REGISTERED, "", "");
   }
 
   /** Notify listeners that our {@link Device} was unregistered */
   public void notifyUnregistered() {
     DevicesRepo.INST(App.INST()).removeAll();
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_UNREGISTERED, "", "");
+    sendBroadcast(Intents.TYPE_MY_DEVICE_UNREGISTERED, "", "");
   }
 
   /**
@@ -119,13 +114,11 @@ public class MyDevice implements Device {
    */
   public void notifyRegisterError(String message) {
     DevicesRepo.INST(App.INST()).removeAll();
-    sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
+    sendBroadcast(Intents.TYPE_MY_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
       message);
   }
 
-  /**
-   * Notify listeners that no remote devices are registered
-   */
+  /** Notify listeners that no remote devices are registered */
   public void notifyNoRemoteDevicesError() {
     DevicesRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_NO_REMOTE_DEVICES, "", "");
@@ -146,7 +139,7 @@ public class MyDevice implements Device {
     }
     intent.putExtra(Intents.BUNDLE_DEVICES, bundle);
     LocalBroadcastManager
-      .getInstance(mContext)
+      .getInstance(mAppContext)
       .sendBroadcast(intent);
   }
 }

@@ -21,19 +21,19 @@ public class Intents {
   public static final String TYPE_TEXT_CHANGED_CLIP_ITEM =
     PATH + "textChangedClipItem";
 
-  // related to Devices
+  // related to devices
   public static final String FILTER_DEVICES = PATH + "filterDevices";
   public static final String BUNDLE_DEVICES = PATH + "bundleDevices";
   public static final String ACTION_TYPE_DEVICES = PATH + "actionTypeDevices";
   public static final String TYPE_NO_REMOTE_DEVICES = PATH + "noRemoteDevices";
-  public static final String TYPE_OUR_DEVICE_REMOVED =
-    PATH + "ourDeviceRemoved";
-  public static final String TYPE_OUR_DEVICE_REGISTERED =
-    PATH + "ourDeviceRegistered";
-  public static final String TYPE_OUR_DEVICE_UNREGISTERED =
-    PATH + "ourDeviceUnregistered";
-  public static final String TYPE_OUR_DEVICE_REGISTER_ERROR =
-    PATH + "ourDeviceRegisterError";
+  public static final String TYPE_MY_DEVICE_REMOVED =
+    PATH + "myDeviceRemoved";
+  public static final String TYPE_MY_DEVICE_REGISTERED =
+    PATH + "myDeviceRegistered";
+  public static final String TYPE_MY_DEVICE_UNREGISTERED =
+    PATH + "myDeviceUnregistered";
+  public static final String TYPE_MY_DEVICE_REGISTER_ERROR =
+    PATH + "myDeviceRegisterError";
 
   // related to Notifications
   static final String ACTION_DELETE_NOTIFICATION = PATH + "deleteNotification";

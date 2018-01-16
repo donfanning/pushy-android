@@ -293,5 +293,12 @@ public class App extends Application implements
       // switch to standalone prefs file for User info.
       User.INST(this).convertPrefs();
     }
+
+    if (oldVersionCode <= 222008) {
+      // remove old Device storage
+      final SharedPreferences preferences =
+        PreferenceManager.getDefaultSharedPreferences(this);
+      preferences.edit().remove("prefDevices").apply();
+    }
   }
 }
