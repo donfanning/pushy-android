@@ -26,16 +26,16 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.device.Device;
-import com.weebly.opus1269.clipman.model.device.DeviceImpl;
-import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.device.MyDevice;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.model.Notifications;
+import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
 import org.threeten.bp.Instant;
 
@@ -50,38 +50,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     "Messages from remote devices were deleted before they could be delivered";
   private static final String FCM_MESSAGE_ERROR =
     "Unknown FCM message received: ";
-
-  /**
-   * Save {@link ClipItem} to database and copy to clipboard
-   * @param ctxt   A Context
-   * @param data   {@link Map} of key value pairs
-   * @param device Source {@link Device}
-   */
-  private static void saveClipItem(Context ctxt, Map<String, String> data,
-                                   Device device) {
-    final String clipTxt = data.get(Msg.MESSAGE);
-    final String favString = data.get(Msg.FAV);
-    Boolean fav = "1".equals(favString);
-    final String deviceName = device.getDisplayName();
-    final Instant date = Instant.now();
-    final ClipItem clipItem;
-
-    if (!fav && ClipItem.hasClipWithFav(ctxt, clipTxt)) {
-      // don't override fav of an existing item
-      fav = true;
-    }
-
-    clipItem = new ClipItem(ctxt, clipTxt, date, fav, true, deviceName);
-
-    // save to DB
-    clipItem.save(ctxt);
-
-    // add to clipboard
-    clipItem.copyToClipboard(ctxt);
-
-    // display notification if requested by user
-    Notifications.INST(ctxt).show(clipItem);
-  }
 
   @Override
   public void onCreate() {
@@ -125,7 +93,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final String SN = data.get(Msg.DEVICE_SN);
     final String OS = data.get(Msg.DEVICE_OS);
     final String nickname = data.get(Msg.DEVICE_NICKNAME);
-    final Device device = new DeviceImpl(model, SN, OS, nickname);
+    final DeviceEntity device = new DeviceEntity(model, SN, OS, nickname);
 
     // decode message text
     final String msg = data.get(Msg.MESSAGE);
@@ -144,28 +112,28 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     switch (action) {
       case Msg.ACTION_MESSAGE:
         // normal message, save and copy to clipboard
-        Devices.INST(this).add(device, true);
+        DevicesRepo.INST(getApplication()).add(device);
         saveClipItem(this, data, device);
         break;
       case Msg.ACTION_PING:
         // We were pinged
-        Devices.INST(this).add(device, true);
+        DevicesRepo.INST(getApplication()).add(device);
         MessagingClient.INST(this).sendPingResponse(data.get(Msg.SRC_REG_ID));
         break;
       case Msg.ACTION_PING_RESPONSE:
         // Device responded to a ping
-        Devices.INST(this).add(device, true);
+        DevicesRepo.INST(getApplication()).add(device);
         Log.logD(TAG, device.getDisplayName() +
           " told me he is around.");
         break;
       case Msg.ACTION_DEVICE_ADDED:
         // A new device was added
-        Devices.INST(this).add(device, true);
+        DevicesRepo.INST(getApplication()).add(device);
         Notifications.INST(this).show(action, device.getDisplayName());
         break;
       case Msg.ACTION_DEVICE_REMOVED:
         // A device was removed
-        Devices.INST(this).remove(device);
+        DevicesRepo.INST(getApplication()).remove(device);
         Notifications.INST(this).show(action, device.getDisplayName());
         break;
       default:
@@ -183,5 +151,38 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final String msg =
       this.getApplicationContext().getString(R.string.fcm_deleted_message);
     Log.logE(this, TAG, msg, FCM_DELETED);
+  }
+
+
+  /**
+   * Save {@link ClipItem} to database and copy to clipboard
+   * @param ctxt   A Context
+   * @param data   {@link Map} of key value pairs
+   * @param device Source {@link Device}
+   */
+  private static void saveClipItem(Context ctxt, Map<String, String> data,
+                                   DeviceEntity device) {
+    final String clipTxt = data.get(Msg.MESSAGE);
+    final String favString = data.get(Msg.FAV);
+    Boolean fav = "1".equals(favString);
+    final String deviceName = device.getDisplayName();
+    final Instant date = Instant.now();
+    final ClipItem clipItem;
+
+    if (!fav && ClipItem.hasClipWithFav(ctxt, clipTxt)) {
+      // don't override fav of an existing item
+      fav = true;
+    }
+
+    clipItem = new ClipItem(ctxt, clipTxt, date, fav, true, deviceName);
+
+    // save to DB
+    clipItem.save(ctxt);
+
+    // add to clipboard
+    clipItem.copyToClipboard(ctxt);
+
+    // display notification if requested by user
+    Notifications.INST(ctxt).show(clipItem);
   }
 }

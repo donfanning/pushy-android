@@ -16,10 +16,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
 import org.threeten.bp.Instant;
 
@@ -97,7 +98,7 @@ public class MyDevice implements Device {
 
   /** Notify listeners that our {@link Device} was removed */
   public void notifyRemoved() {
-    Devices.INST(mContext).clear(true);
+    DevicesRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_OUR_DEVICE_REMOVED, "", "");
   }
 
@@ -108,7 +109,7 @@ public class MyDevice implements Device {
 
   /** Notify listeners that our {@link Device} was unregistered */
   public void notifyUnregistered() {
-    Devices.INST(mContext).clear(true);
+    DevicesRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_OUR_DEVICE_UNREGISTERED, "", "");
   }
 
@@ -117,7 +118,7 @@ public class MyDevice implements Device {
    * @param message error message
    */
   public void notifyRegisterError(String message) {
-    Devices.INST(mContext).clear(true);
+    DevicesRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_OUR_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
       message);
   }
@@ -126,7 +127,7 @@ public class MyDevice implements Device {
    * Notify listeners that no remote devices are registered
    */
   public void notifyNoRemoteDevicesError() {
-    Devices.INST(mContext).clear(true);
+    DevicesRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_NO_REMOTE_DEVICES, "", "");
   }
 

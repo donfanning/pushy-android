@@ -261,7 +261,7 @@ public class ClipItem implements Serializable {
   }
 
   /**
-   * Send the clipboard contents to our {@link Devices}
+   * Send the clipboard contents to our devices
    * @param view toast parent
    */
   public static void sendClipboardContents(@NonNull Context context,
@@ -460,16 +460,12 @@ public class ClipItem implements Serializable {
   /** Copy to the clipboard */
   public void copyToClipboard(final Context context) {
     final Handler handler = new Handler(Looper.getMainLooper());
-    handler.post(new Runnable() {
-
-      @Override
-      public void run() {
-        final ClipboardManager clipboard = (ClipboardManager) context
-          .getSystemService(Context.CLIPBOARD_SERVICE);
+    handler.post(() -> {
+      final ClipboardManager clipboard =
+        (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+      if (clipboard != null) {
         final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
-        if (clipboard != null) {
-          clipboard.setPrimaryClip(clip);
-        }
+        clipboard.setPrimaryClip(clip);
       }
     });
   }

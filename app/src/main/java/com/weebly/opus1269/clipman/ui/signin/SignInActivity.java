@@ -29,8 +29,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -41,7 +39,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.model.device.MyDevice;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -67,12 +65,12 @@ public class SignInActivity extends BaseActivity implements
   private static final String STATE_ERROR = "error";
 
   /** Google API interface */
-  private GoogleApiClient mGoogleApiClient = null;
+  private GoogleApiClient mApiClient = null;
   /** Google account */
   private GoogleSignInAccount mAccount = null;
   /** Firebase authorization */
   private FirebaseAuth mAuth = null;
-  /** Receive {@link Devices} actions */
+  /** Receive actions */
   private BroadcastReceiver mDevicesReceiver = null;
 
   // saved state
@@ -246,21 +244,17 @@ public class SignInActivity extends BaseActivity implements
 
   /** SignOut of Google and Firebase */
   private void doSignOut() {
-    if (mGoogleApiClient.isConnected()) {
+    if (mApiClient.isConnected()) {
       showProgress(getString(R.string.signing_out));
-      Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-        new ResultCallback<Status>() {
-          @Override
-          public void onResult(@NonNull Status status) {
-            if (status.isSuccess()) {
-              FirebaseAuth.getInstance().signOut();
-              clearUser();
-              dismissProgress();
-            } else {
-              signOutFailed(status.getStatusMessage());
-            }
-          }
-        });
+      Auth.GoogleSignInApi.signOut(mApiClient).setResultCallback(status -> {
+        if (status.isSuccess()) {
+          FirebaseAuth.getInstance().signOut();
+          clearUser();
+          dismissProgress();
+        } else {
+          signOutFailed(status.getStatusMessage());
+        }
+      });
     } else {
       signOutFailed(getString(R.string.error_connection));
     }
@@ -268,7 +262,7 @@ public class SignInActivity extends BaseActivity implements
 
   /** SignIn button clicked */
   private void onSignInClicked() {
-    final Intent intnt = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+    final Intent intnt = Auth.GoogleSignInApi.getSignInIntent(mApiClient);
     startActivityForResult(intnt, RC_SIGN_IN);
   }
 
@@ -280,7 +274,7 @@ public class SignInActivity extends BaseActivity implements
   /** Try to signin with cached credentials or cross-device single signin */
   private void attemptSilentSignIn() {
     final OptionalPendingResult<GoogleSignInResult> opr =
-      Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+      Auth.GoogleSignInApi.silentSignIn(mApiClient);
 
     if (opr.isDone()) {
       // If the user's cached credentials are valid,
@@ -293,12 +287,9 @@ public class SignInActivity extends BaseActivity implements
       // this asynchronous branch will attempt to sign in the user
       // silently.  Cross-device single sign-on will occur in this branch.
       showProgress(getString(R.string.signing_in));
-      opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
-        @Override
-        public void onResult(@NonNull GoogleSignInResult r) {
-          dismissProgress();
-          handleSignInResult(r);
-        }
+      opr.setResultCallback(r -> {
+        dismissProgress();
+        handleSignInResult(r);
       });
     }
   }
@@ -385,7 +376,7 @@ public class SignInActivity extends BaseActivity implements
 
     // Build a GoogleApiClient with access to the Google Sign-In API and the
     // options specified by gso.
-    mGoogleApiClient = new GoogleApiClient.Builder(this)
+    mApiClient = new GoogleApiClient.Builder(this)
       .enableAutoManage(this, this)
       .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
       .build();
@@ -512,7 +503,7 @@ public class SignInActivity extends BaseActivity implements
     view.setText(message);
   }
 
-  /** {@link BroadcastReceiver} to handle {@link Devices} actions */
+  /** {@link BroadcastReceiver} to handle {@link MyDevice} actions */
   class DevicesReceiver extends BroadcastReceiver {
 
     @Override

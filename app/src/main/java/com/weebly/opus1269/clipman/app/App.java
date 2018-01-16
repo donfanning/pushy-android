@@ -10,7 +10,6 @@ package com.weebly.opus1269.clipman.app;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -34,15 +33,22 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Extend the App class so we can get a {@link Context} anywhere
- * and perform some initialization
+ * Singleton - Extend the App for global stuff
  */
 public class App extends Application implements
   Application.ActivityLifecycleCallbacks,
   SharedPreferences.OnSharedPreferenceChangeListener {
 
-  private static final String TAG = "App";
+  /** Our instance */
+  private static App sInstance;
 
+  /** Class identifier */
+  private final String TAG = this.getClass().getSimpleName();
+
+  /** Global {@link java.util.concurrent.Executor} objects */
+  private static AppExecutors sAppExecutors;
+
+  /** Main database */
   @SuppressLint("StaticFieldLeak")
   private static ClipsDatabaseHelper sClipsDB = null;
 
@@ -59,8 +65,16 @@ public class App extends Application implements
     mActivityTaskMap = new HashMap<>();
   }
 
+  public static App INST() {
+    return sInstance;
+  }
+
   public static ClipsDatabaseHelper getDbHelper() {
     return sClipsDB;
+  }
+
+  public static AppExecutors getExecutors() {
+    return sAppExecutors;
   }
 
   public static boolean isMainActivityVisible() {
@@ -75,8 +89,13 @@ public class App extends Application implements
   public void onCreate() {
     super.onCreate();
 
-    // Initialize Date Time stuff
+    sInstance = this;
+
+    // initialize Date Time stuff
     AndroidThreeTen.init(this);
+
+    // initialize global executor pools
+    sAppExecutors = new AppExecutors();
 
     // initialize database
     sClipsDB = new ClipsDatabaseHelper(this);

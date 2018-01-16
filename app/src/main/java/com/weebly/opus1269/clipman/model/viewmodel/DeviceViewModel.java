@@ -11,6 +11,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.device.Device;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
@@ -20,9 +21,9 @@ public class DeviceViewModel extends AndroidViewModel {
   private final DevicesRepo mRepo;
 
   /** Our Device */
-  private final Device device;
+  private final DeviceEntity device;
 
-  public DeviceViewModel(@NonNull Application app, Device device) {
+  public DeviceViewModel(@NonNull Application app, DeviceEntity device) {
     super(app);
 
     this.device = device;
@@ -34,6 +35,6 @@ public class DeviceViewModel extends AndroidViewModel {
   }
 
   public void remove() {
-    mRepo.removeDevice(device);
+    mRepo.remove(device);
   }
 }

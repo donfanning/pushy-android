@@ -28,7 +28,7 @@ import android.widget.ImageButton;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
-import com.weebly.opus1269.clipman.model.device.Device;
+import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -46,11 +46,11 @@ class DevicesAdapter extends
   private DevicesActivity mActivity = null;
 
   /** Our List */
-  private List<? extends Device> mDevices = null;
+  private List<DeviceEntity> mDevices = null;
 
   DevicesAdapter(DevicesActivity activity,
                  DevicesHandlers handlers,
-                 LiveData<List<Device>> deviceList) {
+                 LiveData<List<DeviceEntity>> deviceList) {
     super();
 
     mActivity = activity;
@@ -78,7 +78,7 @@ class DevicesAdapter extends
 
   @Override
   public void onBindViewHolder(DeviceViewHolder holder, int position) {
-    DeviceViewModel vm =
+    final DeviceViewModel vm =
       new DeviceViewModel(mActivity.getApplication(), mDevices.get(position));
     holder.bind(vm, mHandlers);
   }

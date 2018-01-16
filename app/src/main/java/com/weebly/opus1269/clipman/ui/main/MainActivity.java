@@ -37,7 +37,6 @@ import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Devices;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.LastError;
@@ -232,7 +231,7 @@ public class MainActivity extends BaseActivity implements
   protected void onPause() {
     super.onPause();
 
-    mUndoItems = new ArrayList<>(0);;
+    mUndoItems = new ArrayList<>(0);
   }
 
   @Override
@@ -420,7 +419,7 @@ public class MainActivity extends BaseActivity implements
   ClipLoaderManager getClipLoaderManager() {return mLoaderManager;}
 
   /** Display progress UI */
-  public void showProgress() {
+  private void showProgress() {
     final View contentView;
     if (AppUtils.isDualPane(this)) {
       contentView = findViewById(R.id.clip_container_layout);
@@ -436,7 +435,7 @@ public class MainActivity extends BaseActivity implements
   }
 
   /** Hide progress UI */
-  public void hideProgress() {
+  private void hideProgress() {
     final View contentView;
     if (AppUtils.isDualPane(this)) {
       contentView = findViewById(R.id.clip_container_layout);
@@ -511,7 +510,7 @@ public class MainActivity extends BaseActivity implements
     AppUtils.startActivity(this, intent);
   }
 
-  /** Send the clipboard contents to our {@link Devices} */
+  /** Send the clipboard contents to our devices */
   private void sendClipboardContents() {
     ClipItem.sendClipboardContents(this, findViewById(R.id.fab));
   }
@@ -538,15 +537,12 @@ public class MainActivity extends BaseActivity implements
 
     // Handle click on header
     final View hView = navigationView.getHeaderView(0);
-    hView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer != null) {
-          drawer.closeDrawer(GravityCompat.START);
-        }
-        startActivity(SignInActivity.class);
+    hView.setOnClickListener(v -> {
+      final DrawerLayout drawer = findViewById(R.id.drawer_layout);
+      if (drawer != null) {
+        drawer.closeDrawer(GravityCompat.START);
       }
+      startActivity(SignInActivity.class);
     });
   }
 
@@ -732,17 +728,14 @@ public class MainActivity extends BaseActivity implements
         final Snackbar snack =
           Snackbar.make(mActivity.findViewById(R.id.fab), message, 10000);
         if (nRows > 0) {
-          snack.setAction(R.string.button_undo, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              final Context ctxt = v.getContext();
-              Analytics.INST(ctxt)
-                .imageClick(TAG, ctxt.getString(R.string.button_undo));
-              if (mActivity != null) {
-                ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mUndoItems);
-              } else {
-                Log.logD(TAG, "No activity to undo delete with");
-              }
+          snack.setAction(R.string.button_undo, v -> {
+            final Context ctxt = v.getContext();
+            Analytics.INST(ctxt)
+              .imageClick(TAG, ctxt.getString(R.string.button_undo));
+            if (mActivity != null) {
+              ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mUndoItems);
+            } else {
+              Log.logD(TAG, "No activity to undo delete with");
             }
           }).addCallback(new Snackbar.Callback() {
 

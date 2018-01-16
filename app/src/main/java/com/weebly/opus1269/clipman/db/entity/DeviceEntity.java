@@ -16,34 +16,69 @@
  *
  */
 
-package com.weebly.opus1269.clipman.model.device;
+package com.weebly.opus1269.clipman.db.entity;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 import android.text.TextUtils;
+
+import com.weebly.opus1269.clipman.model.device.Device;
 
 import org.threeten.bp.Instant;
 
 /**
- * Immutable Class that represents a (hopefully) unique hardware device
- * Emulators don't have good names and serial numbers
+ * A (hopefully) unique hardware device
  */
-public class DeviceImpl implements Device {
-  // IMPORTANT Only use primitives because we go to Preferences as a list of
-  // devices
+@Entity(tableName = "devices",
+  indices = {@Index(value = {"model", "SN", "OS"}, unique = true)})
+public class DeviceEntity implements Device {
+  @PrimaryKey(autoGenerate = true)
+  private int id;
 
   // These three should be unique (not for emulators)
-  private final String model;
-  private final String sn;
-  private final String os;
+  private String model;
+  private String SN;
+  private String OS;
 
-  private final String nickname;
-  private final long lastSeen;
+  private String nickname;
+  @ColumnInfo(name = "last_seen")
+  private long lastSeen;
 
-  public DeviceImpl(String model, String sn, String os, String nickname) {
+  public DeviceEntity() {
+  }
+
+  public DeviceEntity(String model, String sn, String os, String nickname) {
     this.model = model;
-    this.sn = sn;
-    this.os = os;
+    this.SN = sn;
+    this.OS = os;
     this.nickname = nickname;
     this.lastSeen = Instant.now().toEpochMilli();
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setModel(String model) {
+    this.model = model;
+  }
+
+  public void setSN(String SN) {
+    this.SN = SN;
+  }
+
+  public void setOS(String OS) {
+    this.OS = OS;
+  }
+
+  public void setNickname(String nickname) {
+    this.nickname = nickname;
   }
 
   public String getModel() {
@@ -51,18 +86,24 @@ public class DeviceImpl implements Device {
   }
 
   public String getSN() {
-    return sn;
+    return SN;
   }
 
   public String getOS() {
-    return os;
+    return OS;
   }
 
   public String getNickname() {
     return nickname;
   }
 
-  public long getLastSeen() {return lastSeen;}
+  public long getLastSeen() {
+    return lastSeen;
+  }
+
+  public void setLastSeen(long lastSeen) {
+    this.lastSeen = lastSeen;
+  }
 
   /** A String suitable for display */
   public String getDisplayName() {

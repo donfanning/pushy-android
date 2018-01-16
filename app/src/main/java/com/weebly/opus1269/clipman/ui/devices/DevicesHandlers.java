@@ -48,7 +48,6 @@ public class DevicesHandlers {
    */
   public void onForgetClick(Context context, DeviceViewModel vm) {
     vm.remove();
-    Analytics.INST(context)
-      .imageClick(TAG, "removeDevice");
+    Analytics.INST(context).imageClick(TAG, "removeDevice");
   }
 }

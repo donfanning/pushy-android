@@ -12,7 +12,7 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.model.device.Device;
+import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
 import java.util.List;
@@ -27,17 +27,18 @@ public class DevicesViewModel extends AndroidViewModel {
     super(app);
 
     mRepo = DevicesRepo.INST(app);
+    updateList();
   }
 
   public LiveData<String> getInfoMessage() {
     return mRepo.getInfoMessage();
   }
 
-  public LiveData<List<Device>> getDeviceList() {
+  public LiveData<List<DeviceEntity>> getDeviceList() {
     return mRepo.getDeviceList();
   }
 
   public void updateList() {
-    mRepo.updateList();
+    mRepo.ping();
   }
 }

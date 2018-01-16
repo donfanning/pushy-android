@@ -40,9 +40,11 @@ import com.google.api.services.people.v1.model.CoverPhoto;
 import com.google.api.services.people.v1.model.Person;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
+import com.weebly.opus1269.clipman.repos.DevicesRepo;
 import com.weebly.opus1269.clipman.ui.helpers.BitmapHelper;
 
 import java.io.IOException;
@@ -141,7 +143,7 @@ public class User {
     setCoverPhotoBitmap(null);
 
     // clear Devices list
-    Devices.INST(mContext).clear(true);
+    DevicesRepo.INST(App.INST()).removeAll();
   }
 
   /**

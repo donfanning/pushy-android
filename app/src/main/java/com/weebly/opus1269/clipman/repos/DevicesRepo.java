@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.repos;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,7 +20,9 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.Devices;
+import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.db.DeviceDB;
+import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.device.Device;
@@ -36,12 +39,32 @@ public class DevicesRepo {
   /** Application */
   private final Application mApp;
 
+  /** Database */
+  private final DeviceDB mDB;
+
   /** Info message */
-  private final MutableLiveData<String> infoMessage = new MutableLiveData<>();
+  private final MutableLiveData<String> infoMessage;
 
   /** Device List */
-  private final MutableLiveData<List<Device>> deviceList =
-    new MutableLiveData<>();
+  private final MediatorLiveData<List<DeviceEntity>> deviceList;
+
+  private DevicesRepo(final Application app) {
+    mApp = app;
+    mDB = DeviceDB.INST(app);
+
+    infoMessage = new MutableLiveData<>();
+    deviceList = new MediatorLiveData<>();
+
+    deviceList.addSource(mDB.deviceDao().getAll(), devices -> {
+      if (mDB.getDatabaseCreated().getValue() != null) {
+        deviceList.postValue(devices);
+      }
+    });
+
+    resetInfoMessage();
+
+    setupDevicesBroadcastReceiver();
+  }
 
   public static DevicesRepo INST(final Application app) {
     if (sInstance == null) {
@@ -54,45 +77,37 @@ public class DevicesRepo {
     return sInstance;
   }
 
-  private DevicesRepo(Application app) {
-    mApp = app;
-
-    resetInfoMessage();
-
-    loadList();
-
-    updateList();
-
-    setupDevicesBroadcastReceiver();
-  }
-
   public LiveData<String> getInfoMessage() {
     return infoMessage;
   }
 
-  public LiveData<List<Device>> getDeviceList() {
+  private void setInfoMessage(String msg) {
+    infoMessage.setValue(msg);
+  }
+
+  public LiveData<List<DeviceEntity>> getDeviceList() {
+    // TODO why?
+    if (deviceList.getValue() == null) {
+      deviceList.setValue(new ArrayList<>());
+    }
     return deviceList;
   }
 
-  public void updateList() {
-    loadList();
+  public void ping() {
     MessagingClient.INST(mApp).sendPing();
   }
 
-  public void removeDevice(Device device) {
-    Devices.INST(mApp).remove(device);
+  public void add(DeviceEntity device) {
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.deviceDao().insertAll(device));
   }
 
-  private void loadList() {
-    deviceList.setValue(new ArrayList<>());
-    List<Device> devices = deviceList.getValue();
-    if (devices != null) {
-      devices.addAll(Devices.INST(mApp).getList());
-    }
+  public void remove(DeviceEntity device) {
+    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().delete(device));
   }
 
-  private void setInfoMessage(String msg) {
-    infoMessage.setValue(msg);
+  public void removeAll() {
+    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().deleteAll());
   }
 
   private void resetInfoMessage() {
@@ -121,17 +136,7 @@ public class DevicesRepo {
         }
 
         switch (action) {
-          case Intents.TYPE_UPDATE_DEVICES:
-            // device list changed - don't ping here
-            if (Devices.INST(mApp).getCount() > 0) {
-              setInfoMessage("");
-            } else {
-              resetInfoMessage();
-            }
-            loadList();
-            break;
           case Intents.TYPE_NO_REMOTE_DEVICES:
-            // detected no remote devices - don't ping here
             setInfoMessage(mApp.getString(R.string.err_no_remote_devices));
             break;
           default:

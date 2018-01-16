@@ -79,9 +79,13 @@ dependencies {
   implementation "com.android.support:support-vector-drawable:${rootProject.ext.supportLibraryVersion}"
 
   // ViewModel and LiveData
-  implementation "android.arch.lifecycle:extensions:1.0.0"
+  implementation "android.arch.lifecycle:extensions:${rootProject.ext.archVersion}"
   // Java8 support for Lifecycles
-  implementation "android.arch.lifecycle:common-java8:1.0.0"
+  implementation "android.arch.lifecycle:common-java8:${rootProject.ext.archVersion}"
+
+  // Room
+  implementation "android.arch.persistence.room:runtime:${rootProject.ext.archVersion}"
+  annotationProcessor "android.arch.persistence.room:compiler:${rootProject.ext.archVersion}"
 
   // Google Play service
   implementation "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"

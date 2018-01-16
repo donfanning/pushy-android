@@ -25,7 +25,6 @@ public class Intents {
   public static final String FILTER_DEVICES = PATH + "filterDevices";
   public static final String BUNDLE_DEVICES = PATH + "bundleDevices";
   public static final String ACTION_TYPE_DEVICES = PATH + "actionTypeDevices";
-  public static final String TYPE_UPDATE_DEVICES = PATH + "updateDevices";
   public static final String TYPE_NO_REMOTE_DEVICES = PATH + "noRemoteDevices";
   public static final String TYPE_OUR_DEVICE_REMOVED =
     PATH + "ourDeviceRemoved";
