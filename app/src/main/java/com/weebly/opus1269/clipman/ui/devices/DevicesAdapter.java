@@ -30,7 +30,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.model.viewmodel.DeviceViewModel;
+import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 import java.util.List;

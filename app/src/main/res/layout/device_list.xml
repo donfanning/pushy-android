@@ -17,7 +17,7 @@
 
     <variable
       name="vm"
-      type="com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel" />
+      type="com.weebly.opus1269.clipman.viewmodel.DevicesViewModel" />
   </data>
 
   <android.support.v7.widget.RecyclerView

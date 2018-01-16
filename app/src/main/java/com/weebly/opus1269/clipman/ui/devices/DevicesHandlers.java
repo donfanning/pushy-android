@@ -13,8 +13,8 @@ import android.support.design.widget.Snackbar;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.viewmodel.DeviceViewModel;
-import com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel;
+import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
+import com.weebly.opus1269.clipman.viewmodel.DevicesViewModel;
 
 /** Handlers for UI events */
 public class DevicesHandlers {

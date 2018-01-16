@@ -16,7 +16,7 @@
     <import type="com.weebly.opus1269.clipman.app.AppUtils"/>
     <variable
       name="vm"
-      type="com.weebly.opus1269.clipman.model.viewmodel.DeviceViewModel" />
+      type="com.weebly.opus1269.clipman.viewmodel.DeviceViewModel" />
     <variable
       name="handlers"
       type="com.weebly.opus1269.clipman.ui.devices.DevicesHandlers" />

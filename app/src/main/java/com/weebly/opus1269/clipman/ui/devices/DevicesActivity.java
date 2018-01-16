@@ -13,7 +13,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.databinding.ActivityDevicesBinding;
-import com.weebly.opus1269.clipman.model.viewmodel.DevicesViewModel;
+import com.weebly.opus1269.clipman.viewmodel.DevicesViewModel;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 

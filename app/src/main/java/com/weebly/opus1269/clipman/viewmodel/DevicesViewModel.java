@@ -5,36 +5,40 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.model.viewmodel;
+package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.model.device.Device;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
-/** ViewModel for a {@link Device} */
-public class DeviceViewModel extends AndroidViewModel {
+import java.util.List;
+
+
+/** ViewModel for a collection of Devices */
+public class DevicesViewModel extends AndroidViewModel {
   /** Device Repo */
   private final DevicesRepo mRepo;
 
-  /** Our Device */
-  private final DeviceEntity device;
-
-  public DeviceViewModel(@NonNull Application app, DeviceEntity device) {
+  public DevicesViewModel(@NonNull Application app) {
     super(app);
 
-    this.device = device;
     mRepo = DevicesRepo.INST(app);
+    updateList();
   }
 
-  public Device getDevice() {
-    return device;
+  public LiveData<String> getInfoMessage() {
+    return mRepo.getInfoMessage();
   }
 
-  public void remove() {
-    mRepo.remove(device);
+  public LiveData<List<DeviceEntity>> getDeviceList() {
+    return mRepo.getDeviceList();
+  }
+
+  public void updateList() {
+    mRepo.ping();
   }
 }
