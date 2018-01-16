@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.model.device;
+package com.weebly.opus1269.clipman.model;
 
 /** Interface for a hardware device */
 public interface Device {

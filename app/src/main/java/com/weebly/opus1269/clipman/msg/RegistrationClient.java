@@ -34,7 +34,7 @@ import com.weebly.opus1269.clipman.backend.registration.Registration;
 import com.weebly.opus1269.clipman.backend.registration.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.model.device.MyDevice;
+import com.weebly.opus1269.clipman.model.MyDevice;
 
 import java.io.IOException;
 

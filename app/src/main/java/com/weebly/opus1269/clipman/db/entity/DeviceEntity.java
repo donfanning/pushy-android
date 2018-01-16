@@ -24,7 +24,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.text.TextUtils;
 
-import com.weebly.opus1269.clipman.model.device.Device;
+import com.weebly.opus1269.clipman.model.Device;
 
 import org.threeten.bp.Instant;
 

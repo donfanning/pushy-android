@@ -22,7 +22,7 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.device.MyDevice;
+import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 

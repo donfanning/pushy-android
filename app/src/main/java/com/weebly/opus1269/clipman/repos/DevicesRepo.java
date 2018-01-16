@@ -25,7 +25,7 @@ import com.weebly.opus1269.clipman.db.DeviceDB;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.model.device.Device;
+import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 
 import java.util.ArrayList;

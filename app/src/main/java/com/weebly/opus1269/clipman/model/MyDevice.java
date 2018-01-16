@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.model.device;
+package com.weebly.opus1269.clipman.model;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,8 +18,6 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
 /** Singleton - immutable representing our device */

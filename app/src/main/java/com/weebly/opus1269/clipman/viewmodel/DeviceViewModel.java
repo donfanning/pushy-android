@@ -12,7 +12,7 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.model.device.Device;
+import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
 /** ViewModel for a {@link Device} */
