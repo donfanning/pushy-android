@@ -12,18 +12,11 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.DeviceDB;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -79,7 +72,7 @@ public class DevicesRepo {
     return infoMessage;
   }
 
-  public void setInfoMessage(String msg) {
+  private void setInfoMessage(String msg) {
     infoMessage.postValue(msg);
   }
 
@@ -98,6 +91,7 @@ public class DevicesRepo {
   public void noDevices() {
     String msg = mApp.getString(R.string.err_no_remote_devices);
     DevicesRepo.INST(App.INST()).setInfoMessage(msg);
+    removeAll();
   }
 
   public void add(DeviceEntity device) {
@@ -113,6 +107,7 @@ public class DevicesRepo {
     App.getExecutors().diskIO().execute(() -> mDB.deviceDao().deleteAll());
   }
 
+  // TODO need preference change listener
   private void resetInfoMessage() {
     if (!Prefs.INST(mApp).isPushClipboard()) {
       setInfoMessage(mApp.getString(R.string.err_no_push_to_devices));

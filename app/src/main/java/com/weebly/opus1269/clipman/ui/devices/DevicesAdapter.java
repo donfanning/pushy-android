@@ -18,17 +18,19 @@
 
 package com.weebly.opus1269.clipman.ui.devices;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -42,28 +44,15 @@ class DevicesAdapter extends
   /** Our event handlers */
   private final DevicesHandlers mHandlers;
 
-  /** Our Activity */
-  private DevicesActivity mActivity = null;
-
   /** Our List */
-  private List<DeviceEntity> mDevices = null;
+  @Nullable
+  private List<DeviceEntity> mDeviceList = null;
+  //private List<? extends Device> mDeviceList = null;
 
-  DevicesAdapter(DevicesActivity activity,
-                 DevicesHandlers handlers,
-                 LiveData<List<DeviceEntity>> deviceList) {
+  DevicesAdapter(DevicesHandlers handlers) {
     super();
 
-    mActivity = activity;
     mHandlers = handlers;
-    mDevices = deviceList.getValue();
-
-    // Observe devices
-    deviceList.observe(activity, devices -> {
-      if (devices != null) {
-        mDevices = devices;
-        notifyDataSetChanged();
-      }
-    });
   }
 
   @Override
@@ -79,12 +68,20 @@ class DevicesAdapter extends
   @Override
   public void onBindViewHolder(DeviceViewHolder holder, int position) {
     final DeviceViewModel vm =
-      new DeviceViewModel(mActivity.getApplication(), mDevices.get(position));
+      new DeviceViewModel(App.INST(), mDeviceList.get(position));
     holder.bind(vm, mHandlers);
   }
 
   @Override
-  public int getItemCount() {return mDevices.size();}
+  public int getItemCount() {
+    return (mDeviceList == null) ? 0 : mDeviceList.size();
+  }
+
+  public void setList(final List<DeviceEntity> list) {
+    // small list, just update it all
+    mDeviceList = list;
+    notifyDataSetChanged();
+  }
 
   /** ViewHolder inner class used to display the info. in the RecyclerView. */
   static class DeviceViewHolder extends RecyclerView.ViewHolder {

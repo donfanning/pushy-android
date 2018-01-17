@@ -19,6 +19,7 @@ import com.weebly.opus1269.clipman.model.Notifications;
 
 /** Activity to manage our connected devices */
 public class DevicesActivity extends BaseActivity {
+  private DevicesAdapter mAdapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +35,21 @@ public class DevicesActivity extends BaseActivity {
     final ActivityDevicesBinding binding = (ActivityDevicesBinding) mBinding;
     binding.setVm(vm);
     binding.setHandlers(handlers);
+    binding.executePendingBindings();
 
     // setup RecyclerView
     final RecyclerView recyclerView = findViewById(R.id.deviceList);
     if (recyclerView != null) {
-      final DevicesAdapter adapter =
-        new DevicesAdapter(this, handlers, vm.getDeviceList());
-      recyclerView.setAdapter(adapter);
+      mAdapter = new DevicesAdapter(handlers);
+      recyclerView.setAdapter(mAdapter);
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+      // Observe devices
+      vm.getDeviceList().observe(this, devices -> {
+        if (devices != null) {
+          mAdapter.setList(devices);
+        }
+      });
     }
   }
 
