@@ -57,7 +57,7 @@ public class DevicesRepo implements
       }
     });
 
-    resetInfoMessage();
+    initInfoMessage();
 
     // listen for shared preference changes
     PreferenceManager
@@ -113,19 +113,27 @@ public class DevicesRepo implements
     return deviceList;
   }
 
+  /** Send ping to query remote devices */
   public void refreshList() {
     MessagingClient.INST(mApp).sendPing();
   }
 
+  /** Detected that the server has no other registered devices */
   public void noDevices() {
-    String msg = mApp.getString(R.string.err_no_remote_devices);
+    final String msg = mApp.getString(R.string.err_no_remote_devices);
     postInfoMessage(msg);
     removeAll();
   }
 
   public void add(DeviceEntity device) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.deviceDao().insertAll(device));
+    App.getExecutors().diskIO().execute(() -> {
+      mDB.deviceDao().insertAll(device);
+      final String msg = mApp.getString(R.string.err_no_remote_devices);
+      if(msg.equals(getInfoMessage().getValue())) {
+        // clear no remote device message when we add new device
+        postInfoMessage("");
+      }
+    });
   }
 
   public void remove(DeviceEntity device) {
@@ -136,7 +144,7 @@ public class DevicesRepo implements
     App.getExecutors().diskIO().execute(() -> mDB.deviceDao().deleteAll());
   }
 
-  private void resetInfoMessage() {
+  private void initInfoMessage() {
     if (!Prefs.INST(mApp).isPushClipboard()) {
       setInfoMessage(mApp.getString(R.string.err_no_push_to_devices));
     } else if (!Prefs.INST(mApp).isAllowReceive()) {
