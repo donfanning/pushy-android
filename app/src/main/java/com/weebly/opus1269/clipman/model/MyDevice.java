@@ -116,12 +116,6 @@ public class MyDevice {
       message);
   }
 
-  /** Notify listeners that no remote devices are registered */
-  public void notifyNoRemoteDevicesError() {
-    DevicesRepo.INST(App.INST()).removeAll();
-    sendBroadcast(Intents.TYPE_NO_REMOTE_DEVICES, "", "");
-  }
-
   /**
    * Broadcast changes to listeners
    * @param action     the type of the change
@@ -129,13 +123,13 @@ public class MyDevice {
    * @param extraValue value of extra
    */
   private void sendBroadcast(String action, String extra, String extraValue) {
-    final Intent intent = new Intent(Intents.FILTER_DEVICES);
+    final Intent intent = new Intent(Intents.FILTER_MY_DEVICE);
     final Bundle bundle = new Bundle();
-    bundle.putString(Intents.ACTION_TYPE_DEVICES, action);
+    bundle.putString(Intents.ACTION_TYPE_MY_DEVICE, action);
     if (!TextUtils.isEmpty(extra)) {
       bundle.putString(extra, extraValue);
     }
-    intent.putExtra(Intents.BUNDLE_DEVICES, bundle);
+    intent.putExtra(Intents.BUNDLE_MY_DEVICE, bundle);
     LocalBroadcastManager
       .getInstance(mAppContext)
       .sendBroadcast(intent);

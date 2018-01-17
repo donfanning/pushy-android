@@ -55,7 +55,6 @@ public class SignInActivity extends BaseActivity implements
   GoogleApiClient.OnConnectionFailedListener,
   OnCompleteListener<AuthResult>,
   View.OnClickListener {
-
   /** Result of Google signIn attempt */
   private static final int RC_SIGN_IN = 9001;
 
@@ -70,8 +69,8 @@ public class SignInActivity extends BaseActivity implements
   private GoogleSignInAccount mAccount = null;
   /** Firebase authorization */
   private FirebaseAuth mAuth = null;
-  /** Receive actions */
-  private BroadcastReceiver mDevicesReceiver = null;
+  /** Receive MyDevice actions */
+  private BroadcastReceiver mMyDeviceRcvr = null;
 
   // saved state
   /** Flag to indicate if Google API connection failed */
@@ -91,7 +90,7 @@ public class SignInActivity extends BaseActivity implements
       restoreInstanceState(savedInstanceState);
     }
 
-    mDevicesReceiver = new DevicesReceiver();
+    mMyDeviceRcvr = new MyDeviceReceiver();
 
     mAuth = FirebaseAuth.getInstance();
 
@@ -128,8 +127,9 @@ public class SignInActivity extends BaseActivity implements
   protected void onStart() {
     super.onStart();
 
-    LocalBroadcastManager.getInstance(this).registerReceiver(mDevicesReceiver,
-      new IntentFilter(Intents.FILTER_DEVICES));
+    final IntentFilter filter = new IntentFilter(Intents.FILTER_MY_DEVICE);
+    LocalBroadcastManager.getInstance(this)
+      .registerReceiver(mMyDeviceRcvr, filter);
 
     updateView();
 
@@ -142,8 +142,7 @@ public class SignInActivity extends BaseActivity implements
   protected void onStop() {
     super.onStop();
 
-    LocalBroadcastManager.getInstance(this)
-      .unregisterReceiver(mDevicesReceiver);
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(mMyDeviceRcvr);
 
     dismissProgress();
   }
@@ -504,15 +503,15 @@ public class SignInActivity extends BaseActivity implements
   }
 
   /** {@link BroadcastReceiver} to handle {@link MyDevice} actions */
-  class DevicesReceiver extends BroadcastReceiver {
+  class MyDeviceReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
+      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_MY_DEVICE);
       if (bundle == null) {
         return;
       }
-      final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
+      final String action = bundle.getString(Intents.ACTION_TYPE_MY_DEVICE);
       if (action == null) {
         return;
       }

@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
@@ -34,6 +35,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -333,8 +335,8 @@ public class MessagingClient extends Endpoint {
         // unrecoverable error - no other devices registered
         mRetryOnError = false;
 
-        // let listeners know
-        MyDevice.INST(mAppContext).notifyNoRemoteDevicesError();
+        // update repo
+        DevicesRepo.INST(App.INST()).noDevices();
 
         int noDevicesCt = Prefs.INST(mAppContext).getNoDevicesCt();
         if (noDevicesCt >= MAX_NO_DEVICES_CT) {

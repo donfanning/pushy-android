@@ -62,8 +62,6 @@ public class DevicesRepo {
     });
 
     resetInfoMessage();
-
-    setupDevicesBroadcastReceiver();
   }
 
   public static DevicesRepo INST(final Application app) {
@@ -81,8 +79,8 @@ public class DevicesRepo {
     return infoMessage;
   }
 
-  private void setInfoMessage(String msg) {
-    infoMessage.setValue(msg);
+  public void setInfoMessage(String msg) {
+    infoMessage.postValue(msg);
   }
 
   public LiveData<List<DeviceEntity>> getDeviceList() {
@@ -95,6 +93,11 @@ public class DevicesRepo {
 
   public void ping() {
     MessagingClient.INST(mApp).sendPing();
+  }
+
+  public void noDevices() {
+    String msg = mApp.getString(R.string.err_no_remote_devices);
+    DevicesRepo.INST(App.INST()).setInfoMessage(msg);
   }
 
   public void add(DeviceEntity device) {
@@ -118,35 +121,5 @@ public class DevicesRepo {
     } else {
       setInfoMessage("");
     }
-  }
-
-  /** Create the {@link BroadcastReceiver} to handle changes to the list */
-  private void setupDevicesBroadcastReceiver() {
-    // handler for received Intents for the "devices" event
-    final BroadcastReceiver receiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_DEVICES);
-        if (bundle == null) {
-          return;
-        }
-        final String action = bundle.getString(Intents.ACTION_TYPE_DEVICES);
-        if (action == null) {
-          return;
-        }
-
-        switch (action) {
-          case Intents.TYPE_NO_REMOTE_DEVICES:
-            setInfoMessage(mApp.getString(R.string.err_no_remote_devices));
-            break;
-          default:
-            break;
-        }
-      }
-    };
-
-    // Register mReceiver to receive Device notifications.
-    LocalBroadcastManager.getInstance(mApp)
-      .registerReceiver(receiver, new IntentFilter(Intents.FILTER_DEVICES));
   }
 }

@@ -21,11 +21,11 @@ public class Intents {
   public static final String TYPE_TEXT_CHANGED_CLIP_ITEM =
     PATH + "textChangedClipItem";
 
-  // related to devices
-  public static final String FILTER_DEVICES = PATH + "filterDevices";
-  public static final String BUNDLE_DEVICES = PATH + "bundleDevices";
-  public static final String ACTION_TYPE_DEVICES = PATH + "actionTypeDevices";
-  public static final String TYPE_NO_REMOTE_DEVICES = PATH + "noRemoteDevices";
+  // related to MyDevice
+  public static final String FILTER_MY_DEVICE = PATH + "filterDevices";
+  public static final String BUNDLE_MY_DEVICE = PATH + "bundleDevices";
+  public static final String ACTION_TYPE_MY_DEVICE =
+    PATH + "actionTypeMyDevice";
   public static final String TYPE_MY_DEVICE_REMOVED =
     PATH + "myDeviceRemoved";
   public static final String TYPE_MY_DEVICE_REGISTERED =
