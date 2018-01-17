@@ -67,6 +67,9 @@ class DevicesAdapter extends
 
   @Override
   public void onBindViewHolder(DeviceViewHolder holder, int position) {
+    if (mDeviceList == null) {
+      return;
+    }
     final DeviceViewModel vm =
       new DeviceViewModel(App.INST(), mDeviceList.get(position));
     holder.bind(vm, mHandlers);
@@ -77,7 +80,7 @@ class DevicesAdapter extends
     return (mDeviceList == null) ? 0 : mDeviceList.size();
   }
 
-  public void setList(final List<DeviceEntity> list) {
+  public void setList(@Nullable List<DeviceEntity> list) {
     // small list, just update it all
     mDeviceList = list;
     notifyDataSetChanged();

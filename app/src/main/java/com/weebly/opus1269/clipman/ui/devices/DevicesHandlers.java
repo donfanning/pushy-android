@@ -31,7 +31,7 @@ public class DevicesHandlers {
   public void onFabClick(DevicesViewModel vm,  FloatingActionButton fab) {
     if (fab != null) {
       if (vm != null) {
-        vm.updateList();
+        vm.refreshList();
       }
       final Context context = fab.getContext();
       final Snackbar snack =

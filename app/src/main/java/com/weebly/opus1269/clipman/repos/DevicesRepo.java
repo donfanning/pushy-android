@@ -12,9 +12,12 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.SharedPreferences;
+import android.support.v7.preference.PreferenceManager;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.DeviceDB;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -25,7 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton - Repository for {@link Device} objects */
-public class DevicesRepo {
+public class DevicesRepo implements
+  SharedPreferences.OnSharedPreferenceChangeListener {
   @SuppressLint("StaticFieldLeak")
   private static DevicesRepo sInstance;
 
@@ -55,6 +59,11 @@ public class DevicesRepo {
     });
 
     resetInfoMessage();
+
+    // listen for shared preference changes
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mApp);
+    prefs
+      .registerOnSharedPreferenceChangeListener(this);
   }
 
   public static DevicesRepo INST(final Application app) {
@@ -68,11 +77,33 @@ public class DevicesRepo {
     return sInstance;
   }
 
+  @Override
+  public void
+  onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    Log.logD("DeviceRepo", "shared pref changed");
+    final String keyPush = mApp.getString(R.string.key_pref_push_msg);
+    final String keyReceive = mApp.getString(R.string.key_pref_receive_msg);
+    String msg = "";
+
+    if (key.equals(keyPush) && !Prefs.INST(mApp).isPushClipboard()) {
+      msg = mApp.getString(R.string.err_no_push_to_devices);
+    } else if (key.equals(keyReceive) &&
+      !Prefs.INST(mApp).isAllowReceive()) {
+      msg = mApp.getString(R.string.err_no_receive_from_devices);
+    }
+
+    setInfoMessage(msg);
+  }
+
   public LiveData<String> getInfoMessage() {
     return infoMessage;
   }
 
   private void setInfoMessage(String msg) {
+    infoMessage.setValue(msg);
+  }
+
+  private void postInfoMessage(String msg) {
     infoMessage.postValue(msg);
   }
 
@@ -84,13 +115,13 @@ public class DevicesRepo {
     return deviceList;
   }
 
-  public void ping() {
+  public void refreshList() {
     MessagingClient.INST(mApp).sendPing();
   }
 
   public void noDevices() {
     String msg = mApp.getString(R.string.err_no_remote_devices);
-    DevicesRepo.INST(App.INST()).setInfoMessage(msg);
+    postInfoMessage(msg);
     removeAll();
   }
 
@@ -107,7 +138,6 @@ public class DevicesRepo {
     App.getExecutors().diskIO().execute(() -> mDB.deviceDao().deleteAll());
   }
 
-  // TODO need preference change listener
   private void resetInfoMessage() {
     if (!Prefs.INST(mApp).isPushClipboard()) {
       setInfoMessage(mApp.getString(R.string.err_no_push_to_devices));
