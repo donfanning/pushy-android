@@ -13,7 +13,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.repos.DevicesRepo;
 
@@ -57,7 +56,6 @@ public class DevicesViewModel extends AndroidViewModel {
   }
 
   public LiveData<String> getInfoMessage() {
-    Log.logD("DevicesViewModel", "infoMessage: " + infoMessage.getValue());
     return infoMessage;
   }
 

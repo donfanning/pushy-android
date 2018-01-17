@@ -30,7 +30,6 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -47,7 +46,6 @@ class DevicesAdapter extends
   /** Our List */
   @Nullable
   private List<DeviceEntity> mDeviceList = null;
-  //private List<? extends Device> mDeviceList = null;
 
   DevicesAdapter(DevicesHandlers handlers) {
     super();

@@ -12,7 +12,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ActivityDevicesBinding;
 import com.weebly.opus1269.clipman.viewmodel.DevicesViewModel;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -35,7 +34,6 @@ public class DevicesActivity extends BaseActivity {
     final DevicesHandlers handlers = new DevicesHandlers(getTAG());
     final ActivityDevicesBinding binding = (ActivityDevicesBinding) mBinding;
     binding.setVm(vm);
-    Log.logD(TAG, "InfoMessage: " + vm.getInfoMessage().getValue());
     binding.setHandlers(handlers);
     binding.executePendingBindings();
 

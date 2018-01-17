@@ -17,7 +17,6 @@ import android.support.v7.preference.PreferenceManager;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.DeviceDB;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -39,7 +38,7 @@ public class DevicesRepo implements
   /** Database */
   private final DeviceDB mDB;
 
-  /** Info message */
+  /** Info message - not saved in database */
   private final MutableLiveData<String> infoMessage;
 
   /** Device List */
@@ -61,8 +60,8 @@ public class DevicesRepo implements
     resetInfoMessage();
 
     // listen for shared preference changes
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mApp);
-    prefs
+    PreferenceManager
+      .getDefaultSharedPreferences(mApp)
       .registerOnSharedPreferenceChangeListener(this);
   }
 
@@ -80,19 +79,18 @@ public class DevicesRepo implements
   @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    Log.logD("DeviceRepo", "shared pref changed");
     final String keyPush = mApp.getString(R.string.key_pref_push_msg);
     final String keyReceive = mApp.getString(R.string.key_pref_receive_msg);
-    String msg = "";
 
-    if (key.equals(keyPush) && !Prefs.INST(mApp).isPushClipboard()) {
-      msg = mApp.getString(R.string.err_no_push_to_devices);
-    } else if (key.equals(keyReceive) &&
-      !Prefs.INST(mApp).isAllowReceive()) {
-      msg = mApp.getString(R.string.err_no_receive_from_devices);
+    if (key.equals(keyPush)) {
+      final String msg = Prefs.INST(mApp).isPushClipboard() ?
+        "" : mApp.getString(R.string.err_no_push_to_devices);
+      postInfoMessage(msg);
+    } else if (key.equals(keyReceive)) {
+      final String msg = Prefs.INST(mApp).isAllowReceive() ?
+        "" : mApp.getString(R.string.err_no_receive_from_devices);
+      postInfoMessage(msg);
     }
-
-    setInfoMessage(msg);
   }
 
   public LiveData<String> getInfoMessage() {
@@ -108,8 +106,8 @@ public class DevicesRepo implements
   }
 
   public LiveData<List<DeviceEntity>> getDeviceList() {
-    // TODO why?
     if (deviceList.getValue() == null) {
+      // if no items in database, List will be null
       deviceList.setValue(new ArrayList<>());
     }
     return deviceList;
