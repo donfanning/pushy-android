@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
-import com.weebly.opus1269.clipman.backup.BackupFile;
+import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;

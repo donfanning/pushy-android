@@ -5,7 +5,7 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.backup;
+package com.weebly.opus1269.clipman.model;
 
 
 import android.content.Context;
@@ -16,9 +16,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
-import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.MyDevice;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
@@ -31,7 +28,7 @@ public class BackupContents {
   private List<Label> labels;
   private List<ClipItem> clipItems;
 
-  BackupContents() {
+  public BackupContents() {
     this.labels = new ArrayList<>(0);
     this.clipItems = new ArrayList<>(0);
   }
@@ -47,7 +44,7 @@ public class BackupContents {
    * @return db data
    */
   @NonNull
-  static BackupContents getDB(Context context) {
+  public static BackupContents getDB(Context context) {
     List<ClipItem> clipItems = ClipTable.INST(context).getAll();
     List<Label> labels = LabelTables.INST(context).getAllLabels();
     return new BackupContents(labels, clipItems);
@@ -57,7 +54,7 @@ public class BackupContents {
    * Get the database data as a JSON string
    * @return Stringified data
    */
-  static String getDBAsJSON(Context context) {
+  public static String getDBAsJSON(Context context) {
     String ret;
     BackupContents contents = getDB(context);
     // stringify it
@@ -71,7 +68,7 @@ public class BackupContents {
    * @param data raw content
    * @return content of a backup
    */
-  static BackupContents get(@NonNull byte[] data) {
+  public static BackupContents get(@NonNull byte[] data) {
     final JsonReader reader =
       new JsonReader(new InputStreamReader(new ByteArrayInputStream(data)));
     final Gson gson = new Gson();
@@ -85,7 +82,7 @@ public class BackupContents {
    * @param labels - label list
    * @return largest id, 0 if empty
    */
-  static private long getLargestId(@NonNull List<Label> labels) {
+  private static long getLargestId(@NonNull List<Label> labels) {
     long ret = 0;
     for (Label label : labels) {
       long id = label.getId();
@@ -99,7 +96,7 @@ public class BackupContents {
    * @param clipItems - clipItems list
    * @param label - label to chage
    */
-  static private void updateLabelId(@NonNull List<ClipItem> clipItems,
+  private static void updateLabelId(@NonNull List<ClipItem> clipItems,
                                      @NonNull Label label) {
     for (ClipItem clipItem : clipItems) {
       clipItem.updateLabelIdNoSave(label);
@@ -107,20 +104,20 @@ public class BackupContents {
   }
 
   @NonNull
-  List<Label> getLabels() {
+  public List<Label> getLabels() {
     return labels;
   }
 
-  void setLabels(@NonNull List<Label> labels) {
+  public void setLabels(@NonNull List<Label> labels) {
     this.labels = labels;
   }
 
   @NonNull
-  List<ClipItem> getClipItems() {
+  public List<ClipItem> getClipItems() {
     return clipItems;
   }
 
-  void setClipItems(@NonNull List<ClipItem> clipItems) {
+  public void setClipItems(@NonNull List<ClipItem> clipItems) {
     this.clipItems = clipItems;
   }
 
@@ -128,7 +125,7 @@ public class BackupContents {
    * Get the our data as a JSON string
    * @return Stringified data
    */
-  String getAsJSON() {
+  public String getAsJSON() {
     String ret;
     // stringify it
     final Gson gson = new Gson();
@@ -141,7 +138,7 @@ public class BackupContents {
    * @param context - A Context
    * @param contents - contents to merge
    */
-  void merge(@NonNull Context context,
+  public void merge(@NonNull Context context,
                        @NonNull final BackupContents contents) {
     // Merged items
     final List<Label> outLabels = this.labels;

@@ -20,6 +20,8 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
+import com.weebly.opus1269.clipman.model.BackupContents;
+import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.MyDevice;

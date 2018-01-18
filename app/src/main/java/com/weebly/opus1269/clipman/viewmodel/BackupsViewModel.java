@@ -17,7 +17,7 @@ import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.backup.BackupFile;
+import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.User;
 
 import java.util.ArrayList;

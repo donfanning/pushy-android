@@ -34,6 +34,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.model.BackupContents;
+import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;

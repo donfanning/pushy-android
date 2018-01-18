@@ -11,14 +11,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.drive.DriveId;
-import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.backup.BackupFile;
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.model.Device;
-import com.weebly.opus1269.clipman.repos.DevicesRepo;
-
-import java.util.Iterator;
+import com.weebly.opus1269.clipman.model.BackupFile;
 
 /** ViewModel for a {@link BackupFile} */
 public class BackupViewModel extends AndroidViewModel {

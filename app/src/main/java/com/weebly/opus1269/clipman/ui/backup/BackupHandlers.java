@@ -17,7 +17,7 @@ import android.widget.Button;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.backup.BackupFile;
+import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;

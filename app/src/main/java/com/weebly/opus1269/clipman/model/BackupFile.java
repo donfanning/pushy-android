@@ -16,7 +16,7 @@
  *
  */
 
-package com.weebly.opus1269.clipman.backup;
+package com.weebly.opus1269.clipman.model;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -81,7 +81,7 @@ public class BackupFile {
    * @param context A Context
    * @param builder add CustomProperties to this
    */
-  static void setCustomProperties(Context context,
+  public static void setCustomProperties(Context context,
                                   MetadataChangeSet.Builder builder) {
     final int visibility = CustomPropertyKey.PRIVATE;
     builder

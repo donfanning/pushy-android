@@ -21,7 +21,7 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveFile;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.backup.BackupContents;
+import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.databinding.ActivityBackupBinding;
