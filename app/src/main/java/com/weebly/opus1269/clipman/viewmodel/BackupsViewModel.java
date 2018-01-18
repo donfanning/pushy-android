@@ -11,6 +11,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.databinding.Bindable;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.Log;
@@ -25,13 +26,13 @@ public class BackupsViewModel extends AndroidViewModel {
   private final String TAG = this.getClass().getSimpleName();
 
   /** BackFile list */
-  private final MutableLiveData<List<BackupFile>> files;
+  public final MutableLiveData<List<BackupFile>> files;
 
   /** Info message */
-  private final MutableLiveData<String> infoMessage;
+  public final MutableLiveData<String> infoMessage;
 
   /** True if loading */
-  private final MutableLiveData<Boolean> isLoading;
+  public final MutableLiveData<Boolean> isLoading;
 
   /** True if loading */
   //public boolean isLoading;
@@ -46,22 +47,7 @@ public class BackupsViewModel extends AndroidViewModel {
     infoMessage.setValue("");
 
     isLoading = new MutableLiveData<>();
-    //mIsLoading.observeForever((isLoading) -> {
-    //  BackupsViewModel.this.isLoading = isLoading;
-    //});
     isLoading.setValue(false);
-  }
-
-  public LiveData<List<BackupFile>> getFiles() {
-    return files;
-  }
-
-  public LiveData<String> getInfoMessage() {
-    return infoMessage;
-  }
-
-  public LiveData<Boolean> getIsLoading() {
-    return isLoading;
   }
 
   public void postIsLoading(boolean value) {

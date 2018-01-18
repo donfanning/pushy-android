@@ -27,7 +27,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="vertical"
-    android:visibility="@{(TextUtils.isEmpty(vm.infoMessage.getValue()) &amp;&amp; !vm.isLoading.getValue()) ? View.VISIBLE : View.GONE}"
+    android:visibility="@{(TextUtils.isEmpty(vm.infoMessage) &amp;&amp; !vm.isLoading) ? View.VISIBLE : View.GONE}"
     app:layoutManager="LinearLayoutManager"
     tools:listitem="@layout/backup_row" />
 

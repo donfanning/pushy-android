@@ -12,8 +12,6 @@
 
   <data>
 
-    <import type="java.util.List" />
-
     <import type="android.text.TextUtils" />
 
     <import type="android.view.View" />
@@ -57,7 +55,7 @@
       android:layout_height="wrap_content"
       android:layout_gravity="bottom|end"
       android:layout_margin="@dimen/fab_margin"
-      android:visibility="@{TextUtils.isEmpty(vm.infoMessage.getValue()) ? View.VISIBLE : View.GONE}"
+      android:visibility="@{TextUtils.isEmpty(vm.infoMessage) ? View.VISIBLE : View.GONE}"
       android:onClick="@{() -> handlers.onFabClick(vm, fab)}"
       android:tint="@color/icons"
       app:srcCompat="@drawable/ic_refresh_black_24dp" />

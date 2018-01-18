@@ -33,6 +33,7 @@ public class DevicesActivity extends BaseActivity {
     final DevicesViewModel vm = new DevicesViewModel(getApplication());
     final DevicesHandlers handlers = new DevicesHandlers(getTAG());
     final ActivityDevicesBinding binding = (ActivityDevicesBinding) mBinding;
+    binding.setLifecycleOwner(this);
     binding.setVm(vm);
     binding.setHandlers(handlers);
     binding.executePendingBindings();

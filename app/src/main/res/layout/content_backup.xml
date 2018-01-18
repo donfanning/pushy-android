@@ -12,8 +12,6 @@
 
   <data>
 
-    <import type="java.util.List" />
-
     <import type="android.text.TextUtils" />
 
     <import type="android.view.View" />
@@ -55,8 +53,8 @@
         android:gravity="center"
         android:padding="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="@{vm.infoMessage.getValue()}"
-        android:visibility="@{!TextUtils.isEmpty(vm.infoMessage.getValue()) ? View.VISIBLE : View.GONE}"
+        android:text="@{vm.infoMessage}"
+        android:visibility="@{!TextUtils.isEmpty(vm.infoMessage) ? View.VISIBLE : View.GONE}"
         tools:text="Error message here" />
     </LinearLayout>
 

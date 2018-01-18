@@ -71,6 +71,7 @@ public class BackupActivity extends BaseActivity {
     mViewModel = new BackupsViewModel(getApplication());
     final BackupHandlers handlers = new BackupHandlers(getTAG());
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
+    binding.setLifecycleOwner(this);
     binding.setVm(mViewModel);
     binding.setHandlers(handlers);
     binding.executePendingBindings();
@@ -342,27 +343,27 @@ public class BackupActivity extends BaseActivity {
 
   /** Determine if list or info. message should be shown */
   private void setupMainView() {
-    final RecyclerView recyclerView = findViewById(R.id.backupList);
-    final TextView textView = findViewById(R.id.info_message);
-    String infoMessage;
+    //final RecyclerView recyclerView = findViewById(R.id.backupList);
+    //final TextView textView = findViewById(R.id.info_message);
+    //String infoMessage;
+    //
+    //if (mFiles.isEmpty()) {
+    //  infoMessage = getString(R.string.err_no_backups);
+    //} else if (!User.INST(getApplicationContext()).isLoggedIn()) {
+    //  infoMessage = getString(R.string.err_not_signed_in);
+    //} else {
+    //  sortFiles();
+    //  infoMessage = "";
+    //}
+    //textView.setText(infoMessage);
 
-    if (mFiles.isEmpty()) {
-      infoMessage = getString(R.string.err_no_backups);
-    } else if (!User.INST(getApplicationContext()).isLoggedIn()) {
-      infoMessage = getString(R.string.err_not_signed_in);
-    } else {
-      sortFiles();
-      infoMessage = "";
-    }
-    textView.setText(infoMessage);
-
-    if (TextUtils.isEmpty(infoMessage)) {
-      textView.setVisibility(View.GONE);
-      recyclerView.setVisibility(View.VISIBLE);
-    } else {
-      textView.setVisibility(View.VISIBLE);
-      recyclerView.setVisibility(View.GONE);
-    }
+    //if (TextUtils.isEmpty(infoMessage)) {
+    //  textView.setVisibility(View.GONE);
+    //  recyclerView.setVisibility(View.VISIBLE);
+    //} else {
+    //  textView.setVisibility(View.VISIBLE);
+    //  recyclerView.setVisibility(View.GONE);
+    //}
   }
 
   /** Load the list of backup files asynchronously */
