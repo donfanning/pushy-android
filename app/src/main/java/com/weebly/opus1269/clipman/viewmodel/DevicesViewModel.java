@@ -11,6 +11,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
@@ -51,11 +52,11 @@ public class DevicesViewModel extends AndroidViewModel {
     refreshList();
   }
 
-  public LiveData<List<DeviceEntity>> getDevices() {
+  public MutableLiveData<List<DeviceEntity>> getDevices() {
     return devices;
   }
 
-  public LiveData<String> getInfoMessage() {
+  public MutableLiveData<String> getInfoMessage() {
     return infoMessage;
   }
 

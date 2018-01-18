@@ -26,7 +26,6 @@
   </data>
 
   <LinearLayout
-    android:id="@+id/content_backup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="beforeDescendants"
@@ -41,7 +40,6 @@
       bind:isLoading="@{isLoading}" />
 
     <LinearLayout
-      android:id="@+id/drive_content"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
@@ -52,7 +50,6 @@
         bind:infoMessage="@{infoMessage}" />
 
       <TextView
-        android:id="@+id/info_message"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"

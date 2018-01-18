@@ -11,13 +11,21 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+
     <import type="java.util.List" />
+
     <import type="android.text.TextUtils" />
+
     <import type="android.view.View" />
 
     <variable
       name="vm"
       type="com.weebly.opus1269.clipman.viewmodel.DevicesViewModel" />
+
+    <variable
+      name="infoMessage"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+
     <variable
       name="handlers"
       type="com.weebly.opus1269.clipman.ui.devices.DevicesHandlers" />
@@ -45,7 +53,7 @@
 
     <include
       layout="@layout/content_devices"
-      bind:vm="@{vm}"/>
+      bind:infoMessage="@{infoMessage}" />
 
     <android.support.design.widget.FloatingActionButton
       android:id="@+id/fab"
@@ -54,8 +62,8 @@
       android:layout_gravity="bottom|end"
       android:layout_margin="@dimen/fab_margin"
       android:onClick="@{() -> handlers.onFabClick(vm, fab)}"
-      android:visibility="@{TextUtils.isEmpty(vm.infoMessage.getValue()) ? View.VISIBLE : View.GONE}"
       android:tint="@color/icons"
+      android:visibility="@{TextUtils.isEmpty(infoMessage) ? View.VISIBLE : View.GONE}"
       app:srcCompat="@drawable/ic_refresh_black_24dp" />
 
   </android.support.design.widget.CoordinatorLayout>

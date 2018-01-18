@@ -35,6 +35,7 @@ public class DevicesActivity extends BaseActivity {
     final ActivityDevicesBinding binding = (ActivityDevicesBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(vm);
+    binding.setInfoMessage(vm.getInfoMessage());
     binding.setHandlers(handlers);
     binding.executePendingBindings();
 

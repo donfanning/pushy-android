@@ -11,13 +11,14 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
-    <import type="java.util.List" />
+
     <import type="android.text.TextUtils" />
+
     <import type="android.view.View" />
 
     <variable
-      name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.DevicesViewModel" />
+      name="infoMessage"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
   </data>
 
   <LinearLayout
@@ -33,16 +34,16 @@
 
     <include
       layout="@layout/device_list"
-      bind:vm="@{vm}"/>
+      bind:infoMessage="@{infoMessage}" />
 
     <TextView
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:gravity="center"
       android:padding="10dp"
-      android:text="@{vm.infoMessage.getValue()}"
+      android:text="@{infoMessage}"
       android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-      android:visibility="@{!TextUtils.isEmpty(vm.infoMessage.getValue()) ? View.VISIBLE : View.GONE}"
+      android:visibility="@{TextUtils.isEmpty(infoMessage) ? View.GONE : View.VISIBLE}"
       tools:text="Error message here" />
 
   </LinearLayout>

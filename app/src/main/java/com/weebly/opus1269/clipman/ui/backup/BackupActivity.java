@@ -269,28 +269,6 @@ public class BackupActivity extends BaseActivity {
     builder.create().show();
   }
 
-  /** Display progress UI */
-  public void showProgress() {
-    final View contentView = findViewById(R.id.drive_content);
-    final View fabView = findViewById(R.id.fab);
-    final View progressView = findViewById(R.id.progress_layout);
-
-    contentView.setVisibility(View.GONE);
-    fabView.setVisibility(View.GONE);
-    progressView.setVisibility(View.VISIBLE);
-  }
-
-  /** Hide progress UI */
-  public void hideProgress() {
-    final View contentView = findViewById(R.id.drive_content);
-    final View fabView = findViewById(R.id.fab);
-    final View progressView = findViewById(R.id.progress_layout);
-
-    contentView.setVisibility(View.VISIBLE);
-    fabView.setVisibility(View.VISIBLE);
-    progressView.setVisibility(View.GONE);
-  }
-
   /** Request Drive access if needed */
   private void checkDrivePermissions() {
     final GoogleSignInAccount account = User.INST(this).getGoogleAccount();
