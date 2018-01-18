@@ -11,7 +11,6 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
@@ -19,7 +18,6 @@ import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.BackupFile;
-import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.model.User;
 
 import java.util.ArrayList;
@@ -33,29 +31,27 @@ public class BackupsViewModel extends AndroidViewModel {
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
 
-  /** BackFile list */
-  private final MutableLiveData<List<BackupFile>> files;
-
   /** Info message */
   public final MutableLiveData<String> infoMessage;
 
   /** True if loading */
   public final MutableLiveData<Boolean> isLoading;
 
-  /** True if loading */
-  //public boolean isLoading;
+  /** BackFile list */
+  private final MutableLiveData<List<BackupFile>> files;
 
   public BackupsViewModel(@NonNull Application app) {
     super(app);
-
-    files = new MutableLiveData<>();
-    files.setValue(new ArrayList<>());
 
     infoMessage = new MutableLiveData<>();
     infoMessage.setValue("");
 
     isLoading = new MutableLiveData<>();
     isLoading.setValue(false);
+
+    files = new MutableLiveData<>();
+    files.setValue(new ArrayList<>());
+    files.observeForever(this::postInfoMessage);
   }
 
   public MutableLiveData<List<BackupFile>> getFiles() {
@@ -72,31 +68,56 @@ public class BackupsViewModel extends AndroidViewModel {
       final BackupFile file = new BackupFile(getApplication(), metadata);
       backupFiles.add(file);
     }
-    sortFiles(backupFiles);
-    files.postValue(backupFiles);
-
-    postInfoMessage(backupFiles);
+    postFiles(backupFiles);
   }
 
+  /**
+   * Add a flle to the list
+   * @param metadata file to add
+   */
+  public void addFile(Metadata metadata) {
+    if (this.files.getValue() == null)  {
+      this.files.postValue(new ArrayList<>());
+    }
+    List<BackupFile> backupFiles = this.files.getValue();
+    if (backupFiles == null)  {
+      return;
+    }
+    final BackupFile file = new BackupFile(getApplication(), metadata);
+    boolean added = backupFiles.add(file);
+    if (added) {
+      Log.logD(TAG, "added file to list");
+      postFiles(backupFiles);
+    }
+  }
 
   /**
    * Remove a flle from the list by DriveId
    * @param driveId id of file to remove
    */
   public void removeFile(@NonNull final DriveId driveId) {
-    List<BackupFile> files = this.files.getValue();
-    if (files == null)  {
+    List<BackupFile> backupFiles = this.files.getValue();
+    if (backupFiles == null)  {
       return;
     }
-    for (final Iterator<BackupFile> i = files.iterator(); i.hasNext(); ) {
+    boolean found = false;
+    for (final Iterator<BackupFile> i = backupFiles.iterator(); i.hasNext(); ) {
       final BackupFile backupFile = i.next();
       if (backupFile.getId().equals(driveId)) {
+        found = true;
         i.remove();
         Log.logD(TAG, "removed file from list");
-        this.files.setValue(files);
         break;
       }
     }
+    if (found) {
+      postFiles(backupFiles);
+    }
+  }
+
+  private void postFiles(@NonNull List<BackupFile> backupFiles) {
+    sortFiles(backupFiles);
+    this.files.postValue(backupFiles);
   }
 
   public void postIsLoading(boolean value) {
@@ -107,20 +128,7 @@ public class BackupsViewModel extends AndroidViewModel {
     isLoading.setValue(value);
   }
 
-  public void postInfoMessage(String value) {
-    infoMessage.postValue(value);
-  }
-
-  public void setInfoMessage(String value) {
-    infoMessage.setValue(value);
-  }
-
-  public void refreshList() {
-    //TODO
-    Log.logD(TAG, "refreshed list called");
-  }
-
-  private void postInfoMessage(List<BackupFile> backupFiles) {
+  private void postInfoMessage(@NonNull List<BackupFile> backupFiles) {
     final String msg;
     if (backupFiles.isEmpty()) {
       msg = getApplication().getString(R.string.err_no_backups);
@@ -129,7 +137,7 @@ public class BackupsViewModel extends AndroidViewModel {
     } else {
       msg = "";
     }
-    postInfoMessage(msg);
+    infoMessage.postValue(msg);
   }
 
   /**

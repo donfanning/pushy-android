@@ -190,7 +190,7 @@ public class DriveHelper {
         final Metadata metadata = task.getResult();
 
         if (activity != null) {
-          activity.addFileToList(metadata);
+          activity.getViewModel().addFile(metadata);
         }
 
         // persist to Prefs
@@ -245,7 +245,7 @@ public class DriveHelper {
       })
       .addOnSuccessListener(activity, aVoid -> {
         Log.logD(TAG, "updated backup");
-        activity.refreshList();
+        new BackupHelper.GetBackupsAsyncTask(activity).executeMe();
       })
       .addOnFailureListener(activity, ex -> onTaskFailure(activity, errMessage, ex));
   }
@@ -334,7 +334,7 @@ public class DriveHelper {
     final String msg = mContext.getString(R.string.err_internal_drive);
     Log.logE(mContext, TAG, msg, title, false);
     if (activity != null) {
-      activity.showMessage(title, msg);
+      activity.getHandlers().showErrorMessage(msg, msg);
     }
   }
 
@@ -349,7 +349,7 @@ public class DriveHelper {
     final String exMsg = ex.getLocalizedMessage();
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
     if (activity != null) {
-      activity.showMessage(msg, exMsg);
+      activity.getHandlers().showErrorMessage(msg, exMsg);
     }
   }
 

@@ -262,7 +262,7 @@ public class BackupHelper {
     final String exMsg = ex.getLocalizedMessage();
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
     if (activity != null) {
-      activity.showMessage(msg, exMsg);
+      activity.getHandlers().showErrorMessage(msg, exMsg);
     }
   }
 

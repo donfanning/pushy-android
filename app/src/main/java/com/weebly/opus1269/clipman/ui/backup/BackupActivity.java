@@ -10,7 +10,6 @@ package com.weebly.opus1269.clipman.ui.backup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -20,35 +19,26 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.Metadata;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.BackupContents;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
-import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.databinding.ActivityBackupBinding;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
-import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class BackupActivity extends BaseActivity {
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;
 
-  /** The Array of {@link BackupFile} objects */
-  private final List<BackupFile> mFiles = new ArrayList<>(0);
+  /** Our ViewModel */
+  private BackupsViewModel mViewModel = null;
 
-  /** Out ViewModel */
-  private BackupsViewModel mViewModel;
+  /** Our event handlers */
+  private BackupHandlers mHandlers = null;
 
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
@@ -63,19 +53,19 @@ public class BackupActivity extends BaseActivity {
 
     // setup ViewModel and data binding
     mViewModel = new BackupsViewModel(getApplication());
-    final BackupHandlers handlers = new BackupHandlers(this);
+    mHandlers = new BackupHandlers(this);
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(mViewModel);
     binding.setIsLoading(mViewModel.isLoading);
     binding.setInfoMessage(mViewModel.infoMessage);
-    binding.setHandlers(handlers);
+    binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 
     // setup RecyclerView
     final RecyclerView recyclerView = findViewById(R.id.backupList);
     if (recyclerView != null) {
-      setupRecyclerView(recyclerView, mViewModel, handlers);
+      setupRecyclerView(recyclerView);
     }
   }
 
@@ -100,7 +90,7 @@ public class BackupActivity extends BaseActivity {
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_backup:
-        showConfirmDialog();
+        mHandlers.onBackupClick(this, item);
         break;
       default:
         processed = false;
@@ -139,37 +129,8 @@ public class BackupActivity extends BaseActivity {
     return mViewModel;
   }
 
-  /**
-   * Add a flle to the list
-   * @param metadata file to add
-   */
-  public void addFileToList(Metadata metadata) {
-    final BackupFile file = new BackupFile(this, metadata);
-    boolean added = mFiles.add(file);
-    if (added) {
-      Log.logD(TAG, "added file to list");
-      mAdapter.notifyDataSetChanged();
-    }
-  }
-
-  /**
-   * Remove a flle from the list by DriveId
-   * @param driveId id of file to remove
-   */
-  public void removeFileFromList(@NonNull final DriveId driveId) {
-    boolean found = false;
-    for (final Iterator<BackupFile> i = mFiles.iterator(); i.hasNext(); ) {
-      final BackupFile backupFile = i.next();
-      if (backupFile.getId().equals(driveId)) {
-        found = true;
-        i.remove();
-        break;
-      }
-    }
-    if (found) {
-      Log.logD(TAG, "removed file from list");
-      mAdapter.notifyDataSetChanged();
-    }
+  public BackupHandlers getHandlers() {
+    return mHandlers;
   }
 
   /**
@@ -193,52 +154,8 @@ public class BackupActivity extends BaseActivity {
       final String title = getString(R.string.err_update_db);
       final String msg = ex.getLocalizedMessage();
       Log.logEx(this, TAG, msg, ex, title, false);
-      showMessage(title, msg);
+      mHandlers.showErrorMessage(msg, msg);
     }
-  }
-
-  /** Refresh the list */
-  public void refreshList() {
-    retrieveBackups();
-  }
-
-
-  /** Display confirmation dialog on undoable action */
-  private void showConfirmDialog() {
-    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder
-      .setMessage(R.string.backup_dialog_backup_message)
-      .setTitle(R.string.backup_dialog_title)
-      .setNegativeButton(R.string.button_cancel, null)
-      .setPositiveButton(R.string.button_backup, (dialog, which) -> {
-        final BackupActivity activity = BackupActivity.this;
-        Analytics.INST(activity).buttonClick
-          (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
-        new BackupHelper.CreateBackupAsyncTask(activity).executeMe();
-      })
-      .create()
-      .show();
-  }
-
-  /**
-   * Display a message in a dialog
-   * @param title dialog title
-   * @param msg   dialog meesage
-   */
-  public void showMessage(@NonNull String title, @NonNull String msg) {
-    mViewModel.postIsLoading(false);
-    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder
-      .setTitle(title)
-      .setMessage(msg)
-      .setPositiveButton(R.string.button_dismiss, null)
-      .setNegativeButton(R.string.button_details, (dialogInterface, i) -> {
-        final Intent intent = new Intent(BackupActivity.this,
-          ErrorViewerActivity.class);
-        AppUtils.startActivity(BackupActivity.this, intent);
-      });
-
-    builder.create().show();
   }
 
   /** Request Drive access if needed */
@@ -262,14 +179,13 @@ public class BackupActivity extends BaseActivity {
   }
 
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
-  private void setupRecyclerView(RecyclerView recyclerView, BackupsViewModel vm,
-                                 BackupHandlers handlers) {
-    mAdapter = new BackupAdapter(handlers);
+  private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+    mAdapter = new BackupAdapter(mHandlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
     // Observe files
-    vm.getFiles().observe(this, files -> mAdapter.setList(files));
+    mViewModel.getFiles().observe(this, files -> mAdapter.setList(files));
   }
 
   /** Load the list of backup files asynchronously */
