@@ -58,6 +58,14 @@ public class BackupsViewModel extends AndroidViewModel {
     isLoading.setValue(value);
   }
 
+  public void postInfoMessage(String value) {
+    infoMessage.postValue(value);
+  }
+
+  public void setInfoMessage(String value) {
+    infoMessage.setValue(value);
+  }
+
   public void refreshList() {
     //TODO
     Log.logD(TAG, "refreshed list called");

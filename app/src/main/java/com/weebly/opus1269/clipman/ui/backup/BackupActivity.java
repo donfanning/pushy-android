@@ -13,11 +13,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -72,7 +70,8 @@ public class BackupActivity extends BaseActivity {
     final BackupHandlers handlers = new BackupHandlers(getTAG());
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
     binding.setLifecycleOwner(this);
-    binding.setVm(mViewModel);
+    binding.setIsLoading(mViewModel.isLoading);
+    binding.setInfoMessage(mViewModel.infoMessage);
     binding.setHandlers(handlers);
     binding.executePendingBindings();
 
@@ -343,27 +342,16 @@ public class BackupActivity extends BaseActivity {
 
   /** Determine if list or info. message should be shown */
   private void setupMainView() {
-    //final RecyclerView recyclerView = findViewById(R.id.backupList);
-    //final TextView textView = findViewById(R.id.info_message);
-    //String infoMessage;
-    //
-    //if (mFiles.isEmpty()) {
-    //  infoMessage = getString(R.string.err_no_backups);
-    //} else if (!User.INST(getApplicationContext()).isLoggedIn()) {
-    //  infoMessage = getString(R.string.err_not_signed_in);
-    //} else {
-    //  sortFiles();
-    //  infoMessage = "";
-    //}
-    //textView.setText(infoMessage);
-
-    //if (TextUtils.isEmpty(infoMessage)) {
-    //  textView.setVisibility(View.GONE);
-    //  recyclerView.setVisibility(View.VISIBLE);
-    //} else {
-    //  textView.setVisibility(View.VISIBLE);
-    //  recyclerView.setVisibility(View.GONE);
-    //}
+    String infoMessage;
+    if (mFiles.isEmpty()) {
+      infoMessage = getString(R.string.err_no_backups);
+    } else if (!User.INST(getApplicationContext()).isLoggedIn()) {
+      infoMessage = getString(R.string.err_not_signed_in);
+    } else {
+      sortFiles();
+      infoMessage = "";
+    }
+    mViewModel.setInfoMessage(infoMessage);
   }
 
   /** Load the list of backup files asynchronously */

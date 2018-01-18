@@ -13,8 +13,8 @@
     <import type="android.view.View" />
 
     <variable
-      name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
+      name="isLoading"
+      type="android.arch.lifecycle.MutableLiveData&lt;Boolean&gt;" />
   </data>
 
   <LinearLayout
@@ -24,7 +24,7 @@
     android:layout_marginTop="64dp"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:visibility="@{vm.isLoading ? View.VISIBLE : View.GONE}"
+    android:visibility="@{isLoading ? View.VISIBLE : View.GONE}"
     tools:visibility="visible">
 
     <ProgressBar

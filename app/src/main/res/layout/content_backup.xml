@@ -17,8 +17,12 @@
     <import type="android.view.View" />
 
     <variable
-      name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
+      name="isLoading"
+      type="android.arch.lifecycle.MutableLiveData&lt;Boolean&gt;" />
+
+    <variable
+      name="infoMessage"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
   </data>
 
   <LinearLayout
@@ -34,17 +38,18 @@
 
     <include
       layout="@layout/progress_layout_backup"
-      bind:vm="@{vm}"/>
+      bind:isLoading="@{isLoading}" />
 
     <LinearLayout
       android:id="@+id/drive_content"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:orientation="vertical">
+      android:orientation="vertical"
+      android:visibility="@{isLoading ? View.GONE : View.VISIBLE}">
 
       <include
         layout="@layout/backup_list"
-        bind:vm="@{vm}"/>
+        bind:infoMessage="@{infoMessage}" />
 
       <TextView
         android:id="@+id/info_message"
@@ -52,9 +57,9 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:padding="10dp"
+        android:text="@{infoMessage}"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="@{vm.infoMessage}"
-        android:visibility="@{!TextUtils.isEmpty(vm.infoMessage) ? View.VISIBLE : View.GONE}"
+        android:visibility="@{TextUtils.isEmpty(infoMessage) ? View.GONE : View.VISIBLE}"
         tools:text="Error message here" />
     </LinearLayout>
 

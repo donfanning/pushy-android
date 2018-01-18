@@ -21,6 +21,14 @@
       type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
 
     <variable
+      name="isLoading"
+      type="android.arch.lifecycle.MutableLiveData&lt;Boolean&gt;" />
+
+    <variable
+      name="infoMessage"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+
+    <variable
       name="handlers"
       type="com.weebly.opus1269.clipman.ui.backup.BackupHandlers" />
   </data>
@@ -47,7 +55,8 @@
 
     <include
       layout="@layout/content_backup"
-      bind:vm="@{vm}"/>
+      bind:infoMessage="@{infoMessage}"
+      bind:isLoading="@{isLoading}" />
 
     <android.support.design.widget.FloatingActionButton
       android:id="@+id/fab"
@@ -55,9 +64,9 @@
       android:layout_height="wrap_content"
       android:layout_gravity="bottom|end"
       android:layout_margin="@dimen/fab_margin"
-      android:visibility="@{vm.isLoading ? View.GONE : View.VISIBLE}"
       android:onClick="@{() -> handlers.onFabClick(vm, fab)}"
       android:tint="@color/icons"
+      android:visibility="@{isLoading ? View.GONE : View.VISIBLE}"
       app:srcCompat="@drawable/ic_refresh_black_24dp" />
 
   </android.support.design.widget.CoordinatorLayout>

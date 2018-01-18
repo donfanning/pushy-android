@@ -18,8 +18,8 @@
     <import type="android.view.View" />
 
     <variable
-      name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
+      name="infoMessage"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
   </data>
 
   <android.support.v7.widget.RecyclerView
@@ -27,7 +27,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="vertical"
-    android:visibility="@{(TextUtils.isEmpty(vm.infoMessage) &amp;&amp; !vm.isLoading) ? View.VISIBLE : View.GONE}"
+    android:visibility="@{TextUtils.isEmpty(infoMessage) ? View.VISIBLE : View.GONE}"
     app:layoutManager="LinearLayoutManager"
     tools:listitem="@layout/backup_row" />
 
