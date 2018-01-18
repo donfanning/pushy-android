@@ -25,15 +25,11 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.DriveStatusCodes;
 import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filter;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
@@ -103,54 +99,40 @@ public class DriveHelper {
     setIsLoading(activity, true);
     // sync with drive
     driveClient.requestSync()
-      .continueWithTask(new Continuation<Void, Task<DriveFolder>>() {
-        @Override
-        public Task<DriveFolder> then(@NonNull Task<Void> task)
-          throws Exception {
-          // get app folder
-          return resourceClient.getAppFolder();
-        }
+      .continueWithTask(task -> {
+        // get app folder
+        return resourceClient.getAppFolder();
       })
-      .continueWithTask(new Continuation<DriveFolder, Task<MetadataBuffer>>() {
-        @Override
-        public Task<MetadataBuffer> then(@NonNull Task<DriveFolder> task)
-          throws Exception {
-          final DriveFolder folder = task.getResult();
+      .continueWithTask(task -> {
+        final DriveFolder folder = task.getResult();
 
-          final Filter filter =
-            Filters.eq(SearchableField.MIME_TYPE, "application/zip");
-          final Query query = new Query.Builder().addFilter(filter).build();
+        final Filter filter =
+          Filters.eq(SearchableField.MIME_TYPE, "application/zip");
+        final Query query = new Query.Builder().addFilter(filter).build();
 
-          // query app folder
-          return resourceClient.queryChildren(folder, query);
-        }
+        // query app folder
+        return resourceClient.queryChildren(folder, query);
       })
-      .addOnSuccessListener(activity, new OnSuccessListener<MetadataBuffer>() {
-        @Override
-        public void onSuccess(MetadataBuffer metadataBuffer) {
-          // populate the files list
-          Log.logD(TAG, "got list of files");
-          activity.setFiles(metadataBuffer);
-          metadataBuffer.release();
-          setIsLoading(activity, false);
-        }
+      .addOnSuccessListener(activity, metadataBuffer -> {
+        // populate the files list
+        Log.logD(TAG, "got list of files");
+        activity.getViewModel().postFiles(metadataBuffer);
+        metadataBuffer.release();
+        setIsLoading(activity, false);
       })
-      .addOnFailureListener(activity, new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception ex) {
-          if (ex instanceof ApiException) {
-            final int code = ((ApiException) ex).getStatusCode();
-            if (code != DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
-              // don't show rate limit errors
-              showMessage(activity, errMessage, ex);
-            } else {
-              Log.logD(TAG, "rate limited");
-            }
-          } else {
+      .addOnFailureListener(activity, ex -> {
+        if (ex instanceof ApiException) {
+          final int code = ((ApiException) ex).getStatusCode();
+          if (code != DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
+            // don't show rate limit errors
             showMessage(activity, errMessage, ex);
+          } else {
+            Log.logD(TAG, "rate limited");
           }
-          setIsLoading(activity, false);
+        } else {
+          showMessage(activity, errMessage, ex);
         }
+        setIsLoading(activity, false);
       });
   }
 
@@ -177,77 +159,57 @@ public class DriveHelper {
 
     setIsLoading(activity, true);
     Tasks.whenAll(appFolderTask, createContentsTask)
-      .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
-        @Override
-        public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
-          final DriveFolder appFolder = appFolderTask.getResult();
-          final DriveContents contents = createContentsTask.getResult();
+      .continueWithTask(task -> {
+        final DriveFolder appFolder = appFolderTask.getResult();
+        final DriveContents contents = createContentsTask.getResult();
 
-          final OutputStream outputStream = contents.getOutputStream();
-          //noinspection TryFinallyCanBeTryWithResources
-          try {
-            outputStream.write(data);
-          } finally {
-            outputStream.close();
-          }
-
-          MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
-            .setTitle(filename)
-            .setMimeType("application/zip");
-          BackupFile.setCustomProperties(mContext, builder);
-
-          final MetadataChangeSet changeSet = builder.build();
-
-          // create file including contents
-          return resourceClient.createFile(appFolder, changeSet, contents);
+        final OutputStream outputStream = contents.getOutputStream();
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+          outputStream.write(data);
+        } finally {
+          outputStream.close();
         }
+
+        MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
+          .setTitle(filename)
+          .setMimeType("application/zip");
+        BackupFile.setCustomProperties(mContext, builder);
+
+        final MetadataChangeSet changeSet = builder.build();
+
+        // create file including contents
+        return resourceClient.createFile(appFolder, changeSet, contents);
       })
-      .continueWithTask(new Continuation<DriveFile, Task<Metadata>>() {
-        @Override
-        public Task<Metadata> then(@NonNull Task<DriveFile> task) throws
-          Exception {
-          final DriveFile driveFile = task.getResult();
-          // get new files metadata
-          return resourceClient.getMetadata(driveFile);
-        }
+      .continueWithTask(task -> {
+        final DriveFile driveFile = task.getResult();
+        // get new files metadata
+        return resourceClient.getMetadata(driveFile);
       })
-      .continueWithTask(new Continuation<Metadata, Task<Void>>() {
-        @Override
-        public Task<Void> then(@NonNull Task<Metadata> task) throws Exception {
-          final Metadata metadata = task.getResult();
+      .continueWithTask(task -> {
+        final Metadata metadata = task.getResult();
 
-          if (activity != null) {
-            activity.addFileToList(metadata);
-          }
-
-          // persist to Prefs
-          final String fileString = metadata.getDriveId().encodeToString();
-          Prefs.INST(mContext).setLastBackup(fileString);
-
-          if (TextUtils.isEmpty(lastBackup)) {
-            // no backup to delete - no big deal
-            Log.logD(TAG, "no old backup to delete");
-            throw new Exception("OK");
-          }
-
-          final DriveId driveId = DriveId.decodeFromString(lastBackup);
-
-          // delete old backup
-          return resourceClient.delete(driveId.asDriveFile());
+        if (activity != null) {
+          activity.addFileToList(metadata);
         }
+
+        // persist to Prefs
+        final String fileString = metadata.getDriveId().encodeToString();
+        Prefs.INST(mContext).setLastBackup(fileString);
+
+        if (TextUtils.isEmpty(lastBackup)) {
+          // no backup to delete - no big deal
+          Log.logD(TAG, "no old backup to delete");
+          throw new Exception("OK");
+        }
+
+        final DriveId driveId = DriveId.decodeFromString(lastBackup);
+
+        // delete old backup
+        return resourceClient.delete(driveId.asDriveFile());
       })
-      .addOnSuccessListener(new OnSuccessListener<Void>() {
-        @Override
-        public void onSuccess(Void aVoid) {
-          onDeleteSuccess(activity, DriveId.decodeFromString(lastBackup));
-        }
-      })
-      .addOnFailureListener(new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception ex) {
-          onDeleteFailure(activity, errMessage, ex);
-        }
-      });
+      .addOnSuccessListener(aVoid -> onDeleteSuccess(activity, DriveId.decodeFromString(lastBackup)))
+      .addOnFailureListener(ex -> onDeleteFailure(activity, errMessage, ex));
   }
 
   /**
@@ -268,36 +230,24 @@ public class DriveHelper {
 
     setIsLoading(activity, true);
     resourceClient.openFile(file, DriveFile.MODE_WRITE_ONLY)
-      .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
-        @Override
-        public Task<Void> then(@NonNull Task<DriveContents> task)
-          throws Exception {
-          final DriveContents contents = task.getResult();
+      .continueWithTask(task -> {
+        final DriveContents contents = task.getResult();
 
-          final OutputStream outputStream = contents.getOutputStream();
-          //noinspection TryFinallyCanBeTryWithResources
-          try {
-            outputStream.write(data);
-          } finally {
-            outputStream.close();
-          }
+        final OutputStream outputStream = contents.getOutputStream();
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+          outputStream.write(data);
+        } finally {
+          outputStream.close();
+        }
 
-          return resourceClient.commitContents(contents, null);
-        }
+        return resourceClient.commitContents(contents, null);
       })
-      .addOnSuccessListener(activity, new OnSuccessListener<Void>() {
-        @Override
-        public void onSuccess(Void aVoid) {
-          Log.logD(TAG, "updated backup");
-          activity.refreshList();
-        }
+      .addOnSuccessListener(activity, aVoid -> {
+        Log.logD(TAG, "updated backup");
+        activity.refreshList();
       })
-      .addOnFailureListener(activity, new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception ex) {
-          onTaskFailure(activity, errMessage, ex);
-        }
-      });
+      .addOnFailureListener(activity, ex -> onTaskFailure(activity, errMessage, ex));
   }
 
   /**
@@ -319,38 +269,26 @@ public class DriveHelper {
 
     setIsLoading(activity, true);
     resourceClient.openFile(file, DriveFile.MODE_READ_ONLY)
-      .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
-        @Override
-        public Task<Void> then(@NonNull Task<DriveContents> task)
-          throws Exception {
-          final DriveContents contents = task.getResult();
+      .continueWithTask(task -> {
+        final DriveContents contents = task.getResult();
 
-          BufferedInputStream bis = null;
-          try {
-            bis = new BufferedInputStream(contents.getInputStream());
-            BackupHelper.INST(mContext).extractFromZipFile(bis, backupContents);
-          } finally {
-            if (bis != null) {
-              bis.close();
-            }
+        BufferedInputStream bis = null;
+        try {
+          bis = new BufferedInputStream(contents.getInputStream());
+          BackupHelper.INST(mContext).extractFromZipFile(bis, backupContents);
+        } finally {
+          if (bis != null) {
+            bis.close();
           }
+        }
 
-          return resourceClient.discardContents(contents);
-        }
+        return resourceClient.discardContents(contents);
       })
-      .addOnSuccessListener(activity, new OnSuccessListener<Void>() {
-        @Override
-        public void onSuccess(Void aVoid) {
-          Log.logD(TAG, "got backup contents");
-          activity.onGetBackupContentsComplete(file, backupContents, isSync);
-        }
+      .addOnSuccessListener(activity, aVoid -> {
+        Log.logD(TAG, "got backup contents");
+        activity.onGetBackupContentsComplete(file, backupContents, isSync);
       })
-      .addOnFailureListener(activity, new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception ex) {
-          onTaskFailure(activity, errMessage, ex);
-        }
-      });
+      .addOnFailureListener(activity, ex -> onTaskFailure(activity, errMessage, ex));
   }
 
   /**
@@ -372,18 +310,8 @@ public class DriveHelper {
 
     setIsLoading(activity, true);
     deleteTask
-      .addOnSuccessListener(new OnSuccessListener<Void>() {
-        @Override
-        public void onSuccess(Void aVoid) {
-          onDeleteSuccess(activity, driveId);
-        }
-      })
-      .addOnFailureListener(new OnFailureListener() {
-        @Override
-        public void onFailure(@NonNull Exception ex) {
-          onDeleteFailure(activity, errMessage, ex);
-        }
-      });
+      .addOnSuccessListener(aVoid -> onDeleteSuccess(activity, driveId))
+      .addOnFailureListener(ex -> onDeleteFailure(activity, errMessage, ex));
   }
 
   /**
@@ -433,7 +361,7 @@ public class DriveHelper {
   private void onDeleteSuccess(BackupActivity activity, DriveId driveId) {
     Log.logD(TAG, "deleted file");
     if (activity != null) {
-      activity.removeFileFromList(driveId);
+      activity.getViewModel().removeFile(driveId);
       setIsLoading(activity, false);
     }
   }

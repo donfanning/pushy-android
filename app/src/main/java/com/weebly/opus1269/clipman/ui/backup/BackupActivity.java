@@ -15,7 +15,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -23,7 +22,6 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
@@ -39,8 +37,6 @@ import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,7 +63,7 @@ public class BackupActivity extends BaseActivity {
 
     // setup ViewModel and data binding
     mViewModel = new BackupsViewModel(getApplication());
-    final BackupHandlers handlers = new BackupHandlers(getTAG());
+    final BackupHandlers handlers = new BackupHandlers(this);
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(mViewModel);
@@ -81,14 +77,6 @@ public class BackupActivity extends BaseActivity {
     if (recyclerView != null) {
       setupRecyclerView(recyclerView, mViewModel, handlers);
     }
-  }
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-
-    // setup UI
-    setupMainView();
   }
 
   @Override
@@ -152,20 +140,6 @@ public class BackupActivity extends BaseActivity {
   }
 
   /**
-   * Set the list of backups
-   * @param metadataBuffer - buffer containing list of files
-   */
-  public void setFiles(@NonNull MetadataBuffer metadataBuffer) {
-    mFiles.clear();
-    for (Metadata metadata : metadataBuffer) {
-      final BackupFile file = new BackupFile(this, metadata);
-      mFiles.add(file);
-    }
-    setupMainView();
-    mAdapter.notifyDataSetChanged();
-  }
-
-  /**
    * Add a flle to the list
    * @param metadata file to add
    */
@@ -174,7 +148,6 @@ public class BackupActivity extends BaseActivity {
     boolean added = mFiles.add(file);
     if (added) {
       Log.logD(TAG, "added file to list");
-      setupMainView();
       mAdapter.notifyDataSetChanged();
     }
   }
@@ -195,7 +168,6 @@ public class BackupActivity extends BaseActivity {
     }
     if (found) {
       Log.logD(TAG, "removed file from list");
-      setupMainView();
       mAdapter.notifyDataSetChanged();
     }
   }
@@ -284,28 +256,6 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
-  /** Sort files - mine first, then by data */
-  private void sortFiles() {
-    // mine first, then by date
-    // see: https://goo.gl/RZG4u8
-    final Comparator<BackupFile> cmp = (lhs, rhs) -> {
-      // mine first
-      Boolean lhMine = lhs.isMine();
-      Boolean rhMine = rhs.isMine();
-      int mineCompare = rhMine.compareTo(lhMine);
-
-      if (mineCompare != 0) {
-        return mineCompare;
-      } else {
-        // newest first
-        Long lhDate = lhs.getDate();
-        Long rhDate = rhs.getDate();
-        return rhDate.compareTo(lhDate);
-      }
-    };
-    Collections.sort(mFiles, cmp);
-  }
-
   /** Drive can be called */
   private void onDriveClientReady() {
     retrieveBackups();
@@ -314,23 +264,12 @@ public class BackupActivity extends BaseActivity {
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView(RecyclerView recyclerView, BackupsViewModel vm,
                                  BackupHandlers handlers) {
-    mAdapter = new BackupAdapter(this, mFiles);
+    mAdapter = new BackupAdapter(handlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
-  }
 
-  /** Determine if list or info. message should be shown */
-  private void setupMainView() {
-    String infoMessage;
-    if (mFiles.isEmpty()) {
-      infoMessage = getString(R.string.err_no_backups);
-    } else if (!User.INST(getApplicationContext()).isLoggedIn()) {
-      infoMessage = getString(R.string.err_not_signed_in);
-    } else {
-      sortFiles();
-      infoMessage = "";
-    }
-    mViewModel.setInfoMessage(infoMessage);
+    // Observe files
+    vm.getFiles().observe(this, files -> mAdapter.setList(files));
   }
 
   /** Load the list of backup files asynchronously */
