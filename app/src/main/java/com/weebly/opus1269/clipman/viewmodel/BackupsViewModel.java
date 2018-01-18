@@ -59,7 +59,7 @@ public class BackupsViewModel extends AndroidViewModel {
   }
 
   /**
-   * Set the list of backups
+   * Set the list of backups from Drive
    * @param metadataBuffer - buffer containing list of files
    */
   public void postFiles(@NonNull MetadataBuffer metadataBuffer) {
@@ -69,6 +69,10 @@ public class BackupsViewModel extends AndroidViewModel {
       backupFiles.add(file);
     }
     postFiles(backupFiles);
+  }
+
+  public void postIsLoading(boolean value) {
+    isLoading.postValue(value);
   }
 
   /**
@@ -118,14 +122,6 @@ public class BackupsViewModel extends AndroidViewModel {
   private void postFiles(@NonNull List<BackupFile> backupFiles) {
     sortFiles(backupFiles);
     this.files.postValue(backupFiles);
-  }
-
-  public void postIsLoading(boolean value) {
-    isLoading.postValue(value);
-  }
-
-  public void setIsLoading(boolean value) {
-    isLoading.setValue(value);
   }
 
   private void postInfoMessage(@NonNull List<BackupFile> backupFiles) {
