@@ -70,6 +70,7 @@ public class BackupActivity extends BaseActivity {
     final BackupHandlers handlers = new BackupHandlers(getTAG());
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
     binding.setLifecycleOwner(this);
+    binding.setVm(mViewModel);
     binding.setIsLoading(mViewModel.isLoading);
     binding.setInfoMessage(mViewModel.infoMessage);
     binding.setHandlers(handlers);
