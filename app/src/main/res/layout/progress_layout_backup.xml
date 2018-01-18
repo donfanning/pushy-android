@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+  ~ Licensed under Apache 2.0
+  ~ https://opensource.org/licenses/Apache-2.0
+  ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <import type="android.text.TextUtils" />
+
+    <import type="android.view.View" />
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
+  </data>
+
+  <LinearLayout
+    android:id="@+id/progress_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="64dp"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:visibility="@{vm.isLoading.getValue() ? View.VISIBLE : View.GONE}"
+    tools:visibility="visible">
+
+    <ProgressBar
+      style="?android:attr/progressBarStyle"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="16dp" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fadeScrollbars="true"
+      android:gravity="center"
+      android:text="@string/progress_working"
+      android:textAppearance="@style/TextAppearance.AppCompat" />
+
+  </LinearLayout>
+
+</layout>

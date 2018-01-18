@@ -7,11 +7,9 @@
 
 package com.weebly.opus1269.clipman.ui.backup;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,10 +33,12 @@ import com.weebly.opus1269.clipman.backup.BackupContents;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.BackupFile;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
+import com.weebly.opus1269.clipman.databinding.ActivityBackupBinding;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
+import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +53,9 @@ public class BackupActivity extends BaseActivity {
   /** The Array of {@link BackupFile} objects */
   private final List<BackupFile> mFiles = new ArrayList<>(0);
 
+  /** Out ViewModel */
+  private BackupsViewModel mViewModel;
+
   /** Adapter being used to display the list's data */
   private BackupAdapter mAdapter = null;
 
@@ -60,21 +63,23 @@ public class BackupActivity extends BaseActivity {
   protected void onCreate(Bundle savedInstanceState) {
 
     mLayoutID = R.layout.activity_backup;
+    mIsbound = true;
 
     super.onCreate(savedInstanceState);
 
-    final FloatingActionButton fab = findViewById(R.id.fab);
-    if (fab != null) {
-      fab.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          Analytics.INST(v.getContext()).imageClick(TAG, "refreshBackups");
-          refreshList();
-        }
-      });
-    }
+    // setup ViewModel and data binding
+    mViewModel = new BackupsViewModel(getApplication());
+    final BackupHandlers handlers = new BackupHandlers(getTAG());
+    final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
+    binding.setVm(mViewModel);
+    binding.setHandlers(handlers);
+    binding.executePendingBindings();
 
-    setupRecyclerView();
+    // setup RecyclerView
+    final RecyclerView recyclerView = findViewById(R.id.backupList);
+    if (recyclerView != null) {
+      setupRecyclerView(recyclerView, mViewModel, handlers);
+    }
   }
 
   @Override
@@ -141,6 +146,10 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
+  public BackupsViewModel getViewModel() {
+    return mViewModel;
+  }
+
   /**
    * Set the list of backups
    * @param metadataBuffer - buffer containing list of files
@@ -193,8 +202,8 @@ public class BackupActivity extends BaseActivity {
   /**
    * Contents of a backup has been retrieved
    * @param driveFile source file
-   * @param contents contents of backup
-   * @param isSync true if called during a backup sync operation
+   * @param contents  contents of backup
+   * @param isSync    true if called during a backup sync operation
    */
   public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
                                           @NonNull BackupContents contents,
@@ -228,15 +237,11 @@ public class BackupActivity extends BaseActivity {
       .setMessage(R.string.backup_dialog_backup_message)
       .setTitle(R.string.backup_dialog_title)
       .setNegativeButton(R.string.button_cancel, null)
-      .setPositiveButton(R.string.button_backup, new AlertDialog
-        .OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          final BackupActivity activity = BackupActivity.this;
-          Analytics.INST(activity).buttonClick
-            (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
-          new BackupHelper.CreateBackupAsyncTask(activity).executeMe();
-        }
+      .setPositiveButton(R.string.button_backup, (dialog, which) -> {
+        final BackupActivity activity = BackupActivity.this;
+        Analytics.INST(activity).buttonClick
+          (activity.getTAG(), ((AlertDialog) dialog).getButton(which));
+        new BackupHelper.CreateBackupAsyncTask(activity).executeMe();
       })
       .create()
       .show();
@@ -248,20 +253,16 @@ public class BackupActivity extends BaseActivity {
    * @param msg   dialog meesage
    */
   public void showMessage(@NonNull String title, @NonNull String msg) {
-    hideProgress();
+    mViewModel.postIsLoading(false);
     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder
       .setTitle(title)
       .setMessage(msg)
       .setPositiveButton(R.string.button_dismiss, null)
-      .setNegativeButton(R.string.button_details, new AlertDialog
-        .OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialogInterface, int i) {
-          final Intent intent = new Intent(BackupActivity.this,
-            ErrorViewerActivity.class);
-          AppUtils.startActivity(BackupActivity.this, intent);
-        }
+      .setNegativeButton(R.string.button_details, (dialogInterface, i) -> {
+        final Intent intent = new Intent(BackupActivity.this,
+          ErrorViewerActivity.class);
+        AppUtils.startActivity(BackupActivity.this, intent);
       });
 
     builder.create().show();
@@ -308,22 +309,19 @@ public class BackupActivity extends BaseActivity {
   private void sortFiles() {
     // mine first, then by date
     // see: https://goo.gl/RZG4u8
-    final Comparator<BackupFile> cmp = new Comparator<BackupFile>() {
-      @Override
-      public int compare(BackupFile lhs, BackupFile rhs) {
-        // mine first
-        Boolean lhMine = lhs.isMine();
-        Boolean rhMine = rhs.isMine();
-        int mineCompare = rhMine.compareTo(lhMine);
+    final Comparator<BackupFile> cmp = (lhs, rhs) -> {
+      // mine first
+      Boolean lhMine = lhs.isMine();
+      Boolean rhMine = rhs.isMine();
+      int mineCompare = rhMine.compareTo(lhMine);
 
-        if (mineCompare != 0) {
-          return mineCompare;
-        } else {
-          // newest first
-          Long lhDate = lhs.getDate();
-          Long rhDate = rhs.getDate();
-          return rhDate.compareTo(lhDate);
-        }
+      if (mineCompare != 0) {
+        return mineCompare;
+      } else {
+        // newest first
+        Long lhDate = lhs.getDate();
+        Long rhDate = rhs.getDate();
+        return rhDate.compareTo(lhDate);
       }
     };
     Collections.sort(mFiles, cmp);
@@ -335,13 +333,11 @@ public class BackupActivity extends BaseActivity {
   }
 
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
-  private void setupRecyclerView() {
-    final RecyclerView recyclerView = findViewById(R.id.backupList);
-    if (recyclerView != null) {
-      mAdapter = new BackupAdapter(this, mFiles);
-      recyclerView.setAdapter(mAdapter);
-      recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
+  private void setupRecyclerView(RecyclerView recyclerView, BackupsViewModel vm,
+                                 BackupHandlers handlers) {
+    mAdapter = new BackupAdapter(this, mFiles);
+    recyclerView.setAdapter(mAdapter);
+    recyclerView.setLayoutManager(new LinearLayoutManager(this));
   }
 
   /** Determine if list or info. message should be shown */

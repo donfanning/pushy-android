@@ -5,39 +5,61 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/content_backup"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:descendantFocusability="beforeDescendants"
-  android:focusableInTouchMode="true"
-  android:orientation="vertical"
-  app:layout_behavior="@string/appbar_scrolling_view_behavior"
-  tools:context=".ui.backup.BackupActivity"
-  tools:showIn="@layout/activity_backup">
+  xmlns:bind="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <include layout="@layout/progress_layout" />
+  <data>
+
+    <import type="java.util.List" />
+
+    <import type="android.text.TextUtils" />
+
+    <import type="android.view.View" />
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
+  </data>
 
   <LinearLayout
-    android:id="@+id/drive_content"
+    android:id="@+id/content_backup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ui.backup.BackupActivity"
+    tools:showIn="@layout/activity_backup">
 
-    <include layout="@layout/backup_list" />
+    <include
+      layout="@layout/progress_layout_backup"
+      bind:vm="@{vm}"/>
 
-    <TextView
-      android:id="@+id/info_message"
+    <LinearLayout
+      android:id="@+id/drive_content"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:gravity="center"
-      android:padding="10dp"
-      android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-      android:visibility="gone"
-      tools:text="Error message here" />
+      android:orientation="vertical">
+
+      <include
+        layout="@layout/backup_list"
+        bind:vm="@{vm}"/>
+
+      <TextView
+        android:id="@+id/info_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:padding="10dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:text="@{vm.infoMessage.getValue()}"
+        android:visibility="@{!TextUtils.isEmpty(vm.infoMessage.getValue()) ? View.VISIBLE : View.GONE}"
+        tools:text="Error message here" />
+    </LinearLayout>
+
   </LinearLayout>
 
-</LinearLayout>
-
+</layout>

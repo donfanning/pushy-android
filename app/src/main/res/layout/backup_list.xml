@@ -7,12 +7,28 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<android.support.v7.widget.RecyclerView android:id="@+id/backupList"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:scrollbars="vertical"
-  app:layoutManager="LinearLayoutManager"
-  tools:listitem="@layout/backup_row" />
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <import type="android.text.TextUtils" />
+
+    <import type="android.view.View" />
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
+  </data>
+
+  <android.support.v7.widget.RecyclerView
+    android:id="@+id/backupList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical"
+    android:visibility="@{(TextUtils.isEmpty(vm.infoMessage.getValue()) &amp;&amp; !vm.isLoading.getValue()) ? View.VISIBLE : View.GONE}"
+    app:layoutManager="LinearLayoutManager"
+    tools:listitem="@layout/backup_row" />
+
+</layout>

@@ -1,0 +1,79 @@
+/*
+ * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+ * Licensed under Apache 2.0
+ * https://opensource.org/licenses/Apache-2.0
+ * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
+ */
+
+package com.weebly.opus1269.clipman.viewmodel;
+
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.support.annotation.NonNull;
+
+import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.backup.BackupFile;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** ViewModel for BackupFiles */
+public class BackupsViewModel extends AndroidViewModel {
+  /** Class identifier */
+  private final String TAG = this.getClass().getSimpleName();
+
+  /** BackFile list */
+  private final MutableLiveData<List<BackupFile>> files;
+
+  /** Info message */
+  private final MutableLiveData<String> infoMessage;
+
+  /** True if loading */
+  private final MutableLiveData<Boolean> isLoading;
+
+  /** True if loading */
+  //public boolean isLoading;
+
+  public BackupsViewModel(@NonNull Application app) {
+    super(app);
+
+    files = new MutableLiveData<>();
+    files.setValue(new ArrayList<>());
+
+    infoMessage = new MutableLiveData<>();
+    infoMessage.setValue("");
+
+    isLoading = new MutableLiveData<>();
+    //mIsLoading.observeForever((isLoading) -> {
+    //  BackupsViewModel.this.isLoading = isLoading;
+    //});
+    isLoading.setValue(false);
+  }
+
+  public LiveData<List<BackupFile>> getFiles() {
+    return files;
+  }
+
+  public LiveData<String> getInfoMessage() {
+    return infoMessage;
+  }
+
+  public LiveData<Boolean> getIsLoading() {
+    return isLoading;
+  }
+
+  public void postIsLoading(boolean value) {
+    isLoading.postValue(value);
+  }
+
+  public void setIsLoading(boolean value) {
+    isLoading.setValue(value);
+  }
+
+  public void refreshList() {
+    //TODO
+    Log.logD(TAG, "refreshed list called");
+  }
+}

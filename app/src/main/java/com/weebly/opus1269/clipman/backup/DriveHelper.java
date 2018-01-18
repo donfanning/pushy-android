@@ -100,7 +100,7 @@ public class DriveHelper {
       return;
     }
 
-    activity.showProgress();
+    setIsLoading(activity, true);
     // sync with drive
     driveClient.requestSync()
       .continueWithTask(new Continuation<Void, Task<DriveFolder>>() {
@@ -132,7 +132,7 @@ public class DriveHelper {
           Log.logD(TAG, "got list of files");
           activity.setFiles(metadataBuffer);
           metadataBuffer.release();
-          activity.hideProgress();
+          setIsLoading(activity, false);
         }
       })
       .addOnFailureListener(activity, new OnFailureListener() {
@@ -149,7 +149,7 @@ public class DriveHelper {
           } else {
             showMessage(activity, errMessage, ex);
           }
-          activity.hideProgress();
+          setIsLoading(activity, false);
         }
       });
   }
@@ -175,9 +175,7 @@ public class DriveHelper {
     final Task<DriveContents> createContentsTask =
       resourceClient.createContents();
 
-    if (activity != null) {
-      activity.showProgress();
-    }
+    setIsLoading(activity, true);
     Tasks.whenAll(appFolderTask, createContentsTask)
       .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
         @Override
@@ -254,9 +252,9 @@ public class DriveHelper {
 
   /**
    * Update a backup - asynchronous
-   * @param activity       activity
-   * @param file           file to update
-   * @param data update data
+   * @param activity activity
+   * @param file     file to update
+   * @param data     update data
    */
   void updateBackup(@NonNull final BackupActivity activity,
                     @NonNull final DriveFile file,
@@ -268,7 +266,7 @@ public class DriveHelper {
       return;
     }
 
-    activity.showProgress();
+    setIsLoading(activity, true);
     resourceClient.openFile(file, DriveFile.MODE_WRITE_ONLY)
       .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
         @Override
@@ -319,7 +317,7 @@ public class DriveHelper {
 
     final BackupContents backupContents = new BackupContents();
 
-    activity.showProgress();
+    setIsLoading(activity, true);
     resourceClient.openFile(file, DriveFile.MODE_READ_ONLY)
       .continueWithTask(new Continuation<DriveContents, Task<Void>>() {
         @Override
@@ -372,9 +370,7 @@ public class DriveHelper {
     final DriveFile file = driveId.asDriveFile();
     final Task<Void> deleteTask = resourceClient.delete(file);
 
-    if (activity != null) {
-      activity.showProgress();
-    }
+    setIsLoading(activity, true);
     deleteTask
       .addOnSuccessListener(new OnSuccessListener<Void>() {
         @Override
@@ -388,6 +384,17 @@ public class DriveHelper {
           onDeleteFailure(activity, errMessage, ex);
         }
       });
+  }
+
+  /**
+   * Set isLoading state
+   * @param activity - activity
+   * @param value    - true if working
+   */
+  private void setIsLoading(BackupActivity activity, boolean value) {
+    if (activity != null) {
+      activity.getViewModel().postIsLoading(value);
+    }
   }
 
   /**
@@ -427,7 +434,7 @@ public class DriveHelper {
     Log.logD(TAG, "deleted file");
     if (activity != null) {
       activity.removeFileFromList(driveId);
-      activity.hideProgress();
+      setIsLoading(activity, false);
     }
   }
 
@@ -453,9 +460,7 @@ public class DriveHelper {
         showMessage(activity, msg, ex);
       }
     }
-    if (activity != null) {
-      activity.hideProgress();
-    }
+    setIsLoading(activity, false);
   }
 
   /**
@@ -467,9 +472,7 @@ public class DriveHelper {
   private void onTaskFailure(BackupActivity activity, String msg,
                              Exception ex) {
     showMessage(activity, msg, ex);
-    if (activity != null) {
-      activity.hideProgress();
-    }
+    setIsLoading(activity, false);
   }
 
   @Nullable

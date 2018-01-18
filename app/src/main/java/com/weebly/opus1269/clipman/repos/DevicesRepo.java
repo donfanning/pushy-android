@@ -146,11 +146,11 @@ public class DevicesRepo implements
 
   private void initInfoMessage() {
     if (!Prefs.INST(mApp).isPushClipboard()) {
-      setInfoMessage(mApp.getString(R.string.err_no_push_to_devices));
+      postInfoMessage(mApp.getString(R.string.err_no_push_to_devices));
     } else if (!Prefs.INST(mApp).isAllowReceive()) {
-      setInfoMessage(mApp.getString(R.string.err_no_receive_from_devices));
+      postInfoMessage(mApp.getString(R.string.err_no_receive_from_devices));
     } else {
-      setInfoMessage("");
+      postInfoMessage("");
     }
   }
 }

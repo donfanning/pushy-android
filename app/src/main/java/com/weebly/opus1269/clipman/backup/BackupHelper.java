@@ -273,7 +273,7 @@ public class BackupHelper {
     public GetBackupsAsyncTask(BackupActivity activity) {
       super(activity);
 
-      activity.showProgress();
+      activity.getViewModel().setIsLoading(true);
     }
 
     @Override
@@ -298,7 +298,7 @@ public class BackupHelper {
                                       BackupFile backupFile, boolean isSync) {
       super(activity);
 
-      activity.showProgress();
+      activity.getViewModel().setIsLoading(true);
       mBackupFile = backupFile;
       mIsSync = isSync;
     }
@@ -320,7 +320,7 @@ public class BackupHelper {
     public CreateBackupAsyncTask(BackupActivity activity) {
       super(activity);
 
-      activity.showProgress();
+      activity.getViewModel().setIsLoading(true);
     }
 
     @Override
@@ -342,7 +342,7 @@ public class BackupHelper {
                                   BackupContents contents) {
       super(activity);
 
-      activity.showProgress();
+      activity.getViewModel().setIsLoading(true);
       mContents = contents;
     }
 
@@ -351,7 +351,7 @@ public class BackupHelper {
       super.onPostExecute(aVoid);
 
       if (mActivity != null) {
-        ((BackupActivity) mActivity).hideProgress();
+        ((BackupActivity) mActivity).getViewModel().setIsLoading(false);
       }
     }
 
@@ -378,7 +378,7 @@ public class BackupHelper {
                                BackupContents contents) {
       super(activity);
 
-      activity.showProgress();
+      activity.getViewModel().setIsLoading(true);
       mDriveFile = driveFile;
       mContents = contents;
     }
@@ -403,7 +403,7 @@ public class BackupHelper {
                                  BackupFile backupFile) {
       super(activity);
 
-      activity.showProgress();
+      activity.getViewModel().setIsLoading(true);
       mBackupFile = backupFile;
     }
 
