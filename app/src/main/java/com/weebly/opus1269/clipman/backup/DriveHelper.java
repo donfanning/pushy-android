@@ -214,12 +214,10 @@ public class DriveHelper {
 
   /**
    * Update a backup - asynchronous
-   * @param activity activity
    * @param file     file to update
    * @param data     update data
    */
-  void updateBackup(@NonNull final BackupActivity activity,
-                    @NonNull final DriveFile file,
+  void updateBackup(@NonNull final DriveFile file,
                     @NonNull final byte[] data) {
     final String errMessage = mContext.getString(R.string.err_update_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
@@ -243,9 +241,9 @@ public class DriveHelper {
 
         return resourceClient.commitContents(contents, null);
       })
-      .addOnSuccessListener(activity, aVoid -> {
+      .addOnSuccessListener(aVoid -> {
         Log.logD(TAG, "updated backup");
-        new BackupHelper.GetBackupsAsyncTask(activity).executeMe();
+        BackupHelper.INST(mContext).getBackupsAsync();
       })
       .addOnFailureListener(ex -> onTaskFailure(errMessage, ex));
   }

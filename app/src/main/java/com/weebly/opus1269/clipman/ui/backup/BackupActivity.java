@@ -194,6 +194,6 @@ public class BackupActivity extends BaseActivity {
 
   /** Load the list of backup files asynchronously */
   private void retrieveBackups() {
-    new BackupHelper.GetBackupsAsyncTask(this).executeMe();
+    BackupHelper.INST(this).getBackupsAsync();
   }
 }

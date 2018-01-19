@@ -46,7 +46,7 @@ public class BackupHandlers implements
     Analytics.INST(mActivity).buttonClick(mActivity.getTAG(), button);
 
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
-      new BackupHelper.DeleteBackupAsyncTask(mActivity, mFile).executeMe();
+      BackupHelper.INST(App.INST()).deleteBackupAsync(mFile);
     } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
       new BackupHelper
         .GetBackupContentsAsyncTask(mActivity, mFile, false).executeMe();
@@ -54,7 +54,7 @@ public class BackupHandlers implements
       new BackupHelper
         .GetBackupContentsAsyncTask(mActivity, mFile, true).executeMe();
     } else if (mActivity.getString(R.string.button_backup).equals(btnText)) {
-      new BackupHelper.CreateBackupAsyncTask(mActivity).executeMe();
+      BackupHelper.INST(App.INST()).createBackupAsync();
     } else if (mActivity.getString(R.string.button_details).equals(btnText)) {
       final Intent intent = new Intent(mActivity, ErrorViewerActivity.class);
       AppUtils.startActivity(mActivity, intent);
@@ -68,7 +68,7 @@ public class BackupHandlers implements
    */
   public void onFabClick(Context context) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "refreshBackups");
-    new BackupHelper.GetBackupsAsyncTask(mActivity).executeMe();
+    BackupHelper.INST(context).getBackupsAsync();
   }
 
   /**
