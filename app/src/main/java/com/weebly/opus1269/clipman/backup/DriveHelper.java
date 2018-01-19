@@ -86,9 +86,8 @@ public class DriveHelper {
 
   /**
    * Retrieve the metadata for all the backups in our appFolder - asynchronous
-   * @param activity our activity
    */
-  void getBackups(@NonNull final BackupActivity activity) {
+  void getBackups() {
     final String errMessage = mContext.getString(R.string.err_get_backups);
     final DriveClient driveClient = getDriveClient();
     if (driveClient == null) {
@@ -118,14 +117,14 @@ public class DriveHelper {
         // query app folder
         return resourceClient.queryChildren(folder, query);
       })
-      .addOnSuccessListener(activity, metadataBuffer -> {
+      .addOnSuccessListener(metadataBuffer -> {
         // populate the files list
         Log.logD(TAG, "got list of files");
         BackupRepo.INST(App.INST()).postFiles(metadataBuffer);
         metadataBuffer.release();
         BackupRepo.INST(App.INST()).postIsLoading(false);
       })
-      .addOnFailureListener(activity, ex -> {
+      .addOnFailureListener(ex -> {
         if (ex instanceof ApiException) {
           final int code = ((ApiException) ex).getStatusCode();
           if (code != DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
@@ -143,13 +142,11 @@ public class DriveHelper {
 
   /**
    * Create a new backup - asynchronous
-   * @param activity   activity
    * @param filename   name of file
    * @param data       contents of file
    * @param lastBackup encoded last backup, may not exist
    */
-  void createBackup(@Nullable final BackupActivity activity,
-                    final String filename, final byte[] data,
+  void createBackup(final String filename, final byte[] data,
                     final String lastBackup) {
     final String errMessage = mContext.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
@@ -211,8 +208,8 @@ public class DriveHelper {
         // delete old backup
         return resourceClient.delete(driveId.asDriveFile());
       })
-      .addOnSuccessListener(aVoid -> onDeleteSuccess(activity, DriveId.decodeFromString(lastBackup)))
-      .addOnFailureListener(ex -> onDeleteFailure(activity, errMessage, ex));
+      .addOnSuccessListener(aVoid -> onDeleteSuccess(DriveId.decodeFromString(lastBackup)))
+      .addOnFailureListener(ex -> onDeleteFailure(errMessage, ex));
   }
 
   /**
@@ -250,7 +247,7 @@ public class DriveHelper {
         Log.logD(TAG, "updated backup");
         new BackupHelper.GetBackupsAsyncTask(activity).executeMe();
       })
-      .addOnFailureListener(activity, ex -> onTaskFailure(activity, errMessage, ex));
+      .addOnFailureListener(ex -> onTaskFailure(errMessage, ex));
   }
 
   /**
@@ -291,16 +288,14 @@ public class DriveHelper {
         Log.logD(TAG, "got backup contents");
         activity.onGetBackupContentsComplete(file, backupContents, isSync);
       })
-      .addOnFailureListener(activity, ex -> onTaskFailure(activity, errMessage, ex));
+      .addOnFailureListener(ex -> onTaskFailure(errMessage, ex));
   }
 
   /**
    * Delete a backup - asynchronous
-   * @param activity Calling activity
    * @param driveId  driveId to delete
    */
-  void deleteBackup(@Nullable final BackupActivity activity,
-                    @NonNull final DriveId driveId) {
+  void deleteBackup(@NonNull final DriveId driveId) {
     final String errMessage = mContext.getString(R.string.err_delete_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -313,13 +308,12 @@ public class DriveHelper {
 
     BackupRepo.INST(App.INST()).postIsLoading(true);
     deleteTask
-      .addOnSuccessListener(aVoid -> onDeleteSuccess(activity, driveId))
-      .addOnFailureListener(ex -> onDeleteFailure(activity, errMessage, ex));
+      .addOnSuccessListener(aVoid -> onDeleteSuccess(driveId))
+      .addOnFailureListener(ex -> onDeleteFailure(errMessage, ex));
   }
 
   /**
    * Error getting Drive client
-   * @param activity - activity
    * @param title    - action type
    */
   private void onClientError(@NonNull String title) {
@@ -330,7 +324,6 @@ public class DriveHelper {
 
   /**
    * Log exception and show message
-   * @param activity - activity
    * @param msg      - message
    * @param ex       exception
    */
@@ -342,25 +335,20 @@ public class DriveHelper {
 
   /**
    * After deletion success
-   * @param activity - activity
    * @param driveId  - deleted id
    */
-  private void onDeleteSuccess(BackupActivity activity, DriveId driveId) {
+  private void onDeleteSuccess(DriveId driveId) {
     Log.logD(TAG, "deleted file");
-    if (activity != null) {
       BackupRepo.INST(App.INST()).removeFile(driveId);
       BackupRepo.INST(App.INST()).postIsLoading(false);
-    }
   }
 
   /**
    * After deletion failure
-   * @param activity - activity
    * @param msg      - error message
    * @param ex       - causing exception
    */
-  private void onDeleteFailure(BackupActivity activity, String msg,
-                               Exception ex) {
+  private void onDeleteFailure(String msg, Exception ex) {
     if (!"OK".equals(ex.getLocalizedMessage())) {
       Log.logD(TAG, "failed to delete backup");
       if (ex instanceof ApiException) {
@@ -380,12 +368,10 @@ public class DriveHelper {
 
   /**
    * Generic Task failure
-   * @param activity - activity
    * @param msg      - error message
    * @param ex       - causing exception
    */
-  private void onTaskFailure(BackupActivity activity, String msg,
-                             Exception ex) {
+  private void onTaskFailure(String msg, Exception ex) {
     showMessage(msg, ex);
     BackupRepo.INST(App.INST()).postIsLoading(false);
   }

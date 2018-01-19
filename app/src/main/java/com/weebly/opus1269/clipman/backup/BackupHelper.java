@@ -76,8 +76,7 @@ public class BackupHelper {
       final String zipName = getZipFilename();
       final byte[] zipData =
         BackupHelper.INST(mContext).createZipFileContentsFromDB();
-      DriveHelper.INST(mContext).createBackup(activity, zipName, zipData,
-        lastBackup);
+      DriveHelper.INST(mContext).createBackup(zipName, zipData, lastBackup);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
       showMessage(errMessage, ex);
@@ -86,12 +85,11 @@ public class BackupHelper {
 
   /**
    * Perform a delete
-   * @param activity The calling activity
    * @param file     File to delete
    */
-  private void deleteBackup(@NonNull BackupActivity activity, BackupFile file) {
+  private void deleteBackup(BackupFile file) {
     try {
-      DriveHelper.INST(mContext).deleteBackup(activity, file.getDriveId());
+      DriveHelper.INST(mContext).deleteBackup(file.getDriveId());
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_delete_backup);
       showMessage(errMessage, ex);
@@ -279,7 +277,7 @@ public class BackupHelper {
     @Override
     protected Void doInBackground(Void... params) {
       if (mActivity != null) {
-        DriveHelper.INST(mActivity).getBackups((BackupActivity) mActivity);
+        DriveHelper.INST(mActivity).getBackups();
       }
       return null;
     }
@@ -408,8 +406,7 @@ public class BackupHelper {
     @Override
     protected Void doInBackground(Void... params) {
       if (mActivity != null) {
-        BackupHelper.INST(mActivity)
-          .deleteBackup((BackupActivity) mActivity, mBackupFile);
+        BackupHelper.INST(mActivity).deleteBackup(mBackupFile);
       }
       return null;
     }
