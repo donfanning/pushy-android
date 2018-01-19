@@ -107,7 +107,7 @@ public class BackupsViewModel extends AndroidViewModel {
     boolean found = false;
     for (final Iterator<BackupFile> i = backupFiles.iterator(); i.hasNext(); ) {
       final BackupFile backupFile = i.next();
-      if (backupFile.getId().equals(driveId)) {
+      if (backupFile.getDriveId().equals(driveId)) {
         found = true;
         i.remove();
         Log.logD(TAG, "removed file from list");

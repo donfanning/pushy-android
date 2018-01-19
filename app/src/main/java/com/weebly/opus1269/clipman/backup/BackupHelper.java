@@ -89,7 +89,7 @@ public class BackupHelper {
    */
   private void deleteBackup(@NonNull BackupActivity activity, BackupFile file) {
     try {
-      DriveHelper.INST(mContext).deleteBackup(activity, file.getId());
+      DriveHelper.INST(mContext).deleteBackup(activity, file.getDriveId());
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_delete_backup);
       showMessage(activity, errMessage, ex);
@@ -104,7 +104,7 @@ public class BackupHelper {
   private void getBackupContents(@NonNull BackupActivity activity, BackupFile file,
                          boolean isSync) {
     try {
-      final DriveFile driveFile = file.getId().asDriveFile();
+      final DriveFile driveFile = file.getDriveId().asDriveFile();
       DriveHelper.INST(mContext).getBackupContents(activity, driveFile, isSync);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_no_contents);

@@ -25,7 +25,6 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
-import com.weebly.opus1269.clipman.model.MyDevice;
 
 import java.util.Map;
 
@@ -33,7 +32,7 @@ import java.util.Map;
 public class BackupFile {
 
   private final Boolean isMine;
-  private final DriveId id;
+  private final DriveId driveId;
   private final String name;
   private String nickname;
   private String model;
@@ -42,7 +41,7 @@ public class BackupFile {
   private final long date;
 
   public BackupFile(Context context, final Metadata metadata) {
-    id = metadata.getDriveId();
+    driveId = metadata.getDriveId();
     name = metadata.getTitle();
     date = metadata.getModifiedDate().getTime();
     model = "";
@@ -100,8 +99,8 @@ public class BackupFile {
   }
 
   @NonNull
-  public DriveId getId() {
-    return id;
+  public DriveId getDriveId() {
+    return driveId;
   }
 
   @NonNull
