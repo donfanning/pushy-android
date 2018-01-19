@@ -151,8 +151,7 @@ public class BackupActivity extends BaseActivity {
         new BackupHelper
           .SyncBackupAsyncTask(this, driveFile, contents).executeMe();
       } else {
-        new BackupHelper
-          .RestoreBackupAsyncTask(this, contents).executeMe();
+        BackupHelper.INST(this).restoreContentsAsync(contents);
       }
     } catch (Exception ex) {
       final String title = getString(R.string.err_update_db);

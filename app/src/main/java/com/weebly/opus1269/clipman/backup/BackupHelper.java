@@ -120,7 +120,7 @@ public class BackupHelper {
    */
   public void getBackupContents(@NonNull BackupActivity activity, BackupFile
     file,
-                                 boolean isSync) {
+                                boolean isSync) {
     try {
       final DriveFile driveFile = file.getDriveId().asDriveFile();
       DriveHelper.INST(mContext).getBackupContents(activity, driveFile, isSync);
@@ -131,18 +131,20 @@ public class BackupHelper {
   }
 
   /**
-   * Perform a restore
-   * @param activity The calling activity
+   * Restore the contents of a backup
    * @param contents contents to restore
    */
-  public void restoreBackup(@NonNull BackupActivity activity, BackupContents
-    contents) {
-    try {
-      BackupHelper.INST(activity).saveContentsToDB(contents);
-    } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_restore_backup);
-      showMessage(errMessage, ex);
-    }
+  public void restoreContentsAsync(final BackupContents contents) {
+    App.getExecutors().diskIO().execute(() -> {
+      try {
+        BackupHelper.INST(mContext).saveContentsToDB(contents);
+        BackupRepo.INST(App.INST()).postIsLoading(false);
+      } catch (Exception ex) {
+        final String errMessage =
+          mContext.getString(R.string.err_restore_backup);
+        showMessage(errMessage, ex);
+      }
+    });
   }
 
   /**
@@ -303,37 +305,6 @@ public class BackupHelper {
       if (mActivity != null) {
         BackupHelper.INST(mActivity)
           .getBackupContents((BackupActivity) mActivity, mBackupFile, mIsSync);
-      }
-      return null;
-    }
-  }
-
-  /** AsyncTask to restore a backup */
-  public static class RestoreBackupAsyncTask extends
-    CustomAsyncTask<Void, Void, Void> {
-    /** New contents */
-    private final BackupContents mContents;
-
-    public RestoreBackupAsyncTask(BackupActivity activity,
-                                  BackupContents contents) {
-      super(activity);
-
-      BackupRepo.INST(App.INST()).postIsLoading(true);
-      mContents = contents;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-      super.onPostExecute(aVoid);
-
-      BackupRepo.INST(App.INST()).postIsLoading(false);
-    }
-
-    @Override
-    protected Void doInBackground(Void... params) {
-      if (mActivity != null) {
-        BackupHelper.INST(mActivity)
-          .restoreBackup((BackupActivity) mActivity, mContents);
       }
       return null;
     }
