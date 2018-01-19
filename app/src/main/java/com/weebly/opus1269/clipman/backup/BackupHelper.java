@@ -23,6 +23,7 @@ import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -79,7 +80,7 @@ public class BackupHelper {
         lastBackup);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
-      showMessage(activity, errMessage, ex);
+      showMessage(errMessage, ex);
     }
   }
 
@@ -93,7 +94,7 @@ public class BackupHelper {
       DriveHelper.INST(mContext).deleteBackup(activity, file.getDriveId());
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_delete_backup);
-      showMessage(activity, errMessage, ex);
+      showMessage(errMessage, ex);
     }
   }
 
@@ -109,7 +110,7 @@ public class BackupHelper {
       DriveHelper.INST(mContext).getBackupContents(activity, driveFile, isSync);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_no_contents);
-      showMessage(activity, errMessage, ex);
+      showMessage(errMessage, ex);
     }
   }
 
@@ -124,7 +125,7 @@ public class BackupHelper {
       BackupHelper.INST(activity).saveContentsToDB(contents);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_restore_backup);
-      showMessage(activity, errMessage, ex);
+      showMessage(errMessage, ex);
     }
   }
 
@@ -144,7 +145,7 @@ public class BackupHelper {
       DriveHelper.INST(mContext).updateBackup(activity, driveFile, data);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_sync_backup);
-      showMessage(activity, errMessage, ex);
+      showMessage(errMessage, ex);
     }
   }
 
@@ -256,17 +257,13 @@ public class BackupHelper {
 
   /**
    * Log exception and show message
-   * @param activity activity
    * @param msg      message
    * @param ex       exception
    */
-  private void showMessage(BackupActivity activity, @NonNull String msg,
-                           @NonNull Exception ex) {
+  private void showMessage(@NonNull String msg, @NonNull Exception ex) {
     final String exMsg = ex.getLocalizedMessage();
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
-    if (activity != null) {
-      activity.getHandlers().showErrorMessage(msg, exMsg);
-    }
+    BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(msg, exMsg));
   }
 
   /** AsyncTask to get the list of backups */

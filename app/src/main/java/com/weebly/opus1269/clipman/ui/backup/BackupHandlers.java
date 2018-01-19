@@ -21,6 +21,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
@@ -115,14 +116,13 @@ public class BackupHandlers implements
 
   /**
    * Display an error in a dialog
-   * @param title dialog title
-   * @param msg   dialog meesage
+   * @param errorMsg the error
    */
-  public void showErrorMessage(@NonNull String title, @NonNull String msg) {
+  public void showErrorMessage(@NonNull ErrorMsg errorMsg) {
     BackupRepo.INST(App.INST()).postIsLoading(false);
     final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
-      .setTitle(title)
-      .setMessage(msg)
+      .setTitle(errorMsg.title)
+      .setMessage(errorMsg.msg)
       .setPositiveButton(R.string.button_dismiss, null)
       .setNegativeButton(R.string.button_details, this)
       .create();

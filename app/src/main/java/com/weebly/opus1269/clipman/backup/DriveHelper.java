@@ -37,6 +37,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.BackupFile;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
@@ -91,12 +92,12 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_get_backups);
     final DriveClient driveClient = getDriveClient();
     if (driveClient == null) {
-      onClientError(activity, errMessage);
+      onClientError(errMessage);
       return;
     }
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      onClientError(activity, errMessage);
+      onClientError(errMessage);
       return;
     }
 
@@ -129,12 +130,12 @@ public class DriveHelper {
           final int code = ((ApiException) ex).getStatusCode();
           if (code != DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
             // don't show rate limit errors
-            showMessage(activity, errMessage, ex);
+            showMessage(errMessage, ex);
           } else {
             Log.logD(TAG, "rate limited");
           }
         } else {
-          showMessage(activity, errMessage, ex);
+          showMessage(errMessage, ex);
         }
         BackupRepo.INST(App.INST()).postIsLoading(false);
       });
@@ -153,7 +154,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      onClientError(activity, errMessage);
+      onClientError(errMessage);
       return;
     }
 
@@ -226,7 +227,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_update_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      onClientError(activity, errMessage);
+      onClientError(errMessage);
       return;
     }
 
@@ -263,7 +264,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_get_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      onClientError(activity, errMessage);
+      onClientError(errMessage);
       return;
     }
 
@@ -303,7 +304,7 @@ public class DriveHelper {
     final String errMessage = mContext.getString(R.string.err_delete_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
-      onClientError(activity, errMessage);
+      onClientError(errMessage);
       return;
     }
 
@@ -321,12 +322,10 @@ public class DriveHelper {
    * @param activity - activity
    * @param title    - action type
    */
-  private void onClientError(BackupActivity activity, @NonNull String title) {
+  private void onClientError(@NonNull String title) {
     final String msg = mContext.getString(R.string.err_internal_drive);
     Log.logE(mContext, TAG, msg, title, false);
-    if (activity != null) {
-      activity.getHandlers().showErrorMessage(msg, msg);
-    }
+    BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(title, msg));
   }
 
   /**
@@ -335,13 +334,10 @@ public class DriveHelper {
    * @param msg      - message
    * @param ex       exception
    */
-  private void showMessage(BackupActivity activity, @NonNull String msg,
-                           @NonNull Exception ex) {
+  private void showMessage(@NonNull String msg, @NonNull Exception ex) {
     final String exMsg = ex.getLocalizedMessage();
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
-    if (activity != null) {
-      activity.getHandlers().showErrorMessage(msg, exMsg);
-    }
+    BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(msg, exMsg));
   }
 
   /**
@@ -371,12 +367,12 @@ public class DriveHelper {
         // don't even log not found errors
         final int code = ((ApiException) ex).getStatusCode();
         if (code != DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
-          showMessage(activity, msg, ex);
+          showMessage(msg, ex);
         } else {
           Log.logD(TAG, "old backup not found");
         }
       } else {
-        showMessage(activity, msg, ex);
+        showMessage(msg, ex);
       }
     }
     BackupRepo.INST(App.INST()).postIsLoading(false);
@@ -390,7 +386,7 @@ public class DriveHelper {
    */
   private void onTaskFailure(BackupActivity activity, String msg,
                              Exception ex) {
-    showMessage(activity, msg, ex);
+    showMessage(msg, ex);
     BackupRepo.INST(App.INST()).postIsLoading(false);
   }
 

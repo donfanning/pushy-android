@@ -26,6 +26,7 @@ import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.databinding.ActivityBackupBinding;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
@@ -61,6 +62,13 @@ public class BackupActivity extends BaseActivity {
     binding.setInfoMessage(mViewModel.getInfoMessage());
     binding.setHandlers(mHandlers);
     binding.executePendingBindings();
+
+    // observe errors
+    mViewModel.getErrorMsg().observe(this, errorMsg -> {
+      if (errorMsg != null) {
+        mHandlers.showErrorMessage(errorMsg);
+      }
+    });
 
     // setup RecyclerView
     final RecyclerView recyclerView = findViewById(R.id.backupList);
@@ -125,10 +133,6 @@ public class BackupActivity extends BaseActivity {
     }
   }
 
-  public BackupsViewModel getViewModel() {
-    return mViewModel;
-  }
-
   public BackupHandlers getHandlers() {
     return mHandlers;
   }
@@ -154,7 +158,7 @@ public class BackupActivity extends BaseActivity {
       final String title = getString(R.string.err_update_db);
       final String msg = ex.getLocalizedMessage();
       Log.logEx(this, TAG, msg, ex, title, false);
-      mHandlers.showErrorMessage(msg, msg);
+      mHandlers.showErrorMessage(new ErrorMsg(title, msg));
     }
   }
 

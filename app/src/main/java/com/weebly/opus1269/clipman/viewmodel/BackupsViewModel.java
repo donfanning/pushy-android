@@ -13,25 +13,16 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
-import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.BackupFile;
-import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 /** ViewModel for BackupFiles */
 public class BackupsViewModel extends AndroidViewModel {
-  /** Data repository */
-  private final BackupRepo mRepo;
+  /** Error message */
+  private final MediatorLiveData<ErrorMsg> errorMsg;
 
   /** Info message */
   private final MediatorLiveData<String> infoMessage;
@@ -45,21 +36,31 @@ public class BackupsViewModel extends AndroidViewModel {
   public BackupsViewModel(@NonNull Application app) {
     super(app);
 
-    mRepo = BackupRepo.INST(app);
+    BackupRepo repo = BackupRepo.INST(app);
+
+    errorMsg = new MediatorLiveData<>();
+    errorMsg.setValue(repo.getErrorMsg().getValue());
+    errorMsg.addSource(repo.getErrorMsg(), errorMsg::setValue);
 
     infoMessage = new MediatorLiveData<>();
-    infoMessage.setValue(mRepo.getInfoMessage().getValue());
-    infoMessage.addSource(mRepo.getInfoMessage(), infoMessage::setValue);
+    infoMessage.setValue(repo.getInfoMessage().getValue());
+    infoMessage.addSource(repo.getInfoMessage(), infoMessage::setValue);
 
     isLoading = new MediatorLiveData<>();
-    isLoading.setValue(mRepo.getIsLoading().getValue());
-    isLoading.addSource(mRepo.getIsLoading(), isLoading::setValue);
+    isLoading.setValue(repo.getIsLoading().getValue());
+    isLoading.addSource(repo.getIsLoading(), isLoading::setValue);
 
     files = new MediatorLiveData<>();
-    files.setValue(mRepo.getFiles().getValue());
-    files.addSource(mRepo.getFiles(), files::setValue);
+    files.setValue(repo.getFiles().getValue());
+    files.addSource(repo.getFiles(), files::setValue);
   }
 
+  @NonNull
+  public MutableLiveData<ErrorMsg> getErrorMsg() {
+    return errorMsg;
+  }
+
+  @NonNull
   public MutableLiveData<String> getInfoMessage() {
     return infoMessage;
   }
