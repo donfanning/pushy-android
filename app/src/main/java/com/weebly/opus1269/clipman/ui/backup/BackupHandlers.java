@@ -48,11 +48,9 @@ public class BackupHandlers implements
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
       BackupHelper.INST(App.INST()).deleteBackupAsync(mFile);
     } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
-      new BackupHelper
-        .GetBackupContentsAsyncTask(mActivity, mFile, false).executeMe();
+      BackupHelper.INST(mActivity).getBackupContentsAsync(mFile, false);
     } else if (mActivity.getString(R.string.button_sync).equals(btnText)) {
-      new BackupHelper
-        .GetBackupContentsAsyncTask(mActivity, mFile, true).executeMe();
+      BackupHelper.INST(mActivity).getBackupContentsAsync(mFile, true);
     } else if (mActivity.getString(R.string.button_backup).equals(btnText)) {
       BackupHelper.INST(App.INST()).createBackupAsync();
     } else if (mActivity.getString(R.string.button_details).equals(btnText)) {

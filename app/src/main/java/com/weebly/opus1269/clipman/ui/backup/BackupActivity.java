@@ -18,25 +18,20 @@ import android.view.MenuItem;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveFile;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.databinding.ActivityBackupBinding;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
 
+/** Manage out backups on Google Drive */
 public class BackupActivity extends BaseActivity {
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;
-
-  /** Our ViewModel */
-  private BackupsViewModel mViewModel = null;
 
   /** Our event handlers */
   private BackupHandlers mHandlers = null;
@@ -53,18 +48,18 @@ public class BackupActivity extends BaseActivity {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    mViewModel = new BackupsViewModel(getApplication());
+    BackupsViewModel viewModel = new BackupsViewModel(getApplication());
     mHandlers = new BackupHandlers(this);
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
     binding.setLifecycleOwner(this);
-    binding.setVm(mViewModel);
-    binding.setIsLoading(mViewModel.getIsLoading());
-    binding.setInfoMessage(mViewModel.getInfoMessage());
+    binding.setVm(viewModel);
+    binding.setIsLoading(viewModel.getIsLoading());
+    binding.setInfoMessage(viewModel.getInfoMessage());
     binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 
     // observe errors
-    mViewModel.getErrorMsg().observe(this, errorMsg -> {
+    viewModel.getErrorMsg().observe(this, errorMsg -> {
       if (errorMsg != null) {
         mHandlers.showErrorMessage(errorMsg);
       }
@@ -73,7 +68,7 @@ public class BackupActivity extends BaseActivity {
     // setup RecyclerView
     final RecyclerView recyclerView = findViewById(R.id.backupList);
     if (recyclerView != null) {
-      setupRecyclerView(recyclerView);
+      setupRecyclerView(recyclerView, viewModel);
     }
   }
 
@@ -119,7 +114,7 @@ public class BackupActivity extends BaseActivity {
     switch (requestCode) {
       case RC_DRIVE_SUCCESS:
         if (resCode != RESULT_OK) {
-          // User id not approve Google Drive permission
+          // User did not approve Google Drive permission
           Log.logE(this, TAG, getString(R.string.err_drive_scope_denied),
             false);
           finish();
@@ -130,34 +125,6 @@ public class BackupActivity extends BaseActivity {
         break;
       default:
         break;
-    }
-  }
-
-  public BackupHandlers getHandlers() {
-    return mHandlers;
-  }
-
-  /**
-   * Contents of a backup has been retrieved
-   * @param driveFile source file
-   * @param contents  contents of backup
-   * @param isSync    true if called during a backup sync operation
-   */
-  public void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
-                                          @NonNull BackupContents contents,
-                                          boolean isSync) {
-    try {
-      if (isSync) {
-        new BackupHelper
-          .SyncBackupAsyncTask(this, driveFile, contents).executeMe();
-      } else {
-        BackupHelper.INST(this).restoreContentsAsync(contents);
-      }
-    } catch (Exception ex) {
-      final String title = getString(R.string.err_update_db);
-      final String msg = ex.getLocalizedMessage();
-      Log.logEx(this, TAG, msg, ex, title, false);
-      mHandlers.showErrorMessage(new ErrorMsg(title, msg));
     }
   }
 
@@ -178,21 +145,17 @@ public class BackupActivity extends BaseActivity {
 
   /** Drive can be called */
   private void onDriveClientReady() {
-    retrieveBackups();
+    BackupHelper.INST(this).getBackupsAsync();
   }
 
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
-  private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+  private void setupRecyclerView(@NonNull RecyclerView recyclerView,
+                                 BackupsViewModel viewModel) {
     mAdapter = new BackupAdapter(mHandlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
     // Observe files
-    mViewModel.getFiles().observe(this, files -> mAdapter.setList(files));
-  }
-
-  /** Load the list of backup files asynchronously */
-  private void retrieveBackups() {
-    BackupHelper.INST(this).getBackupsAsync();
+    viewModel.getFiles().observe(this, files -> mAdapter.setList(files));
   }
 }

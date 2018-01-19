@@ -17,7 +17,6 @@ import android.text.TextUtils;
 import com.google.android.gms.drive.DriveFile;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.model.BackupContents;
@@ -28,7 +27,6 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
-import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -115,15 +113,13 @@ public class BackupHelper {
 
   /**
    * Get the contents of a backup
-   * @param activity The calling activity
-   * @param file     File to restore
+   * @param file File to restore
    */
-  public void getBackupContents(@NonNull BackupActivity activity, BackupFile
-    file,
-                                boolean isSync) {
+  public void getBackupContentsAsync(BackupFile file, boolean isSync) {
     try {
       final DriveFile driveFile = file.getDriveId().asDriveFile();
-      DriveHelper.INST(mContext).getBackupContents(activity, driveFile, isSync);
+      App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
+        .getBackupContents(driveFile, isSync));
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_no_contents);
       showMessage(errMessage, ex);
@@ -148,21 +144,25 @@ public class BackupHelper {
   }
 
   /**
-   * Perform a sync
+   * Sync the contents of a backup
    * @param contents contents to restore
    */
-  public void syncBackup(DriveFile driveFile, BackupContents contents) {
-    try {
-      final BackupContents mergedContents =
-        BackupHelper.INST(mContext).saveMergedContentsToDB(contents);
-      final byte[] mergedData = mergedContents.getAsJSON().getBytes();
-      final byte[] data =
-        BackupHelper.INST(mContext).createZipFileContents(mergedData);
-      DriveHelper.INST(mContext).updateBackup(driveFile, data);
-    } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_sync_backup);
-      showMessage(errMessage, ex);
-    }
+  public void syncContentsAsync(DriveFile driveFile,
+                                BackupContents contents) {
+    App.getExecutors().diskIO().execute(() -> {
+      try {
+        final BackupContents mergedContents =
+          BackupHelper.INST(mContext).saveMergedContentsToDB(contents);
+        final byte[] mergedData = mergedContents.getAsJSON().getBytes();
+        final byte[] data =
+          BackupHelper.INST(mContext).createZipFileContents(mergedData);
+        DriveHelper.INST(mContext).updateBackup(driveFile, data);
+      } catch (Exception ex) {
+        final String errMessage =
+          mContext.getString(R.string.err_sync_backup);
+        showMessage(errMessage, ex);
+      }
+    });
   }
 
   /**
@@ -171,8 +171,8 @@ public class BackupHelper {
    * @throws IOException  if no contents
    * @throws SQLException if database update failed
    */
-  private void saveContentsToDB(
-    @Nullable BackupContents contents) throws IOException, SQLException {
+  private void saveContentsToDB(@Nullable BackupContents contents) throws
+    IOException, SQLException {
     if (contents == null) {
       throw new IOException(mContext.getString(R.string.err_no_contents));
     }
@@ -280,61 +280,5 @@ public class BackupHelper {
     final String exMsg = ex.getLocalizedMessage();
     Log.logEx(mContext, TAG, exMsg, ex, msg, false);
     BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(msg, exMsg));
-  }
-
-  /** AsyncTask to get the contents of a backup */
-  public static class GetBackupContentsAsyncTask extends
-    CustomAsyncTask<Void, Void, Void> {
-
-    /** BackupFile to restore */
-    private final BackupFile mBackupFile;
-    /** true if we are synchronizing the backup with the local db */
-    private final boolean mIsSync;
-
-    public GetBackupContentsAsyncTask(BackupActivity activity,
-                                      BackupFile backupFile, boolean isSync) {
-      super(activity);
-
-      BackupRepo.INST(App.INST()).postIsLoading(true);
-      mBackupFile = backupFile;
-      mIsSync = isSync;
-    }
-
-    @Override
-    protected Void doInBackground(Void... params) {
-      if (mActivity != null) {
-        BackupHelper.INST(mActivity)
-          .getBackupContents((BackupActivity) mActivity, mBackupFile, mIsSync);
-      }
-      return null;
-    }
-  }
-
-  /** AsyncTask to sync a backup */
-  public static class SyncBackupAsyncTask extends
-    CustomAsyncTask<Void, Void, Void> {
-    /** File to sync with */
-    private final DriveFile mDriveFile;
-    /** Contents to sync with db */
-    private final BackupContents mContents;
-
-    public SyncBackupAsyncTask(BackupActivity activity,
-                               DriveFile driveFile,
-                               BackupContents contents) {
-      super(activity);
-
-      BackupRepo.INST(App.INST()).postIsLoading(true);
-      mDriveFile = driveFile;
-      mContents = contents;
-    }
-
-    @Override
-    protected Void doInBackground(Void... params) {
-      if (mActivity != null) {
-        BackupHelper.INST(mActivity)
-          .syncBackup(mDriveFile, mContents);
-      }
-      return null;
-    }
   }
 }

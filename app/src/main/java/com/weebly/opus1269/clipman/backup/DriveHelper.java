@@ -41,7 +41,6 @@ import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
-import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
 import java.io.BufferedInputStream;
 import java.io.OutputStream;
@@ -250,12 +249,10 @@ public class DriveHelper {
 
   /**
    * Get the contents of a backup
-   * @param activity activity
    * @param file     file to retrieve
    * @param isSync   true is syncing with a backup
    */
-  void getBackupContents(@NonNull final BackupActivity activity,
-                         final DriveFile file, final boolean isSync) {
+  void getBackupContents(final DriveFile file, final boolean isSync) {
     final String errMessage = mContext.getString(R.string.err_get_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -282,9 +279,9 @@ public class DriveHelper {
 
         return resourceClient.discardContents(contents);
       })
-      .addOnSuccessListener(activity, aVoid -> {
+      .addOnSuccessListener(aVoid -> {
         Log.logD(TAG, "got backup contents");
-        activity.onGetBackupContentsComplete(file, backupContents, isSync);
+        onGetBackupContentsComplete(file, backupContents, isSync);
       })
       .addOnFailureListener(ex -> onTaskFailure(errMessage, ex));
   }
@@ -318,6 +315,29 @@ public class DriveHelper {
     final String msg = mContext.getString(R.string.err_internal_drive);
     Log.logE(mContext, TAG, msg, title, false);
     BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(title, msg));
+  }
+
+  /**
+   * Contents of a backup has been retrieved
+   * @param driveFile source file
+   * @param contents  contents of backup
+   * @param isSync    true if called during a backup sync operation
+   */
+  private void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
+                                          @NonNull BackupContents contents,
+                                          boolean isSync) {
+    try {
+      if (isSync) {
+        BackupHelper.INST(mContext).syncContentsAsync(driveFile, contents);
+      } else {
+        BackupHelper.INST(mContext).restoreContentsAsync(contents);
+      }
+    } catch (Exception ex) {
+      final String title = mContext.getString(R.string.err_update_db);
+      final String msg = ex.getLocalizedMessage();
+      Log.logEx(mContext, TAG, msg, ex, title, false);
+      BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(title, msg));
+    }
   }
 
   /**
