@@ -33,11 +33,13 @@ import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.repos.BackupRepo;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 
 import java.io.BufferedInputStream;
@@ -98,7 +100,7 @@ public class DriveHelper {
       return;
     }
 
-    setIsLoading(activity, true);
+    BackupRepo.INST(App.INST()).postIsLoading(true);
     // sync with drive
     driveClient.requestSync()
       .continueWithTask(task -> {
@@ -118,9 +120,9 @@ public class DriveHelper {
       .addOnSuccessListener(activity, metadataBuffer -> {
         // populate the files list
         Log.logD(TAG, "got list of files");
-        activity.getViewModel().postFiles(metadataBuffer);
+        BackupRepo.INST(App.INST()).postFiles(metadataBuffer);
         metadataBuffer.release();
-        setIsLoading(activity, false);
+        BackupRepo.INST(App.INST()).postIsLoading(false);
       })
       .addOnFailureListener(activity, ex -> {
         if (ex instanceof ApiException) {
@@ -134,7 +136,7 @@ public class DriveHelper {
         } else {
           showMessage(activity, errMessage, ex);
         }
-        setIsLoading(activity, false);
+        BackupRepo.INST(App.INST()).postIsLoading(false);
       });
   }
 
@@ -159,7 +161,7 @@ public class DriveHelper {
     final Task<DriveContents> createContentsTask =
       resourceClient.createContents();
 
-    setIsLoading(activity, true);
+    BackupRepo.INST(App.INST()).postIsLoading(true);
     Tasks.whenAll(appFolderTask, createContentsTask)
       .continueWithTask(task -> {
         final DriveFolder appFolder = appFolderTask.getResult();
@@ -191,9 +193,7 @@ public class DriveHelper {
       .continueWithTask(task -> {
         final Metadata metadata = task.getResult();
 
-        if (activity != null) {
-          activity.getViewModel().addFile(metadata);
-        }
+        BackupRepo.INST(App.INST()).addFile(metadata);
 
         // persist to Prefs
         final String fileString = metadata.getDriveId().encodeToString();
@@ -230,7 +230,7 @@ public class DriveHelper {
       return;
     }
 
-    setIsLoading(activity, true);
+    BackupRepo.INST(App.INST()).postIsLoading(true);
     resourceClient.openFile(file, DriveFile.MODE_WRITE_ONLY)
       .continueWithTask(task -> {
         final DriveContents contents = task.getResult();
@@ -269,7 +269,7 @@ public class DriveHelper {
 
     final BackupContents backupContents = new BackupContents();
 
-    setIsLoading(activity, true);
+    BackupRepo.INST(App.INST()).postIsLoading(true);
     resourceClient.openFile(file, DriveFile.MODE_READ_ONLY)
       .continueWithTask(task -> {
         final DriveContents contents = task.getResult();
@@ -310,21 +310,10 @@ public class DriveHelper {
     final DriveFile file = driveId.asDriveFile();
     final Task<Void> deleteTask = resourceClient.delete(file);
 
-    setIsLoading(activity, true);
+    BackupRepo.INST(App.INST()).postIsLoading(true);
     deleteTask
       .addOnSuccessListener(aVoid -> onDeleteSuccess(activity, driveId))
       .addOnFailureListener(ex -> onDeleteFailure(activity, errMessage, ex));
-  }
-
-  /**
-   * Set isLoading state
-   * @param activity - activity
-   * @param value    - true if working
-   */
-  private void setIsLoading(BackupActivity activity, boolean value) {
-    if (activity != null) {
-      activity.getViewModel().postIsLoading(value);
-    }
   }
 
   /**
@@ -363,8 +352,8 @@ public class DriveHelper {
   private void onDeleteSuccess(BackupActivity activity, DriveId driveId) {
     Log.logD(TAG, "deleted file");
     if (activity != null) {
-      activity.getViewModel().removeFile(driveId);
-      setIsLoading(activity, false);
+      BackupRepo.INST(App.INST()).removeFile(driveId);
+      BackupRepo.INST(App.INST()).postIsLoading(false);
     }
   }
 
@@ -390,7 +379,7 @@ public class DriveHelper {
         showMessage(activity, msg, ex);
       }
     }
-    setIsLoading(activity, false);
+    BackupRepo.INST(App.INST()).postIsLoading(false);
   }
 
   /**
@@ -402,7 +391,7 @@ public class DriveHelper {
   private void onTaskFailure(BackupActivity activity, String msg,
                              Exception ex) {
     showMessage(activity, msg, ex);
-    setIsLoading(activity, false);
+    BackupRepo.INST(App.INST()).postIsLoading(false);
   }
 
   @Nullable

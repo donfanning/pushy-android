@@ -57,8 +57,8 @@ public class BackupActivity extends BaseActivity {
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(mViewModel);
-    binding.setIsLoading(mViewModel.isLoading);
-    binding.setInfoMessage(mViewModel.infoMessage);
+    binding.setIsLoading(mViewModel.getIsLoading());
+    binding.setInfoMessage(mViewModel.getInfoMessage());
     binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 
