@@ -44,7 +44,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
-import com.weebly.opus1269.clipman.repos.DevicesRepo;
+import com.weebly.opus1269.clipman.repos.DeviceRepo;
 import com.weebly.opus1269.clipman.ui.helpers.BitmapHelper;
 
 import java.io.IOException;
@@ -143,7 +143,7 @@ public class User {
     setCoverPhotoBitmap(null);
 
     // clear Devices list
-    DevicesRepo.INST(App.INST()).removeAll();
+    DeviceRepo.INST(App.INST()).removeAll();
   }
 
   /**

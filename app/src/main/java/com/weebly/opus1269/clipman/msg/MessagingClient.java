@@ -35,7 +35,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.repos.DevicesRepo;
+import com.weebly.opus1269.clipman.repos.DeviceRepo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -336,7 +336,7 @@ public class MessagingClient extends Endpoint {
         mRetryOnError = false;
 
         // update repo
-        DevicesRepo.INST(App.INST()).noDevices();
+        DeviceRepo.INST(App.INST()).noDevices();
 
         int noDevicesCt = Prefs.INST(mAppContext).getNoDevicesCt();
         if (noDevicesCt >= MAX_NO_DEVICES_CT) {

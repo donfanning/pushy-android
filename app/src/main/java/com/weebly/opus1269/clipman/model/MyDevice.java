@@ -18,7 +18,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.repos.DevicesRepo;
+import com.weebly.opus1269.clipman.repos.DeviceRepo;
 
 /** Singleton - immutable representing our device */
 public class MyDevice {
@@ -91,7 +91,7 @@ public class MyDevice {
 
   /** Notify listeners that our {@link Device} was removed */
   public void notifyRemoved() {
-    DevicesRepo.INST(App.INST()).removeAll();
+    DeviceRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_MY_DEVICE_REMOVED, "", "");
   }
 
@@ -102,7 +102,7 @@ public class MyDevice {
 
   /** Notify listeners that our {@link Device} was unregistered */
   public void notifyUnregistered() {
-    DevicesRepo.INST(App.INST()).removeAll();
+    DeviceRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_MY_DEVICE_UNREGISTERED, "", "");
   }
 
@@ -111,7 +111,7 @@ public class MyDevice {
    * @param message error message
    */
   public void notifyRegisterError(String message) {
-    DevicesRepo.INST(App.INST()).removeAll();
+    DeviceRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_MY_DEVICE_REGISTER_ERROR, Intents.EXTRA_TEXT,
       message);
   }

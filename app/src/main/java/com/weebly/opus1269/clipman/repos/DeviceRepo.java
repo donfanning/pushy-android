@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton - Repository for {@link Device} objects */
-public class DevicesRepo implements
+public class DeviceRepo implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   @SuppressLint("StaticFieldLeak")
-  private static DevicesRepo sInstance;
+  private static DeviceRepo sInstance;
 
   /** Application */
   private final Application mApp;
@@ -44,7 +44,7 @@ public class DevicesRepo implements
   /** Device List */
   private final MediatorLiveData<List<DeviceEntity>> deviceList;
 
-  private DevicesRepo(final Application app) {
+  private DeviceRepo(final Application app) {
     mApp = app;
     mDB = DeviceDB.INST(app);
 
@@ -65,11 +65,11 @@ public class DevicesRepo implements
       .registerOnSharedPreferenceChangeListener(this);
   }
 
-  public static DevicesRepo INST(final Application app) {
+  public static DeviceRepo INST(final Application app) {
     if (sInstance == null) {
-      synchronized (DevicesRepo.class) {
+      synchronized (DeviceRepo.class) {
         if (sInstance == null) {
-          sInstance = new DevicesRepo(app);
+          sInstance = new DeviceRepo(app);
         }
       }
     }

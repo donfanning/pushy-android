@@ -9,20 +9,19 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.repos.DevicesRepo;
+import com.weebly.opus1269.clipman.repos.DeviceRepo;
 
 import java.util.List;
 
 /** ViewModel for a collection of Devices */
 public class DevicesViewModel extends AndroidViewModel {
   /** Device Repo */
-  private final DevicesRepo mRepo;
+  private final DeviceRepo mRepo;
 
   // MediatorLiveData can observe other
   // LiveData objects and react on their emissions.
@@ -36,7 +35,7 @@ public class DevicesViewModel extends AndroidViewModel {
   public DevicesViewModel(@NonNull Application app) {
     super(app);
 
-    mRepo = DevicesRepo.INST(app);
+    mRepo = DeviceRepo.INST(app);
 
     devices = new MediatorLiveData<>();
     // set by default null, until we get data from the repo.
