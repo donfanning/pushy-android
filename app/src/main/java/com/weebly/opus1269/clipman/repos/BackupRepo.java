@@ -19,6 +19,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.DeviceDB;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -35,34 +36,23 @@ public class BackupRepo implements
   /** Application */
   private final Application mApp;
 
-  /** Database */
+  ///** Database */
   //private final BackupDB mDB;
 
   /** Info message - not saved in database */
   private final MutableLiveData<String> infoMessage;
 
   /** Device List */
-  private final MediatorLiveData<List<DeviceEntity>> deviceList;
+  private final MutableLiveData<List<BackupFile>> backupList;
 
   private BackupRepo(final Application app) {
     mApp = app;
     //mDB = DeviceDB.INST(app);
 
     infoMessage = new MutableLiveData<>();
-    deviceList = new MediatorLiveData<>();
+    backupList = new MutableLiveData<>();
+    backupList.setValue(new ArrayList<>());
 
-    deviceList.addSource(mDB.deviceDao().getAll(), devices -> {
-      if (mDB.getDatabaseCreated().getValue() != null) {
-        deviceList.postValue(devices);
-      }
-    });
-
-    initInfoMessage();
-
-    // listen for shared preference changes
-    PreferenceManager
-      .getDefaultSharedPreferences(mApp)
-      .registerOnSharedPreferenceChangeListener(this);
   }
 
   public static BackupRepo INST(final Application app) {
@@ -105,52 +95,8 @@ public class BackupRepo implements
     infoMessage.postValue(msg);
   }
 
-  public LiveData<List<DeviceEntity>> getDeviceList() {
-    if (deviceList.getValue() == null) {
-      // if no items in database, List will be null
-      deviceList.setValue(new ArrayList<>());
-    }
-    return deviceList;
+  public LiveData<List<BackupFile>> getBackupList() {
+    return backupList;
   }
 
-  /** Send ping to query remote devices */
-  public void refreshList() {
-    MessagingClient.INST(mApp).sendPing();
-  }
-
-  /** Detected that the server has no other registered devices */
-  public void noDevices() {
-    final String msg = mApp.getString(R.string.err_no_remote_devices);
-    postInfoMessage(msg);
-    removeAll();
-  }
-
-  public void add(DeviceEntity device) {
-    App.getExecutors().diskIO().execute(() -> {
-      mDB.deviceDao().insertAll(device);
-      final String msg = mApp.getString(R.string.err_no_remote_devices);
-      if(msg.equals(getInfoMessage().getValue())) {
-        // clear no remote device message when we add new device
-        postInfoMessage("");
-      }
-    });
-  }
-
-  public void remove(DeviceEntity device) {
-    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().delete(device));
-  }
-
-  public void removeAll() {
-    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().deleteAll());
-  }
-
-  private void initInfoMessage() {
-    if (!Prefs.INST(mApp).isPushClipboard()) {
-      postInfoMessage(mApp.getString(R.string.err_no_push_to_devices));
-    } else if (!Prefs.INST(mApp).isAllowReceive()) {
-      postInfoMessage(mApp.getString(R.string.err_no_receive_from_devices));
-    } else {
-      postInfoMessage("");
-    }
-  }
 }

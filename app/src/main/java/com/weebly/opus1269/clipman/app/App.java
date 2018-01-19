@@ -294,7 +294,7 @@ public class App extends Application implements
       User.INST(this).convertPrefs();
     }
 
-    if (oldVersionCode <= 222008) {
+    if (oldVersionCode <= 222009) {
       // remove old Device storage
       final SharedPreferences preferences =
         PreferenceManager.getDefaultSharedPreferences(this);

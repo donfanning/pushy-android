@@ -43,7 +43,7 @@ public class BackupsViewModel extends AndroidViewModel {
   public final MutableLiveData<Boolean> isLoading;
 
   /** BackFile list */
-  private final MediatorLiveData<List<BackupFile>> files;
+  private final MutableLiveData<List<BackupFile>> files;
 
   public BackupsViewModel(@NonNull Application app) {
     super(app);
