@@ -67,7 +67,7 @@ public class BackupHelper {
   /** Get the list of backups from Drive */
   public void getBackupsAsync() {
     App.getExecutors().networkIO()
-      .execute(() -> DriveHelper.INST(mContext).getBackups());
+      .execute(() -> DriveHelper.INST(mContext).getBackupsAsync());
   }
 
   /** Perform a backup */
@@ -78,7 +78,7 @@ public class BackupHelper {
       final byte[] zipData =
         BackupHelper.INST(mContext).createZipFileContentsFromDB();
       App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
-        .createBackup(zipName, zipData, lastBackup));
+        .createBackupAsync(zipName, zipData, lastBackup));
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
       showMessage(errMessage, ex);
@@ -95,7 +95,7 @@ public class BackupHelper {
       final String zipName = getZipFilename();
       final byte[] zipData =
         BackupHelper.INST(mContext).createZipFileContentsFromDB();
-      DriveHelper.INST(mContext).createBackup(zipName, zipData, lastBackup);
+      DriveHelper.INST(mContext).createBackupAsync(zipName, zipData, lastBackup);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
       showMessage(errMessage, ex);
@@ -108,7 +108,7 @@ public class BackupHelper {
    */
   public void deleteBackupAsync(BackupFile file) {
     App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
-      .deleteBackup(file.getDriveId()));
+      .deleteBackupAsync(file.getDriveId()));
   }
 
   /**
@@ -119,7 +119,7 @@ public class BackupHelper {
     try {
       final DriveFile driveFile = file.getDriveId().asDriveFile();
       App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
-        .getBackupContents(driveFile, isSync));
+        .getBackupContentsAsync(driveFile, isSync));
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_no_contents);
       showMessage(errMessage, ex);
@@ -156,7 +156,7 @@ public class BackupHelper {
         final byte[] mergedData = mergedContents.getAsJSON().getBytes();
         final byte[] data =
           BackupHelper.INST(mContext).createZipFileContents(mergedData);
-        DriveHelper.INST(mContext).updateBackup(driveFile, data);
+        DriveHelper.INST(mContext).updateBackupAsync(driveFile, data);
       } catch (Exception ex) {
         final String errMessage =
           mContext.getString(R.string.err_sync_backup);

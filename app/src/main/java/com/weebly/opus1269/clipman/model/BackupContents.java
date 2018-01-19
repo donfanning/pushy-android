@@ -34,14 +34,15 @@ public class BackupContents {
   }
 
   private BackupContents(@NonNull List<Label> labels,
-                 @NonNull List<ClipItem> clipItems) {
+                         @NonNull List<ClipItem> clipItems) {
     this.labels = labels;
     this.clipItems = clipItems;
   }
 
   /**
    * Get the database data
-   * @return db data
+   * @param context A context
+   * @return database contents
    */
   @NonNull
   public static BackupContents getDB(Context context) {
@@ -52,6 +53,7 @@ public class BackupContents {
 
   /**
    * Get the database data as a JSON string
+   * @param context A context
    * @return Stringified data
    */
   public static String getDBAsJSON(Context context) {
@@ -72,14 +74,13 @@ public class BackupContents {
     final JsonReader reader =
       new JsonReader(new InputStreamReader(new ByteArrayInputStream(data)));
     final Gson gson = new Gson();
-    final Type type = new TypeToken<BackupContents>() {
-    }.getType();
+    final Type type = new TypeToken<BackupContents>() {}.getType();
     return gson.fromJson(reader, type);
   }
 
   /**
    * Get the largest {@link Label} PK in the list
-   * @param labels - label list
+   * @param labels label list
    * @return largest id, 0 if empty
    */
   private static long getLargestId(@NonNull List<Label> labels) {
@@ -93,11 +94,11 @@ public class BackupContents {
 
   /**
    * Update the id for the {@link Label} in all the {@link ClipItem} objects
-   * @param clipItems - clipItems list
-   * @param label - label to chage
+   * @param clipItems clipItems list
+   * @param label     label to chage
    */
   private static void updateLabelId(@NonNull List<ClipItem> clipItems,
-                                     @NonNull Label label) {
+                                    @NonNull Label label) {
     for (ClipItem clipItem : clipItems) {
       clipItem.updateLabelIdNoSave(label);
     }
@@ -122,8 +123,8 @@ public class BackupContents {
   }
 
   /**
-   * Get the our data as a JSON string
-   * @return Stringified data
+   * Get our contents as a JSON string
+   * @return Stringified contents
    */
   public String getAsJSON() {
     String ret;
@@ -135,11 +136,11 @@ public class BackupContents {
 
   /**
    * Merge the contents of the given item with this
-   * @param context - A Context
-   * @param contents - contents to merge
+   * @param context  A Context
+   * @param contents contents to merge
    */
   public void merge(@NonNull Context context,
-                       @NonNull final BackupContents contents) {
+                    @NonNull final BackupContents contents) {
     // Merged items
     final List<Label> outLabels = this.labels;
     final List<ClipItem> outClipItems = this.clipItems;

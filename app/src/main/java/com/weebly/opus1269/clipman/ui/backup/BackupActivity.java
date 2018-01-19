@@ -28,7 +28,7 @@ import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
 
-/** Manage out backups on Google Drive */
+/** Manage our backups on Google Drive */
 public class BackupActivity extends BaseActivity {
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;

@@ -47,20 +47,19 @@ import java.io.OutputStream;
 
 /** Singleton to manage interactions with Google Drive */
 public class DriveHelper {
-
-  // OK, because mContext is the global Application context
+  // OK, because mAppCtxt is the global Application context
   /** Static instance */
   @SuppressLint("StaticFieldLeak")
   private static DriveHelper sInstance;
 
   /** Global Application Context */
-  private final Context mContext;
+  private final Context mAppCtxt;
 
   /** Class Indentifier */
   private final String TAG = this.getClass().getSimpleName();
 
   private DriveHelper(@NonNull Context context) {
-    mContext = context.getApplicationContext();
+    mAppCtxt = context.getApplicationContext();
   }
 
   /**
@@ -78,16 +77,14 @@ public class DriveHelper {
 
   /** Do we have permissions for our appFolder */
   public boolean hasAppFolderPermission() {
-    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
+    final GoogleSignInAccount account = User.INST(mAppCtxt).getGoogleAccount();
     return ((account != null) &&
       GoogleSignIn.hasPermissions(account, Drive.SCOPE_APPFOLDER));
   }
 
-  /**
-   * Retrieve the metadata for all the backups in our appFolder - asynchronous
-   */
-  void getBackups() {
-    final String errMessage = mContext.getString(R.string.err_get_backups);
+  /** Retrieve the metadata for all the backups in our appFolder */
+  void getBackupsAsync() {
+    final String errMessage = mAppCtxt.getString(R.string.err_get_backups);
     final DriveClient driveClient = getDriveClient();
     if (driveClient == null) {
       onClientError(errMessage);
@@ -140,14 +137,14 @@ public class DriveHelper {
   }
 
   /**
-   * Create a new backup - asynchronous
+   * Create a new backup
    * @param filename   name of file
    * @param data       contents of file
    * @param lastBackup encoded last backup, may not exist
    */
-  void createBackup(final String filename, final byte[] data,
-                    final String lastBackup) {
-    final String errMessage = mContext.getString(R.string.err_create_backup);
+  void createBackupAsync(final String filename, final byte[] data,
+                         final String lastBackup) {
+    final String errMessage = mAppCtxt.getString(R.string.err_create_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       onClientError(errMessage);
@@ -175,7 +172,7 @@ public class DriveHelper {
         MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
           .setTitle(filename)
           .setMimeType("application/zip");
-        BackupFile.setCustomProperties(mContext, builder);
+        BackupFile.setCustomProperties(mAppCtxt, builder);
 
         final MetadataChangeSet changeSet = builder.build();
 
@@ -194,7 +191,7 @@ public class DriveHelper {
 
         // persist to Prefs
         final String fileString = metadata.getDriveId().encodeToString();
-        Prefs.INST(mContext).setLastBackup(fileString);
+        Prefs.INST(mAppCtxt).setLastBackup(fileString);
 
         if (TextUtils.isEmpty(lastBackup)) {
           // no backup to delete - no big deal
@@ -207,18 +204,19 @@ public class DriveHelper {
         // delete old backup
         return resourceClient.delete(driveId.asDriveFile());
       })
-      .addOnSuccessListener(aVoid -> onDeleteSuccess(DriveId.decodeFromString(lastBackup)))
+      .addOnSuccessListener(aVoid -> onDeleteSuccess(
+        DriveId.decodeFromString(lastBackup)))
       .addOnFailureListener(ex -> onDeleteFailure(errMessage, ex));
   }
 
   /**
-   * Update a backup - asynchronous
+   * Update a backup
    * @param file     file to update
    * @param data     update data
    */
-  void updateBackup(@NonNull final DriveFile file,
-                    @NonNull final byte[] data) {
-    final String errMessage = mContext.getString(R.string.err_update_backup);
+  void updateBackupAsync(@NonNull final DriveFile file,
+                         @NonNull final byte[] data) {
+    final String errMessage = mAppCtxt.getString(R.string.err_update_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       onClientError(errMessage);
@@ -242,7 +240,7 @@ public class DriveHelper {
       })
       .addOnSuccessListener(aVoid -> {
         Log.logD(TAG, "updated backup");
-        BackupHelper.INST(mContext).getBackupsAsync();
+        BackupHelper.INST(mAppCtxt).getBackupsAsync();
       })
       .addOnFailureListener(ex -> onTaskFailure(errMessage, ex));
   }
@@ -252,8 +250,8 @@ public class DriveHelper {
    * @param file     file to retrieve
    * @param isSync   true is syncing with a backup
    */
-  void getBackupContents(final DriveFile file, final boolean isSync) {
-    final String errMessage = mContext.getString(R.string.err_get_backup);
+  void getBackupContentsAsync(final DriveFile file, final boolean isSync) {
+    final String errMessage = mAppCtxt.getString(R.string.err_get_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       onClientError(errMessage);
@@ -270,7 +268,7 @@ public class DriveHelper {
         BufferedInputStream bis = null;
         try {
           bis = new BufferedInputStream(contents.getInputStream());
-          BackupHelper.INST(mContext).extractFromZipFile(bis, backupContents);
+          BackupHelper.INST(mAppCtxt).extractFromZipFile(bis, backupContents);
         } finally {
           if (bis != null) {
             bis.close();
@@ -281,17 +279,17 @@ public class DriveHelper {
       })
       .addOnSuccessListener(aVoid -> {
         Log.logD(TAG, "got backup contents");
-        onGetBackupContentsComplete(file, backupContents, isSync);
+        onGetBackupCompleteAsync(file, backupContents, isSync);
       })
       .addOnFailureListener(ex -> onTaskFailure(errMessage, ex));
   }
 
   /**
-   * Delete a backup - asynchronous
+   * Delete a backup
    * @param driveId  driveId to delete
    */
-  void deleteBackup(@NonNull final DriveId driveId) {
-    final String errMessage = mContext.getString(R.string.err_delete_backup);
+  void deleteBackupAsync(@NonNull final DriveId driveId) {
+    final String errMessage = mAppCtxt.getString(R.string.err_delete_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       onClientError(errMessage);
@@ -312,8 +310,8 @@ public class DriveHelper {
    * @param title    - action type
    */
   private void onClientError(@NonNull String title) {
-    final String msg = mContext.getString(R.string.err_internal_drive);
-    Log.logE(mContext, TAG, msg, title, false);
+    final String msg = mAppCtxt.getString(R.string.err_internal_drive);
+    Log.logE(mAppCtxt, TAG, msg, title, false);
     BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(title, msg));
   }
 
@@ -323,37 +321,37 @@ public class DriveHelper {
    * @param contents  contents of backup
    * @param isSync    true if called during a backup sync operation
    */
-  private void onGetBackupContentsComplete(@NonNull DriveFile driveFile,
-                                          @NonNull BackupContents contents,
-                                          boolean isSync) {
+  private void onGetBackupCompleteAsync(@NonNull DriveFile driveFile,
+                                        @NonNull BackupContents contents,
+                                        boolean isSync) {
     try {
       if (isSync) {
-        BackupHelper.INST(mContext).syncContentsAsync(driveFile, contents);
+        BackupHelper.INST(mAppCtxt).syncContentsAsync(driveFile, contents);
       } else {
-        BackupHelper.INST(mContext).restoreContentsAsync(contents);
+        BackupHelper.INST(mAppCtxt).restoreContentsAsync(contents);
       }
     } catch (Exception ex) {
-      final String title = mContext.getString(R.string.err_update_db);
+      final String title = mAppCtxt.getString(R.string.err_update_db);
       final String msg = ex.getLocalizedMessage();
-      Log.logEx(mContext, TAG, msg, ex, title, false);
+      Log.logEx(mAppCtxt, TAG, msg, ex, title, false);
       BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(title, msg));
     }
   }
 
   /**
    * Log exception and show message
-   * @param msg      - message
+   * @param msg      message
    * @param ex       exception
    */
   private void showMessage(@NonNull String msg, @NonNull Exception ex) {
     final String exMsg = ex.getLocalizedMessage();
-    Log.logEx(mContext, TAG, exMsg, ex, msg, false);
+    Log.logEx(mAppCtxt, TAG, exMsg, ex, msg, false);
     BackupRepo.INST(App.INST()).postErrorMsg(new ErrorMsg(msg, exMsg));
   }
 
   /**
    * After deletion success
-   * @param driveId  - deleted id
+   * @param driveId  deleted id
    */
   private void onDeleteSuccess(DriveId driveId) {
     Log.logD(TAG, "deleted file");
@@ -363,8 +361,8 @@ public class DriveHelper {
 
   /**
    * After deletion failure
-   * @param msg      - error message
-   * @param ex       - causing exception
+   * @param msg      error message
+   * @param ex       causing exception
    */
   private void onDeleteFailure(String msg, Exception ex) {
     if (!"OK".equals(ex.getLocalizedMessage())) {
@@ -386,8 +384,8 @@ public class DriveHelper {
 
   /**
    * Generic Task failure
-   * @param msg      - error message
-   * @param ex       - causing exception
+   * @param msg      error message
+   * @param ex       causing exception
    */
   private void onTaskFailure(String msg, Exception ex) {
     showMessage(msg, ex);
@@ -397,9 +395,9 @@ public class DriveHelper {
   @Nullable
   private DriveClient getDriveClient() {
     DriveClient ret = null;
-    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
+    final GoogleSignInAccount account = User.INST(mAppCtxt).getGoogleAccount();
     if (account != null) {
-      ret = Drive.getDriveClient(mContext.getApplicationContext(), account);
+      ret = Drive.getDriveClient(mAppCtxt.getApplicationContext(), account);
     }
     return ret;
   }
@@ -407,10 +405,10 @@ public class DriveHelper {
   @Nullable
   private DriveResourceClient getDriveResourceClient() {
     DriveResourceClient ret = null;
-    final GoogleSignInAccount account = User.INST(mContext).getGoogleAccount();
+    final GoogleSignInAccount account = User.INST(mAppCtxt).getGoogleAccount();
     if (account != null) {
       ret =
-        Drive.getDriveResourceClient(mContext.getApplicationContext(), account);
+        Drive.getDriveResourceClient(mAppCtxt.getApplicationContext(), account);
     }
     return ret;
   }

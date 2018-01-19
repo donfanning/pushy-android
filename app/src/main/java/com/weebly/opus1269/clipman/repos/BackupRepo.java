@@ -96,7 +96,7 @@ public class BackupRepo {
 
   /**
    * Set the list of backups from Drive
-   * @param metadataBuffer - buffer containing list of files
+   * @param metadataBuffer buffer containing list of files
    */
   public void postFiles(@NonNull MetadataBuffer metadataBuffer) {
     List<BackupFile> backupFiles = new ArrayList<>();
@@ -178,7 +178,7 @@ public class BackupRepo {
 
   /**
    *  Sort list of files in place - mine first, then by date
-   *  @param backupFiles - List to sort
+   *  @param backupFiles List to sort
    */
   private void sortFiles(List<BackupFile> backupFiles) {
     // mine first, then by date

@@ -26,8 +26,7 @@ import com.weebly.opus1269.clipman.repos.BackupRepo;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
 /** Handlers for UI events */
-public class BackupHandlers implements
-  DialogInterface.OnClickListener {
+public class BackupHandlers implements DialogInterface.OnClickListener {
   /** Our activity */
   private final BackupActivity mActivity;
 
