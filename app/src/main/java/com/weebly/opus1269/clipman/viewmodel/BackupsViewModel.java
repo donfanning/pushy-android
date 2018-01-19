@@ -9,6 +9,7 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
@@ -19,6 +20,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.repos.BackupRepo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +33,9 @@ public class BackupsViewModel extends AndroidViewModel {
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
 
+  /** Data repository */
+  private final BackupRepo mRepo;
+
   /** Info message */
   public final MutableLiveData<String> infoMessage;
 
@@ -38,10 +43,12 @@ public class BackupsViewModel extends AndroidViewModel {
   public final MutableLiveData<Boolean> isLoading;
 
   /** BackFile list */
-  private final MutableLiveData<List<BackupFile>> files;
+  private final MediatorLiveData<List<BackupFile>> files;
 
   public BackupsViewModel(@NonNull Application app) {
     super(app);
+
+    mRepo = BackupRepo.INST(app);
 
     infoMessage = new MutableLiveData<>();
     infoMessage.setValue("");
