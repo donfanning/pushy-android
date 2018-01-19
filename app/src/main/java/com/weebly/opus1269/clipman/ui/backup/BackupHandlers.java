@@ -119,6 +119,8 @@ public class BackupHandlers implements
    * @param errorMsg the error
    */
   public void showErrorMessage(@NonNull ErrorMsg errorMsg) {
+    // reset error
+    BackupRepo.INST(App.INST()).postErrorMsg(null);
     BackupRepo.INST(App.INST()).postIsLoading(false);
     final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
       .setTitle(errorMsg.title)
