@@ -59,7 +59,6 @@ class LabelsSelectAdapter extends
   /** Our list */
   private List<LabelEntity> mList;
 
-
   LabelsSelectAdapter(LabelsSelectActivity activity) {
     super();
 
@@ -108,7 +107,6 @@ class LabelsSelectAdapter extends
           .checkBoxClick(TAG, "selectLabel: " + checked1);
       }
     );
-
   }
 
   @Override

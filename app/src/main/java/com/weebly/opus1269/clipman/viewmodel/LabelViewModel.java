@@ -11,15 +11,16 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.LabelNew;
 
 /** ViewModel for a {@link LabelNew} */
 public class LabelViewModel extends AndroidViewModel {
 
   /** Our File */
-  public final LabelNew label;
+  public final LabelEntity label;
 
-  public LabelViewModel(@NonNull Application app, LabelNew label) {
+  public LabelViewModel(@NonNull Application app, LabelEntity label) {
     super(app);
 
     this.label = label;

@@ -30,7 +30,6 @@ public class LabelsSelectActivity extends BaseActivity {
   /** Clipitem we are modifiying the list for */
   private ClipItem mClipItem;
 
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     mLayoutID = R.layout.activity_labels_select;
@@ -99,7 +98,6 @@ public class LabelsSelectActivity extends BaseActivity {
 
   ClipItem getClipItem() {return mClipItem;}
 
-
   /** Connect the {@link LabelsSelectAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView(@NonNull RecyclerView recyclerView,
                                  LabelsViewModel viewModel) {
@@ -111,23 +109,4 @@ public class LabelsSelectActivity extends BaseActivity {
     // Observe labels
     viewModel.getLabels().observe(this, labels -> mAdapter.setList(labels));
   }
-
-  ///**
-  // * Connect the {@link LabelsEditAdapter} to the {@link RecyclerView}
-  // */
-  //private void setupRecyclerView() {
-  //  final RecyclerView recyclerView = findViewById(R.id.labelList);
-  //  if (recyclerView != null) {
-  //    mAdapter = new LabelsSelectAdapter(this);
-  //    recyclerView.setAdapter(mAdapter);
-  //    recyclerView.setLayoutManager(new LinearLayoutManager(this));
-  //
-  //    final LabelLoaderManager loaderManager =
-  //      new LabelLoaderManager(getApplicationContext(), mAdapter);
-  //
-  //    // Prepare the loader. Either re-connect with an existing one,
-  //    // or start a new one.
-  //    getSupportLoaderManager().initLoader(0, null, loaderManager);
-  //  }
-  //}
 }

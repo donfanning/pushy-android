@@ -19,9 +19,11 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.content.Context;
-import android.database.Cursor;
+import android.databinding.DataBindingUtil;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -31,72 +33,64 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
-import com.androidessence.recyclerviewcursoradapter
-  .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
+import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
+import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
 import java.util.Arrays;
 import java.util.List;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
-  RecyclerViewCursorAdapter<LabelsEditAdapter.LabelViewHolder> {
+  RecyclerView.Adapter<LabelsEditAdapter.LabelViewHolder> {
   /** Our activity */
   private final BaseActivity mActivity;
 
   /** Activity TAG */
   private final String TAG;
 
+  /** Our list */
+  private List<LabelEntity> mList;
+
   /** Label that may be deleted */
   @Nullable
-  private Label mDeleteLabel;
+  private LabelEntity mDeleteLabel;
 
   LabelsEditAdapter(BaseActivity activity) {
-    super(activity);
+    super();
 
     mActivity = activity;
     TAG = mActivity.getTAG();
-
-    // needed to allow animations to run
-    setHasStableIds(true);
-
-    setupCursorAdapter(null, 0, R.layout.label_edit_row, false);
   }
 
   @Override
   public LabelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    final Context context = parent.getContext();
-    final LayoutInflater inflater = LayoutInflater.from(context);
+    LabelEditRowBinding binding = DataBindingUtil
+      .inflate(LayoutInflater.from(parent.getContext()), R.layout.label_edit_row,
+        parent, false);
 
-    // Inflate the custom layout
-    final View view = inflater.inflate(R.layout.label_edit_row, parent, false);
-
-    // Return a new holder instance
-    return new LabelViewHolder(view);
+    return new LabelsEditAdapter.LabelViewHolder(binding);
   }
 
   @Override
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
-    // Move cursor to this position
-    mCursorAdapter.getCursor().moveToPosition(position);
-
-    // Set the ViewHolder
-    setViewHolder(holder);
-
-    // Bind this view
-    mCursorAdapter.bindView(null, mContext, mCursorAdapter.getCursor());
+    final LabelViewModel vm =
+      new LabelViewModel(App.INST(), mList.get(position));
+    //TODO holder.bind(vm, mHandlers);
+    holder.bind(vm);
 
     // color the icons
     tintIcons(holder);
 
     final EditText labelEditText = holder.labelEditText;
-    labelEditText.setText(holder.label.getName());
+    labelEditText.setText(vm.label.getName());
     labelEditText.addTextChangedListener(new TextWatcher() {
       @Override
       public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
@@ -113,9 +107,9 @@ class LabelsEditAdapter extends
         final String text = editable.toString();
         if (AppUtils.isWhitespace(text)) {
           // reset to current value
-          holder.labelEditText.setText(holder.label.getName());
+          holder.labelEditText.setText(vm.label.getName());
           DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
-        } else if (!text.equals(holder.label.getName())) {
+        } else if (!text.equals(vm.label.getName())) {
           // text changed
           DrawableHelper.setImageViewEnabled(holder.deleteButton, false);
         } else {
@@ -130,14 +124,14 @@ class LabelsEditAdapter extends
         String text = labelEditText.getText().toString();
         text = text.trim();
         if (text.length() > 0) {
-          if (!text.equals(holder.label.getName())) {
-            holder.label.setName(mContext, text);
+          if (!text.equals(vm.label.getName())) {
+            vm.label.setName(text);
           }
-          labelEditText.setText(holder.label.getName());
+          labelEditText.setText(vm.label.getName());
           DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
         } else {
           // reset to orginal value
-          labelEditText.setText(holder.label.getName());
+          labelEditText.setText(vm.label.getName());
           DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
         }
       }
@@ -145,16 +139,19 @@ class LabelsEditAdapter extends
 
     holder.deleteButton.setOnClickListener(v -> {
         Analytics.INST(v.getContext()).imageClick(TAG, "deleteLabel");
-        mDeleteLabel = holder.label;
+        mDeleteLabel = vm.label;
         showDeleteDialog();
       }
     );
   }
 
-  /** needed to allow animations to run */
   @Override
-  public long getItemId(int position) {
-    return mCursorAdapter.getItemId(position);
+  public int getItemCount() {return AppUtils.size(mList);}
+
+  public void setList(@Nullable List<LabelEntity> list) {
+    // small list, just update it all
+    mList = list;
+    notifyDataSetChanged();
   }
 
   /**
@@ -175,9 +172,9 @@ class LabelsEditAdapter extends
       .setTitle(R.string.label_delete_dialog_title)
       .setPositiveButton(R.string.button_delete, (dialogInterface, i) -> {
         if ((mDeleteLabel != null)) {
-          mDeleteLabel.delete(mContext);
+          //mDeleteLabel.delete(mContext);
           mDeleteLabel = null;
-          Analytics.INST(mContext).buttonClick(TAG, "deleteLabel");
+          Analytics.INST(mActivity.getApplicationContext()).buttonClick(TAG, "deleteLabel");
         }
       })
       .setNegativeButton(R.string.button_cancel, null)
@@ -186,24 +183,26 @@ class LabelsEditAdapter extends
     dialog.show();
   }
 
-  static class LabelViewHolder extends RecyclerViewCursorViewHolder {
+  static class LabelViewHolder extends RecyclerView.ViewHolder {
+    private final LabelEditRowBinding binding;
     final ImageView labelImage;
     final EditText labelEditText;
     final ImageButton deleteButton;
-    Label label;
 
-    LabelViewHolder(View view) {
-      super(view);
+    LabelViewHolder(@NonNull LabelEditRowBinding binding) {
+      super(binding.getRoot());
+      this.binding = binding;
 
-      labelImage = view.findViewById(R.id.labelImage);
-      labelEditText = view.findViewById(R.id.labelText);
-      deleteButton = view.findViewById(R.id.deleteButton);
+      labelImage = binding.labelImage;
+      labelEditText = binding.labelText;
+      deleteButton = binding.deleteButton;
     }
 
-    @Override
-    public void bindCursor(final Cursor cursor) {
-      label = new Label(cursor);
-      labelEditText.setText(label.getName());
+    /** Bind the File */
+    void bind(LabelViewModel vm) {
+      binding.setVm(vm);
+      //TODO binding.setHandlers(handlers);
+      binding.executePendingBindings();
     }
   }
 }
