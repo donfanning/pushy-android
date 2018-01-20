@@ -43,7 +43,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
-      android:visibility="@{isLoading ? View.GONE : View.VISIBLE}">
+      android:visibility="@{safeUnbox(isLoading) ? View.GONE : View.VISIBLE}">
 
       <include
         layout="@layout/backup_list"

@@ -24,7 +24,7 @@
     android:layout_marginTop="64dp"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:visibility="@{isLoading ? View.VISIBLE : View.GONE}"
+    android:visibility="@{safeUnbox(isLoading) ? View.VISIBLE : View.GONE}"
     tools:visibility="visible">
 
     <ProgressBar
