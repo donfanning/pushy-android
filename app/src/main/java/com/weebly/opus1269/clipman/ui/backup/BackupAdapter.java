@@ -29,6 +29,7 @@ import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
 import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
@@ -68,7 +69,7 @@ class BackupAdapter extends
   }
 
   @Override
-  public int getItemCount() {return (mFiles == null) ? 0 : mFiles.size();}
+  public int getItemCount() {return AppUtils.size(mFiles);}
 
   public void setList(@Nullable List<BackupFile> list) {
     // small list, just update it all

@@ -27,6 +27,7 @@ import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
@@ -73,9 +74,7 @@ class DevicesAdapter extends
   }
 
   @Override
-  public int getItemCount() {
-    return (mDeviceList == null) ? 0 : mDeviceList.size();
-  }
+  public int getItemCount() {return AppUtils.size(mDeviceList);}
 
   public void setList(@Nullable List<DeviceEntity> list) {
     // small list, just update it all
@@ -102,7 +101,8 @@ class DevicesAdapter extends
 
     /** Color the Vector Drawables based on theme */
     private void tintIcons() {
-      final List<ImageView> list = Collections.singletonList(binding.forgetButton);
+      final List<ImageView> list = Collections.singletonList(binding
+        .forgetButton);
       DrawableHelper.tintAccentColor(binding.forgetButton.getContext(), list);
     }
   }

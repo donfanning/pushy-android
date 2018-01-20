@@ -122,83 +122,6 @@ public class ClipItem implements Serializable {
     this.labelsId = new ArrayList<>(labelsId);
   }
 
-  @Override
-  public int hashCode() {
-    return text.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    ClipItem clipItem = (ClipItem) o;
-
-    return text.equals(clipItem.text);
-  }
-
-  public String getText() {return text;}
-
-  public void setText(@NonNull Context context, @NonNull String text) {
-    if (!text.equals(this.text)) {
-      final String oldText = this.text;
-      this.text = text;
-
-      if (!TextUtils.isEmpty(oldText)) {
-        // broadcast change to listeners
-        final Intent intent = new Intent(Intents.FILTER_CLIP_ITEM);
-        final Bundle bundle = new Bundle();
-        bundle.putString(Intents.ACTION_TYPE_CLIP_ITEM,
-          Intents.TYPE_TEXT_CHANGED_CLIP_ITEM);
-        bundle.putSerializable(Intents.EXTRA_CLIP_ITEM, this);
-        bundle.putString(Intents.EXTRA_TEXT, oldText);
-        intent.putExtra(Intents.BUNDLE_CLIP_ITEM, bundle);
-        LocalBroadcastManager
-          .getInstance(context)
-          .sendBroadcast(intent);
-      }
-    }
-  }
-
-  public long getDate() {return date;}
-
-  public void setDate(long date) {this.date = date;}
-
-  public long getTime() {return date;}
-
-  public boolean isFav() {return fav;}
-
-  public void setFav(Boolean fav) {this.fav = fav;}
-
-  public boolean isRemote() {return remote;}
-
-  public void setRemote(Boolean remote) {this.remote = remote;}
-
-  public String getDevice() {return device;}
-
-  public void setDevice(String device) {this.device = device;}
-
-  public List<Label> getLabels() {
-    return labels;
-  }
-
-  private void setLabels(List<Label> labels) {
-    this.labels = labels;
-  }
-
-  public List<Long> getLabelsId() {
-    return labelsId;
-  }
-
-  /**
-   * Do we have the given label
-   * @param label a label
-   * @return true if we have label
-   */
-  public boolean hasLabel(Label label) {
-    return this.labels.contains(label);
-  }
-
   /**
    * Get the text on the Clipboard as a ClipItem
    * @param clipboard The manager
@@ -206,7 +129,11 @@ public class ClipItem implements Serializable {
    */
   @Nullable
   public static ClipItem getFromClipboard(Context context,
-                                          ClipboardManager clipboard) {
+                                          @Nullable
+                                            ClipboardManager clipboard) {
+    if (clipboard == null) {
+      return null;
+    }
     final ClipData clipData = clipboard.getPrimaryClip();
     if (clipData == null) {
       return null;
@@ -386,6 +313,83 @@ public class ClipItem implements Serializable {
     return list;
   }
 
+  @Override
+  public int hashCode() {
+    return text.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ClipItem clipItem = (ClipItem) o;
+
+    return text.equals(clipItem.text);
+  }
+
+  public String getText() {return text;}
+
+  public void setText(@NonNull Context context, @NonNull String text) {
+    if (!text.equals(this.text)) {
+      final String oldText = this.text;
+      this.text = text;
+
+      if (!TextUtils.isEmpty(oldText)) {
+        // broadcast change to listeners
+        final Intent intent = new Intent(Intents.FILTER_CLIP_ITEM);
+        final Bundle bundle = new Bundle();
+        bundle.putString(Intents.ACTION_TYPE_CLIP_ITEM,
+          Intents.TYPE_TEXT_CHANGED_CLIP_ITEM);
+        bundle.putSerializable(Intents.EXTRA_CLIP_ITEM, this);
+        bundle.putString(Intents.EXTRA_TEXT, oldText);
+        intent.putExtra(Intents.BUNDLE_CLIP_ITEM, bundle);
+        LocalBroadcastManager
+          .getInstance(context)
+          .sendBroadcast(intent);
+      }
+    }
+  }
+
+  public long getDate() {return date;}
+
+  public void setDate(long date) {this.date = date;}
+
+  public long getTime() {return date;}
+
+  public boolean isFav() {return fav;}
+
+  public void setFav(Boolean fav) {this.fav = fav;}
+
+  public boolean isRemote() {return remote;}
+
+  public void setRemote(Boolean remote) {this.remote = remote;}
+
+  public String getDevice() {return device;}
+
+  public void setDevice(String device) {this.device = device;}
+
+  public List<Label> getLabels() {
+    return labels;
+  }
+
+  private void setLabels(List<Label> labels) {
+    this.labels = labels;
+  }
+
+  public List<Long> getLabelsId() {
+    return labelsId;
+  }
+
+  /**
+   * Do we have the given label
+   * @param label a label
+   * @return true if we have label
+   */
+  public boolean hasLabel(Label label) {
+    return this.labels.contains(label);
+  }
+
   /**
    * Update the label id with the id of the given label - don't save
    * @param theLabel label with new id
@@ -409,7 +413,7 @@ public class ClipItem implements Serializable {
    * @param labels label list to add from
    */
   public void addLabelsNoSave(@NonNull List<Label> labels) {
-    for (Label label: labels) {
+    for (Label label : labels) {
       if (!hasLabel(label)) {
         this.labels.add(label);
         this.labelsId.add(label.getId());
@@ -484,7 +488,7 @@ public class ClipItem implements Serializable {
       label = label + REMOTE_DESC_LABEL + "(" + device + ")\n";
     }
 
-    if (this.labels.size() > 0) {
+    if (!AppUtils.isEmpty(this.labels)) {
       // add our labels
       final Gson gson = new Gson();
       final String labelsString = gson.toJson(this.labels);
@@ -565,7 +569,7 @@ public class ClipItem implements Serializable {
     final List<Label> labels = LabelTables.INST(context).getLabels(this);
 
     this.labels = labels;
-    for (Label label: labels) {
+    for (Label label : labels) {
       this.labelsId.add(label.getId());
     }
   }

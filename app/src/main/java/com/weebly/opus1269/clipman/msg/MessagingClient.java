@@ -336,7 +336,7 @@ public class MessagingClient extends Endpoint {
         mRetryOnError = false;
 
         // update repo
-        DeviceRepo.INST(App.INST()).noDevices();
+        DeviceRepo.INST(App.INST()).noRegisteredDevices();
 
         int noDevicesCt = Prefs.INST(mAppContext).getNoDevicesCt();
         if (noDevicesCt >= MAX_NO_DEVICES_CT) {

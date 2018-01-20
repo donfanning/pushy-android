@@ -266,27 +266,23 @@ public class ClipTable {
   /**
    * Add a group of {@link ClipItem} objects to the databse
    * @param clipItems the items to add
-   * @return number of items added
    */
-  public int insert(@NonNull List<ClipItem> clipItems) {
-    if (clipItems.size() < 1) {
-      return 0;
+  public void insert(@NonNull List<ClipItem> clipItems) {
+    if (clipItems.isEmpty()) {
+      return;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
-    int ret;
 
     // add the clips
     final ContentValues[] clipCVs = new ContentValues[clipItems.size()];
-    for (int i = 0; i < clipItems.size(); i++) {
+    for (int i = 0, size = clipItems.size(); i < size; i++) {
       clipCVs[i] = clipItems.get(i).getContentValues();
     }
-    ret = resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
+    resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
 
     // add the LabelMap
     LabelTables.INST(mContext).insertLabelsMap(clipItems);
-
-    return ret;
   }
 
   /**

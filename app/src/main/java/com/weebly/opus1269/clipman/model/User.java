@@ -41,6 +41,7 @@ import com.google.api.services.people.v1.model.Person;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
@@ -437,7 +438,7 @@ public class User {
 
       if (userProfile != null) {
         List<CoverPhoto> covers = userProfile.getCoverPhotos();
-        if (covers != null && covers.size() > 0) {
+        if (!AppUtils.isEmpty(covers)) {
           CoverPhoto cover = covers.get(0);
           if (cover != null) {
             urlName = cover.getUrl();

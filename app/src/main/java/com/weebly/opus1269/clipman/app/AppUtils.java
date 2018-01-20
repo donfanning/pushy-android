@@ -26,6 +26,7 @@ import com.weebly.opus1269.clipman.R;
 
 import org.threeten.bp.Instant;
 
+import java.util.Collection;
 import java.util.Random;
 
 import static android.text.format.DateUtils.formatDateTime;
@@ -162,11 +163,7 @@ public class AppUtils {
         .show();
     } else {
       Handler handler = new Handler(ctxt.getMainLooper());
-      handler.post(new Runnable() {
-        public void run() {
-          Toast.makeText(ctxt, msg, Toast.LENGTH_LONG).show();
-        }
-      });
+      handler.post(() -> Toast.makeText(ctxt, msg, Toast.LENGTH_LONG).show());
     }
   }
 
@@ -230,6 +227,29 @@ public class AppUtils {
         DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL);
     }
     return ret;
+  }
+
+  /**
+   * Null-safe check if the specified collection is empty.
+   * <p>
+   * Null returns true.
+   * from: Commons Collections 3.2
+   * @param coll the collection to check, may be null
+   * @return true if empty or null
+   */
+  public static boolean isEmpty(Collection coll) {
+    return ((coll == null) || coll.isEmpty());
+  }
+
+  /**
+   * Null-safe size of Collection
+   * <p>
+   * Null returns 0.
+   * @param coll the collection to check, may be null
+   * @return size, 0 if null
+   */
+  public static int size(Collection coll) {
+    return (coll == null) ? 0 : coll.size();
   }
 
   /**

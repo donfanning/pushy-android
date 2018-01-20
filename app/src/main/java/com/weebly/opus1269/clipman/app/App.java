@@ -41,28 +41,22 @@ public class App extends Application implements
 
   /** Our instance */
   private static App sInstance;
-
-  /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
-
   /** Global {@link java.util.concurrent.Executor} objects */
   private static AppExecutors sAppExecutors;
-
   /** Main database */
   @SuppressLint("StaticFieldLeak")
   private static ClipsDatabaseHelper sClipsDB = null;
-
   private static boolean sIsMainActivityVisible = false;
   private static boolean sIsDevicesActivityVisible = false;
-
+  /** Class identifier */
+  private final String TAG = this.getClass().getSimpleName();
   /**
    * Maps between an activity class name and the list of currently running
    * AsyncTasks that were spawned while it was active.
    */
-  private final Map<String, List<CustomAsyncTask<?, ?, ?>>> mActivityTaskMap;
+  private Map<String, List<CustomAsyncTask<?, ?, ?>>> mActivityTaskMap;
 
   public App() {
-    mActivityTaskMap = new HashMap<>();
   }
 
   public static App INST() {
@@ -90,6 +84,8 @@ public class App extends Application implements
     super.onCreate();
 
     sInstance = this;
+
+    mActivityTaskMap = new HashMap<>();
 
     // initialize Date Time stuff
     AndroidThreeTen.init(this);
@@ -212,14 +208,14 @@ public class App extends Application implements
     for (Map.Entry<String, List<CustomAsyncTask<?, ?, ?>>>
       entry : mActivityTaskMap.entrySet()) {
       List<CustomAsyncTask<?, ?, ?>> tasks = entry.getValue();
-      for (int i = 0; i < tasks.size(); i++) {
+      for (int i = 0, size = AppUtils.size(tasks); i < size; i++) {
         if (tasks.get(i) == task) {
           tasks.remove(i);
           break;
         }
       }
 
-      if (tasks.size() == 0) {
+      if (AppUtils.isEmpty(tasks)) {
         mActivityTaskMap.remove(entry.getKey());
         return;
       }

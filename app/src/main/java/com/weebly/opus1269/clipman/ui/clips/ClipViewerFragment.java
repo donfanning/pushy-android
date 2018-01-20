@@ -337,7 +337,7 @@ public class ClipViewerFragment extends BaseFragment
     final View divider = findViewById(R.id.remoteDivider);
     assert divider != null;
 
-    if (mClipItem.isRemote() && !AppUtils.isDualPane(getContext())) {
+    if (mClipItem.isRemote() && !AppUtils.isDualPane(textView.getContext())) {
       textView.setVisibility(View.VISIBLE);
       divider.setVisibility(View.VISIBLE);
       textView
@@ -359,7 +359,7 @@ public class ClipViewerFragment extends BaseFragment
 
     final LinearLayout labelLayout = findViewById(R.id.labelLayout);
     assert labelLayout != null;
-    if (labels.size() > 0) {
+    if (!AppUtils.isEmpty(labels)) {
       labelLayout.setVisibility(View.VISIBLE);
     } else {
       labelLayout.setVisibility(View.GONE);
@@ -377,7 +377,7 @@ public class ClipViewerFragment extends BaseFragment
       new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
         LinearLayout.LayoutParams.WRAP_CONTENT);
     // llp.setMargins(left, top, right, bottom);
-    final int rightMargin = AppUtils.dp2px(getContext(), 8);
+    final int rightMargin = AppUtils.dp2px(labelLayout.getContext(), 8);
     llp.setMargins(0, 0, rightMargin, 0);
 
     for (Label label : labels) {
@@ -427,7 +427,8 @@ public class ClipViewerFragment extends BaseFragment
     try {
       Linkify.addLinks(textView, Linkify.ALL);
     } catch (Exception ex) {
-      Log.logEx(getContext(), TAG, ex.getLocalizedMessage(), ex, false);
+      Log.logEx(textView.getContext(), TAG, ex.getLocalizedMessage(), ex,
+        false);
     }
     textView.setMovementMethod(ArrowKeyMovementMethod.getInstance());
     textView.setTextIsSelectable(true);

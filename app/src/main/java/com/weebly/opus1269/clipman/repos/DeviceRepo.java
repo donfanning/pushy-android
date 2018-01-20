@@ -17,6 +17,7 @@ import android.support.v7.preference.PreferenceManager;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.DeviceDB;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -31,6 +32,9 @@ public class DeviceRepo implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   @SuppressLint("StaticFieldLeak")
   private static DeviceRepo sInstance;
+
+  /** Application */
+  private final String ERR_NO_REGISTERED_DEVICES;
 
   /** Application */
   private final Application mApp;
@@ -48,12 +52,18 @@ public class DeviceRepo implements
     mApp = app;
     mDB = DeviceDB.INST(app);
 
+    ERR_NO_REGISTERED_DEVICES = mApp.getString(R.string.err_no_remote_devices);
     infoMessage = new MutableLiveData<>();
     deviceList = new MediatorLiveData<>();
 
     deviceList.addSource(mDB.deviceDao().getAll(), devices -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         deviceList.postValue(devices);
+        if(!AppUtils.isEmpty(devices)) {
+          if (ERR_NO_REGISTERED_DEVICES.equals(getInfoMessage().getValue())) {
+            initInfoMessage();
+          }
+        }
       }
     });
 
@@ -119,21 +129,14 @@ public class DeviceRepo implements
   }
 
   /** Detected that the server has no other registered devices */
-  public void noDevices() {
-    final String msg = mApp.getString(R.string.err_no_remote_devices);
-    postInfoMessage(msg);
+  public void noRegisteredDevices() {
+    postInfoMessage(ERR_NO_REGISTERED_DEVICES);
     removeAll();
   }
 
   public void add(DeviceEntity device) {
-    App.getExecutors().diskIO().execute(() -> {
-      mDB.deviceDao().insertAll(device);
-      final String msg = mApp.getString(R.string.err_no_remote_devices);
-      if(msg.equals(getInfoMessage().getValue())) {
-        // clear no remote device message when we add new device
-        postInfoMessage("");
-      }
-    });
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.deviceDao().insertAll(device));
   }
 
   public void remove(DeviceEntity device) {

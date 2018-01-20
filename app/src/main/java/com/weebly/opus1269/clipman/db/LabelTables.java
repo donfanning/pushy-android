@@ -80,7 +80,7 @@ public class LabelTables {
    * Get the PK for the given {@link Label} name
    * @return PK for name, -1L if not found
    */
-  public long getLabelId(@NonNull String labelName) {
+  private long getLabelId(@NonNull String labelName) {
     long ret = -1L;
 
     final ContentResolver resolver = mContext.getContentResolver();
@@ -245,12 +245,11 @@ public class LabelTables {
   /**
    * Add the {@link Label} map for a group of {@link ClipItem} objects to the
    * database
-   * @param clipItems the items to add Labels for
-   * @return number of items added
+   * @param clipItems The clips to add labels for
    */
-  int insertLabelsMap(@NonNull List<ClipItem> clipItems) {
-    if (clipItems.size() < 1) {
-      return 0;
+  void insertLabelsMap(@NonNull List<ClipItem> clipItems) {
+    if (clipItems.isEmpty()) {
+      return;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
@@ -273,26 +272,25 @@ public class LabelTables {
       }
     }
 
-    return resolver.bulkInsert(ClipsContract.LabelMap.CONTENT_URI, mapCVs);
+    resolver.bulkInsert(ClipsContract.LabelMap.CONTENT_URI, mapCVs);
   }
 
   /**
    * Add a {@link ClipItem} and {@link Label} to the LabelMap table
    * @param clipItem the clip
    * @param label    the label
-   * @return if true, added
    */
-  public boolean insert(ClipItem clipItem, Label label) {
+  public void insert(ClipItem clipItem, Label label) {
     if (AppUtils.isWhitespace(clipItem.getText()) ||
       AppUtils.isWhitespace(label.getName())) {
-      return false;
+      return;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
 
     if (exists(resolver, clipItem, label)) {
       // already in db
-      return false;
+      return;
     }
 
     // insert Label
@@ -304,8 +302,6 @@ public class LabelTables {
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
 
     resolver.insert(ClipsContract.LabelMap.CONTENT_URI, cv);
-
-    return true;
   }
 
   /**
