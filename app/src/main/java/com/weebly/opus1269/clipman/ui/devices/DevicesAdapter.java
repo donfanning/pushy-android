@@ -18,22 +18,21 @@
 
 package com.weebly.opus1269.clipman.ui.devices;
 
-import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
+import java.util.Collections;
 import java.util.List;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
@@ -103,22 +102,8 @@ class DevicesAdapter extends
 
     /** Color the Vector Drawables based on theme */
     private void tintIcons() {
-      final ImageButton forgetButton = binding.forgetButton;
-      final Context context = forgetButton.getContext();
-      final int color;
-
-      if (Prefs.INST(context).isLightTheme()) {
-        color = R.color.deep_teal_500;
-      } else {
-        color = R.color.deep_teal_200;
-      }
-
-      DrawableHelper
-        .withContext(context)
-        .withColor(color)
-        .withDrawable(R.drawable.ic_clear)
-        .tint()
-        .applyTo(forgetButton);
+      final List<ImageView> list = Collections.singletonList(binding.forgetButton);
+      DrawableHelper.tintAccentColor(binding.forgetButton.getContext(), list);
     }
   }
 }

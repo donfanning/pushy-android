@@ -25,25 +25,25 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
 import com.weebly.opus1269.clipman.model.BackupFile;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;
 
+import java.util.Arrays;
 import java.util.List;
 
 /** Bridge between the BackupFile RecyclerView and the Backups class */
 class BackupAdapter extends
   RecyclerView.Adapter<BackupAdapter.BackupViewHolder> {
-  /** Our list */
-  private List<BackupFile> mFiles;
-
   /** Our event handlers */
   private final BackupHandlers mHandlers;
+  /** Our list */
+  private List<BackupFile> mFiles;
 
   BackupAdapter(BackupHandlers handlers) {
     super();
@@ -96,34 +96,11 @@ class BackupAdapter extends
     /** Color the Vector Drawables based on theme */
     private void tintIcons() {
       final Context context = this.itemView.getContext();
-      final int color;
 
-      if (Prefs.INST(context).isLightTheme()) {
-        color = R.color.deep_teal_500;
-      } else {
-        color = R.color.deep_teal_200;
-      }
-
-      DrawableHelper
-        .withContext(context)
-        .withColor(color)
-        .withDrawable(R.drawable.ic_cloud_download)
-        .tint()
-        .applyTo(binding.restoreButton);
-
-      DrawableHelper
-        .withContext(context)
-        .withColor(color)
-        .withDrawable(R.drawable.ic_cloud_sync)
-        .tint()
-        .applyTo(binding.syncButton);
-
-      DrawableHelper
-        .withContext(context)
-        .withColor(color)
-        .withDrawable(R.drawable.ic_delete_black_24dp)
-        .tint()
-        .applyTo(binding.deleteButton);
+      final List<ImageView> list = Arrays.asList(
+        binding.restoreButton, binding.syncButton, binding.deleteButton
+      );
+      DrawableHelper.tintAccentColor(context, list);
     }
   }
 }

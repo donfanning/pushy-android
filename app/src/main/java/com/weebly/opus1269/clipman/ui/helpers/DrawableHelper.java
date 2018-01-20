@@ -21,7 +21,11 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
+import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.model.Prefs;
+
+import java.util.List;
 
 /**
  * {@link Drawable} helper class.
@@ -37,14 +41,69 @@ public class DrawableHelper {
   private Drawable mDrawable;
   private Drawable mWrappedDrawable;
 
-  public DrawableHelper(@NonNull Context context) {
+  private DrawableHelper(@NonNull Context context) {
     mContext = context;
   }
 
-  public static void setImageViewEnabled(ImageView view, boolean enabled) {
+  /**
+   * Set the enabled state appearance of an ImageView
+   * @param view    The view
+   * @param enabled The state
+   */
+  public static void setImageViewEnabled(@NonNull ImageView view,
+                                         boolean enabled) {
     final int alpha = enabled ? 255 : 64;
     view.setEnabled(enabled);
     view.setImageAlpha(alpha);
+  }
+
+  /**
+   * Tint a List of ImageViews with the accent color
+   * @param context   A Context
+   * @param imageList The list
+   */
+  public static void tintAccentColor(@NonNull Context context,
+                                     @NonNull List<ImageView> imageList) {
+    final int color;
+    if (Prefs.INST(context).isLightTheme()) {
+      color = R.color.deep_teal_500;
+    } else {
+      color = R.color.deep_teal_200;
+    }
+    tintColor(color, imageList);
+  }
+
+  /**
+   * Tint a List of ImageViews with the primary color
+   * @param context   A Context
+   * @param imageList The list
+   */
+  public static void tintPrimaryColor(@NonNull Context context,
+                                      @NonNull List<ImageView> imageList) {
+    final int color;
+    if (Prefs.INST(context).isLightTheme()) {
+      color = android.R.color.primary_text_light;
+    } else {
+      color = android.R.color.primary_text_dark;
+    }
+    tintColor(color, imageList);
+  }
+
+  /**
+   * Tint a List of ImageViews with a color
+   * @param color     A color resource id
+   * @param imageList The list
+   */
+  private static void tintColor(int color, @NonNull List<ImageView> imageList) {
+    for (final ImageView image : imageList) {
+      if ((image != null) && (image.getDrawable() != null))
+        DrawableHelper
+          .withContext(image.getContext())
+          .withColor(color)
+          .withDrawable(image.getDrawable())
+          .tint()
+          .applyTo(image);
+    }
   }
 
   public static DrawableHelper withContext(@NonNull Context context) {
@@ -68,11 +127,13 @@ public class DrawableHelper {
 
   public DrawableHelper tint() {
     if (mDrawable == null) {
-      throw new NullPointerException("É preciso informar o recurso drawable pelo método withDrawable()");
+      throw new NullPointerException("É preciso informar o recurso drawable " +
+        "pelo método withDrawable()");
     }
 
     if (mColor == 0) {
-      throw new IllegalStateException("É necessário informar a cor a ser definida pelo método withColor()");
+      throw new IllegalStateException("É necessário informar a cor a ser " +
+        "definida pelo método withColor()");
     }
 
     mWrappedDrawable = mDrawable.mutate();
@@ -125,7 +186,8 @@ public class DrawableHelper {
       throw new NullPointerException("É preciso chamar o método tint()");
     }
 
-    checkBox.setCompoundDrawablesWithIntrinsicBounds(mWrappedDrawable, null, null, null);
+    checkBox.setCompoundDrawablesWithIntrinsicBounds(mWrappedDrawable, null,
+      null, null);
   }
 
   public Drawable get() {

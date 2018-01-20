@@ -35,21 +35,25 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-/**
- * Bridge between the RecyclerView and the DB
- */
+import java.util.Collections;
+import java.util.List;
+
+/** Bridge between the RecyclerView and the DB */
 class LabelsSelectAdapter extends
   RecyclerViewCursorAdapter<LabelsSelectAdapter.LabelViewHolder> {
-
+  /** Our activity */
   private final LabelsSelectActivity mActivity;
+
+  /** Activity TAG */
+  private final String TAG;
 
   LabelsSelectAdapter(LabelsSelectActivity activity) {
     super(activity);
 
     mActivity = activity;
+    TAG = activity.getTAG();
 
     // needed to allow animations to run
     setHasStableIds(true);
@@ -63,8 +67,8 @@ class LabelsSelectAdapter extends
     final LayoutInflater inflater = LayoutInflater.from(context);
 
     // Inflate the custom layout
-    final View view = inflater.inflate(R.layout.label_select_row, parent,
-      false);
+    final View view =
+      inflater.inflate(R.layout.label_select_row, parent, false);
 
     // Return a new holder instance
     return new LabelViewHolder(view);
@@ -91,31 +95,20 @@ class LabelsSelectAdapter extends
     final boolean checked = mActivity.getClipItem().hasLabel(label);
     holder.checkBox.setChecked(checked);
 
-    final TextView textView = holder.labelText;
-    textView.setText(label.getName());
+    holder.labelText.setText(label.getName());
 
-    holder.labelRow.setOnClickListener(
-      new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          Analytics.INST(v.getContext())
-            .click(mActivity.getTAG(), "selectLabel");
-          holder.checkBox.toggle();
-          final boolean checked = holder.checkBox.isChecked();
-          addOrRemoveLabel(checked, label);
-        }
+    holder.labelRow.setOnClickListener(v -> {
+        Analytics.INST(v.getContext()).click(TAG, "selectLabel");
+        holder.checkBox.toggle();
+        addOrRemoveLabel(holder.checkBox.isChecked(), label);
       }
     );
 
-    holder.checkBox.setOnClickListener(
-      new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          final boolean checked = holder.checkBox.isChecked();
-          addOrRemoveLabel(checked, label);
-          Analytics.INST(v.getContext())
-            .checkBoxClick(mActivity.getTAG(), "selectLabel: " + checked);
-        }
+    holder.checkBox.setOnClickListener(v -> {
+        final boolean checked1 = holder.checkBox.isChecked();
+        addOrRemoveLabel(checked1, label);
+        Analytics.INST(v.getContext())
+          .checkBoxClick(TAG, "selectLabel: " + checked1);
       }
     );
 
@@ -146,20 +139,8 @@ class LabelsSelectAdapter extends
    * @param holder LabelViewHolder
    */
   private void tintIcons(LabelViewHolder holder) {
-    final Context context = holder.labelImage.getContext();
-    int color;
-
-    if (Prefs.INST(mContext).isLightTheme()) {
-      color = R.color.deep_teal_500;
-    } else {
-      color = R.color.deep_teal_200;
-    }
-    DrawableHelper
-      .withContext(context)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_label)
-      .tint()
-      .applyTo(holder.labelImage);
+    final List<ImageView> list = Collections.singletonList(holder.labelImage);
+    DrawableHelper.tintAccentColor(holder.labelImage.getContext(), list);
   }
 
   static class LabelViewHolder extends RecyclerViewCursorViewHolder {

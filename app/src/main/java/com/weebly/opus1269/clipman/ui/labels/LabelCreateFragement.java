@@ -28,9 +28,11 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
+
+import java.util.Arrays;
+import java.util.List;
 
 /** Fragment to Create a new {@link Label} */
 public class LabelCreateFragement extends BaseFragment implements
@@ -105,7 +107,9 @@ public class LabelCreateFragement extends BaseFragment implements
     final ImageButton doneButton = findViewById(R.id.addDoneButton);
     final String text = editable.toString();
     final boolean enabled = (TextUtils.getTrimmedLength(text) > 0);
-    DrawableHelper.setImageViewEnabled(doneButton, enabled);
+    if (doneButton != null) {
+      DrawableHelper.setImageViewEnabled(doneButton, enabled);
+    }
   }
 
   /**
@@ -114,7 +118,6 @@ public class LabelCreateFragement extends BaseFragment implements
    */
   private void setup(View rootView) {
     final Context context = rootView.getContext();
-    int color;
 
     final ImageView addImage = rootView.findViewById(R.id.addImage);
     final EditText addText = rootView.findViewById(R.id.addText);
@@ -129,30 +132,8 @@ public class LabelCreateFragement extends BaseFragment implements
 
     DrawableHelper.setImageViewEnabled(addDoneButton, false);
 
-    // tint icons
-    if (Prefs.INST(context).isLightTheme()) {
-      color = R.color.deep_teal_500;
-    } else {
-      color = R.color.deep_teal_200;
-    }
-    DrawableHelper
-      .withContext(context)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_add)
-      .tint()
-      .applyTo(addImage);
-
-    if (Prefs.INST(context).isLightTheme()) {
-      color = android.R.color.primary_text_light;
-    } else {
-      color = android.R.color.primary_text_dark;
-    }
-    DrawableHelper
-      .withContext(context)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_done)
-      .tint()
-      .applyTo(addDoneButton);
+    final List<ImageView> list = Arrays.asList(addImage, addDoneButton);
+    DrawableHelper.tintAccentColor(context, list);
   }
 
   /** Create a new {@link Label} */

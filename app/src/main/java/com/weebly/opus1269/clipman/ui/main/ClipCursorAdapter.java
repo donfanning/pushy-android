@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,6 +25,9 @@ import com.weebly.opus1269.clipman.db.ClipsContract;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
+
+import java.util.Arrays;
+import java.util.List;
 
 /** Bridge between the main RecyclerView and the Clips.db database */
 class ClipCursorAdapter extends
@@ -164,6 +168,11 @@ class ClipCursorAdapter extends
    * @param holder ClipViewHolder
    */
   private void tintIcons(ClipViewHolder holder) {
+    final List<ImageView> list = Arrays.asList(
+      holder.copyButton, holder.labelButton
+    );
+    DrawableHelper.tintPrimaryColor(mContext, list);
+
     final int color;
     final int drawableFav;
     final int colorFav;
@@ -181,20 +190,6 @@ class ClipCursorAdapter extends
       drawableFav = R.drawable.ic_favorite_border_black_24dp;
       colorFav = color;
     }
-
-    DrawableHelper
-      .withContext(mActivity)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_content_copy_black_24dp)
-      .tint()
-      .applyTo(holder.copyButton);
-
-    DrawableHelper
-      .withContext(mActivity)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_label_outline)
-      .tint()
-      .applyTo(holder.labelButton);
 
     DrawableHelper
       .withContext(mActivity)

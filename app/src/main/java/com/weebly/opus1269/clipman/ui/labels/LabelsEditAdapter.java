@@ -19,7 +19,6 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -39,20 +38,20 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
+import java.util.Arrays;
+import java.util.List;
+
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
-  RecyclerViewCursorAdapter<LabelsEditAdapter.LabelViewHolder> implements
-  DialogInterface.OnClickListener {
-
+  RecyclerViewCursorAdapter<LabelsEditAdapter.LabelViewHolder> {
   /** Our activity */
   private final BaseActivity mActivity;
 
-  /** Our delete dialog */
-  private AlertDialog mDialog;
+  /** Activity TAG */
+  private final String TAG;
 
   /** Label that may be deleted */
   @Nullable
@@ -62,6 +61,7 @@ class LabelsEditAdapter extends
     super(activity);
 
     mActivity = activity;
+    TAG = mActivity.getTAG();
 
     // needed to allow animations to run
     setHasStableIds(true);
@@ -125,36 +125,28 @@ class LabelsEditAdapter extends
       }
     });
 
-    labelEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-      @Override
-      public void onFocusChange(View view, boolean hasFocus) {
-        if (!hasFocus) {
-          String text = labelEditText.getText().toString();
-          text = text.trim();
-          if (text.length() > 0) {
-            if (!text.equals(holder.label.getName())) {
-              holder.label.setName(mContext, text);
-            }
-            labelEditText.setText(holder.label.getName());
-            DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
-          } else {
-            // reset to orginal value
-            labelEditText.setText(holder.label.getName());
-            DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
+    labelEditText.setOnFocusChangeListener((view, hasFocus) -> {
+      if (!hasFocus) {
+        String text = labelEditText.getText().toString();
+        text = text.trim();
+        if (text.length() > 0) {
+          if (!text.equals(holder.label.getName())) {
+            holder.label.setName(mContext, text);
           }
+          labelEditText.setText(holder.label.getName());
+          DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
+        } else {
+          // reset to orginal value
+          labelEditText.setText(holder.label.getName());
+          DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
         }
       }
     });
 
-    holder.deleteButton.setOnClickListener(
-      new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          Analytics.INST(v.getContext())
-            .imageClick(mActivity.getTAG(), "deleteLabel");
-          mDeleteLabel = holder.label;
-          showDeleteDialog();
-        }
+    holder.deleteButton.setOnClickListener(v -> {
+        Analytics.INST(v.getContext()).imageClick(TAG, "deleteLabel");
+        mDeleteLabel = holder.label;
+        showDeleteDialog();
       }
     );
   }
@@ -165,62 +157,33 @@ class LabelsEditAdapter extends
     return mCursorAdapter.getItemId(position);
   }
 
-  @Override
-  public void onClick(DialogInterface dialogInterface, int which) {
-    if ((which == DialogInterface.BUTTON_POSITIVE) && (mDeleteLabel != null)) {
-      // delete it
-      mDeleteLabel.delete(mContext);
-      mDeleteLabel = null;
-      Analytics.INST(mContext)
-        .buttonClick(mActivity.getTAG(), "deleteLabel");
-    }
-  }
-
   /**
    * Color the Vector Drawables based on theme
    * @param holder LabelViewHolder
    */
   private void tintIcons(LabelViewHolder holder) {
-    final Context context = holder.labelImage.getContext();
-    int color;
-
-    if (Prefs.INST(mContext).isLightTheme()) {
-      color = R.color.deep_teal_500;
-    } else {
-      color = R.color.deep_teal_200;
-    }
-    DrawableHelper
-      .withContext(context)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_label)
-      .tint()
-      .applyTo(holder.labelImage);
-
-    if (Prefs.INST(mContext).isLightTheme()) {
-      color = android.R.color.primary_text_light;
-    } else {
-      color = android.R.color.primary_text_dark;
-    }
-    DrawableHelper
-      .withContext(context)
-      .withColor(color)
-      .withDrawable(R.drawable.ic_clear)
-      .tint()
-      .applyTo(holder.deleteButton);
+    final List<ImageView> list = Arrays.asList(
+      holder.labelImage, holder.deleteButton
+    );
+    DrawableHelper.tintAccentColor(holder.labelImage.getContext(), list);
   }
 
   /** Display {@link AlertDialog} on {@link Label} delete */
   private void showDeleteDialog() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-
-    builder
+    final AlertDialog dialog = new AlertDialog.Builder(mActivity)
       .setMessage(R.string.label_delete_dialog_message)
       .setTitle(R.string.label_delete_dialog_title)
-      .setPositiveButton(R.string.button_delete, this)
-      .setNegativeButton(R.string.button_cancel, this);
+      .setPositiveButton(R.string.button_delete, (dialogInterface, i) -> {
+        if ((mDeleteLabel != null)) {
+          mDeleteLabel.delete(mContext);
+          mDeleteLabel = null;
+          Analytics.INST(mContext).buttonClick(TAG, "deleteLabel");
+        }
+      })
+      .setNegativeButton(R.string.button_cancel, null)
+      .create();
 
-    mDialog = builder.create();
-    mDialog.show();
+    dialog.show();
   }
 
   static class LabelViewHolder extends RecyclerViewCursorViewHolder {
