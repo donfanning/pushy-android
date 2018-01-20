@@ -25,7 +25,7 @@ public class DevicesActivity extends BaseActivity {
   protected void onCreate(Bundle savedInstanceState) {
 
     mLayoutID = R.layout.activity_devices;
-    mIsbound = true;
+    mIsBound = true;
 
     super.onCreate(savedInstanceState);
 

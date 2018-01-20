@@ -43,8 +43,9 @@ class BackupAdapter extends
   RecyclerView.Adapter<BackupAdapter.BackupViewHolder> {
   /** Our event handlers */
   private final BackupHandlers mHandlers;
+
   /** Our list */
-  private List<BackupFile> mFiles;
+  private List<BackupFile> mList;
 
   BackupAdapter(BackupHandlers handlers) {
     super();
@@ -64,16 +65,16 @@ class BackupAdapter extends
   @Override
   public void onBindViewHolder(BackupViewHolder holder, int position) {
     final BackupViewModel vm =
-      new BackupViewModel(App.INST(), mFiles.get(position));
+      new BackupViewModel(App.INST(), mList.get(position));
     holder.bind(vm, mHandlers);
   }
 
   @Override
-  public int getItemCount() {return AppUtils.size(mFiles);}
+  public int getItemCount() {return AppUtils.size(mList);}
 
   public void setList(@Nullable List<BackupFile> list) {
     // small list, just update it all
-    mFiles = list;
+    mList = list;
     notifyDataSetChanged();
   }
 

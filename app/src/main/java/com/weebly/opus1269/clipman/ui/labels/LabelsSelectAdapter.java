@@ -20,6 +20,10 @@ package com.weebly.opus1269.clipman.ui.labels;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,63 +32,56 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.androidessence.recyclerviewcursoradapter.RecyclerViewCursorAdapter;
-import com.androidessence.recyclerviewcursoradapter
-  .RecyclerViewCursorViewHolder;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.databinding.LabelSelectRowBinding;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelNew;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
+import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
 import java.util.Collections;
 import java.util.List;
 
-/** Bridge between the RecyclerView and the DB */
+/** Bridge between the RecyclerView and the database */
 class LabelsSelectAdapter extends
-  RecyclerViewCursorAdapter<LabelsSelectAdapter.LabelViewHolder> {
+  RecyclerView.Adapter<LabelsSelectAdapter.LabelViewHolder> {
   /** Our activity */
   private final LabelsSelectActivity mActivity;
 
   /** Activity TAG */
   private final String TAG;
 
+  /** Our list */
+  private List<LabelEntity> mList;
+
+
   LabelsSelectAdapter(LabelsSelectActivity activity) {
-    super(activity);
+    super();
 
     mActivity = activity;
     TAG = activity.getTAG();
-
-    // needed to allow animations to run
-    setHasStableIds(true);
-
-    setupCursorAdapter(null, 0, R.layout.label_select_row, false);
   }
 
   @Override
   public LabelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    final Context context = parent.getContext();
-    final LayoutInflater inflater = LayoutInflater.from(context);
+    LabelSelectRowBinding binding = DataBindingUtil
+      .inflate(LayoutInflater.from(parent.getContext()), R.layout.label_select_row,
+        parent, false);
 
-    // Inflate the custom layout
-    final View view =
-      inflater.inflate(R.layout.label_select_row, parent, false);
-
-    // Return a new holder instance
-    return new LabelViewHolder(view);
+    return new LabelViewHolder(binding);
   }
 
   @Override
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
-    // Move cursor to this position
-    mCursorAdapter.getCursor().moveToPosition(position);
-
-    // Set the ViewHolder
-    setViewHolder(holder);
-
-    // Bind this view
-    mCursorAdapter.bindView(null, mContext, mCursorAdapter.getCursor());
-
+    final LabelViewModel vm =
+      new LabelViewModel(App.INST(), mList.get(position));
+    //TODO holder.bind(vm, mHandlers);
+    holder.bind(vm);
     // color the icons
     tintIcons(holder);
 
@@ -100,13 +97,13 @@ class LabelsSelectAdapter extends
     holder.labelRow.setOnClickListener(v -> {
         Analytics.INST(v.getContext()).click(TAG, "selectLabel");
         holder.checkBox.toggle();
-        addOrRemoveLabel(holder.checkBox.isChecked(), label);
+        //TODO addOrRemoveLabel(holder.checkBox.isChecked(), label);
       }
     );
 
     holder.checkBox.setOnClickListener(v -> {
         final boolean checked1 = holder.checkBox.isChecked();
-        addOrRemoveLabel(checked1, label);
+        //TODO addOrRemoveLabel(checked1, label);
         Analytics.INST(v.getContext())
           .checkBoxClick(TAG, "selectLabel: " + checked1);
       }
@@ -114,24 +111,27 @@ class LabelsSelectAdapter extends
 
   }
 
-  /** needed to allow animations to run */
   @Override
-  public long getItemId(int position) {
-    return mCursorAdapter.getItemId(position);
-  }
+  public int getItemCount() {return AppUtils.size(mList);}
 
-  /**
-   * Add or remove a {@link Label} to our {@link ClipItem}
-   * @param checked if true, add
-   * @param label   label to add or remove
-   */
-  private void addOrRemoveLabel(boolean checked, Label label) {
-    final ClipItem clipItem = mActivity.getClipItem();
-    if (checked) {
-      clipItem.addLabel(mContext, label);
-    } else {
-      clipItem.removeLabel(mContext, label);
-    }
+  ///**
+  // * Add or remove a {@link Label} to our {@link ClipItem}
+  // * @param checked if true, add
+  // * @param label   label to add or remove
+  // */
+  //private void addOrRemoveLabel(boolean checked, Label label) {
+  //  final ClipItem clipItem = mActivity.getClipItem();
+  //  if (checked) {
+  //    clipItem.addLabel(mContext, label);
+  //  } else {
+  //    clipItem.removeLabel(mContext, label);
+  //  }
+  //}
+
+  public void setList(@Nullable List<LabelEntity> list) {
+    // small list, just update it all
+    mList = list;
+    notifyDataSetChanged();
   }
 
   /**
@@ -143,26 +143,28 @@ class LabelsSelectAdapter extends
     DrawableHelper.tintAccentColor(holder.labelImage.getContext(), list);
   }
 
-  static class LabelViewHolder extends RecyclerViewCursorViewHolder {
+  static class LabelViewHolder extends RecyclerView.ViewHolder {
+    private final LabelSelectRowBinding binding;
     final RelativeLayout labelRow;
     final ImageView labelImage;
     final TextView labelText;
     final CheckBox checkBox;
     Label label;
 
-    LabelViewHolder(View view) {
-      super(view);
-
-      labelRow = view.findViewById(R.id.labelRow);
-      labelImage = view.findViewById(R.id.labelImage);
-      labelText = view.findViewById(R.id.labelText);
-      checkBox = view.findViewById(R.id.checkBox);
+    LabelViewHolder(@NonNull LabelSelectRowBinding binding) {
+      super(binding.getRoot());
+      this.binding = binding;
+      labelRow = binding.labelRow;
+      labelImage = binding.labelImage;
+      labelText = binding.labelText;
+      checkBox = binding.checkBox;
     }
 
-    @Override
-    public void bindCursor(final Cursor cursor) {
-      label = new Label(cursor);
-      labelText.setText(label.getName());
+    /** Bind the File */
+    void bind(LabelViewModel vm) {
+      binding.setVm(vm);
+      //TODO binding.setHandlers(handlers);
+      binding.executePendingBindings();
     }
   }
 }

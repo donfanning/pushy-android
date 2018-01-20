@@ -56,7 +56,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
   protected int mLayoutID = -1;
 
   /** True is using data binding */
-  protected boolean mIsbound = false;
+  protected boolean mIsBound = false;
 
   /** Our data bining */
   protected ViewDataBinding mBinding = null;
@@ -89,7 +89,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
     }
 
     if ((mLayoutID != -1)) {
-      if (mIsbound) {
+      if (mIsBound) {
         mBinding = DataBindingUtil.setContentView(this, mLayoutID);
       } else {
         setContentView(mLayoutID);

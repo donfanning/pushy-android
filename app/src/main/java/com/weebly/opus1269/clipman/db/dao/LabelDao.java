@@ -15,21 +15,22 @@ import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 
 import java.util.List;
 
-/** DB access for Devices */
+/** Database access for Labels */
 @Dao
-public interface DeviceDao {
-  @Query("SELECT * FROM devices ORDER BY last_seen DESC")
-  LiveData<List<DeviceEntity>> getAll();
+public interface LabelDao {
+  @Query("SELECT * FROM labels ORDER BY LOWER(name) ASC")
+  LiveData<List<LabelEntity>> getAll();
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(DeviceEntity... deviceEntities);
+  void insertAll(LabelEntity... labelEntities);
 
-  @Query("DELETE FROM devices")
+  @Query("DELETE FROM labels")
   void deleteAll();
 
   @Delete
-  void delete(DeviceEntity deviceEntity);
+  void delete(LabelEntity labelEntity);
 }
