@@ -34,9 +34,6 @@ public class LabelEntity implements LabelNew, Serializable {
 
   private String name;
 
-  public LabelEntity() {
-  }
-
   public LabelEntity(String name) {
     this.name = name;
   }
