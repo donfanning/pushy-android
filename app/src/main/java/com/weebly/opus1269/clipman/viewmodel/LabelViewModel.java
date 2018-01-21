@@ -12,11 +12,15 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** ViewModel for a {@link LabelEntity} */
 public class LabelViewModel extends AndroidViewModel {
+  /** Class identifier */
+  private final String TAG = this.getClass().getSimpleName();
+
   /** Our Repo */
   private final MainRepo mRepo;
 
@@ -37,6 +41,7 @@ public class LabelViewModel extends AndroidViewModel {
     originalName.setValue(label.getValue().getName());
 
     label.observeForever((labelEntity) -> {
+      Log.logD(TAG, "label changed: " + labelEntity.getName());
       setOriginalName(labelEntity.getName());
     });
   }

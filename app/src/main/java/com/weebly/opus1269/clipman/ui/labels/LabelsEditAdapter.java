@@ -27,7 +27,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
@@ -36,6 +35,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.model.LabelNew;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
@@ -71,52 +71,53 @@ class LabelsEditAdapter extends
 
   @Override
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
-    final LabelViewModel vm =
-      new LabelViewModel(App.INST(), mList.get(position));
-    holder.bind(vm, mHandlers);
+    final LabelEntity label = mList.get(position);
+    final String originalName = label.getName();
+    final LabelViewModel viewModel =
+      new LabelViewModel(App.INST(), label);
+    holder.bind(viewModel, mHandlers);
 
-    final EditText labelEditText = holder.labelEditText;
-    //labelEditText.setText(vm.label.getName());
-    labelEditText.addTextChangedListener(new TextWatcher() {
+    final boolean enabled = originalName.equals(label.getName());
+    DrawableHelper.setImageViewEnabled(holder.binding.deleteButton, enabled);
+
+    final EditText labelText = holder.binding.labelText;
+    labelText.addTextChangedListener(new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence text, int start, int count, int after) {
+      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
         // noop
       }
 
       @Override
       public void onTextChanged(CharSequence text, int i, int i1, int i2) {
-        final boolean enabled = text.toString().equals(vm.getOriginalName().getValue());
-        DrawableHelper.setImageViewEnabled(holder.deleteButton, enabled);
+        final boolean enabled = text.toString().equals(originalName);
+        DrawableHelper.setImageViewEnabled(holder.binding.deleteButton, enabled);
       }
 
       @Override
       public void afterTextChanged(Editable editable) {
-        //final String text = editable.toString();
-        //if (AppUtils.isWhitespace(text)) {
-        //  // reset to current value
-        //  holder.labelEditText.setText(vm.label.getName());
-        //  DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
-        //} else if (!text.equals(vm.label.getName())) {
-        //  // text changed
-        //  DrawableHelper.setImageViewEnabled(holder.deleteButton, false);
-        //} else {
-        //  // original text
-        //  DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
-        //}
+        // noop
       }
     });
 
-    labelEditText.setOnFocusChangeListener((view, hasFocus) -> {
+    labelText.setOnFocusChangeListener((view, hasFocus) -> {
       if (!hasFocus) {
-        String text = labelEditText.getText().toString();
+        String text = labelText.getText().toString();
         text = text.trim();
         if (text.length() > 0) {
-          if (!text.equals(vm.getOriginalName().getValue())) {
-            vm.setName(text);
+          if (!text.equals(originalName)) {
+            // update label
+            Log.logD(TAG, "name: " + viewModel.getLabel().getValue().getName());
+            viewModel.setName(text);
+          } else {
+            // reset to orginal value
+            Log.logD(TAG, "name: " + label.getName());
+            labelText.setText(originalName);
+            //viewModel.setName(originalName);
           }
         } else {
           // reset to orginal value
-          vm.setName(vm.getOriginalName().getValue());
+          labelText.setText(originalName);
+          //viewModel.setName(originalName);
         }
       }
     });
@@ -134,24 +135,16 @@ class LabelsEditAdapter extends
 
   static class LabelViewHolder extends RecyclerView.ViewHolder {
     private final LabelEditRowBinding binding;
-    final ImageView labelImage;
-    final EditText labelEditText;
-    final ImageButton deleteButton;
 
     LabelViewHolder(@NonNull LabelEditRowBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
-
-      labelImage = binding.labelImage;
-      labelEditText = binding.labelText;
-      deleteButton = binding.deleteButton;
-
       tintIcons();
     }
 
     /** Bind the Label */
-    void bind(LabelViewModel vm, LabelHandlers handlers) {
-      binding.setVm(vm);
+    void bind(LabelViewModel viewModel, LabelHandlers handlers) {
+      binding.setVm(viewModel);
       binding.setHandlers(handlers);
       binding.executePendingBindings();
     }
