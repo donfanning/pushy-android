@@ -112,14 +112,16 @@ class LabelsEditAdapter extends
           if (!text.equals(originalName)) {
             // update label
             //Log.logD(TAG, "name: " + viewModel.name.getValue());
-            Log.logD(TAG, "name: " + viewModel.name.getValue());
+            //Log.logD(TAG, "name: " + viewModel.getLabel().getValue().getName());
             viewModel.setName(text);
+            //viewModel.getLabel().getValue().setName(text);
           } else {
             // reset to orginal value
             //labelText.setText(originalName);
-            Log.logD(TAG, "name: " + viewModel.name.getValue());
-            viewModel.name.setValue(originalName);
-            Log.logD(TAG, "name: " + viewModel.name.getValue());
+            //Log.logD(TAG, "name: " + viewModel.getLabel().getValue().getName());
+            viewModel.getName().setValue(originalName);
+            //viewModel.name.setValue(originalName);
+            //Log.logD(TAG, "name: " + viewModel.getLabel().getValue().getName());
             //viewModel.setName(originalName);
           }
         } else {
@@ -154,7 +156,6 @@ class LabelsEditAdapter extends
     void bind(BaseActivity activity, LabelViewModel viewModel, LabelHandlers handlers) {
       binding.setLifecycleOwner(activity);
       binding.setVm(viewModel);
-      binding.setName(viewModel.name);
       binding.setHandlers(handlers);
       binding.executePendingBindings();
     }
