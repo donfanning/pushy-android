@@ -28,7 +28,8 @@
     android:layout_height="match_parent"
     android:scrollbars="vertical"
     app:visibleGone="@{TextUtils.isEmpty(infoMessage)}"
-    app:layoutManager="LinearLayoutManager"
-    tools:listitem="@layout/backup_row" />
+    tools:listitem="@layout/backup_row"
+
+    />
 
 </layout>
