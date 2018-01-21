@@ -13,21 +13,9 @@
 
   <data>
 
-    <import type="android.view.View" />
-
-    <import type="com.weebly.opus1269.clipman.app.AppUtils" />
-
     <variable
       name="vm"
       type="com.weebly.opus1269.clipman.viewmodel.LabelViewModel" />
-
-    <variable
-      name="label"
-      type="android.arch.lifecycle.MutableLiveData&lt;com.weebly.opus1269.clipman.db.entity.LabelEntity&gt;" />
-
-    <variable
-      name="originalName"
-      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
 
     <variable
       name="handlers"
@@ -86,7 +74,8 @@
       android:background="@android:color/transparent"
       android:contentDescription="@string/label_delete"
       android:onClick="@{() -> handlers.onDeleteClick(context, vm.label)}"
-      app:srcCompat="@drawable/ic_clear" />
+      app:srcCompat="@drawable/ic_clear"
+      tools:tint="@android:color/black"/>
 
   </RelativeLayout>
 

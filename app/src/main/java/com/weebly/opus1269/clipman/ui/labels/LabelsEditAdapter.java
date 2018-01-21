@@ -152,8 +152,6 @@ class LabelsEditAdapter extends
     /** Bind the Label */
     void bind(LabelViewModel vm, LabelHandlers handlers) {
       binding.setVm(vm);
-      binding.setLabel(vm.getLabel());
-      binding.setOriginalName(vm.getOriginalName());
       binding.setHandlers(handlers);
       binding.executePendingBindings();
     }
