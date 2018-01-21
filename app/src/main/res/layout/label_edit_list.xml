@@ -7,12 +7,14 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<android.support.v7.widget.RecyclerView android:id="@+id/labelList"
+<android.support.v7.widget.RecyclerView
+
   xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/labelList"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:scrollbars="vertical"
-  app:layoutManager="LinearLayoutManager"
-  tools:listitem="@layout/label_edit_row" />
+  tools:listitem="@layout/label_edit_row"
+
+  />

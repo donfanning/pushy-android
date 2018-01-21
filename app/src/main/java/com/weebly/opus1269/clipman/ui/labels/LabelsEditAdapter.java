@@ -82,27 +82,27 @@ class LabelsEditAdapter extends
     final LabelViewModel viewModel = new LabelViewModel(App.INST(), label);
     holder.bind(mActivity, viewModel, mHandlers);
 
-    final boolean enabled = originalName.equals(label.getName());
-    DrawableHelper.setImageViewEnabled(holder.binding.deleteButton, enabled);
-
+    //final boolean enabled = originalName.equals(label.getName());
+    //DrawableHelper.setImageViewEnabled(holder.binding.deleteButton, enabled);
+    //
     final EditText labelText = holder.binding.labelText;
-    labelText.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
-        // noop
-      }
-
-      @Override
-      public void onTextChanged(CharSequence text, int i, int i1, int i2) {
-        final boolean enabled = text.toString().equals(originalName);
-        DrawableHelper.setImageViewEnabled(holder.binding.deleteButton, enabled);
-      }
-
-      @Override
-      public void afterTextChanged(Editable editable) {
-        // noop
-      }
-    });
+    //labelText.addTextChangedListener(new TextWatcher() {
+    //  @Override
+    //  public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
+    //    // noop
+    //  }
+    //
+    //  @Override
+    //  public void onTextChanged(CharSequence text, int i, int i1, int i2) {
+    //    final boolean enabled = text.toString().equals(originalName);
+    //    DrawableHelper.setImageViewEnabled(holder.binding.deleteButton, enabled);
+    //  }
+    //
+    //  @Override
+    //  public void afterTextChanged(Editable editable) {
+    //    // noop
+    //  }
+    //});
 
     labelText.setOnFocusChangeListener((view, hasFocus) -> {
       if (!hasFocus) {
@@ -153,7 +153,8 @@ class LabelsEditAdapter extends
     }
 
     /** Bind the Label */
-    void bind(BaseActivity activity, LabelViewModel viewModel, LabelHandlers handlers) {
+    void bind(BaseActivity activity, LabelViewModel viewModel,
+              LabelHandlers handlers) {
       binding.setLifecycleOwner(activity);
       binding.setVm(viewModel);
       binding.setHandlers(handlers);

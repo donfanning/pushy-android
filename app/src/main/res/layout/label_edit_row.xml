@@ -74,6 +74,8 @@
       android:background="@android:color/transparent"
       android:contentDescription="@string/label_delete"
       android:onClick="@{() -> handlers.onDeleteClick(context, vm.label)}"
+      android:enabled="@{vm.name.equals(vm.originalName)}"
+      android:clickable="@{vm.name.equals(vm.originalName)}"
       app:srcCompat="@drawable/ic_clear"
       tools:tint="@android:color/black"/>
 
