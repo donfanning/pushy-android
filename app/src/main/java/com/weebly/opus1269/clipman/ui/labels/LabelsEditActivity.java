@@ -73,21 +73,4 @@ public class LabelsEditActivity extends BaseActivity {
     // Observe labels
     viewModel.getLabels().observe(this, labels -> mAdapter.setList(labels));
   }
-
-  ///** Connect the {@link LabelsEditAdapter} to the {@link RecyclerView} */
-  //private void setupRecyclerView() {
-  //  final RecyclerView recyclerView = findViewById(R.id.labelList);
-  //  if (recyclerView != null) {
-  //    mAdapter = new LabelsEditAdapter(this);
-  //    recyclerView.setAdapter(mAdapter);
-  //    recyclerView.setLayoutManager(new LinearLayoutManager(this));
-  //
-  //    final LabelLoaderManager loaderManager =
-  //      new LabelLoaderManager(getApplicationContext(), mAdapter);
-  //
-  //    // Prepare the loader. Either re-connect with an existing one,
-  //    // or start a new one.
-  //    getSupportLoaderManager().initLoader(0, null, loaderManager);
-  //  }
-  //}
 }

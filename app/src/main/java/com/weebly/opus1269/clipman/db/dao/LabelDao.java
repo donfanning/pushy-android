@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.db.dao;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -25,8 +26,14 @@ public interface LabelDao {
   @Query("SELECT * FROM labels ORDER BY LOWER(name) ASC")
   LiveData<List<LabelEntity>> getAll();
 
+  @Query("SELECT * FROM labels WHERE name = :name LIMIT 1")
+  LiveData<LabelEntity> getLabel(String name);
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(LabelEntity... labelEntities);
+
+  @Query("UPDATE labels SET name = :newName WHERE name = :oldName")
+  void updateName(String newName, String oldName);
 
   @Query("DELETE FROM labels")
   void deleteAll();

@@ -9,9 +9,14 @@ package com.weebly.opus1269.clipman.repos;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 
@@ -30,6 +35,9 @@ public class MainRepo {
   /** Application */
   private final Application mApp;
 
+  /** Database */
+  private final MainDB mDB;
+
   /** Error message */
   private final MutableLiveData<ErrorMsg> errorMsg;
 
@@ -37,10 +45,11 @@ public class MainRepo {
   private final MutableLiveData<Boolean> isLoading;
 
   /** Label list */
-  private final MutableLiveData<List<LabelEntity>> labels;
+  private final MediatorLiveData<List<LabelEntity>> labelsList;
 
   private MainRepo(final Application app) {
     mApp = app;
+    mDB = MainDB.INST(app);
 
     errorMsg = new MutableLiveData<>();
     errorMsg.setValue(null);
@@ -48,8 +57,13 @@ public class MainRepo {
     isLoading = new MutableLiveData<>();
     isLoading.setValue(false);
 
-    labels = new MutableLiveData<>();
-    labels.setValue(new ArrayList<>());
+    labelsList = new MediatorLiveData<>();
+    labelsList.setValue(new ArrayList<>());
+    labelsList.addSource(mDB.labelDao().getAll(), labels -> {
+      if (mDB.getDatabaseCreated().getValue() != null) {
+        labelsList.postValue(labels);
+      }
+    });
   }
 
   public static MainRepo INST(final Application app) {
@@ -72,7 +86,7 @@ public class MainRepo {
   }
 
   public MutableLiveData<List<LabelEntity>> getLabels() {
-    return labels;
+    return labelsList;
   }
 
   public void postErrorMsg(ErrorMsg value) {
@@ -85,11 +99,32 @@ public class MainRepo {
 
   private void postLabels(@NonNull List<LabelEntity> labels) {
     sortLabels(labels);
-    this.labels.postValue(labels);
+    this.labelsList.postValue(labels);
+  }
+
+  public LiveData<LabelEntity> getLabelAsync(String name) {
+    return MainDB.INST(mApp).labelDao().getLabel(name);
+    //App.getExecutors().diskIO()
+    //  .execute(() -> MainDB.INST(mApp).labelDao().getLabel(name));
+  }
+
+  public void addLabelAsync(@NonNull LabelEntity label) {
+    App.getExecutors().diskIO()
+      .execute(() -> MainDB.INST(mApp).labelDao().insertAll(label));
+  }
+
+  public void updateLabelAsync(@NonNull String newName, @NonNull String oldName) {
+    App.getExecutors().diskIO()
+      .execute(() -> MainDB.INST(mApp).labelDao().updateName(newName, oldName));
+  }
+
+  public void removeLabelAsync(@NonNull LabelEntity label) {
+    App.getExecutors().diskIO()
+      .execute(() -> MainDB.INST(mApp).labelDao().delete(label));
   }
 
   /**
-   * Sort list of labels in place - alphabetical
+   * Sort list of labelsList in place - alphabetical
    * @param labels List to sort
    */
   private void sortLabels(@NonNull List<LabelEntity> labels) {

@@ -44,6 +44,7 @@
       android:layout_alignParentStart="true"
       android:layout_centerVertical="true"
       android:background="@android:color/transparent"
+      android:contentDescription="@string/label"
       app:srcCompat="@drawable/ic_label" />
 
     <EditText
@@ -64,7 +65,8 @@
       android:maxLines="1"
       android:textAppearance="?attr/textAppearanceListItem"
       android:textIsSelectable="false"
-      tools:text="Label name" />
+      android:hint="@string/label_edit"
+      android:text="@{vm.label.name}" />
 
     <ImageButton
       android:id="@+id/deleteButton"
@@ -74,7 +76,7 @@
       android:layout_alignParentRight="true"
       android:layout_centerVertical="true"
       android:background="@android:color/transparent"
-      android:contentDescription="@string/device_forget"
+      android:contentDescription="@string/label_delete"
       app:srcCompat="@drawable/ic_clear" />
 
   </RelativeLayout>

@@ -23,8 +23,6 @@ public class DevicesViewModel extends AndroidViewModel {
   /** Device Repo */
   private final DeviceRepo mRepo;
 
-  // MediatorLiveData can observe other
-  // LiveData objects and react on their emissions.
   /** Device list */
   private final MediatorLiveData<List<DeviceEntity>> devices;
 

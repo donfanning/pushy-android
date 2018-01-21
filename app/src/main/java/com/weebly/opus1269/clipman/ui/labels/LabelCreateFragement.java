@@ -25,9 +25,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
@@ -145,7 +148,9 @@ public class LabelCreateFragement extends BaseFragment implements
     if (!AppUtils.isWhitespace(text)) {
       text = text.trim();
       // may already exist, but don't really care
-      new Label(text).save(getContext());
+      final LabelEntity label = new LabelEntity(text);
+      MainRepo.INST(App.INST()).addLabelAsync(label);
+      //new Label(text).save(getContext());
       editText.setText("");
     }
   }
