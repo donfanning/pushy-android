@@ -9,14 +9,10 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
-import com.google.common.base.Objects;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
-import com.weebly.opus1269.clipman.model.LabelNew;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** ViewModel for a {@link LabelEntity} */
