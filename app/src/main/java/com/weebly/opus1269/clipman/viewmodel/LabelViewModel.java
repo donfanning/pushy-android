@@ -25,26 +25,23 @@ public class LabelViewModel extends AndroidViewModel {
   private final MainRepo mRepo;
 
   /** Our Label */
-  private final MutableLiveData<LabelEntity> label;
+  private final MutableLiveData<LabelEntity> label = new MutableLiveData<>();
 
   /** Our Label name */
-  private MutableLiveData<String> name;
+  private final MutableLiveData<String> name = new MutableLiveData<>();
 
   /** Original name of our Label */
-  private final MutableLiveData<String> originalName;
+  private final MutableLiveData<String> originalName  = new MutableLiveData<>();
 
   public LabelViewModel(@NonNull Application app, LabelEntity theLabel) {
     super(app);
     mRepo = MainRepo.INST(app);
 
-    label = new MutableLiveData<>();
     label.setValue(theLabel);
 
-    name = new MutableLiveData<>();
-    name.setValue(label.getValue().getName());
+    name.setValue(theLabel.getName());
 
-    originalName = new MutableLiveData<>();
-    originalName.setValue(label.getValue().getName());
+    originalName.setValue(theLabel.getName());
 
     label.observeForever((labelEntity) -> {
       Log.logD(TAG, "label changed: " + labelEntity.getName());

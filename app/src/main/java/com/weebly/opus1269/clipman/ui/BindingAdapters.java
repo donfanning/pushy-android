@@ -10,6 +10,8 @@ package com.weebly.opus1269.clipman.ui;
 import android.databinding.BindingAdapter;
 import android.view.View;
 
+import com.weebly.opus1269.clipman.app.Log;
+
 /** Data binding utility methods */
 public class BindingAdapters {
   @BindingAdapter("visibleGone")
