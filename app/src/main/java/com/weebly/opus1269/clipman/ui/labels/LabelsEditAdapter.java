@@ -86,9 +86,6 @@ class LabelsEditAdapter extends
     //TODO holder.bind(vm, mHandlers);
     holder.bind(vm);
 
-    // color the icons
-    tintIcons(holder);
-
     final EditText labelEditText = holder.labelEditText;
     labelEditText.setText(vm.label.getName());
     labelEditText.addTextChangedListener(new TextWatcher() {
@@ -154,17 +151,6 @@ class LabelsEditAdapter extends
     notifyDataSetChanged();
   }
 
-  /**
-   * Color the Vector Drawables based on theme
-   * @param holder LabelViewHolder
-   */
-  private void tintIcons(LabelViewHolder holder) {
-    final List<ImageView> list = Arrays.asList(
-      holder.labelImage, holder.deleteButton
-    );
-    DrawableHelper.tintAccentColor(holder.labelImage.getContext(), list);
-  }
-
   /** Display {@link AlertDialog} on {@link Label} delete */
   private void showDeleteDialog() {
     final AlertDialog dialog = new AlertDialog.Builder(mActivity)
@@ -196,13 +182,23 @@ class LabelsEditAdapter extends
       labelImage = binding.labelImage;
       labelEditText = binding.labelText;
       deleteButton = binding.deleteButton;
+
+      tintIcons();
     }
 
-    /** Bind the File */
+    /** Bind the Label */
     void bind(LabelViewModel vm) {
       binding.setVm(vm);
       //TODO binding.setHandlers(handlers);
       binding.executePendingBindings();
+    }
+
+    /** Color the Vector Drawables based on theme */
+    private void tintIcons() {
+      final List<ImageView> list = Arrays.asList(
+        binding.labelImage, binding.deleteButton
+      );
+      DrawableHelper.tintAccentColor(binding.labelImage.getContext(), list);
     }
   }
 }
