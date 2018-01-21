@@ -18,6 +18,7 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,6 +37,7 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.LabelNew;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
@@ -48,15 +50,19 @@ class LabelsEditAdapter extends
   /** Class identifier */
   protected final String TAG = this.getClass().getSimpleName();
 
+  /** Our activity */
+  private final BaseActivity mActivity;
+
   /** Our event handlers */
   private final LabelHandlers mHandlers;
 
   /** Our list */
   private List<LabelEntity> mList;
 
-  LabelsEditAdapter(LabelHandlers handlers) {
+  LabelsEditAdapter(BaseActivity activity, LabelHandlers handlers) {
     super();
 
+    mActivity = activity;
     mHandlers = handlers;
   }
 
@@ -73,9 +79,8 @@ class LabelsEditAdapter extends
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
     final LabelEntity label = mList.get(position);
     final String originalName = label.getName();
-    final LabelViewModel viewModel =
-      new LabelViewModel(App.INST(), label);
-    holder.bind(viewModel, mHandlers);
+    final LabelViewModel viewModel = new LabelViewModel(App.INST(), label);
+    holder.bind(mActivity, viewModel, mHandlers);
 
     final boolean enabled = originalName.equals(label.getName());
     DrawableHelper.setImageViewEnabled(holder.binding.deleteButton, enabled);
@@ -106,18 +111,21 @@ class LabelsEditAdapter extends
         if (text.length() > 0) {
           if (!text.equals(originalName)) {
             // update label
-            Log.logD(TAG, "name: " + viewModel.getLabel().getValue().getName());
+            //Log.logD(TAG, "name: " + viewModel.name.getValue());
+            Log.logD(TAG, "name: " + viewModel.name.getValue());
             viewModel.setName(text);
           } else {
             // reset to orginal value
-            Log.logD(TAG, "name: " + label.getName());
-            labelText.setText(originalName);
+            //labelText.setText(originalName);
+            Log.logD(TAG, "name: " + viewModel.name.getValue());
+            viewModel.name.setValue(originalName);
+            Log.logD(TAG, "name: " + viewModel.name.getValue());
             //viewModel.setName(originalName);
           }
         } else {
           // reset to orginal value
-          labelText.setText(originalName);
-          //viewModel.setName(originalName);
+          //labelText.setText(originalName);
+          viewModel.setName(originalName);
         }
       }
     });
@@ -143,8 +151,10 @@ class LabelsEditAdapter extends
     }
 
     /** Bind the Label */
-    void bind(LabelViewModel viewModel, LabelHandlers handlers) {
+    void bind(BaseActivity activity, LabelViewModel viewModel, LabelHandlers handlers) {
+      binding.setLifecycleOwner(activity);
       binding.setVm(viewModel);
+      binding.setName(viewModel.name);
       binding.setHandlers(handlers);
       binding.executePendingBindings();
     }

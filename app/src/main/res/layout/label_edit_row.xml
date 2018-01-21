@@ -18,6 +18,11 @@
       type="com.weebly.opus1269.clipman.viewmodel.LabelViewModel" />
 
     <variable
+      name="name"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+
+
+    <variable
       name="handlers"
       type="com.weebly.opus1269.clipman.ui.labels.LabelHandlers" />
   </data>
@@ -60,7 +65,7 @@
       android:inputType="textCapWords"
       android:maxLength="32"
       android:maxLines="1"
-      android:text="@{vm.label.name}"
+      android:text="@={name}"
       android:textAppearance="?attr/textAppearanceListItem"
       android:textIsSelectable="false" />
 

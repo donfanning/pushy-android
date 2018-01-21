@@ -27,6 +27,9 @@ public class LabelViewModel extends AndroidViewModel {
   /** Our Label */
   private final MutableLiveData<LabelEntity> label;
 
+  /** Our Label name */
+  public MutableLiveData<String> name;
+
   /** Original name of our Label */
   private final MutableLiveData<String> originalName;
 
@@ -36,6 +39,9 @@ public class LabelViewModel extends AndroidViewModel {
 
     label = new MutableLiveData<>();
     label.setValue(theLabel);
+
+    name = new MutableLiveData<>();
+    name.setValue(label.getValue().getName());
 
     originalName = new MutableLiveData<>();
     originalName.setValue(label.getValue().getName());

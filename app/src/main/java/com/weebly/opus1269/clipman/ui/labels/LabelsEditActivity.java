@@ -68,7 +68,7 @@ public class LabelsEditActivity extends BaseActivity {
   /** Connect the {@link LabelsEditAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView(@NonNull RecyclerView recyclerView,
                                  LabelsViewModel viewModel) {
-    mAdapter = new LabelsEditAdapter(mHandlers);
+    mAdapter = new LabelsEditAdapter(this, mHandlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
