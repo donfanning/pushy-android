@@ -25,6 +25,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.Prefs;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,6 +56,38 @@ public class DrawableHelper {
     final int alpha = enabled ? 255 : 64;
     view.setEnabled(enabled);
     view.setImageAlpha(alpha);
+  }
+
+  /**
+   * Tint an ImageView with the accent color
+   * @param imageView The list
+   */
+  public static void tintAccentColor(@NonNull ImageView imageView) {
+    final int color;
+    if (Prefs.INST(imageView.getContext()).isLightTheme()) {
+      color = R.color.deep_teal_500;
+    } else {
+      color = R.color.deep_teal_200;
+    }
+    tintColor(color, Collections.singletonList(imageView));
+  }
+
+  /**
+   * Tint an ImageView with the primary color
+   * @param imageView The list
+   * @param reverse If true, reverse the color
+   */
+  public static void tintPrimaryColor(@NonNull ImageView imageView,
+                                      boolean reverse) {
+    final int color;
+    boolean state = Prefs.INST(imageView.getContext()).isLightTheme();
+    state = (reverse != state);
+    if (state) {
+      color = android.R.color.primary_text_light;
+    } else {
+      color = android.R.color.primary_text_dark;
+    }
+    tintColor(color, Collections.singletonList(imageView));
   }
 
   /**

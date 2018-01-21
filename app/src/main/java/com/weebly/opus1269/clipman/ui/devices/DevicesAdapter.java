@@ -23,7 +23,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -31,9 +30,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
-import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
-import java.util.Collections;
 import java.util.List;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
@@ -89,7 +86,6 @@ class DevicesAdapter extends
     DeviceViewHolder(DeviceRowBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
-      tintIcons();
     }
 
     /** Bind the Device */
@@ -97,13 +93,6 @@ class DevicesAdapter extends
       binding.setVm(vm);
       binding.setHandlers(handlers);
       binding.executePendingBindings();
-    }
-
-    /** Color the Vector Drawables based on theme */
-    private void tintIcons() {
-      final List<ImageView> list = Collections.singletonList(binding
-        .forgetButton);
-      DrawableHelper.tintAccentColor(binding.forgetButton.getContext(), list);
     }
   }
 }

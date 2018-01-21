@@ -62,7 +62,7 @@
       android:layout_gravity="bottom|end"
       android:layout_margin="@dimen/fab_margin"
       android:onClick="@{() -> handlers.onFabClick(vm, fab)}"
-      android:tint="@color/icons"
+      app:tintPrimary="@{false}"
       app:visibleGone="@{TextUtils.isEmpty(infoMessage)}"
       app:srcCompat="@drawable/ic_refresh_black_24dp" />
 

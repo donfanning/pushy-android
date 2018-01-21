@@ -65,6 +65,7 @@
           android:onClick="@{() -> handlers.onRestoreClick(context, vm.backupFile)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_restore"
+          app:tintAccent="@{true}"
           app:srcCompat="@drawable/ic_cloud_download" />
 
         <ImageButton
@@ -75,6 +76,7 @@
           android:onClick="@{() -> handlers.onSyncClick(context, vm.backupFile)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_sync"
+          app:tintAccent="@{true}"
           app:srcCompat="@drawable/ic_cloud_sync" />
 
         <ImageButton
@@ -85,6 +87,7 @@
           android:onClick="@{() -> handlers.onDeleteClick(context, vm.backupFile)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_delete"
+          app:tintAccent="@{true}"
           app:srcCompat="@drawable/ic_delete_black_24dp" />
 
       </LinearLayout>

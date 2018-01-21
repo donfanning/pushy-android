@@ -41,6 +41,7 @@
       android:layout_centerVertical="true"
       android:background="@android:color/transparent"
       android:contentDescription="@string/label"
+      app:tintAccent="@{true}"
       app:srcCompat="@drawable/ic_label" />
 
     <EditText
@@ -74,7 +75,8 @@
       android:background="@android:color/transparent"
       android:contentDescription="@string/label_delete"
       android:onClick="@{() -> handlers.onDeleteClick(context, vm.label)}"
-      android:enabled="@{vm.originalName.equals(vm.name.toString())}"
+      app:enabled="@{vm.originalName.equals(vm.name.toString())}"
+      app:tintAccent="@{true}"
       app:srcCompat="@drawable/ic_clear"
       tools:tint="@android:color/black"/>
 

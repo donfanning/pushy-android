@@ -47,6 +47,7 @@
         android:onClick="@{() -> handlers.onForgetClick(context, vm)}"
         android:background="@android:color/transparent"
         android:contentDescription="@string/device_forget"
+        app:tintAccent="@{true}"
         app:srcCompat="@drawable/ic_clear" />
 
       <LinearLayout

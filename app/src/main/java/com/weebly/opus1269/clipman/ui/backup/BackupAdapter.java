@@ -18,24 +18,20 @@
 
 package com.weebly.opus1269.clipman.ui.backup;
 
-import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
 import com.weebly.opus1269.clipman.model.BackupFile;
-import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;
 
-import java.util.Arrays;
 import java.util.List;
 
 /** Bridge between the BackupFile RecyclerView and the Backups class */
@@ -85,7 +81,6 @@ class BackupAdapter extends
     BackupViewHolder(@NonNull BackupRowBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
-      tintIcons();
     }
 
     /** Bind the File */
@@ -93,16 +88,6 @@ class BackupAdapter extends
       binding.setVm(vm);
       binding.setHandlers(handlers);
       binding.executePendingBindings();
-    }
-
-    /** Color the Vector Drawables based on theme */
-    private void tintIcons() {
-      final Context context = this.itemView.getContext();
-
-      final List<ImageView> list = Arrays.asList(
-        binding.restoreButton, binding.syncButton, binding.deleteButton
-      );
-      DrawableHelper.tintAccentColor(context, list);
     }
   }
 }
