@@ -27,7 +27,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="vertical"
-    android:visibility="@{TextUtils.isEmpty(infoMessage) ? View.VISIBLE : View.GONE}"
+    app:visibleGone="@{TextUtils.isEmpty(infoMessage)}"
     app:layoutManager="LinearLayoutManager"
     tools:listitem="@layout/backup_row" />
 

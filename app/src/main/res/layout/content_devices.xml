@@ -43,7 +43,7 @@
       android:padding="10dp"
       android:text="@{infoMessage}"
       android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-      android:visibility="@{TextUtils.isEmpty(infoMessage) ? View.GONE : View.VISIBLE}"
+      app:visibleGone="@{!TextUtils.isEmpty(infoMessage)}"
       tools:text="Error message here" />
 
   </LinearLayout>

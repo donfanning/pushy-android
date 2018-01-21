@@ -66,8 +66,10 @@
       android:layout_margin="@dimen/fab_margin"
       android:onClick="@{() -> handlers.onFabClick(context)}"
       android:tint="@color/icons"
-      android:visibility="@{safeUnbox(isLoading) ? View.GONE : View.VISIBLE}"
-      app:srcCompat="@drawable/ic_refresh_black_24dp" />
+      app:srcCompat="@drawable/ic_refresh_black_24dp"
+      app:visibleGone="@{!isLoading}"
+
+      />
 
   </android.support.design.widget.CoordinatorLayout>
 

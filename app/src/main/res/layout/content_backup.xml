@@ -43,7 +43,8 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
-      android:visibility="@{safeUnbox(isLoading) ? View.GONE : View.VISIBLE}">
+      app:visibleGone="@{!isLoading}"
+      >
 
       <include
         layout="@layout/backup_list"
@@ -56,7 +57,7 @@
         android:padding="10dp"
         android:text="@{infoMessage}"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:visibility="@{TextUtils.isEmpty(infoMessage) ? View.GONE : View.VISIBLE}"
+        app:visibleGone="@{!TextUtils.isEmpty(infoMessage)}"
         tools:text="Error message here" />
     </LinearLayout>
 
