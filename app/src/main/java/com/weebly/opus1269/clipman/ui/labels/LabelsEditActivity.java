@@ -20,9 +20,11 @@ import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
 /** Activity for editing the List of {@link Label} items */
 public class LabelsEditActivity extends BaseActivity {
+  /** Event handlers */
+  private LabelHandlers mHandlers = null;
 
   /** Adapter used to display the list's data */
-   private LabelsEditAdapter mAdapter = null;
+  private LabelsEditAdapter mAdapter = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -33,12 +35,13 @@ public class LabelsEditActivity extends BaseActivity {
 
     // setup ViewModel and data binding
     LabelsViewModel viewModel = new LabelsViewModel(getApplication());
-    // TODO mHandlers = new LabelHandlers(this);
-    final ActivityLabelsEditBinding binding = (ActivityLabelsEditBinding) mBinding;
+    mHandlers = new LabelHandlers(this);
+    final ActivityLabelsEditBinding binding =
+      (ActivityLabelsEditBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(viewModel);
     binding.setIsLoading(viewModel.getIsLoading());
-    //TODO binding.setHandlers(mHandlers);
+    binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 
     // observe errors
@@ -65,8 +68,7 @@ public class LabelsEditActivity extends BaseActivity {
   /** Connect the {@link LabelsEditAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView(@NonNull RecyclerView recyclerView,
                                  LabelsViewModel viewModel) {
-    mAdapter = new LabelsEditAdapter(this);
-    // TODO mAdapter = new LabelsSelectAdapter(mHandlers);
+    mAdapter = new LabelsEditAdapter(mHandlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

@@ -18,16 +18,14 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.content.Context;
+import android.arch.lifecycle.LiveData;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -38,8 +36,6 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
-import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
@@ -50,24 +46,16 @@ import java.util.List;
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
   RecyclerView.Adapter<LabelsEditAdapter.LabelViewHolder> {
-  /** Our activity */
-  private final BaseActivity mActivity;
-
-  /** Activity TAG */
-  private final String TAG;
+  /** Our event handlers */
+  private final LabelHandlers mHandlers;
 
   /** Our list */
   private List<LabelEntity> mList;
 
-  /** Label that may be deleted */
-  @Nullable
-  private LabelEntity mDeleteLabel;
-
-  LabelsEditAdapter(BaseActivity activity) {
+  LabelsEditAdapter(LabelHandlers handlers) {
     super();
 
-    mActivity = activity;
-    TAG = mActivity.getTAG();
+    mHandlers = handlers;
   }
 
   @Override
@@ -83,36 +71,36 @@ class LabelsEditAdapter extends
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
     final LabelViewModel vm =
       new LabelViewModel(App.INST(), mList.get(position));
-    //TODO holder.bind(vm, mHandlers);
-    holder.bind(vm);
+    holder.bind(vm, mHandlers);
 
     final EditText labelEditText = holder.labelEditText;
-    labelEditText.setText(vm.label.getName());
+    //labelEditText.setText(vm.label.getName());
     labelEditText.addTextChangedListener(new TextWatcher() {
       @Override
-      public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
+      public void beforeTextChanged(CharSequence text, int start, int count, int after) {
         // noop
       }
 
       @Override
       public void onTextChanged(CharSequence text, int i, int i1, int i2) {
-        // noop
+        final boolean enabled = text.toString().equals(vm.getOriginalName().getValue());
+        DrawableHelper.setImageViewEnabled(holder.deleteButton, enabled);
       }
 
       @Override
       public void afterTextChanged(Editable editable) {
-        final String text = editable.toString();
-        if (AppUtils.isWhitespace(text)) {
-          // reset to current value
-          holder.labelEditText.setText(vm.label.getName());
-          DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
-        } else if (!text.equals(vm.label.getName())) {
-          // text changed
-          DrawableHelper.setImageViewEnabled(holder.deleteButton, false);
-        } else {
-          // original text
-          DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
-        }
+        //final String text = editable.toString();
+        //if (AppUtils.isWhitespace(text)) {
+        //  // reset to current value
+        //  holder.labelEditText.setText(vm.label.getName());
+        //  DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
+        //} else if (!text.equals(vm.label.getName())) {
+        //  // text changed
+        //  DrawableHelper.setImageViewEnabled(holder.deleteButton, false);
+        //} else {
+        //  // original text
+        //  DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
+        //}
       }
     });
 
@@ -121,25 +109,15 @@ class LabelsEditAdapter extends
         String text = labelEditText.getText().toString();
         text = text.trim();
         if (text.length() > 0) {
-          if (!text.equals(vm.label.getName())) {
-            vm.label.setName(text);
+          if (!text.equals(vm.getOriginalName().getValue())) {
+            vm.setName(text);
           }
-          labelEditText.setText(vm.label.getName());
-          DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
         } else {
           // reset to orginal value
-          labelEditText.setText(vm.label.getName());
-          DrawableHelper.setImageViewEnabled(holder.deleteButton, true);
+          vm.setName(vm.getOriginalName().getValue());
         }
       }
     });
-
-    holder.deleteButton.setOnClickListener(v -> {
-        Analytics.INST(v.getContext()).imageClick(TAG, "deleteLabel");
-        mDeleteLabel = vm.label;
-        showDeleteDialog();
-      }
-    );
   }
 
   @Override
@@ -149,24 +127,6 @@ class LabelsEditAdapter extends
     // small list, just update it all
     mList = list;
     notifyDataSetChanged();
-  }
-
-  /** Display {@link AlertDialog} on {@link Label} delete */
-  private void showDeleteDialog() {
-    final AlertDialog dialog = new AlertDialog.Builder(mActivity)
-      .setMessage(R.string.label_delete_dialog_message)
-      .setTitle(R.string.label_delete_dialog_title)
-      .setPositiveButton(R.string.button_delete, (dialogInterface, i) -> {
-        if ((mDeleteLabel != null)) {
-          //mDeleteLabel.delete(mContext);
-          mDeleteLabel = null;
-          Analytics.INST(mActivity.getApplicationContext()).buttonClick(TAG, "deleteLabel");
-        }
-      })
-      .setNegativeButton(R.string.button_cancel, null)
-      .create();
-
-    dialog.show();
   }
 
   static class LabelViewHolder extends RecyclerView.ViewHolder {
@@ -187,9 +147,11 @@ class LabelsEditAdapter extends
     }
 
     /** Bind the Label */
-    void bind(LabelViewModel vm) {
+    void bind(LabelViewModel vm, LabelHandlers handlers) {
       binding.setVm(vm);
-      //TODO binding.setHandlers(handlers);
+      binding.setLabel(vm.getLabel());
+      binding.setOriginalName(vm.getOriginalName());
+      binding.setHandlers(handlers);
       binding.executePendingBindings();
     }
 
