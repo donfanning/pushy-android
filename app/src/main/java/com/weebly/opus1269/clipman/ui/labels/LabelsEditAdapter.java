@@ -18,7 +18,6 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.arch.lifecycle.LiveData;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,9 +33,9 @@ import android.widget.ImageView;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
-import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
@@ -46,6 +45,9 @@ import java.util.List;
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
   RecyclerView.Adapter<LabelsEditAdapter.LabelViewHolder> {
+  /** Class identifier */
+  protected final String TAG = this.getClass().getSimpleName();
+
   /** Our event handlers */
   private final LabelHandlers mHandlers;
 
@@ -125,6 +127,7 @@ class LabelsEditAdapter extends
 
   public void setList(@Nullable List<LabelEntity> list) {
     // small list, just update it all
+    Log.logD(TAG, "setList");
     mList = list;
     notifyDataSetChanged();
   }

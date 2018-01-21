@@ -41,8 +41,6 @@ public class LabelViewModel extends AndroidViewModel {
     originalName.setValue(label.getValue().getName());
 
     label.observeForever((labelEntity) -> {
-      Log.logD("labelname", labelEntity.getName());
-      Log.logD("orignalname", LabelViewModel.this.getOriginalName().getValue());
       setOriginalName(labelEntity.getName());
     });
   }
@@ -59,7 +57,7 @@ public class LabelViewModel extends AndroidViewModel {
     mRepo.updateLabelAsync(name, originalName.getValue());
   }
 
-  public void setOriginalName(String originalName) {
+  private void setOriginalName(String originalName) {
     this.originalName.setValue(originalName);
   }
 }

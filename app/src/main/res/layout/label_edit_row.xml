@@ -72,7 +72,7 @@
       android:inputType="textCapWords"
       android:maxLength="32"
       android:maxLines="1"
-      android:text="@{label.getName()}"
+      android:text="@{vm.label.name}"
       android:textAppearance="?attr/textAppearanceListItem"
       android:textIsSelectable="false" />
 
@@ -85,7 +85,7 @@
       android:layout_centerVertical="true"
       android:background="@android:color/transparent"
       android:contentDescription="@string/label_delete"
-      android:onClick="@{() -> handlers.onDeleteClick(context, label)}"
+      android:onClick="@{() -> handlers.onDeleteClick(context, vm.label)}"
       app:srcCompat="@drawable/ic_clear" />
 
   </RelativeLayout>
