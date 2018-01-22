@@ -21,7 +21,8 @@ package com.weebly.opus1269.clipman.ui.labels;
 import android.arch.lifecycle.LifecycleOwner;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v7.recyclerview.extensions.DiffCallback;
+import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -29,17 +30,13 @@ import android.widget.EditText;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
-import java.util.List;
-
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
-  RecyclerView.Adapter<LabelsEditAdapter.LabelViewHolder> {
+  ListAdapter<LabelEntity, LabelsEditAdapter.LabelViewHolder> {
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
 
@@ -52,11 +49,8 @@ class LabelsEditAdapter extends
   /** Our event handlers */
   private final LabelHandlers mHandlers;
 
-  /** Our list */
-  private List<LabelEntity> mList;
-
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
-    super();
+    super(DIFF_CALLBACK);
 
     mLifecycleOwner = owner;
     mHandlers = handlers;
@@ -74,7 +68,8 @@ class LabelsEditAdapter extends
 
   @Override
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
-    final LabelEntity label = mList.get(position);
+    //final LabelEntity label = mList.get(position);
+    final LabelEntity label = getItem(position);
     final String originalName = label.getName();
     final LabelViewModel viewModel = new LabelViewModel(App.INST(), label);
     holder.bind(mLifecycleOwner, viewModel, mHandlers);
@@ -94,21 +89,27 @@ class LabelsEditAdapter extends
           }
         } else {
           // reset to orginal value
-          viewModel.setName(originalName);
+          viewModel.getName().setValue(originalName);
         }
       }
     });
   }
 
-  @Override
-  public int getItemCount() {return AppUtils.size(mList);}
-
-  public void setList(@Nullable List<LabelEntity> list) {
-    // small list, just update it all
-    Log.logD(TAG, "setList");
-    mList = list;
-    notifyDataSetChanged();
-  }
+  private static final DiffCallback<LabelEntity> DIFF_CALLBACK = new DiffCallback<LabelEntity>() {
+    @Override
+    public boolean areItemsTheSame(
+      @NonNull LabelEntity oldLabelEntity, @NonNull LabelEntity newLabelEntity) {
+      // LabelEntity properties may have changed if reloaded from the DB, but ID is fixed
+      return oldLabelEntity.getId() == newLabelEntity.getId();
+    }
+    @Override
+    public boolean areContentsTheSame(
+      @NonNull LabelEntity oldLabelEntity, @NonNull LabelEntity newLabelEntity) {
+      // NOTE: if you use equals, your object must properly override Object#equals()
+      // Incorrectly returning false here will result in too many animations.
+      return oldLabelEntity.equals(newLabelEntity);
+    }
+  };
 
   static class LabelViewHolder extends RecyclerView.ViewHolder {
     private final LabelEditRowBinding binding;
@@ -124,7 +125,6 @@ class LabelsEditAdapter extends
       binding.setVm(vm);
       binding.setHandlers(handlers);
       binding.executePendingBindings();
-
     }
   }
 }

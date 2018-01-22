@@ -50,7 +50,7 @@ public class LabelEntity implements LabelNew, Serializable {
 
     LabelEntity label = (LabelEntity) o;
 
-    return name.equals(label.name);
+    return name.equals(label.name) && (id == label.id);
   }
 
   @Override

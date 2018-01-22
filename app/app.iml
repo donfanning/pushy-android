@@ -124,6 +124,7 @@
     <orderEntry type="library" name="Gradle: android.arch.lifecycle:extensions-1.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: javax.inject:javax.inject:1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-base-license-11.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.paging:common:1.0.0-alpha4-1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-basement-license-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-iid-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.persistence.room:runtime-1.0.0" level="project" />
@@ -193,6 +194,7 @@
     <orderEntry type="library" name="Gradle: com.android.support:recyclerview-v7-27.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.api-client:google-api-client:1.23.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-analytics-license-11.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.paging:runtime-1.0.0-alpha4-1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.http-client:google-http-client:1.23.0@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-base-11.8.0" level="project" />

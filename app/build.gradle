@@ -89,6 +89,9 @@ dependencies {
   implementation "android.arch.persistence.room:runtime:${rootProject.ext.archVersion}"
   annotationProcessor "android.arch.persistence.room:compiler:${rootProject.ext.archVersion}"
 
+  // Paging
+  implementation "android.arch.paging:runtime:1.0.0-alpha4-1"
+
   // Google Play service
   implementation "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
   implementation "com.google.android.gms:play-services-identity:${rootProject.ext.gmsVersion}"
