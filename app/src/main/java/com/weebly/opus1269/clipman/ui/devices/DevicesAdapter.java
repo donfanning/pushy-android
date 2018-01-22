@@ -18,6 +18,7 @@
 
 package com.weebly.opus1269.clipman.ui.devices;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -29,25 +30,16 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 
 import java.util.List;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
-class DevicesAdapter extends
-  RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
+class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding, DevicesHandlers, DevicesAdapter.DeviceViewHolder> {
 
-  /** Our event handlers */
-  private final DevicesHandlers mHandlers;
-
-  /** Our List */
-  @Nullable
-  private List<DeviceEntity> mDeviceList = null;
-
-  DevicesAdapter(DevicesHandlers handlers) {
-    super();
-
-    mHandlers = handlers;
+  DevicesAdapter(LifecycleOwner owner, DevicesHandlers handlers) {
+    super(R.layout.device_row, owner, handlers);
   }
 
   @Override
@@ -62,21 +54,9 @@ class DevicesAdapter extends
 
   @Override
   public void onBindViewHolder(DeviceViewHolder holder, int position) {
-    if (mDeviceList == null) {
-      return;
-    }
     final DeviceViewModel vm =
-      new DeviceViewModel(App.INST(), mDeviceList.get(position));
+      new DeviceViewModel(App.INST(), getItem(position));
     holder.bind(vm, mHandlers);
-  }
-
-  @Override
-  public int getItemCount() {return AppUtils.size(mDeviceList);}
-
-  public void setList(@Nullable List<DeviceEntity> list) {
-    // small list, just update it all
-    mDeviceList = list;
-    notifyDataSetChanged();
   }
 
   /** ViewHolder inner class used to display the info. in the RecyclerView. */

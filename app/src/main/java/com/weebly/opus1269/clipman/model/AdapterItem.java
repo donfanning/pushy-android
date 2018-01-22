@@ -5,11 +5,9 @@
  * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
-package com.weebly.opus1269.clipman.db.entity;
+package com.weebly.opus1269.clipman.model;
 
-/**
- * TODO: Add description.
- */
-public abstract class BaseEntity {
+/** A List item for a RecyclerView adapter */
+public interface AdapterItem {
   abstract public long getId();
 }

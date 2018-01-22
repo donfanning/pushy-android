@@ -25,12 +25,16 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
+import com.weebly.opus1269.clipman.app.Log;
 
 import java.util.Map;
+import java.util.UUID;
 
 /** Immutable Class for a backup file's metadata */
-public class BackupFile {
+public class BackupFile implements AdapterItem {
+  private static long counter = 1L;
 
+  private long id;
   private final Boolean isMine;
   private final DriveId driveId;
   private final String name;
@@ -73,6 +77,10 @@ public class BackupFile {
     }
 
     isMine = isMyFile(context);
+
+    id = counter;
+    Log.logD("BackupFile", "id: " + id);
+    counter++;
   }
 
   /**
@@ -92,6 +100,43 @@ public class BackupFile {
         MyDevice.INST(context).getOS())
       .setCustomProperty(new CustomPropertyKey("nickname", visibility),
         MyDevice.INST(context).getNickname());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    BackupFile that = (BackupFile) o;
+
+    if (id != that.id) return false;
+    if (date != that.date) return false;
+    if (!isMine.equals(that.isMine)) return false;
+    if (!driveId.equals(that.driveId)) return false;
+    if (!name.equals(that.name)) return false;
+    if (!nickname.equals(that.nickname)) return false;
+    if (!model.equals(that.model)) return false;
+    if (!SN.equals(that.SN)) return false;
+    return OS.equals(that.OS);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + isMine.hashCode();
+    result = 31 * result + driveId.hashCode();
+    result = 31 * result + name.hashCode();
+    result = 31 * result + nickname.hashCode();
+    result = 31 * result + model.hashCode();
+    result = 31 * result + SN.hashCode();
+    result = 31 * result + OS.hashCode();
+    result = 31 * result + (int) (date ^ (date >>> 32));
+    return result;
+  }
+
+  @Override
+  public long getId() {
+    return id;
   }
 
   public boolean isMine() {

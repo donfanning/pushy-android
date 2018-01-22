@@ -18,6 +18,7 @@
 
 package com.weebly.opus1269.clipman.ui.backup;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,29 +31,22 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
 import com.weebly.opus1269.clipman.model.BackupFile;
+import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;
 
 import java.util.List;
 
 /** Bridge between the BackupFile RecyclerView and the Backups class */
-class BackupAdapter extends
-  RecyclerView.Adapter<BackupAdapter.BackupViewHolder> {
-  /** Our event handlers */
-  private final BackupHandlers mHandlers;
+class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, BackupHandlers, BackupAdapter.BackupViewHolder> {
 
-  /** Our list */
-  private List<BackupFile> mList;
-
-  BackupAdapter(BackupHandlers handlers) {
-    super();
-
-    mHandlers = handlers;
+  BackupAdapter(LifecycleOwner owner, BackupHandlers handlers) {
+    super(R.layout.backup_row, owner, handlers);
   }
 
   @Override
   public BackupViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     BackupRowBinding binding = DataBindingUtil
-      .inflate(LayoutInflater.from(parent.getContext()), R.layout.backup_row,
+      .inflate(LayoutInflater.from(parent.getContext()), mlayoutId,
         parent, false);
 
     return new BackupViewHolder(binding);
@@ -61,17 +55,8 @@ class BackupAdapter extends
   @Override
   public void onBindViewHolder(BackupViewHolder holder, int position) {
     final BackupViewModel vm =
-      new BackupViewModel(App.INST(), mList.get(position));
+      new BackupViewModel(App.INST(), getItem(position));
     holder.bind(vm, mHandlers);
-  }
-
-  @Override
-  public int getItemCount() {return AppUtils.size(mList);}
-
-  public void setList(@Nullable List<BackupFile> list) {
-    // small list, just update it all
-    mList = list;
-    notifyDataSetChanged();
   }
 
   /** ViewHolder inner class used to display the info. in the RecyclerView. */

@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.base;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.databinding.ViewDataBinding;
 import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.DiffCallback;
 import android.support.v7.recyclerview.extensions.ListAdapterConfig;
@@ -15,25 +16,26 @@ import android.support.v7.recyclerview.extensions.ListAdapterHelper;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
 
-import com.weebly.opus1269.clipman.db.entity.BaseEntity;
+import com.weebly.opus1269.clipman.model.AdapterItem;
 
 import java.util.List;
 
 /** Abstract bridge between a {@link RecyclerView} and its' data */
-public abstract class BaseBindingAdapter<T extends BaseEntity, VH extends
-  RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
+public abstract class BaseBindingAdapter<T extends AdapterItem, U extends ViewDataBinding, V extends BaseHandlers, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
   /** Our LifecycleOwner */
   protected final LifecycleOwner mLifecycleOwner;
   /** Our layout */
   protected final int mlayoutId;
+  /** Our viewmodel */
+  protected U mBinding = null;
   /** Our event handlers */
-  protected final BaseHandlers mHandlers;
+  protected final V mHandlers;
+
   private final ListAdapterHelper<T> mHelper;
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
 
-  public BaseBindingAdapter(int layoutId, LifecycleOwner owner,
-                            BaseHandlers handlers) {
+  public BaseBindingAdapter(int layoutId, LifecycleOwner owner, V handlers) {
     final DiffCallback<T> diffCallback = new BaseDiffCallback<>();
     mHelper = new ListAdapterHelper<>(new AdapterCallback(this),
       new ListAdapterConfig.Builder<T>().setDiffCallback(diffCallback).build());
@@ -54,7 +56,6 @@ public abstract class BaseBindingAdapter<T extends BaseEntity, VH extends
     mHelper.setList(list);
   }
 
-  @SuppressWarnings("unused")
   protected T getItem(int position) {
     return mHelper.getItem(position);
   }
@@ -94,7 +95,7 @@ public abstract class BaseBindingAdapter<T extends BaseEntity, VH extends
   }
 
   /** Inner class to determine what has changed in our list */
-  class BaseDiffCallback<T extends BaseEntity> extends DiffCallback<T> {
+  class BaseDiffCallback<T extends AdapterItem> extends DiffCallback<T> {
 
     @Override
     public boolean areItemsTheSame(@NonNull T oldItem,

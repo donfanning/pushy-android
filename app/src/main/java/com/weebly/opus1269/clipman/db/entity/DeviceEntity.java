@@ -24,6 +24,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.text.TextUtils;
 
+import com.weebly.opus1269.clipman.model.AdapterItem;
 import com.weebly.opus1269.clipman.model.Device;
 
 import org.threeten.bp.Instant;
@@ -31,9 +32,9 @@ import org.threeten.bp.Instant;
 /** A (hopefully) unique hardware device */
 @Entity(tableName = "devices",
   indices = {@Index(value = {"model", "SN", "OS"}, unique = true)})
-public class DeviceEntity implements Device {
+public class DeviceEntity implements Device, AdapterItem {
   @PrimaryKey(autoGenerate = true)
-  private int id;
+  private long id;
 
   // These three should be unique (not for emulators)
   private String model;
@@ -55,11 +56,37 @@ public class DeviceEntity implements Device {
     this.lastSeen = Instant.now().toEpochMilli();
   }
 
-  public int getId() {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    DeviceEntity that = (DeviceEntity) o;
+
+    if (id != that.id) return false;
+    if (lastSeen != that.lastSeen) return false;
+    if (!model.equals(that.model)) return false;
+    if (!SN.equals(that.SN)) return false;
+    if (!OS.equals(that.OS)) return false;
+    return nickname.equals(that.nickname);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + model.hashCode();
+    result = 31 * result + SN.hashCode();
+    result = 31 * result + OS.hashCode();
+    result = 31 * result + nickname.hashCode();
+    result = 31 * result + (int) (lastSeen ^ (lastSeen >>> 32));
+    return result;
+  }
+
+  public long getId() {
     return id;
   }
 
-  public void setId(int id) {
+  public void setId(long id) {
     this.id = id;
   }
 

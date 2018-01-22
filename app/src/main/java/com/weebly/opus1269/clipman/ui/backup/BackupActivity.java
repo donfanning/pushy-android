@@ -151,7 +151,7 @@ public class BackupActivity extends BaseActivity {
   /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView(@NonNull RecyclerView recyclerView,
                                  BackupsViewModel viewModel) {
-    mAdapter = new BackupAdapter(mHandlers);
+    mAdapter = new BackupAdapter(this, mHandlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

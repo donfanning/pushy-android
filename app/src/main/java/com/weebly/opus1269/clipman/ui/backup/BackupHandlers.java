@@ -23,10 +23,12 @@ import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
+import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
 /** Handlers for UI events */
-public class BackupHandlers implements DialogInterface.OnClickListener {
+public class BackupHandlers  extends BaseHandlers
+  implements DialogInterface.OnClickListener {
   /** Our activity */
   private final BackupActivity mActivity;
 
@@ -40,21 +42,22 @@ public class BackupHandlers implements DialogInterface.OnClickListener {
   @Override
   public void onClick(DialogInterface dialog, int which) {
     final Button button = ((AlertDialog) dialog).getButton(which);
+    final Context context = button.getContext();
     final String btnText = button.getText().toString();
 
-    Analytics.INST(mActivity).buttonClick(mActivity.getTAG(), button);
+    Analytics.INST(context).buttonClick(mActivity.getTAG(), button);
 
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
       BackupHelper.INST(App.INST()).deleteBackupAsync(mFile);
     } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
-      BackupHelper.INST(mActivity).getBackupContentsAsync(mFile, false);
+      BackupHelper.INST(context).getBackupContentsAsync(mFile, false);
     } else if (mActivity.getString(R.string.button_sync).equals(btnText)) {
-      BackupHelper.INST(mActivity).getBackupContentsAsync(mFile, true);
+      BackupHelper.INST(context).getBackupContentsAsync(mFile, true);
     } else if (mActivity.getString(R.string.button_backup).equals(btnText)) {
       BackupHelper.INST(App.INST()).createBackupAsync();
     } else if (mActivity.getString(R.string.button_details).equals(btnText)) {
-      final Intent intent = new Intent(mActivity, ErrorViewerActivity.class);
-      AppUtils.startActivity(mActivity, intent);
+      final Intent intent = new Intent(context, ErrorViewerActivity.class);
+      AppUtils.startActivity(context, intent);
     }
     mFile = null;
   }

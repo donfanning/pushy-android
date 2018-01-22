@@ -35,7 +35,7 @@ import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
-  BaseBindingAdapter<LabelEntity, LabelsEditAdapter.LabelViewHolder> {
+  BaseBindingAdapter<LabelEntity, LabelEditRowBinding, LabelHandlers, LabelsEditAdapter.LabelViewHolder> {
 
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
     super(R.layout.label_edit_row, owner, handlers);
@@ -55,7 +55,7 @@ class LabelsEditAdapter extends
     final LabelEntity label = getItem(position);
     final String originalName = label.getName();
     final LabelViewModel viewModel = new LabelViewModel(App.INST(), label);
-    holder.bind(mLifecycleOwner, viewModel, (LabelHandlers)mHandlers);
+    holder.bind(mLifecycleOwner, viewModel, mHandlers);
 
     final EditText labelText = holder.binding.labelText;
     labelText.setOnFocusChangeListener((view, hasFocus) -> {

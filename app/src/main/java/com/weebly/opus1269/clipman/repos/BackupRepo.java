@@ -161,7 +161,7 @@ public class BackupRepo {
 
   private void postFiles(@NonNull List<BackupFile> backupFiles) {
     sortFiles(backupFiles);
-    this.files.postValue(backupFiles);
+    this.files.postValue(new ArrayList<>(backupFiles));
   }
 
   private void postInfoMessage(@NonNull List<BackupFile> backupFiles) {

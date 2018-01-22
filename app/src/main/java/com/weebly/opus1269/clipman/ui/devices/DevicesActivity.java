@@ -56,7 +56,7 @@ public class DevicesActivity extends BaseActivity {
 
   private void setupRecyclerView(RecyclerView recyclerView, DevicesViewModel vm,
                                  DevicesHandlers handlers) {
-    mAdapter = new DevicesAdapter(handlers);
+    mAdapter = new DevicesAdapter(this, handlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
