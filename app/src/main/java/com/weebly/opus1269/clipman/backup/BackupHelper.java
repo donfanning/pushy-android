@@ -72,17 +72,21 @@ public class BackupHelper {
 
   /** Perform a backup */
   public void createBackupAsync() {
-    try {
-      final String lastBackup = Prefs.INST(mContext).getLastBackup();
-      final String zipName = getZipFilename();
-      final byte[] zipData =
-        BackupHelper.INST(mContext).createZipFileContentsFromDB();
-      App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
-        .createBackupAsync(zipName, zipData, lastBackup));
-    } catch (Exception ex) {
-      final String errMessage = mContext.getString(R.string.err_create_backup);
-      showMessage(errMessage, ex);
-    }
+    App.getExecutors().diskIO().execute(() -> {
+      try {
+        BackupRepo.INST(App.INST()).postIsLoading(true);
+        final String lastBackup = Prefs.INST(mContext).getLastBackup();
+        final String zipName = getZipFilename();
+        final byte[] zipData =
+          BackupHelper.INST(mContext).createZipFileContentsFromDB();
+        App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
+          .createBackupAsync(zipName, zipData, lastBackup));
+      } catch (Exception ex) {
+        final String errMessage = mContext.getString(R.string.err_create_backup);
+
+        showMessage(errMessage, ex);
+      }
+    });
   }
 
   /**
