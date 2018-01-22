@@ -58,13 +58,6 @@ public class LabelsEditActivity extends BaseActivity {
     }
   }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-
-    mAdapter.notifyDataSetChanged();
-  }
-
   /** Connect the {@link LabelsEditAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView(@NonNull RecyclerView recyclerView,
                                  LabelsViewModel viewModel) {
