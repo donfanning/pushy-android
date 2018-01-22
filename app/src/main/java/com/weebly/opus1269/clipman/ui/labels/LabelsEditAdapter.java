@@ -31,30 +31,19 @@ import android.widget.EditText;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
+import com.weebly.opus1269.clipman.db.entity.BaseEntity;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
+
+import java.util.List;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
-  ListAdapter<LabelEntity, LabelsEditAdapter.LabelViewHolder> {
-  /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
-
-  /** Our LifecycleOwner */
-  private final LifecycleOwner mLifecycleOwner;
-
-  /** Our layout */
-  private final int mlayoutId;
-
-  /** Our event handlers */
-  private final LabelHandlers mHandlers;
+  BaseBindingAdapter<LabelEntity, LabelsEditAdapter.LabelViewHolder> {
 
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
-    super(DIFF_CALLBACK);
-
-    mLifecycleOwner = owner;
-    mHandlers = handlers;
-    mlayoutId = R.layout.label_edit_row;
+    super(R.layout.label_edit_row, owner, handlers);
   }
 
   @Override
@@ -72,7 +61,7 @@ class LabelsEditAdapter extends
     final LabelEntity label = getItem(position);
     final String originalName = label.getName();
     final LabelViewModel viewModel = new LabelViewModel(App.INST(), label);
-    holder.bind(mLifecycleOwner, viewModel, mHandlers);
+    holder.bind(mLifecycleOwner, viewModel, (LabelHandlers)mHandlers);
 
     final EditText labelText = holder.binding.labelText;
     labelText.setOnFocusChangeListener((view, hasFocus) -> {
@@ -95,22 +84,6 @@ class LabelsEditAdapter extends
     });
   }
 
-  private static final DiffCallback<LabelEntity> DIFF_CALLBACK = new DiffCallback<LabelEntity>() {
-    @Override
-    public boolean areItemsTheSame(
-      @NonNull LabelEntity oldLabelEntity, @NonNull LabelEntity newLabelEntity) {
-      // LabelEntity properties may have changed if reloaded from the DB, but ID is fixed
-      return oldLabelEntity.getId() == newLabelEntity.getId();
-    }
-    @Override
-    public boolean areContentsTheSame(
-      @NonNull LabelEntity oldLabelEntity, @NonNull LabelEntity newLabelEntity) {
-      // NOTE: if you use equals, your object must properly override Object#equals()
-      // Incorrectly returning false here will result in too many animations.
-      return oldLabelEntity.equals(newLabelEntity);
-    }
-  };
-
   static class LabelViewHolder extends RecyclerView.ViewHolder {
     private final LabelEditRowBinding binding;
 
@@ -119,7 +92,7 @@ class LabelsEditAdapter extends
       this.binding = binding;
     }
 
-    /** Bind the Label */
+    /** Bind the data */
     void bind(LifecycleOwner owner, LabelViewModel vm, LabelHandlers handlers) {
       binding.setLifecycleOwner(owner);
       binding.setVm(vm);

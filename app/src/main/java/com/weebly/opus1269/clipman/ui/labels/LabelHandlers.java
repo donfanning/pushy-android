@@ -28,15 +28,18 @@ import com.weebly.opus1269.clipman.repos.BackupRepo;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
+import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
 /** Handlers for UI events */
-public class LabelHandlers implements DialogInterface.OnClickListener {
+public class LabelHandlers extends BaseHandlers
+  implements DialogInterface.OnClickListener {
   private final BaseActivity mActivity;
   private final String TAG;
   private LabelEntity mLabelEntity;
 
   LabelHandlers(BaseActivity baseActivity) {
+    super();
     this.mActivity = baseActivity;
     this.TAG = baseActivity.getTAG();
   }

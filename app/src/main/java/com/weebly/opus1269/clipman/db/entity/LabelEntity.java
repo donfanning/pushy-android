@@ -28,7 +28,7 @@ import java.io.Serializable;
 
 /** A Label for categorizing clips */
 @Entity(tableName = "labels", indices = {@Index(value = "name", unique = true)})
-public class LabelEntity implements LabelNew, Serializable {
+public class LabelEntity extends BaseEntity implements LabelNew, Serializable {
   @PrimaryKey(autoGenerate = true)
   private long id;
 
