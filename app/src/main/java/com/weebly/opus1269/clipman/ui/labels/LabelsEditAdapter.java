@@ -21,8 +21,6 @@ package com.weebly.opus1269.clipman.ui.labels;
 import android.arch.lifecycle.LifecycleOwner;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
-import android.support.v7.recyclerview.extensions.DiffCallback;
-import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -31,12 +29,9 @@ import android.widget.EditText;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
-import com.weebly.opus1269.clipman.db.entity.BaseEntity;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
-
-import java.util.List;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends
@@ -57,7 +52,6 @@ class LabelsEditAdapter extends
 
   @Override
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
-    //final LabelEntity label = mList.get(position);
     final LabelEntity label = getItem(position);
     final String originalName = label.getName();
     final LabelViewModel viewModel = new LabelViewModel(App.INST(), label);
