@@ -20,26 +20,22 @@ package com.weebly.opus1269.clipman.ui.devices;
 
 import android.arch.lifecycle.LifecycleOwner;
 import android.databinding.DataBindingUtil;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 
-import java.util.List;
-
 /** Bridge between the Devices RecyclerView and the Devices class */
 class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding, DevicesHandlers, DevicesAdapter.DeviceViewHolder> {
 
   DevicesAdapter(LifecycleOwner owner, DevicesHandlers handlers) {
-    super(R.layout.device_row, owner, handlers);
+    super(null, R.layout.device_row, owner, handlers);
   }
 
   @Override
@@ -48,7 +44,6 @@ class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding, 
       LayoutInflater.from(parent.getContext()),
       R.layout.device_row, parent, false);
 
-    // Return a new holder instance
     return new DeviceViewHolder(binding);
   }
 

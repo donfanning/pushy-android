@@ -23,19 +23,18 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 /** Abstract bridge between a {@link RecyclerView} and its' data */
 public abstract class BaseBindingAdapter<T extends AdapterItem,
   U extends ViewDataBinding, V extends BaseHandlers,
   VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
-  /** Our LifecycleOwner */
+  /** Our LifecycleOwner TODO not needed*/
   protected final LifecycleOwner mLifecycleOwner;
 
   /** Our layout */
   protected final int mlayoutId;
 
-  /** Our event handlers */
+  /** Our event handlers TODO not needed */
   protected final V mHandlers;
 
   /** Helper to handle List */
@@ -44,10 +43,11 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
 
-  /** Factory to create a ViewHolder */
+  /** Factory to create a typed ViewHolder */
   private final ViewHolderFactory<VH, U> mVHFactory;
 
-  public BaseBindingAdapter(ViewHolderFactory<VH, U> factory, int layoutId, LifecycleOwner owner, V handlers) {
+  protected BaseBindingAdapter(ViewHolderFactory<VH, U> factory, int layoutId,
+                            LifecycleOwner owner, V handlers) {
     mVHFactory = factory;
     mLifecycleOwner = owner;
     mHandlers = handlers;
@@ -64,7 +64,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     U binding = DataBindingUtil.inflate(inflater, mlayoutId, parent, false);
 
-    // TODO remove
+    // TODO remove when all adapters converted
     if (mVHFactory == null) {
       return null;
     }
@@ -93,8 +93,8 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     return mHelper.getItem(position);
   }
 
-  /** Inner class to handle updates to our list */
-  public static class AdapterCallback implements ListUpdateCallback {
+  /** Class to handle updates to our list */
+  static class AdapterCallback implements ListUpdateCallback {
     private final RecyclerView.Adapter mAdapter;
 
     AdapterCallback(RecyclerView.Adapter adapter) {
@@ -122,7 +122,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     }
   }
 
-  /** Inner class to determine what has changed in our list */
+  /** Class to determine what has changed in our list */
   class BaseDiffCallback extends DiffCallback<T> {
 
     @Override
@@ -134,10 +134,12 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     @Override
     public boolean areContentsTheSame(@NonNull T oldItem,
                                       @NonNull T newItem) {
-      if (!oldItem.equals(newItem)) {
-        Log.logD(TAG, "contents changed for:\n" + oldItem.toString() + '\n' + newItem.toString());
+      final boolean equal = oldItem.equals(newItem);
+      if (!equal) {
+        Log.logD(TAG, "contents changed:\n" + oldItem.toString() +
+          '\n' + newItem.toString());
       }
-      return oldItem.equals(newItem);
+      return equal;
     }
   }
 }

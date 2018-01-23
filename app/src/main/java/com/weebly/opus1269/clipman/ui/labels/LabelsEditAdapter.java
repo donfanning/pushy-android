@@ -19,7 +19,6 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.arch.lifecycle.LifecycleOwner;
-import android.support.v7.widget.RecyclerView;
 import android.widget.EditText;
 
 import com.weebly.opus1269.clipman.R;
@@ -27,6 +26,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
+import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
 import com.weebly.opus1269.clipman.ui.base.ViewHolderFactory;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
@@ -79,20 +79,17 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
   }
 
   /** Our ViewHolder */
-  static class LabelViewHolder extends RecyclerView.ViewHolder {
-    private LabelEditRowBinding binding;
+  static class LabelViewHolder extends
+    BaseViewHolder<LabelEditRowBinding, LabelViewModel, LabelHandlers> {
 
     LabelViewHolder(LabelEditRowBinding binding) {
-      super(binding.getRoot());
-      this.binding = binding;
+      super(binding);
     }
 
     /** Bind the data */
-    void bind(LifecycleOwner owner, LabelViewModel vm, LabelHandlers handlers) {
-      binding.setLifecycleOwner(owner);
-      binding.setVm(vm);
-      binding.setHandlers(handlers);
-      binding.executePendingBindings();
+    public void bind(LifecycleOwner owner, LabelViewModel vm,
+                     LabelHandlers handlers) {
+      super.bind(owner, vm, handlers);
     }
   }
 }

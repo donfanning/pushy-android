@@ -38,7 +38,7 @@ import java.util.List;
 class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, BackupHandlers, BackupAdapter.BackupViewHolder> {
 
   BackupAdapter(LifecycleOwner owner, BackupHandlers handlers) {
-    super(R.layout.backup_row, owner, handlers);
+    super(null, R.layout.backup_row, owner, handlers);
   }
 
   @Override
