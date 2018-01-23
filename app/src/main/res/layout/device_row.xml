@@ -19,7 +19,7 @@
       type="com.weebly.opus1269.clipman.viewmodel.DeviceViewModel" />
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.devices.DevicesHandlers" />
+      type="com.weebly.opus1269.clipman.ui.devices.DeviceHandlers" />
   </data>
 
   <LinearLayout

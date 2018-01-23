@@ -14,8 +14,6 @@
 
     <import type="android.text.TextUtils" />
 
-    <import type="android.view.View" />
-
     <variable
       name="infoMessage"
       type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />

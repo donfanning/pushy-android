@@ -12,11 +12,7 @@
 
   <data>
 
-    <import type="java.util.List" />
-
     <import type="android.text.TextUtils" />
-
-    <import type="android.view.View" />
 
     <variable
       name="vm"
@@ -28,7 +24,7 @@
 
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.devices.DevicesHandlers" />
+      type="com.weebly.opus1269.clipman.ui.devices.DeviceHandlers" />
   </data>
 
   <android.support.design.widget.CoordinatorLayout

@@ -18,10 +18,10 @@ import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.viewmodel.DevicesViewModel;
 
 /** Handlers for UI events */
-public class DevicesHandlers extends BaseHandlers {
+public class DeviceHandlers extends BaseHandlers {
   private final String TAG;
 
-  DevicesHandlers(String tag) {
+  DeviceHandlers(String tag) {
     TAG = tag;
   }
 

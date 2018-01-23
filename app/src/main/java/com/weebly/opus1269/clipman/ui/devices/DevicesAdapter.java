@@ -31,9 +31,9 @@ import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
 class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
-  DevicesHandlers, DevicesAdapter.DeviceViewHolder> {
+  DeviceHandlers, DevicesAdapter.DeviceViewHolder> {
 
-  DevicesAdapter(LifecycleOwner owner, DevicesHandlers handlers) {
+  DevicesAdapter(LifecycleOwner owner, DeviceHandlers handlers) {
     super(new DeviceViewHolderFactory(), R.layout.device_row, owner, handlers);
   }
 
@@ -57,7 +57,7 @@ class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
 
   /** Our ViewHolder */
   static class DeviceViewHolder extends
-    BaseViewHolder<DeviceRowBinding, DeviceViewModel, DevicesHandlers> {
+    BaseViewHolder<DeviceRowBinding, DeviceViewModel, DeviceHandlers> {
 
     DeviceViewHolder(DeviceRowBinding binding) {
       super(binding);
@@ -65,7 +65,7 @@ class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
 
     /** Bind the Device */
     public void bind(LifecycleOwner owner, DeviceViewModel vm,
-                     DevicesHandlers handlers) {
+                     DeviceHandlers handlers) {
       super.bind(owner, vm, handlers);
     }
   }

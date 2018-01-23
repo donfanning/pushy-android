@@ -31,7 +31,7 @@ public class DevicesActivity extends BaseActivity {
 
     // setup ViewModel and data binding
     final DevicesViewModel vm = new DevicesViewModel(getApplication());
-    final DevicesHandlers handlers = new DevicesHandlers(getTAG());
+    final DeviceHandlers handlers = new DeviceHandlers(getTAG());
     final ActivityDevicesBinding binding = (ActivityDevicesBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(vm);
@@ -55,7 +55,7 @@ public class DevicesActivity extends BaseActivity {
   }
 
   private void setupRecyclerView(RecyclerView recyclerView, DevicesViewModel vm,
-                                 DevicesHandlers handlers) {
+                                 DeviceHandlers handlers) {
     mAdapter = new DevicesAdapter(this, handlers);
     recyclerView.setAdapter(mAdapter);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
