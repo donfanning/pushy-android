@@ -9,5 +9,5 @@ package com.weebly.opus1269.clipman.model;
 
 /** A List item for a RecyclerView adapter */
 public interface AdapterItem {
-  abstract public long getId();
+  long getId();
 }

@@ -330,7 +330,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
       label = key + ": " + sp.getString(key, "");
     } else if (preference instanceof MultiSelectListPreference) {
       action = Analytics.INST(activity).UI_MULTI_LIST;
-      label = key + ": " + sp.getStringSet(key, new HashSet<String>(0));
+      label = key + ": " + sp.getStringSet(key, new HashSet<>(0));
     } else if (preference instanceof EditTextPreference) {
       action = Analytics.INST(activity).UI_EDIT_TEXT;
       label = key + ": " + sp.getString(key, "");

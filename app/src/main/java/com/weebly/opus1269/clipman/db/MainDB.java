@@ -19,9 +19,7 @@ import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppExecutors;
-import com.weebly.opus1269.clipman.db.dao.DeviceDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 
 /** Main database */

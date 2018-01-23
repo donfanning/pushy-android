@@ -56,6 +56,7 @@ public class DeviceEntity implements Device, AdapterItem {
     this.lastSeen = Instant.now().toEpochMilli();
   }
 
+  @SuppressWarnings("SimplifiableIfStatement")
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

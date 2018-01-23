@@ -9,27 +9,19 @@ package com.weebly.opus1269.clipman.ui.labels;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.view.MenuItem;
 import android.widget.Button;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
-import com.weebly.opus1269.clipman.repos.BackupRepo;
 import com.weebly.opus1269.clipman.repos.MainRepo;
-import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
-import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
 /** Handlers for UI events */
 public class LabelHandlers extends BaseHandlers

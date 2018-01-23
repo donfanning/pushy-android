@@ -26,7 +26,7 @@ class LabelLoaderManager implements
   private final Context mContext;
 
   /** Adapter used to display a list's data */
-  private RecyclerViewCursorAdapter mAdapter = null;
+  private RecyclerViewCursorAdapter mAdapter;
 
   LabelLoaderManager(Context context, RecyclerViewCursorAdapter adapter) {
     mContext = context;
