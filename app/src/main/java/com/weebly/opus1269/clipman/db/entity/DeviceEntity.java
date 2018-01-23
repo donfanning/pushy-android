@@ -82,6 +82,18 @@ public class DeviceEntity implements Device, AdapterItem {
     return result;
   }
 
+  @Override
+  public String toString() {
+    return "DeviceEntity{" +
+      "id=" + id +
+      ", model='" + model + '\'' +
+      ", SN='" + SN + '\'' +
+      ", OS='" + OS + '\'' +
+      ", nickname='" + nickname + '\'' +
+      ", lastSeen=" + lastSeen +
+      '}';
+  }
+
   public long getId() {
     return id;
   }

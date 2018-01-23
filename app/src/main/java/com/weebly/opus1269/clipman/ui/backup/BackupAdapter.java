@@ -21,14 +21,12 @@ package com.weebly.opus1269.clipman.ui.backup;
 import android.arch.lifecycle.LifecycleOwner;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
 import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
@@ -41,6 +39,13 @@ class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, Bac
 
   BackupAdapter(LifecycleOwner owner, BackupHandlers handlers) {
     super(R.layout.backup_row, owner, handlers);
+  }
+
+  @Override
+  public void setList(List<BackupFile> list) {
+    super.setList(list);
+    // TODO diff stuff not working why?
+    notifyDataSetChanged();
   }
 
   @Override

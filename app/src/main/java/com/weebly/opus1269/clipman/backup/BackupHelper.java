@@ -79,11 +79,10 @@ public class BackupHelper {
         final String zipName = getZipFilename();
         final byte[] zipData =
           BackupHelper.INST(mContext).createZipFileContentsFromDB();
-        App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
-          .createBackupAsync(zipName, zipData, lastBackup));
+        DriveHelper.INST(mContext)
+          .createBackupAsync(zipName, zipData, lastBackup);
       } catch (Exception ex) {
         final String errMessage = mContext.getString(R.string.err_create_backup);
-
         showMessage(errMessage, ex);
       }
     });

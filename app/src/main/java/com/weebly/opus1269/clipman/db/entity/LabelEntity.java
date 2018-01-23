@@ -55,6 +55,14 @@ public class LabelEntity implements LabelNew, AdapterItem, Serializable {
   }
 
   @Override
+  public String toString() {
+    return "LabelEntity{" +
+      "id=" + id +
+      ", name='" + name + '\'' +
+      '}';
+  }
+
+  @Override
   public long getId() {
     return id;
   }

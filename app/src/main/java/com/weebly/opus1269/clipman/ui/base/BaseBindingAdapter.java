@@ -16,6 +16,7 @@ import android.support.v7.recyclerview.extensions.ListAdapterHelper;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
 
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 
 import java.util.List;
@@ -106,6 +107,11 @@ public abstract class BaseBindingAdapter<T extends AdapterItem, U extends ViewDa
     @Override
     public boolean areContentsTheSame(@NonNull T oldItem,
                                       @NonNull T newItem) {
+      if (!oldItem.equals(newItem)) {
+        Log.logD(TAG, "contents changed for:\n" + oldItem.toString() + '\n' + newItem.toString());
+      } else {
+        Log.logD(TAG, "same:\n" + oldItem.toString() + '\n' + newItem.toString());
+      }
       return oldItem.equals(newItem);
     }
   }

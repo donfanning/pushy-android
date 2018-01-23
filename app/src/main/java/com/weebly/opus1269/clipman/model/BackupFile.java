@@ -28,13 +28,12 @@ import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.weebly.opus1269.clipman.app.Log;
 
 import java.util.Map;
-import java.util.UUID;
 
 /** Immutable Class for a backup file's metadata */
 public class BackupFile implements AdapterItem {
   private static long counter = 1L;
 
-  private long id;
+  private final long id;
   private final Boolean isMine;
   private final DriveId driveId;
   private final String name;
@@ -102,6 +101,7 @@ public class BackupFile implements AdapterItem {
         MyDevice.INST(context).getNickname());
   }
 
+  @SuppressWarnings("SimplifiableIfStatement")
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -109,7 +109,6 @@ public class BackupFile implements AdapterItem {
 
     BackupFile that = (BackupFile) o;
 
-    if (id != that.id) return false;
     if (date != that.date) return false;
     if (!isMine.equals(that.isMine)) return false;
     if (!driveId.equals(that.driveId)) return false;
@@ -122,8 +121,7 @@ public class BackupFile implements AdapterItem {
 
   @Override
   public int hashCode() {
-    int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + isMine.hashCode();
+    int result = isMine.hashCode();
     result = 31 * result + driveId.hashCode();
     result = 31 * result + name.hashCode();
     result = 31 * result + nickname.hashCode();
@@ -132,6 +130,21 @@ public class BackupFile implements AdapterItem {
     result = 31 * result + OS.hashCode();
     result = 31 * result + (int) (date ^ (date >>> 32));
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "BackupFile{" +
+      "id=" + id +
+      ", isMine=" + isMine +
+      ", driveId=" + driveId +
+      ", name='" + name + '\'' +
+      ", nickname='" + nickname + '\'' +
+      ", model='" + model + '\'' +
+      ", SN='" + SN + '\'' +
+      ", OS='" + OS + '\'' +
+      ", date=" + date +
+      '}';
   }
 
   @Override
