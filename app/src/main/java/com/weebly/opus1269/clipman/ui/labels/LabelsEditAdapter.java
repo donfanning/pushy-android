@@ -19,11 +19,7 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.arch.lifecycle.LifecycleOwner;
-import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.weebly.opus1269.clipman.R;
@@ -31,23 +27,16 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
+import com.weebly.opus1269.clipman.ui.base.ViewHolderFactory;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
 /** Bridge between the RecyclerView and the database */
-class LabelsEditAdapter extends
-  BaseBindingAdapter<LabelEntity, LabelEditRowBinding, LabelHandlers, LabelsEditAdapter.LabelViewHolder> {
+class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
+  LabelEditRowBinding, LabelHandlers, LabelsEditAdapter.LabelViewHolder> {
 
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
-    super(R.layout.label_edit_row, owner, handlers);
-  }
-
-  @Override
-  public LabelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    final LabelEditRowBinding binding = DataBindingUtil
-      .inflate(inflater, mlayoutId, parent, false);
-
-    return new LabelsEditAdapter.LabelViewHolder(binding);
+    super(new LabelViewHolderFactory(), R.layout.label_edit_row, owner,
+      handlers);
   }
 
   @Override
@@ -78,10 +67,22 @@ class LabelsEditAdapter extends
     });
   }
 
-  static class LabelViewHolder extends RecyclerView.ViewHolder {
-    private final LabelEditRowBinding binding;
+  /** Factory to create an instance of our ViewHolder */
+  static class LabelViewHolderFactory implements
+    ViewHolderFactory<LabelViewHolder, LabelEditRowBinding> {
+    LabelViewHolderFactory() {}
 
-    LabelViewHolder(@NonNull LabelEditRowBinding binding) {
+    @Override
+    public LabelViewHolder create(LabelEditRowBinding binding) {
+      return new LabelViewHolder(binding);
+    }
+  }
+
+  /** Our ViewHolder */
+  static class LabelViewHolder extends RecyclerView.ViewHolder {
+    private LabelEditRowBinding binding;
+
+    LabelViewHolder(LabelEditRowBinding binding) {
       super(binding.getRoot());
       this.binding = binding;
     }

@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.base;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.DiffCallback;
@@ -15,34 +16,65 @@ import android.support.v7.recyclerview.extensions.ListAdapterConfig;
 import android.support.v7.recyclerview.extensions.ListAdapterHelper;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /** Abstract bridge between a {@link RecyclerView} and its' data */
-public abstract class BaseBindingAdapter<T extends AdapterItem, U extends ViewDataBinding, V extends BaseHandlers, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
+public abstract class BaseBindingAdapter<T extends AdapterItem,
+  U extends ViewDataBinding, V extends BaseHandlers,
+  VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
   /** Our LifecycleOwner */
   protected final LifecycleOwner mLifecycleOwner;
+
   /** Our layout */
   protected final int mlayoutId;
-  /** Our viewmodel */
-  protected U mBinding = null;
+
   /** Our event handlers */
   protected final V mHandlers;
 
+  /** Helper to handle List */
   private final ListAdapterHelper<T> mHelper;
+
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
 
-  public BaseBindingAdapter(int layoutId, LifecycleOwner owner, V handlers) {
-    final DiffCallback<T> diffCallback = new BaseDiffCallback<>();
-    mHelper = new ListAdapterHelper<>(new AdapterCallback(this),
-      new ListAdapterConfig.Builder<T>().setDiffCallback(diffCallback).build());
+  /** Factory to create a ViewHolder */
+  private final ViewHolderFactory<VH, U> mVHFactory;
+
+  public BaseBindingAdapter(ViewHolderFactory<VH, U> factory, int layoutId, LifecycleOwner owner, V handlers) {
+    mVHFactory = factory;
     mLifecycleOwner = owner;
     mHandlers = handlers;
     mlayoutId = layoutId;
+
+    // create the ListAdapterHelper
+    final DiffCallback<T> diffCallback = new BaseDiffCallback();
+    mHelper = new ListAdapterHelper<>(new AdapterCallback(this),
+      new ListAdapterConfig.Builder<T>().setDiffCallback(diffCallback).build());
+  }
+
+  @Override
+  public VH onCreateViewHolder(ViewGroup parent, int viewType) {
+    final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+    U binding = DataBindingUtil.inflate(inflater, mlayoutId, parent, false);
+
+    // TODO remove
+    if (mVHFactory == null) {
+      return null;
+    }
+
+    return mVHFactory.create(binding);
+  }
+
+  @Override
+  public int getItemCount() {
+    return mHelper.getItemCount();
   }
 
   /**
@@ -59,11 +91,6 @@ public abstract class BaseBindingAdapter<T extends AdapterItem, U extends ViewDa
 
   protected T getItem(int position) {
     return mHelper.getItem(position);
-  }
-
-  @Override
-  public int getItemCount() {
-    return mHelper.getItemCount();
   }
 
   /** Inner class to handle updates to our list */
@@ -96,7 +123,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem, U extends ViewDa
   }
 
   /** Inner class to determine what has changed in our list */
-  class BaseDiffCallback<T extends AdapterItem> extends DiffCallback<T> {
+  class BaseDiffCallback extends DiffCallback<T> {
 
     @Override
     public boolean areItemsTheSame(@NonNull T oldItem,
@@ -109,28 +136,8 @@ public abstract class BaseBindingAdapter<T extends AdapterItem, U extends ViewDa
                                       @NonNull T newItem) {
       if (!oldItem.equals(newItem)) {
         Log.logD(TAG, "contents changed for:\n" + oldItem.toString() + '\n' + newItem.toString());
-      } else {
-        Log.logD(TAG, "same:\n" + oldItem.toString() + '\n' + newItem.toString());
       }
       return oldItem.equals(newItem);
     }
   }
-
-  //static class BaseViewHolder extends RecyclerView.ViewHolder {
-  //  private final LabelEditRowBinding binding;
-  //
-  //  BaseViewHolder(@NonNull LabelEditRowBinding binding) {
-  //    super(binding.getRoot());
-  //    this.binding = binding;
-  //  }
-  //
-  //  /** Bind the data */
-  //  void bind(LifecycleOwner owner, LabelViewModel vm, LabelHandlers
-  // handlers) {
-  //    binding.setLifecycleOwner(owner);
-  //    binding.setVm(vm);
-  //    binding.setHandlers(handlers);
-  //    binding.executePendingBindings();
-  //  }
-  //}
 }
