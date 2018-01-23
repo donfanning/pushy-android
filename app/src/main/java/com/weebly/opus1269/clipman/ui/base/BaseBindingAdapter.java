@@ -28,20 +28,20 @@ import java.util.List;
 public abstract class BaseBindingAdapter<T extends AdapterItem,
   U extends ViewDataBinding, V extends BaseHandlers,
   VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
-  /** Our LifecycleOwner TODO not needed*/
+  /** Class identifier */
+  private final String TAG = this.getClass().getSimpleName();
+
+  /** Our LifecycleOwner */
   protected final LifecycleOwner mLifecycleOwner;
 
   /** Our layout */
-  protected final int mlayoutId;
+  private final int mlayoutId;
 
-  /** Our event handlers TODO not needed */
+  /** Our event handlers */
   protected final V mHandlers;
 
   /** Helper to handle List */
   private final ListAdapterHelper<T> mHelper;
-
-  /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
 
   /** Factory to create a typed ViewHolder */
   private final ViewHolderFactory<VH, U> mVHFactory;
@@ -63,11 +63,6 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   public VH onCreateViewHolder(ViewGroup parent, int viewType) {
     final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     U binding = DataBindingUtil.inflate(inflater, mlayoutId, parent, false);
-
-    // TODO remove when all adapters converted
-    if (mVHFactory == null) {
-      return null;
-    }
 
     return mVHFactory.create(binding);
   }

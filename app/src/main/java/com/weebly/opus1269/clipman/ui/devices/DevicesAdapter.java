@@ -19,55 +19,54 @@
 package com.weebly.opus1269.clipman.ui.devices;
 
 import android.arch.lifecycle.LifecycleOwner;
-import android.databinding.DataBindingUtil;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
+import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
+import com.weebly.opus1269.clipman.ui.base.ViewHolderFactory;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
-class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding, DevicesHandlers, DevicesAdapter.DeviceViewHolder> {
+class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
+  DevicesHandlers, DevicesAdapter.DeviceViewHolder> {
 
   DevicesAdapter(LifecycleOwner owner, DevicesHandlers handlers) {
-    super(null, R.layout.device_row, owner, handlers);
-  }
-
-  @Override
-  public DeviceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    DeviceRowBinding binding = DataBindingUtil.inflate(
-      LayoutInflater.from(parent.getContext()),
-      R.layout.device_row, parent, false);
-
-    return new DeviceViewHolder(binding);
+    super(new DeviceViewHolderFactory(), R.layout.device_row, owner, handlers);
   }
 
   @Override
   public void onBindViewHolder(DeviceViewHolder holder, int position) {
     final DeviceViewModel vm =
       new DeviceViewModel(App.INST(), getItem(position));
-    holder.bind(vm, mHandlers);
+    holder.bind(mLifecycleOwner, vm, mHandlers);
   }
 
-  /** ViewHolder inner class used to display the info. in the RecyclerView. */
-  static class DeviceViewHolder extends RecyclerView.ViewHolder {
-    private final DeviceRowBinding binding;
+  /** Factory to create an instance of our ViewHolder */
+  static class DeviceViewHolderFactory implements
+    ViewHolderFactory<DeviceViewHolder, DeviceRowBinding> {
+    DeviceViewHolderFactory() {}
+
+    @Override
+    public DeviceViewHolder create(DeviceRowBinding binding) {
+      return new DeviceViewHolder(binding);
+    }
+  }
+
+  /** Our ViewHolder */
+  static class DeviceViewHolder extends
+    BaseViewHolder<DeviceRowBinding, DeviceViewModel, DevicesHandlers> {
 
     DeviceViewHolder(DeviceRowBinding binding) {
-      super(binding.getRoot());
-      this.binding = binding;
+      super(binding);
     }
 
     /** Bind the Device */
-    void bind(DeviceViewModel vm, DevicesHandlers handlers) {
-      binding.setVm(vm);
-      binding.setHandlers(handlers);
-      binding.executePendingBindings();
+    public void bind(LifecycleOwner owner, DeviceViewModel vm,
+                     DevicesHandlers handlers) {
+      super.bind(owner, vm, handlers);
     }
   }
 }
