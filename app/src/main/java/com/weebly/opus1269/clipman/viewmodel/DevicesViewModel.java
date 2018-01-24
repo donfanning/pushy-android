@@ -29,7 +29,6 @@ public class DevicesViewModel extends AndroidViewModel {
   /** Info message */
   private final MediatorLiveData<String> infoMessage;
 
-
   public DevicesViewModel(@NonNull Application app) {
     super(app);
 

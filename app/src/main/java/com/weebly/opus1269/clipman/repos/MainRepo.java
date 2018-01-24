@@ -20,7 +20,6 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
-import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
 
@@ -29,24 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton - Repository for {@link LabelEntity} objects */
-public class MainRepo {
+public class MainRepo extends BaseRepo {
   @SuppressLint("StaticFieldLeak")
   private static MainRepo sInstance;
 
-  /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
-
-  /** Application */
-  private final Application mApp;
-
   /** Database */
   private final MainDB mDB;
-
-  /** Error message */
-  private final MutableLiveData<ErrorMsg> errorMsg;
-
-  /** True if loading */
-  private final MutableLiveData<Boolean> isLoading;
 
   /** Clip list */
   private final MediatorLiveData<List<ClipEntity>> clipsList;
@@ -55,14 +42,9 @@ public class MainRepo {
   private final MediatorLiveData<List<LabelEntity>> labelsList;
 
   private MainRepo(final Application app) {
-    mApp = app;
+    super(app);
+
     mDB = MainDB.INST(app);
-
-    errorMsg = new MutableLiveData<>();
-    errorMsg.postValue(null);
-
-    isLoading = new MutableLiveData<>();
-    isLoading.postValue(false);
 
     clipsList = new MediatorLiveData<>();
     clipsList.postValue(new ArrayList<>());
@@ -92,14 +74,6 @@ public class MainRepo {
     return sInstance;
   }
 
-  public MutableLiveData<ErrorMsg> getErrorMsg() {
-    return errorMsg;
-  }
-
-  public MutableLiveData<Boolean> getIsLoading() {
-    return isLoading;
-  }
-
   public MutableLiveData<List<ClipEntity>> getClips() {
     return clipsList;
   }
@@ -108,23 +82,9 @@ public class MainRepo {
     return labelsList;
   }
 
-  public void postErrorMsg(ErrorMsg value) {
-    errorMsg.postValue(value);
-  }
-
-  public void postIsLoading(boolean value) {
-    isLoading.postValue(value);
-  }
-
   private void postLabels(@NonNull List<LabelEntity> labels) {
     sortLabels(labels);
     this.labelsList.postValue(labels);
-  }
-
-  public LiveData<LabelEntity> getLabelAsync(String name) {
-    return MainDB.INST(mApp).labelDao().getLabel(name);
-    //App.getExecutors().diskIO()
-    //  .execute(() -> MainDB.INST(mApp).labelDao().getLabel(name));
   }
 
   public void addClipAsync(@NonNull ClipEntity clip, boolean onNewOnly) {
@@ -135,11 +95,19 @@ public class MainRepo {
     }
   }
 
+  /**
+   * Insert or replace a clip
+   * @param clip Clip to insert or replace
+   */
   public void addClipAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).clipDao().insertAll(clip));
   }
 
+  /**
+   * Insert a clip only if it does not exist
+   * @param clip Clip to insert or replace
+   */
   public void addClipIfNewAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).clipDao().insertIfNew(clip));
@@ -163,8 +131,8 @@ public class MainRepo {
       .execute(() -> MainDB.INST(mApp).clipDao().delete(clip));
   }
 
-  public void addClipAndSendAsync(Context cntxt, ClipEntity clip, boolean
-    onNewOnly) {
+  public void addClipAndSendAsync(Context cntxt, ClipEntity clip,
+                                  boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
       long id;
       if (onNewOnly) {
@@ -185,14 +153,19 @@ public class MainRepo {
     });
   }
 
+  public LiveData<LabelEntity> getLabelAsync(String name) {
+    return MainDB.INST(mApp).labelDao().getLabel(name);
+    //App.getExecutors().diskIO()
+    //  .execute(() -> MainDB.INST(mApp).labelDao().getLabel(name));
+  }
 
   public void addLabelAsync(@NonNull LabelEntity label) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).labelDao().insertAll(label));
   }
 
-  public void updateLabelAsync(@NonNull String newName, @NonNull String
-    oldName) {
+  public void updateLabelAsync(@NonNull String newName,
+                               @NonNull String oldName) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).labelDao().updateName(newName, oldName));
   }

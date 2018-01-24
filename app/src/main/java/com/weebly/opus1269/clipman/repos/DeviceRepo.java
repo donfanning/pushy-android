@@ -11,7 +11,6 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.SharedPreferences;
 import android.support.v7.preference.PreferenceManager;
 
@@ -28,39 +27,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton - Repository for {@link Device} objects */
-public class DeviceRepo implements
+public class DeviceRepo extends BaseRepo implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   @SuppressLint("StaticFieldLeak")
   private static DeviceRepo sInstance;
 
-  /** Application */
-  private final String ERR_NO_REGISTERED_DEVICES;
-
-  /** Application */
-  private final Application mApp;
+  /** Error message for no remote device */
+  private final String ERR_NO_REMOTE_DEVICES;
 
   /** Database */
   private final DeviceDB mDB;
-
-  /** Info message - not saved in database */
-  private final MutableLiveData<String> infoMessage;
 
   /** Device List */
   private final MediatorLiveData<List<DeviceEntity>> deviceList;
 
   private DeviceRepo(final Application app) {
-    mApp = app;
+    super(app);
+
     mDB = DeviceDB.INST(app);
 
-    ERR_NO_REGISTERED_DEVICES = mApp.getString(R.string.err_no_remote_devices);
-    infoMessage = new MutableLiveData<>();
-    deviceList = new MediatorLiveData<>();
+    ERR_NO_REMOTE_DEVICES = mApp.getString(R.string.err_no_remote_devices);
 
+    deviceList = new MediatorLiveData<>();
     deviceList.addSource(mDB.deviceDao().getAll(), devices -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         deviceList.postValue(devices);
         if(!AppUtils.isEmpty(devices)) {
-          if (ERR_NO_REGISTERED_DEVICES.equals(getInfoMessage().getValue())) {
+          if (ERR_NO_REMOTE_DEVICES.equals(getInfoMessage().getValue())) {
             initInfoMessage();
           }
         }
@@ -103,18 +96,6 @@ public class DeviceRepo implements
     }
   }
 
-  public LiveData<String> getInfoMessage() {
-    return infoMessage;
-  }
-
-  private void setInfoMessage(String msg) {
-    infoMessage.setValue(msg);
-  }
-
-  private void postInfoMessage(String msg) {
-    infoMessage.postValue(msg);
-  }
-
   public LiveData<List<DeviceEntity>> getDeviceList() {
     if (deviceList.getValue() == null) {
       // if no items in database, List will be null
@@ -130,7 +111,7 @@ public class DeviceRepo implements
 
   /** Detected that the server has no other registered devices */
   public void noRegisteredDevices() {
-    postInfoMessage(ERR_NO_REGISTERED_DEVICES);
+    postInfoMessage(ERR_NO_REMOTE_DEVICES);
     removeAll();
   }
 

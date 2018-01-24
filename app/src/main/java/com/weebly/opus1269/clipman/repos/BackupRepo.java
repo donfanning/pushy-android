@@ -18,7 +18,6 @@ import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.BackupFile;
-import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.User;
 
 import java.util.ArrayList;
@@ -28,39 +27,15 @@ import java.util.Iterator;
 import java.util.List;
 
 /** Singleton - Repository for {@link BackupFile} objects */
-public class BackupRepo {
+public class BackupRepo extends BaseRepo {
   @SuppressLint("StaticFieldLeak")
   private static BackupRepo sInstance;
-
-  /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
-
-  /** Application */
-  private final Application mApp;
-
-  /** Error message */
-  private final MutableLiveData<ErrorMsg> errorMsg;
-
-  /** Info message */
-  private final MutableLiveData<String> infoMessage;
-
-  /** True if loading */
-  private final MutableLiveData<Boolean> isLoading;
 
   /** BackFile list */
   private final MutableLiveData<List<BackupFile>> files;
 
   private BackupRepo(final Application app) {
-    mApp = app;
-
-    errorMsg = new MutableLiveData<>();
-    errorMsg.setValue(null);
-
-    infoMessage = new MutableLiveData<>();
-    infoMessage.setValue("");
-
-    isLoading = new MutableLiveData<>();
-    isLoading.setValue(false);
+    super(app);
 
     files = new MutableLiveData<>();
     files.setValue(new ArrayList<>());
@@ -78,18 +53,6 @@ public class BackupRepo {
     return sInstance;
   }
 
-  public MutableLiveData<ErrorMsg> getErrorMsg() {
-    return errorMsg;
-  }
-
-  public MutableLiveData<String> getInfoMessage() {
-    return infoMessage;
-  }
-
-  public MutableLiveData<Boolean> getIsLoading() {
-    return isLoading;
-  }
-
   public MutableLiveData<List<BackupFile>> getFiles() {
     return files;
   }
@@ -105,14 +68,6 @@ public class BackupRepo {
       backupFiles.add(file);
     }
     postFiles(backupFiles);
-  }
-
-  public void postErrorMsg(ErrorMsg value) {
-    errorMsg.postValue(value);
-  }
-
-  public void postIsLoading(boolean value) {
-    isLoading.postValue(value);
   }
 
   /**
