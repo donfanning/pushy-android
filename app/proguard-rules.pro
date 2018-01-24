@@ -15,6 +15,6 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--dontwarn org.joda.convert.**
 -dontwarn org.slf4j.impl.**
 -keep class android.support.v7.widget.SearchView { *; }
+-keep class com.weebly.opus1269.clipman.backend.** { *; }
