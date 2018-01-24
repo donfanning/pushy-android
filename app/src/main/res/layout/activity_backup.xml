@@ -67,7 +67,7 @@
       android:onClick="@{() -> handlers.onFabClick(context)}"
       app:tintPrimary="@{false}"
       app:srcCompat="@drawable/ic_refresh_black_24dp"
-      app:visibleGone="@{!isLoading}"
+      app:visibleGone="@{!safeUnbox(isLoading)}"
 
       />
 

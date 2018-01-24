@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.base;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.ViewModel;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.support.annotation.NonNull;
@@ -26,29 +27,37 @@ import java.util.List;
 
 /** Abstract bridge between a {@link RecyclerView} and its' data */
 public abstract class BaseBindingAdapter<T extends AdapterItem,
-  U extends ViewDataBinding, V extends BaseHandlers,
-  VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
+  U extends ViewDataBinding, V extends BaseHandlers, VM extends ViewModel,
+  VH extends BaseViewHolder> extends RecyclerView.Adapter<VH> {
   /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
+  protected final String TAG = this.getClass().getSimpleName();
 
   /** Our LifecycleOwner */
-  protected final LifecycleOwner mLifecycleOwner;
+  private final LifecycleOwner mLifecycleOwner;
 
   /** Our layout */
   private final int mlayoutId;
 
   /** Our event handlers */
-  protected final V mHandlers;
+  private final V mHandlers;
 
   /** Helper to handle List */
   private final ListAdapterHelper<T> mHelper;
 
   /** Factory to create a typed ViewHolder */
-  private final ViewHolderFactory<VH, U> mVHFactory;
+  private final VHAdapterFactory<VH, U> mVHFactory;
 
-  protected BaseBindingAdapter(ViewHolderFactory<VH, U> factory, int layoutId,
-                            LifecycleOwner owner, V handlers) {
-    mVHFactory = factory;
+  /** Factory to create a typed ViewModel */
+  private final VMAdapterFactory<VM, T> mVMFactory;
+
+  /** Our ViewModel */
+  protected VM mViewModel;
+
+  protected BaseBindingAdapter(VHAdapterFactory<VH, U> holderFactory,
+                               VMAdapterFactory<VM, T> modelFactory,
+                               int layoutId, LifecycleOwner owner, V handlers) {
+    mVHFactory = holderFactory;
+    mVMFactory = modelFactory;
     mLifecycleOwner = owner;
     mHandlers = handlers;
     mlayoutId = layoutId;
@@ -65,6 +74,12 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     U binding = DataBindingUtil.inflate(inflater, mlayoutId, parent, false);
 
     return mVHFactory.create(binding);
+  }
+
+  @Override
+  public void onBindViewHolder(VH holder, int position) {
+    mViewModel = mVMFactory.create(getItem(position));
+    holder.bind(mLifecycleOwner, mViewModel, mHandlers);
   }
 
   @Override

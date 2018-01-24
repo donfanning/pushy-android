@@ -7,9 +7,9 @@
 
 package com.weebly.opus1269.clipman.ui.base;
 
-import android.databinding.ViewDataBinding;
+import com.weebly.opus1269.clipman.model.AdapterItem;
 
-/** Factory to create typed ViewHolder instances */
-public interface ViewHolderFactory<VH, T extends ViewDataBinding> {
-  VH create(T binding);
+/** Factory to create typed ViewModel instances */
+public interface VMAdapterFactory<VM, T extends AdapterItem> {
+  VM create(T item);
 }

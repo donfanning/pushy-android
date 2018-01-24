@@ -27,16 +27,18 @@ import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
 import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
-import com.weebly.opus1269.clipman.ui.base.ViewHolderFactory;
+import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;
+import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 import java.util.List;
 
 /** Bridge between the BackupFile RecyclerView and the Backups class */
-class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, BackupHandlers, BackupAdapter.BackupViewHolder> {
+class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, BackupHandlers, BackupViewModel, BackupAdapter.BackupViewHolder> {
 
   BackupAdapter(LifecycleOwner owner, BackupHandlers handlers) {
-    super(new BackupViewHolderFactory(), R.layout.backup_row, owner, handlers);
+    super(new BackupViewHolderFactory(), new BackupViewModelFactory(),
+      R.layout.backup_row, owner, handlers);
   }
 
   @Override
@@ -46,16 +48,9 @@ class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, Bac
     notifyDataSetChanged();
   }
 
-  @Override
-  public void onBindViewHolder(BackupViewHolder holder, int position) {
-    final BackupViewModel vm =
-      new BackupViewModel(App.INST(), getItem(position));
-    holder.bind(mLifecycleOwner, vm, mHandlers);
-  }
-
   /** Factory to create an instance of our ViewHolder */
   static class BackupViewHolderFactory implements
-    ViewHolderFactory<BackupViewHolder, BackupRowBinding> {
+    VHAdapterFactory<BackupViewHolder, BackupRowBinding> {
     BackupViewHolderFactory() {}
 
     @Override
@@ -63,7 +58,17 @@ class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, Bac
       return new BackupViewHolder(binding);
     }
   }
+  
+  /** Factory to create an instance of our ViewModel */
+  static class BackupViewModelFactory implements
+    VMAdapterFactory<BackupViewModel, BackupFile> {
 
+    @Override
+    public BackupViewModel create(BackupFile item) {
+      return new BackupViewModel(App.INST(), item);
+    }
+  }
+  
   /** Our ViewHolder */
   static class BackupViewHolder extends
     BaseViewHolder<BackupRowBinding, BackupViewModel, BackupHandlers> {

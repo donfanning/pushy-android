@@ -27,24 +27,25 @@ import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
-import com.weebly.opus1269.clipman.ui.base.ViewHolderFactory;
+import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
+import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
-  LabelEditRowBinding, LabelHandlers, LabelsEditAdapter.LabelViewHolder> {
+  LabelEditRowBinding, LabelHandlers, LabelViewModel, LabelsEditAdapter.LabelViewHolder> {
 
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
-    super(new LabelViewHolderFactory(), R.layout.label_edit_row, owner,
+    super(new LabelViewHolderFactory(), new LabelViewModelFactory(), R.layout.label_edit_row, owner,
       handlers);
   }
 
   @Override
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
+    super.onBindViewHolder(holder, position);
+
     final LabelEntity label = getItem(position);
     final String originalName = label.getName();
-    final LabelViewModel viewModel = new LabelViewModel(App.INST(), label);
-    holder.bind(mLifecycleOwner, viewModel, mHandlers);
 
     final EditText labelText = holder.binding.labelText;
     labelText.setOnFocusChangeListener((view, hasFocus) -> {
@@ -54,14 +55,14 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
         if (text.length() > 0) {
           if (!text.equals(originalName)) {
             // update label
-            viewModel.setName(text);
+            mViewModel.setName(text);
           } else {
             // reset to orginal value
-            viewModel.getName().setValue(originalName);
+            mViewModel.getName().setValue(originalName);
           }
         } else {
           // reset to orginal value
-          viewModel.getName().setValue(originalName);
+          mViewModel.getName().setValue(originalName);
         }
       }
     });
@@ -69,12 +70,21 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
 
   /** Factory to create an instance of our ViewHolder */
   static class LabelViewHolderFactory implements
-    ViewHolderFactory<LabelViewHolder, LabelEditRowBinding> {
-    LabelViewHolderFactory() {}
+    VHAdapterFactory<LabelViewHolder, LabelEditRowBinding> {
 
     @Override
     public LabelViewHolder create(LabelEditRowBinding binding) {
       return new LabelViewHolder(binding);
+    }
+  }
+
+  /** Factory to create an instance of our ViewModel */
+  static class LabelViewModelFactory implements
+    VMAdapterFactory<LabelViewModel, LabelEntity> {
+
+    @Override
+    public LabelViewModel create(LabelEntity item) {
+      return new LabelViewModel(App.INST(), item);
     }
   }
 

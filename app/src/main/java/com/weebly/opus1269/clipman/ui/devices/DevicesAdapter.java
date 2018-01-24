@@ -26,32 +26,36 @@ import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
-import com.weebly.opus1269.clipman.ui.base.ViewHolderFactory;
+import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
+import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
 class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
-  DeviceHandlers, DevicesAdapter.DeviceViewHolder> {
+  DeviceHandlers, DeviceViewModel, DevicesAdapter.DeviceViewHolder> {
 
   DevicesAdapter(LifecycleOwner owner, DeviceHandlers handlers) {
-    super(new DeviceViewHolderFactory(), R.layout.device_row, owner, handlers);
-  }
-
-  @Override
-  public void onBindViewHolder(DeviceViewHolder holder, int position) {
-    final DeviceViewModel vm =
-      new DeviceViewModel(App.INST(), getItem(position));
-    holder.bind(mLifecycleOwner, vm, mHandlers);
+    super(new DeviceViewHolderFactory(), new DeviceViewModelFactory(), R.layout.device_row, owner, handlers);
   }
 
   /** Factory to create an instance of our ViewHolder */
   static class DeviceViewHolderFactory implements
-    ViewHolderFactory<DeviceViewHolder, DeviceRowBinding> {
+    VHAdapterFactory<DeviceViewHolder, DeviceRowBinding> {
     DeviceViewHolderFactory() {}
 
     @Override
     public DeviceViewHolder create(DeviceRowBinding binding) {
       return new DeviceViewHolder(binding);
+    }
+  }
+
+  /** Factory to create an instance of our ViewModel */
+  static class DeviceViewModelFactory implements
+    VMAdapterFactory<DeviceViewModel, DeviceEntity> {
+
+    @Override
+    public DeviceViewModel create(DeviceEntity item) {
+      return new DeviceViewModel(App.INST(), item);
     }
   }
 
