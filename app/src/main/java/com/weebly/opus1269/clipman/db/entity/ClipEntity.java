@@ -12,7 +12,6 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -27,11 +26,9 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 import com.weebly.opus1269.clipman.model.Clip;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -39,11 +36,12 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.msg.MessagingClient;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,11 +53,10 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
   private static final String LABELS_LABEL = "ClipItem Labels";
-  private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
 
   @PrimaryKey(autoGenerate = true)
   private long id;
-  
+
   private String text;
   private long date;
   private boolean fav;
@@ -72,10 +69,10 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   /** PK's of the labels - only used for backup/restore */
   @Ignore
   private List<Long> labelsId;
-  
-  public ClipEntity() {}
 
-  public ClipEntity(String text, long date, boolean fav, boolean remote, String device) {
+
+  public ClipEntity(String text, long date, boolean fav, boolean remote,
+                    String device) {
     this.text = text;
     this.date = date;
     this.fav = fav;
@@ -129,194 +126,12 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   }
 
   /**
-   * Get the text on the Clipboard as a Clip
-   * @param clipboard The manager
-   * @return A new clip from the clipboard contents
-   */
-  @Nullable
-  public static ClipEntity getFromClipboard(Context context,
-                                            @Nullable
-                                            ClipboardManager clipboard) {
-    if (clipboard == null) {
-      return null;
-    }
-    final ClipData clipData = clipboard.getPrimaryClip();
-    if (clipData == null) {
-      return null;
-    }
-
-    final ClipData.Item item = clipData.getItemAt(0);
-
-    CharSequence clipText = item.getText();
-    if (clipText == null) {
-      // If the Uri contains something, just coerce it to text
-      if (item.getUri() != null) {
-        try {
-          clipText = item.coerceToText(context);
-        } catch (Exception ex) {
-          Log.logEx(context, TAG, ex.getLocalizedMessage(), ex,
-            ERROR_CLIPBOARD_READ);
-          return null;
-        }
-      }
-    }
-
-    // parse the description for special instructions
-    Boolean remote = false;
-    String sourceDevice = MyDevice.INST(context).getDisplayName();
-    final ClipDescription desc = clipData.getDescription();
-
-    // set fav state if the copy is from us
-    final Boolean fav = parseFav(desc);
-
-    // set remote state if this is a remote copy
-    final String parse = parseRemote(desc);
-    if (!parse.isEmpty()) {
-      remote = true;
-      sourceDevice = parse;
-    }
-
-    // get any Labels
-    final List<Label> labels = parseLabels(desc);
-
-    ClipEntity clipEntity = null;
-    if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
-      clipEntity = new ClipEntity(context);
-      clipEntity.setText(context, String.valueOf(clipText));
-      clipEntity.setFav(fav);
-      clipEntity.setRemote(remote);
-      clipEntity.setDevice(sourceDevice);
-      clipEntity.setLabels(labels);
-    }
-
-    return clipEntity;
-  }
-
-  /**
-   * Send the clipboard contents to our devices
-   * @param view toast parent
-   */
-  public static void sendClipboardContents(@NonNull Context context,
-                                           @Nullable View view) {
-    ClipboardManager clipboardManager =
-      (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-    final ClipEntity clipEntity = getFromClipboard(context, clipboardManager);
-    int id = R.string.clipboard_no_text;
-
-    if (!ClipEntity.isWhitespace(clipEntity)) {
-      // TODO save to database
-      //clipEntity.saveIfNew(context);
-
-      // send to registered devices , if possible
-      if (!User.INST(context).isLoggedIn()) {
-        id = R.string.err_not_signed_in;
-      } else if (!Prefs.INST(context).isDeviceRegistered()) {
-        id = R.string.err_not_registered;
-      } else if (!Prefs.INST(context).isPushClipboard()) {
-        id = R.string.err_no_push;
-      } else if (clipEntity.send(context)) {
-        id = R.string.clipboard_sent;
-      }
-    }
-
-    // display status message
-    final String msg = context.getString(id);
-    AppUtils.showMessage(context, view, msg);
-  }
-
-  /**
    * Is a {@link Clip} all whitespace
    * @param clip item
    * @return true if null of whitespace
    */
   public static boolean isWhitespace(Clip clip) {
     return (clip == null) || AppUtils.isWhitespace(clip.getText());
-  }
-
-  /**
-   * Determine if a {@link ClipEntity} exists with given text and is a favorite
-   * @param clipText text to query
-   * @return true if exists and fav is true
-   */
-  public static boolean hasClipWithFav(Context context, String clipText) {
-    return ClipTable.INST(context).exists(clipText, true);
-  }
-
-  /**
-   * Get the label for the {@link ClipDescription}
-   * @param desc The item's {@link ClipDescription}
-   * @return true if null of whitespace
-   */
-  private static String getClipDescriptionLabel(ClipDescription desc) {
-    String ret = "";
-
-    if (desc != null) {
-      final CharSequence label = desc.getLabel();
-      if (label != null) {
-        ret = label.toString();
-      }
-    }
-
-    return ret;
-  }
-
-  /**
-   * Parse the fav state from the {@link ClipDescription}
-   * @param desc The item's {@link ClipDescription}
-   * @return The fav state
-   */
-  private static boolean parseFav(ClipDescription desc) {
-    boolean fav = false;
-
-    String label = ClipEntity.getClipDescriptionLabel(desc);
-    if (!TextUtils.isEmpty(label) && label.contains(DESC_LABEL)) {
-      final int index = label.indexOf('[');
-      if (index != -1) {
-        label = label.substring(index + 1, index + 2);
-        fav = Integer.parseInt(label) != 0;
-      }
-    }
-    return fav;
-  }
-
-  /**
-   * Parse the {@link ClipDescription} to see if it is from one of our
-   * remote devices
-   * @param desc The item's {@link ClipDescription}
-   * @return The remote device name or "" if a local copy
-   */
-  private static String parseRemote(ClipDescription desc) {
-    String device = "";
-
-    final String label = ClipEntity.getClipDescriptionLabel(desc);
-    if (!TextUtils.isEmpty(label) && label.contains(REMOTE_DESC_LABEL)) {
-      final int idxStart = label.indexOf('(');
-      final int idxStop = label.indexOf(')');
-      device = label.substring(idxStart + 1, idxStop);
-    }
-    return device;
-  }
-
-  /**
-   * Parse the {@link ClipDescription} to get any labels
-   * @param desc The item's {@link ClipDescription}
-   * @return The List of labels
-   */
-  private static List<Label> parseLabels(ClipDescription desc) {
-    ArrayList<Label> list = new ArrayList<>(0);
-
-    final String label = ClipEntity.getClipDescriptionLabel(desc);
-    if (!TextUtils.isEmpty(label) && label.contains(LABELS_LABEL)) {
-      final int idxStart = label.indexOf('\n' + LABELS_LABEL) +
-        LABELS_LABEL.length();
-      final int idxStop = label.indexOf('\n', idxStart);
-      final String labelString = label.substring(idxStart + 1, idxStop);
-      final Gson gson = new Gson();
-      final Type type = new TypeToken<ArrayList<Label>>() {
-      }.getType();
-      list = gson.fromJson(labelString, type);
-    }
-    return list;
   }
 
   @Override
@@ -499,6 +314,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   //}
 
   /** Copy to the clipboard */
+  @Override
   public void copyToClipboard(final Context context) {
     final Handler handler = new Handler(Looper.getMainLooper());
     handler.post(() -> {
@@ -565,40 +381,48 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     AppUtils.startNewTaskActivity(ctxt, sendIntent);
   }
 
-  ///**
-  // * Save to database
-  // * @param onNewOnly if true, only save if text is not in database
-  // * @return true if saved
-  // */
-  //@NonNull
-  //private Boolean save(Context context, Boolean onNewOnly) {
-  //  return ClipTable.INST(context).save(this, onNewOnly);
-  //}
-  //
-  ///**
-  // * Save to database if it is a new item
-  // * @return true if saved
-  // */
-  //public Boolean saveIfNew(Context context) {
-  //  return save(context, true);
-  //}
-  //
-  ///**
-  // * Save to database
-  // * @return true if saved
-  // */
-  //public Boolean save(Context context) {
-  //  return save(context, false);
-  //}
-  //
-  ///**
-  // * Delete from database
-  // * @return true if deleted
-  // */
-  //public boolean delete(Context context) {
-  //  return ClipTable.INST(context).delete(this);
-  //}
-  //
+  /**
+   * Add to database
+   * @param onNewOnly if true, only add if text is not in database
+   */
+  private void add(boolean onNewOnly) {
+    MainRepo.INST(App.INST()).addClipAsync(this, onNewOnly);
+  }
+
+  /**
+   * Add to database if it is a new item
+   */
+  @Override
+  public void addIfNew(Context context) {
+    add(true);
+  }
+
+  /**
+   * Add to database
+   */
+  @Override
+  public void add(Context context) {
+    add(false);
+  }
+
+  /**
+   * Send to our devices
+   * @param cntxt A Context
+   */
+  @Override
+  public void send(Context cntxt) {
+    if (User.INST(cntxt).isLoggedIn() && Prefs.INST(cntxt).isPushClipboard()) {
+      MessagingClient.INST(cntxt).send(this);
+    }
+  }
+
+  /**
+   * Delete from database
+   */
+  public void delete(Context context) {
+    //return ClipTable.INST(context).delete(this);
+  }
+
   ///** Get our {@link Label} names from the database */
   //public void loadLabels(Context context) {
   //  this.labels.clear();
@@ -612,22 +436,11 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   //  }
   //}
   //
+
   /**
-   * Send to our devices
-   * @return true if sent
+   * Initialize the members
+   * @param context A Context
    */
-  public Boolean send(Context context) {
-    Boolean ret = false;
-    if (User.INST(context).isLoggedIn() &&
-      Prefs.INST(context).isPushClipboard()) {
-      ret = true;
-      // TODO
-      //MessagingClient.INST(context).send(this);
-    }
-    return ret;
-  }
-  //
-  /** Initialize the members */
   private void init(Context context) {
     text = "";
     date = Instant.now().toEpochMilli();

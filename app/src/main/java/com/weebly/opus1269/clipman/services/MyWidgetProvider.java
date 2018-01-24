@@ -16,7 +16,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.app.ClipboardHelper;
 
 /**
  * Manage our app's widget
@@ -53,7 +53,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     super.onReceive(context, intent);
 
     if (ACTION_CLICK.equals(intent.getAction())) {
-      ClipItem.sendClipboardContents(context, null);
+      ClipboardHelper.sendClipboardContents(context, null);
     }
   }
 }

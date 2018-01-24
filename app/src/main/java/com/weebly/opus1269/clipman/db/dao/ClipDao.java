@@ -33,11 +33,17 @@ public interface ClipDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(List<ClipEntity> clipEntities);
 
-  @Query("UPDATE clips SET text = :newText WHERE text = :oldText")
-  void updateText(String newText, String oldText);
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  long insert(ClipEntity clipEntity);
+
+  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  long insertIfNew(ClipEntity clipEntity);
 
   @Query("DELETE FROM clips")
   void deleteAll();
+
+  @Query("DELETE FROM clips WHERE fav = 0")
+  void deleteAllNonFavs();
 
   @Delete
   void delete(ClipEntity clipEntity);

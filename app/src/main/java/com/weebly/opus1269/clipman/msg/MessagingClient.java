@@ -32,6 +32,7 @@ import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.backend.messaging.Messaging;
 import com.weebly.opus1269.clipman.backend.messaging.model.EndpointRet;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.model.Clip;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -99,6 +100,40 @@ public class MessagingClient extends Endpoint {
       message = message.substring(0, MAX_LEN - 1);
     }
     final String favString = clipItem.isFav() ? "1" : "0";
+
+    JSONObject data = getJSONData(Msg.ACTION_MESSAGE, message);
+    try {
+      if (data != null) {
+        data.put(Msg.FAV, favString);
+      }
+    } catch (JSONException ex) {
+      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
+      data = null;
+    }
+
+    if (data != null) {
+      new MessagingAsyncTask(mContext, true).executeMe(data);
+    }
+  }
+
+  /**
+   * Send contents of {@link Clip}
+   * @param clip - contents to send
+   */
+  public void send(Clip clip) {
+    // Max length of fcm data message
+    final int MAX_LEN = 4096;
+
+    if (notSignedIn() || !Prefs.INST(mContext).isPushClipboard()) {
+      return;
+    }
+
+    String message = clip.getText();
+    if (message.length() > MAX_LEN) {
+      // 4KB limit with FCM - server will do final limiting
+      message = message.substring(0, MAX_LEN - 1);
+    }
+    final String favString = clip.getFav() ? "1" : "0";
 
     JSONObject data = getJSONData(Msg.ACTION_MESSAGE, message);
     try {

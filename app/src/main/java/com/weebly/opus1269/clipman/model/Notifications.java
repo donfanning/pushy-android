@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
@@ -141,25 +142,25 @@ public class Notifications {
 
   /**
    * Display notification on a clipboard change
-   * @param clipItem the {@link ClipItem} to display notification for
+   * @param clip the {@link ClipEntity} to display notification for
    */
-  public void show(ClipItem clipItem) {
+  public void show(ClipEntity clip) {
     final String labelFilter = Prefs.INST(mContext).getLabelFilter();
-    if (ClipItem.isWhitespace(clipItem) ||
+    if (ClipEntity.isWhitespace(clip) ||
       (App.isMainActivityVisible() && TextUtils.isEmpty(labelFilter)) ||
-      (clipItem.isRemote() && !Prefs.INST(mContext).isNotifyRemote()) ||
-      (!clipItem.isRemote() && !Prefs.INST(mContext).isNotifyLocal())) {
+      (clip.getRemote() && !Prefs.INST(mContext).isNotifyRemote()) ||
+      (!clip.getRemote() && !Prefs.INST(mContext).isNotifyLocal())) {
       return;
     }
 
-    final String clipText = clipItem.getText();
+    final String clipText = clip.getText();
     final int id = ID_COPY;
 
     // keep track of number of new items
     mClipItemCt++;
 
     final Intent intent = new Intent(mContext, MainActivity.class);
-    intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
+    intent.putExtra(Intents.EXTRA_CLIP, clip);
     intent.putExtra(Intents.EXTRA_CLIP_COUNT, mClipItemCt);
 
     PendingIntent pIntent =
@@ -170,10 +171,10 @@ public class Notifications {
     // remote vs. local settings
     final int largeIcon;
     final String titleText;
-    if (clipItem.isRemote()) {
+    if (clip.getRemote()) {
       largeIcon = R.drawable.lic_remote_copy;
       titleText = mContext
-        .getString(R.string.clip_notification_remote_fmt, clipItem.getDevice());
+        .getString(R.string.clip_notification_remote_fmt, clip.getDevice());
     } else {
       largeIcon = R.drawable.lic_local_copy;
       titleText = mContext.getString(R.string.clip_notification_local);
@@ -184,7 +185,7 @@ public class Notifications {
     builder
       .setContentText(clipText)
       .setStyle(new NotificationCompat.BigTextStyle().bigText(clipText))
-      .setWhen(clipItem.getTime());
+      .setWhen(clip.getDate());
 
     if (mClipItemCt > 1) {
       final String text =
@@ -202,13 +203,13 @@ public class Notifications {
 
     // Web Search action
     pIntent = NotificationReceiver
-      .getPIntent(mContext, Intents.ACTION_SEARCH, id, clipItem);
+      .getPIntent(mContext, Intents.ACTION_SEARCH, id, clip);
     builder.addAction(R.drawable.ic_search,
       mContext.getString(R.string.action_search), pIntent);
 
     // Share action
     pIntent = NotificationReceiver
-      .getPIntent(mContext, Intents.ACTION_SHARE, id, clipItem);
+      .getPIntent(mContext, Intents.ACTION_SHARE, id, clip);
     builder.addAction(R.drawable.ic_share,
       mContext.getString(R.string.action_share) + " ...", pIntent);
 
@@ -449,15 +450,15 @@ public class Notifications {
      * @param ctxt     A Context
      * @param action   An action we know about
      * @param noteId   The id of the source notification
-     * @param clipItem The {@link ClipItem}
+     * @param clip The {@link Clip}
      * @return a {@link PendingIntent}
      */
     public static PendingIntent getPIntent(Context ctxt, String action,
-                                           int noteId, ClipItem clipItem) {
+                                           int noteId, ClipEntity clip) {
       final Intent intent = new Intent(ctxt, NotificationReceiver.class);
       intent.setAction(action);
       intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);
-      intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
+      intent.putExtra(Intents.EXTRA_CLIP, clip);
       return PendingIntent.getBroadcast(ctxt, 12345, intent,
         PendingIntent.FLAG_UPDATE_CURRENT);
     }

@@ -26,9 +26,9 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.User;
@@ -113,7 +113,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       case Msg.ACTION_MESSAGE:
         // normal message, save and copy to clipboard
         DeviceRepo.INST(getApplication()).add(device);
-        saveClipItem(this, data, device);
+        saveClip(this, data, device);
         break;
       case Msg.ACTION_PING:
         // We were pinged
@@ -155,34 +155,35 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
 
   /**
-   * Save {@link ClipItem} to database and copy to clipboard
+   * Save {@link ClipEntity} to the database and copy to clipboard
    * @param ctxt   A Context
    * @param data   {@link Map} of key value pairs
    * @param device Source {@link Device}
    */
-  private static void saveClipItem(Context ctxt, Map<String, String> data,
-                                   DeviceEntity device) {
+  private static void saveClip(Context ctxt, Map<String, String> data,
+                               DeviceEntity device) {
     final String clipTxt = data.get(Msg.MESSAGE);
     final String favString = data.get(Msg.FAV);
     Boolean fav = "1".equals(favString);
     final String deviceName = device.getDisplayName();
-    final Instant date = Instant.now();
-    final ClipItem clipItem;
+    final long date = Instant.now().getEpochSecond();
+    final ClipEntity clip;
 
-    if (!fav && ClipItem.hasClipWithFav(ctxt, clipTxt)) {
-      // don't override fav of an existing item
-      fav = true;
-    }
+    // TODO
+    //if (!fav && ClipItem.hasClipWithFav(ctxt, clipTxt)) {
+    //  // don't override fav of an existing item
+    //  fav = true;
+    //}
 
-    clipItem = new ClipItem(ctxt, clipTxt, date, fav, true, deviceName);
+    clip = new ClipEntity(clipTxt, date, fav, true, deviceName);
 
-    // save to DB
-    clipItem.save(ctxt);
+    // add to DB
+    clip.add(ctxt);
 
     // add to clipboard
-    clipItem.copyToClipboard(ctxt);
+    clip.copyToClipboard(ctxt);
 
     // display notification if requested by user
-    Notifications.INST(ctxt).show(clipItem);
+    Notifications.INST(ctxt).show(clip);
   }
 }

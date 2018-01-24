@@ -12,12 +12,17 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
+import com.weebly.opus1269.clipman.model.Notifications;
+import com.weebly.opus1269.clipman.model.Prefs;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -42,6 +47,9 @@ public class MainRepo {
 
   /** True if loading */
   private final MutableLiveData<Boolean> isLoading;
+  
+  /** Clip list */
+  private final MediatorLiveData<List<ClipEntity>> clipsList;
 
   /** Label list */
   private final MediatorLiveData<List<LabelEntity>> labelsList;
@@ -51,13 +59,21 @@ public class MainRepo {
     mDB = MainDB.INST(app);
 
     errorMsg = new MutableLiveData<>();
-    errorMsg.setValue(null);
+    errorMsg.postValue(null);
 
     isLoading = new MutableLiveData<>();
-    isLoading.setValue(false);
+    isLoading.postValue(false);
+
+    clipsList = new MediatorLiveData<>();
+    clipsList.postValue(new ArrayList<>());
+    clipsList.addSource(mDB.clipDao().getAll(), clips -> {
+      if (mDB.getDatabaseCreated().getValue() != null) {
+        clipsList.postValue(clips);
+      }
+    });
 
     labelsList = new MediatorLiveData<>();
-    labelsList.setValue(new ArrayList<>());
+    labelsList.postValue(new ArrayList<>());
     labelsList.addSource(mDB.labelDao().getAll(), labels -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         labelsList.postValue(labels);
@@ -84,6 +100,10 @@ public class MainRepo {
     return isLoading;
   }
 
+  public MutableLiveData<List<ClipEntity>> getClips() {
+    return clipsList;
+  }
+
   public MutableLiveData<List<LabelEntity>> getLabels() {
     return labelsList;
   }
@@ -106,6 +126,51 @@ public class MainRepo {
     //App.getExecutors().diskIO()
     //  .execute(() -> MainDB.INST(mApp).labelDao().getLabel(name));
   }
+
+  public void addClipAsync(@NonNull ClipEntity clip, boolean onNewOnly) {
+    if (onNewOnly) {
+      addClipIfNewAsync(clip);
+    } else {
+      addClipAsync(clip);
+    }
+  }
+
+  public void addClipAsync(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> MainDB.INST(mApp).clipDao().insertAll(clip));
+  }
+
+  public void addClipIfNewAsync(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> MainDB.INST(mApp).clipDao().insertIfNew(clip));
+  }
+
+  public void removeClipAsync(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> MainDB.INST(mApp).clipDao().delete(clip));
+  }
+
+  public void addClipAndSendAsync(Context cntxt, ClipEntity clip, boolean onNewOnly) {
+    App.getExecutors().diskIO().execute(() -> {
+      long id;
+      if (onNewOnly) {
+        id = MainDB.INST(mApp).clipDao().insertIfNew(clip);
+      } else {
+        id = MainDB.INST(mApp).clipDao().insert(clip);
+      }
+
+      Log.logD(TAG, "id: " + id);
+
+      if (id != -1L) {
+        Notifications.INST(cntxt).show(clip);
+
+        if (!clip.getRemote() && Prefs.INST(cntxt).isAutoSend()) {
+          clip.send(cntxt);
+        }
+      }
+    });
+  }
+
 
   public void addLabelAsync(@NonNull LabelEntity label) {
     App.getExecutors().diskIO()

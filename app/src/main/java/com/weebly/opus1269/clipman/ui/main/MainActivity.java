@@ -31,6 +31,7 @@ import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
@@ -512,7 +513,7 @@ public class MainActivity extends BaseActivity implements
 
   /** Send the clipboard contents to our devices */
   private void sendClipboardContents() {
-    ClipItem.sendClipboardContents(this, findViewById(R.id.fab));
+    ClipboardHelper.sendClipboardContents(this, findViewById(R.id.fab));
   }
 
   /** Show the {@link DeleteDialogFragment} for verifying delete all */

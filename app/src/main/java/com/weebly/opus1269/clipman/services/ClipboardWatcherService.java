@@ -16,11 +16,14 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipsContentProvider;
-import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.Notifications;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /**
  * An app private {@link Service} to listen for changes to the clipboard,
@@ -134,49 +137,36 @@ public class ClipboardWatcherService extends Service implements
     if (mClipboard == null) {
       return;
     }
-    final ClipItem clipItem = ClipItem.getFromClipboard(this, mClipboard);
+    final ClipEntity clip = ClipboardHelper.getFromClipboard(this, mClipboard);
     final long now = System.currentTimeMillis();
     final long deltaTime = now - mLastTime;
     mLastTime = now;
 
-    if (ClipItem.isWhitespace(clipItem) || clipItem.isRemote()) {
+    if (ClipEntity.isWhitespace(clip) || clip.getRemote()) {
       // ignore empty or remote clips - remotes were saved by FCM listener
       mLastText = "";
       return;
     }
 
-    if (mLastText.equals(clipItem.getText())) {
+    if (mLastText.equals(clip.getText())) {
       if (deltaTime > MIN_TIME_MILLIS) {
         // only handle identical local copies this fast
         // some apps (at least Chrome) write to clipboard twice.
-        saveAndSend(clipItem, onNewOnly);
+        saveAndSend(clip, onNewOnly);
       }
     } else {
       // normal situation, fire away
-      saveAndSend(clipItem, onNewOnly);
+      saveAndSend(clip, onNewOnly);
     }
-    mLastText = clipItem.getText();
+    mLastText = clip.getText();
   }
 
   /**
    * Optionally save to database and send to remote devices
-   * @param clipItem  item
+   * @param clip  item
    * @param onNewOnly if true, only save if the text doesn't exist
    */
-  private void saveAndSend(ClipItem clipItem, boolean onNewOnly) {
-    boolean saved;
-    if (onNewOnly) {
-      saved = clipItem.saveIfNew(this);
-    } else {
-      saved = clipItem.save(this);
-    }
-
-    if (saved) {
-      Notifications.INST(this).show(clipItem);
-
-      if (!clipItem.isRemote() && Prefs.INST(this).isAutoSend()) {
-        clipItem.send(this);
-      }
-    }
+  private void saveAndSend(ClipEntity clip, boolean onNewOnly) {
+    MainRepo.INST(App.INST()).addClipAndSendAsync(this, clip, onNewOnly);
   }
 }
