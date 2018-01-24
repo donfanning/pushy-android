@@ -19,15 +19,21 @@ import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppExecutors;
+import com.weebly.opus1269.clipman.db.dao.ClipDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 
+import java.util.List;
+
 /** Main database */
-@Database(entities = {LabelEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {ClipEntity.class, LabelEntity.class}, version = 1, exportSchema = false)
 public abstract class MainDB extends RoomDatabase {
   private static MainDB sInstance;
 
   private static final String DATABASE_NAME = "main.db";
+
+  public abstract ClipDao clipDao();
 
   public abstract LabelDao labelDao();
 
@@ -37,14 +43,14 @@ public abstract class MainDB extends RoomDatabase {
     if (sInstance == null) {
       synchronized (MainDB.class) {
         if (sInstance == null) {
-          sInstance =
-            buildDatabase(app);
-          sInstance.updateDatabaseCreated(app.getApplicationContext());
+          sInstance = buildDatabase(app);
+          sInstance.updateDatabaseCreated(app);
         }
       }
     }
     return sInstance;
   }
+
   /**
    * Build the database. {@link Builder#build()} only sets up the database
    * configuration and creates a new instance of the database.
@@ -61,13 +67,12 @@ public abstract class MainDB extends RoomDatabase {
           executors.diskIO().execute(() -> {
             // Generate the data for pre-population
             MainDB database = MainDB.INST(app);
-            // TODO convert databse here
-            //List<ProductEntity> products = DataGenerator.generateProducts();
-            //List<CommentEntity> comments =
-            //  DataGenerator.generateCommentsForProducts(products);
-            //
-            //insertData(database, products, comments);
-            // notify that the database was created and it's ready to be used
+            // TODO convert Clips.db database here
+            List<ClipEntity> clips = MainDBInitializer.getClips();
+            List<LabelEntity> labels = MainDBInitializer.getLabels();
+
+            insertData(database, clips, labels);
+             //notify that the database was created and it's ready to be used
             database.setDatabaseCreated();
           });
         }
@@ -90,5 +95,12 @@ public abstract class MainDB extends RoomDatabase {
 
   private void setDatabaseCreated(){
     mIsDBCreated.postValue(true);
+  }
+
+  private static void insertData(final MainDB database, final List<ClipEntity> clips, final List<LabelEntity> labels) {
+    database.runInTransaction(() -> {
+      database.clipDao().insertAll(clips);
+      database.labelDao().insertAll(labels);
+    });
   }
 }

@@ -203,6 +203,7 @@
   <string name="default_clip_2">Tap the \u2661 to make it a favorite.</string>
   <string name="default_clip_3">Swipe \u261E to delete.</string>
   <string name="default_clip_4">You can label items to categorize them.</string>
+  <string name="default_label_name">Example</string>
 
 
   <!-- Related to ErrorViewerActivity -->

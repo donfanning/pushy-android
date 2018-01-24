@@ -14,31 +14,31 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 
 import java.util.List;
 
-/** Database access for Labels */
+/** Database access for Clips */
 @Dao
-public interface LabelDao {
-  @Query("SELECT * FROM labels ORDER BY LOWER(name) ASC")
-  LiveData<List<LabelEntity>> getAll();
+public interface ClipDao {
+  @Query("SELECT * FROM clips ORDER BY date DESC")
+  LiveData<List<ClipEntity>> getAll();
 
-  @Query("SELECT * FROM labels WHERE name = :name LIMIT 1")
-  LiveData<LabelEntity> getLabel(String name);
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(LabelEntity... labelEntities);
+  @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
+  LiveData<ClipEntity> getClip(String text);
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(List<LabelEntity> labelEntities);
+  void insertAll(ClipEntity... clipEntities);
 
-  @Query("UPDATE labels SET name = :newName WHERE name = :oldName")
-  void updateName(String newName, String oldName);
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  void insertAll(List<ClipEntity> clipEntities);
 
-  @Query("DELETE FROM labels")
+  @Query("UPDATE clips SET text = :newText WHERE text = :oldText")
+  void updateText(String newText, String oldText);
+
+  @Query("DELETE FROM clips")
   void deleteAll();
 
   @Delete
-  void delete(LabelEntity labelEntity);
+  void delete(ClipEntity clipEntity);
 }
