@@ -25,6 +25,7 @@ import android.os.SystemClock;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
@@ -36,6 +37,7 @@ import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.repos.DeviceRepo;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
 
@@ -166,19 +168,12 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final String favString = data.get(Msg.FAV);
     Boolean fav = "1".equals(favString);
     final String deviceName = device.getDisplayName();
-    final long date = Instant.now().getEpochSecond();
-    final ClipEntity clip;
+    final long date = Instant.now().toEpochMilli();
 
-    // TODO
-    //if (!fav && ClipItem.hasClipWithFav(ctxt, clipTxt)) {
-    //  // don't override fav of an existing item
-    //  fav = true;
-    //}
-
-    clip = new ClipEntity(clipTxt, date, fav, true, deviceName);
-
-    // add to DB
-    clip.add(ctxt);
+    // add to database
+    final ClipEntity clip =
+      new ClipEntity(clipTxt, date, fav, true, deviceName);
+    MainRepo.INST(App.INST()).addClipKeepTrueFav(clip);
 
     // add to clipboard
     clip.copyToClipboard(ctxt);

@@ -47,7 +47,7 @@ public class MainRepo {
 
   /** True if loading */
   private final MutableLiveData<Boolean> isLoading;
-  
+
   /** Clip list */
   private final MediatorLiveData<List<ClipEntity>> clipsList;
 
@@ -145,12 +145,26 @@ public class MainRepo {
       .execute(() -> MainDB.INST(mApp).clipDao().insertIfNew(clip));
   }
 
+  /**
+   * Add a clip but preserve the true fav state if it exists
+   * @param clip Clip to insert or replace
+   */
+  public void addClipKeepTrueFav(@NonNull ClipEntity clip) {
+    ClipEntity existingClip =
+      MainDB.INST(mApp).clipDao().getClipWithTrueFavSync(clip.getText());
+    if ((existingClip != null) && existingClip.getFav()) {
+      clip.setFav(true);
+    }
+    MainDB.INST(App.INST()).clipDao().insert(clip);
+  }
+
   public void removeClipAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).clipDao().delete(clip));
   }
 
-  public void addClipAndSendAsync(Context cntxt, ClipEntity clip, boolean onNewOnly) {
+  public void addClipAndSendAsync(Context cntxt, ClipEntity clip, boolean
+    onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
       long id;
       if (onNewOnly) {
@@ -177,7 +191,8 @@ public class MainRepo {
       .execute(() -> MainDB.INST(mApp).labelDao().insertAll(label));
   }
 
-  public void updateLabelAsync(@NonNull String newName, @NonNull String oldName) {
+  public void updateLabelAsync(@NonNull String newName, @NonNull String
+    oldName) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).labelDao().updateName(newName, oldName));
   }

@@ -25,7 +25,10 @@ public interface ClipDao {
   LiveData<List<ClipEntity>> getAll();
 
   @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
-  LiveData<ClipEntity> getClip(String text);
+  ClipEntity getClipSync(String text);
+
+  @Query("SELECT * FROM clips WHERE text = :text AND fav = '1' LIMIT 1")
+  ClipEntity getClipWithTrueFavSync(String text);
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(ClipEntity... clipEntities);
