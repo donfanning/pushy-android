@@ -9,6 +9,7 @@
 <full-backup-content>
   <include domain="sharedpref" path="com.weebly.opus1269.clipman_preferences.xml"/>
   <include domain="sharedpref" path="_has_set_default_values.xml"/>
-  <include domain="database" path="Clips.db"/>
+  <include domain="database" path="main.db"/>
   <include domain="database" path="devices.db"/>
+  <include domain="database" path="backups.db"/>
 </full-backup-content>

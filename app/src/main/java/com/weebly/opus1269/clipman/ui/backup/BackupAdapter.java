@@ -32,7 +32,8 @@ import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the BackupEntity RecyclerView and the Backups class */
-class BackupAdapter extends BaseBindingAdapter<BackupEntity, BackupRowBinding, BackupHandlers, BackupViewModel, BackupAdapter.BackupViewHolder> {
+class BackupAdapter extends BaseBindingAdapter<BackupEntity, BackupRowBinding,
+  BackupHandlers, BackupViewModel, BackupAdapter.BackupViewHolder> {
 
   BackupAdapter(LifecycleOwner owner, BackupHandlers handlers) {
     super(new BackupViewHolderFactory(), new BackupViewModelFactory(),
