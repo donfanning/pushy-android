@@ -126,6 +126,13 @@ public class MainRepo extends BaseRepo {
     MainDB.INST(App.INST()).clipDao().insert(clip);
   }
 
+  public void updateClipAsync(@NonNull String newText,
+                               @NonNull String oldText) {
+    App.getExecutors().diskIO()
+      .execute(() -> MainDB.INST(mApp).clipDao().updateText(newText, oldText));
+  }
+
+
   public void removeClipAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).clipDao().delete(clip));

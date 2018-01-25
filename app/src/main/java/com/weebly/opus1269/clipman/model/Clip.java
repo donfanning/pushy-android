@@ -9,7 +9,6 @@ package com.weebly.opus1269.clipman.model;
 
 import android.content.Context;
 
-
 /** Interface for a Clip item */
 public interface Clip {
   long getId();
@@ -29,8 +28,6 @@ public interface Clip {
   void addIfNew(Context context);
 
   void send(Context context);
-
-  void delete(Context context);
 
   void copyToClipboard(final Context context);
 }

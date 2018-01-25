@@ -16,27 +16,27 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.ClipTable;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 
 import org.threeten.bp.Instant;
 
-/** Activity to edit the text of a ClipItem */
+/** Activity to edit the text of a {@link ClipEntity} */
 public class ClipEditorActvity extends BaseActivity {
-
-  /** Saved state for mClipItem */
-  private static final String STATE_CLIP_ITEM = "clipItem";
+  /** Saved state for mClip */
+  private static final String STATE_CLIP = "clip";
 
   /** Saved state for mIsAddMode */
   private static final String STATE_IS_ADD_MODE = "isAddMode";
 
   /** Clipitem we are editing */
-  private ClipItem mClipItem;
+  private ClipEntity mClip;
 
   /** Are we adding a new clip instead of editing existing */
   private Boolean mIsAddMode = false;
@@ -54,27 +54,26 @@ public class ClipEditorActvity extends BaseActivity {
 
     if (savedInstanceState == null) {
       final Intent intent = getIntent();
-      mClipItem =
-        (ClipItem) intent.getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
-      if (mClipItem == null) {
+      mClip = (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+      if (mClip == null) {
         // adding new, not editing existing
         setAddMode(true);
-        mClipItem = new ClipItem(this);
+        mClip = new ClipEntity(this);
         final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
         if (!TextUtils.isEmpty(labelName)) {
           // added from a list filtered by labelName
-          mClipItem.addLabel(this, new Label(labelName));
+          // TODO
+          //mClip.addLabel(this, new Label(labelName));
         }
       }
     } else {
-      mClipItem =
-        (ClipItem) savedInstanceState.getSerializable(STATE_CLIP_ITEM);
+      mClip = (ClipEntity) savedInstanceState.getSerializable(STATE_CLIP);
       setAddMode(savedInstanceState.getBoolean(STATE_IS_ADD_MODE));
     }
 
     final EditText editText = findViewById(R.id.clip_text);
     if (editText != null) {
-      editText.setText(mClipItem.getText());
+      editText.setText(mClip.getText());
     }
   }
 
@@ -82,7 +81,7 @@ public class ClipEditorActvity extends BaseActivity {
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
 
-    outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
+    outState.putSerializable(STATE_CLIP, mClip);
     outState.putBoolean(STATE_IS_ADD_MODE, mIsAddMode);
   }
 
@@ -115,7 +114,7 @@ public class ClipEditorActvity extends BaseActivity {
       case R.id.action_save_changes:
         final EditText editText = findViewById(R.id.clip_text);
         if (editText != null) {
-          final String oldText = mClipItem.getText();
+          final String oldText = mClip.getText();
           final String newText = editText.getText().toString();
           if (AppUtils.isWhitespace(newText)) {
             AppUtils.showMessage(this, null,
@@ -126,14 +125,14 @@ public class ClipEditorActvity extends BaseActivity {
           } else if (mIsAddMode || !newText.equals(oldText)) {
             if (!mIsAddMode) {
               // delete old
-              mClipItem.delete(this);
+              MainRepo.INST(App.INST()).removeClipAsync(mClip);
             }
             // save and send new or changed
-            mClipItem.setText(this, newText);
-            mClipItem.setRemote(false);
-            mClipItem.setDate(Instant.now().toEpochMilli());
-            mClipItem.save(this);
-            mClipItem.copyToClipboard(this);
+            mClip.setText(this, newText);
+            mClip.setRemote(false);
+            mClip.setDate(Instant.now().toEpochMilli());
+            MainRepo.INST(App.INST()).addClipAsync(mClip);
+            mClip.copyToClipboard(this);
             finish();
           }
         }

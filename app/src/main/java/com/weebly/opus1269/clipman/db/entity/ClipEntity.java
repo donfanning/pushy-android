@@ -208,13 +208,13 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
 
       if (!TextUtils.isEmpty(oldText)) {
         // broadcast change to listeners
-        final Intent intent = new Intent(Intents.FILTER_CLIP_ITEM);
+        final Intent intent = new Intent(Intents.FILTER_CLIP);
         final Bundle bundle = new Bundle();
-        bundle.putString(Intents.ACTION_TYPE_CLIP_ITEM,
-          Intents.TYPE_TEXT_CHANGED_CLIP_ITEM);
-        bundle.putSerializable(Intents.EXTRA_CLIP_ITEM, this);
+        bundle.putString(Intents.ACTION_TYPE_CLIP,
+          Intents.TYPE_TEXT_CHANGED_CLIP);
+        bundle.putSerializable(Intents.EXTRA_CLIP, this);
         bundle.putString(Intents.EXTRA_TEXT, oldText);
-        intent.putExtra(Intents.BUNDLE_CLIP_ITEM, bundle);
+        intent.putExtra(Intents.BUNDLE_CLIP, bundle);
         LocalBroadcastManager
           .getInstance(context)
           .sendBroadcast(intent);
@@ -416,12 +416,12 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     }
   }
 
-  /**
-   * Delete from database
-   */
-  public void delete(Context context) {
-    //return ClipTable.INST(context).delete(this);
-  }
+  ///**
+  // * Delete from database
+  // */
+  //public void delete(Context context) {
+  //  //return ClipTable.INST(context).delete(this);
+  //}
 
   ///** Get our {@link Label} names from the database */
   //public void loadLabels(Context context) {

@@ -36,6 +36,7 @@ import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -278,7 +279,10 @@ public class MainActivity extends BaseActivity implements
         break;
       case R.id.action_edit_text:
         intent = new Intent(this, ClipEditorActvity.class);
-        intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
+        // TODO replace with Clone
+        final ClipEntity clip = new ClipEntity(this);
+        clip.setText(this.getClipItemClone().getText());
+        intent.putExtra(Intents.EXTRA_CLIP, clip);
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_delete:

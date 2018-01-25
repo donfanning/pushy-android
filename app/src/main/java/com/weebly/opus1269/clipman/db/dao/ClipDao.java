@@ -30,6 +30,9 @@ public interface ClipDao {
   @Query("SELECT * FROM clips WHERE text = :text AND fav = '1' LIMIT 1")
   ClipEntity getClipWithTrueFavSync(String text);
 
+  @Query("UPDATE clips SET text = :newText WHERE text = :oldText")
+  void updateText(String newText, String oldText);
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(ClipEntity... clipEntities);
 
