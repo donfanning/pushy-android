@@ -16,7 +16,7 @@
 
     <variable
       name="infoMessage"
-      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+      type="android.arch.lifecycle.LiveData&lt;String&gt;" />
   </data>
 
   <LinearLayout

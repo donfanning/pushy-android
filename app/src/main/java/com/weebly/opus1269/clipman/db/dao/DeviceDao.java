@@ -22,7 +22,7 @@ import java.util.List;
 @Dao
 public interface DeviceDao {
   @Query("SELECT * FROM devices ORDER BY last_seen DESC")
-  LiveData<List<DeviceEntity>> getAll();
+  LiveData<List<DeviceEntity>> loadAll();
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(DeviceEntity... deviceEntities);

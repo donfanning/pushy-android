@@ -12,6 +12,7 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 
 import com.weebly.opus1269.clipman.R;
@@ -49,7 +50,7 @@ public class DeviceRepo extends BaseRepo implements
     ERR_NO_REMOTE_DEVICES = mApp.getString(R.string.err_no_remote_devices);
 
     deviceList = new MediatorLiveData<>();
-    deviceList.addSource(mDB.deviceDao().getAll(), devices -> {
+    deviceList.addSource(mDB.deviceDao().loadAll(), devices -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         deviceList.postValue(devices);
         if(!AppUtils.isEmpty(devices)) {
@@ -63,8 +64,7 @@ public class DeviceRepo extends BaseRepo implements
     initInfoMessage();
 
     // listen for shared preference changes
-    PreferenceManager
-      .getDefaultSharedPreferences(mApp)
+    PreferenceManager.getDefaultSharedPreferences(mApp)
       .registerOnSharedPreferenceChangeListener(this);
   }
 
@@ -96,7 +96,7 @@ public class DeviceRepo extends BaseRepo implements
     }
   }
 
-  public LiveData<List<DeviceEntity>> getDeviceList() {
+  @NonNull public LiveData<List<DeviceEntity>> loadDevices() {
     if (deviceList.getValue() == null) {
       // if no items in database, List will be null
       deviceList.setValue(new ArrayList<>());

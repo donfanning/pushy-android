@@ -58,9 +58,8 @@ public class DevicesActivity extends BaseActivity {
                                  DeviceHandlers handlers) {
     mAdapter = new DevicesAdapter(this, handlers);
     recyclerView.setAdapter(mAdapter);
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
     // Observe devices
-    vm.getDevices().observe(this, devices -> mAdapter.setList(devices));
+    vm.loadDevices().observe(this, devices -> mAdapter.setList(devices));
   }
 }

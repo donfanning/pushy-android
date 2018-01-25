@@ -9,6 +9,7 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
@@ -38,7 +39,7 @@ public class DevicesViewModel extends AndroidViewModel {
     // set by default null, until we get data from the repo.
     devices.setValue(null);
     // observe the changes of the devices from the repo and forward them
-    devices.addSource(mRepo.getDeviceList(), devices::setValue);
+    devices.addSource(mRepo.loadDevices(), devices::setValue);
 
     infoMessage = new MediatorLiveData<>();
     infoMessage.setValue(mRepo.getInfoMessage().getValue());
@@ -48,11 +49,11 @@ public class DevicesViewModel extends AndroidViewModel {
     refreshList();
   }
 
-  public MutableLiveData<List<DeviceEntity>> getDevices() {
+  public LiveData<List<DeviceEntity>> loadDevices() {
     return devices;
   }
 
-  public MutableLiveData<String> getInfoMessage() {
+  public LiveData<String> getInfoMessage() {
     return infoMessage;
   }
 
