@@ -41,28 +41,25 @@ public class ClipEditorActvity extends BaseActivity {
       actionBar.setHomeAsUpIndicator(R.drawable.ic_clear);
     }
 
-    ClipEntity clip = new ClipEntity(this);
-    boolean addMode = true;
+    final Intent intent = getIntent();
 
-    if (savedInstanceState == null) {
-      final Intent intent = getIntent();
-      clip = (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
-      if (clip == null) {
-        final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
-        if (!TextUtils.isEmpty(labelName)) {
-          // added from a list filtered by labelName
-          // TODO
-          //mClip.addLabel(this, new Label(labelName));
-        }
-      } else {
-        addMode = false;
+    boolean addMode = false;
+    ClipEntity clip = (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+    if (clip == null) {
+      addMode = true;
+      clip = new ClipEntity(this);
+      final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
+      if (!TextUtils.isEmpty(labelName)) {
+        // added from a list filtered by labelName
+        // TODO
+        //mClip.addLabel(this, new Label(labelName));
       }
     }
 
     setTitle(addMode);
 
     // setup ViewModel and data binding
-    mVm = new ClipViewModel(getApplication(), clip, addMode);
+    mVm = new ClipViewModel(getApplication(), clip.getText(), addMode);
     final ActivityClipEditorBinding binding =
       (ActivityClipEditorBinding) mBinding;
     binding.setLifecycleOwner(this);
@@ -77,8 +74,8 @@ public class ClipEditorActvity extends BaseActivity {
         final ErrorMsg errorMsg = mVm.getErrorMsg();
         if (errorMsg != null) {
           AppUtils.showMessage(this, null, errorMsg.msg);
-        } else {
-          mVm.getClip().getValue().copyToClipboard(this);
+        } else if (mVm.getClipLive().getValue() != null){
+          mVm.getClipLive().getValue().copyToClipboard(this);
           finish();
         }
       }
@@ -138,7 +135,7 @@ public class ClipEditorActvity extends BaseActivity {
 
   private void save() {
     mVm.saveClip();
-      //finish();
+    //finish();
   }
 
   private void setTitle(boolean state) {

@@ -49,7 +49,7 @@ public class MainRepo extends BaseRepo {
 
     clipsList = new MediatorLiveData<>();
     clipsList.postValue(new ArrayList<>());
-    clipsList.addSource(mDB.clipDao().getAll(), clips -> {
+    clipsList.addSource(mDB.clipDao().loadAll(), clips -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         clipsList.postValue(clips);
       }
@@ -81,6 +81,10 @@ public class MainRepo extends BaseRepo {
 
   public MutableLiveData<List<LabelEntity>> getLabels() {
     return labelsList;
+  }
+
+  public LiveData<ClipEntity> loadClip(final String text) {
+    return mDB.clipDao().load(text);
   }
 
   private void postLabels(@NonNull List<LabelEntity> labels) {
@@ -128,7 +132,7 @@ public class MainRepo extends BaseRepo {
    */
   public void addClipKeepTrueFav(@NonNull ClipEntity clip) {
     ClipEntity existingClip =
-      MainDB.INST(mApp).clipDao().getClipWithTrueFavSync(clip.getText());
+      MainDB.INST(mApp).clipDao().getIfTrueFav(clip.getText());
     if ((existingClip != null) && existingClip.getFav()) {
       clip.setFav(true);
     }

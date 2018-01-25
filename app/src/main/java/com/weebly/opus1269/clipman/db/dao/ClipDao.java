@@ -22,13 +22,16 @@ import java.util.List;
 @Dao
 public interface ClipDao {
   @Query("SELECT * FROM clips ORDER BY date DESC")
-  LiveData<List<ClipEntity>> getAll();
+  LiveData<List<ClipEntity>> loadAll();
 
   @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
-  ClipEntity getClipSync(String text);
+  LiveData<ClipEntity> load(String text);
+
+  @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
+  ClipEntity get(String text);
 
   @Query("SELECT * FROM clips WHERE text = :text AND fav = '1' LIMIT 1")
-  ClipEntity getClipWithTrueFavSync(String text);
+  ClipEntity getIfTrueFav(String text);
 
   @Query("UPDATE clips SET text = :newText WHERE text = :oldText")
   void updateText(String newText, String oldText);
