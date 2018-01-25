@@ -10,7 +10,6 @@ package com.weebly.opus1269.clipman.ui.backup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -153,7 +152,6 @@ public class BackupActivity extends BaseActivity {
                                  BackupsViewModel viewModel) {
     mAdapter = new BackupAdapter(this, mHandlers);
     recyclerView.setAdapter(mAdapter);
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
     // Observe files
     viewModel.getFiles().observe(this, files -> mAdapter.setList(files));

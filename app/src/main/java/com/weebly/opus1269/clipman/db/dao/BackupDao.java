@@ -32,6 +32,6 @@ public interface BackupDao {
   @Query("DELETE FROM backups")
   void deleteAll();
 
-  @Query("DELETE FROM backups WHERE drive_id_string = :driveIdString")
-  int delete(String driveIdString);
+  @Query("DELETE FROM backups WHERE drive_id_invariant = :driveIdInvariant")
+  int delete(String driveIdInvariant);
 }

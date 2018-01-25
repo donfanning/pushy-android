@@ -35,8 +35,8 @@ import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.model.BackupContents;
-import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -172,7 +172,7 @@ public class DriveHelper {
         MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
           .setTitle(filename)
           .setMimeType("application/zip");
-        BackupFile.setCustomProperties(mAppCtxt, builder);
+        BackupEntity.setCustomProperties(mAppCtxt, builder);
 
         final MetadataChangeSet changeSet = builder.build();
 
@@ -206,13 +206,13 @@ public class DriveHelper {
       })
       .addOnSuccessListener(aVoid -> onDeleteSuccess(
         DriveId.decodeFromString(lastBackup)))
-      .addOnFailureListener(ex -> onDeleteFailure(errMessage, ex));
+      .addOnFailureListener(ex -> onDeleteFailure(lastBackup, errMessage, ex));
   }
 
   /**
    * Update a backup
-   * @param file     file to update
-   * @param data     update data
+   * @param file file to update
+   * @param data update data
    */
   void updateBackupAsync(@NonNull final DriveFile file,
                          @NonNull final byte[] data) {
@@ -247,8 +247,8 @@ public class DriveHelper {
 
   /**
    * Get the contents of a backup
-   * @param file     file to retrieve
-   * @param isSync   true is syncing with a backup
+   * @param file   file to retrieve
+   * @param isSync true is syncing with a backup
    */
   void getBackupContentsAsync(final DriveFile file, final boolean isSync) {
     final String errMessage = mAppCtxt.getString(R.string.err_get_backup);
@@ -286,7 +286,7 @@ public class DriveHelper {
 
   /**
    * Delete a backup
-   * @param driveId  driveId to delete
+   * @param driveId driveId to delete
    */
   void deleteBackupAsync(@NonNull final DriveId driveId) {
     final String errMessage = mAppCtxt.getString(R.string.err_delete_backup);
@@ -302,12 +302,13 @@ public class DriveHelper {
     BackupRepo.INST(App.INST()).postIsLoading(true);
     deleteTask
       .addOnSuccessListener(aVoid -> onDeleteSuccess(driveId))
-      .addOnFailureListener(ex -> onDeleteFailure(errMessage, ex));
+      .addOnFailureListener(
+        ex -> onDeleteFailure(driveId.encodeToString(), errMessage, ex));
   }
 
   /**
    * Error getting Drive client
-   * @param title    - action type
+   * @param title - action type
    */
   private void onClientError(@NonNull String title) {
     final String msg = mAppCtxt.getString(R.string.err_internal_drive);
@@ -340,8 +341,8 @@ public class DriveHelper {
 
   /**
    * Log exception and show message
-   * @param msg      message
-   * @param ex       exception
+   * @param msg message
+   * @param ex  exception
    */
   private void showMessage(@NonNull String msg, @NonNull Exception ex) {
     final String exMsg = ex.getLocalizedMessage();
@@ -351,20 +352,21 @@ public class DriveHelper {
 
   /**
    * After deletion success
-   * @param driveId  deleted id
+   * @param driveId deleted id
    */
   private void onDeleteSuccess(DriveId driveId) {
     Log.logD(TAG, "deleted file");
-      BackupRepo.INST(App.INST()).removeBackup(driveId);
-      BackupRepo.INST(App.INST()).postIsLoading(false);
+    BackupRepo.INST(App.INST()).removeBackup(driveId);
+    BackupRepo.INST(App.INST()).postIsLoading(false);
   }
 
   /**
    * After deletion failure
-   * @param msg      error message
-   * @param ex       causing exception
+   * @param driveIdString id we failed to delete from Drive
+   * @param msg           error message
+   * @param ex            causing exception
    */
-  private void onDeleteFailure(String msg, Exception ex) {
+  private void onDeleteFailure(String driveIdString, String msg, Exception ex) {
     if (!"OK".equals(ex.getLocalizedMessage())) {
       Log.logD(TAG, "failed to delete backup");
       if (ex instanceof ApiException) {
@@ -373,19 +375,24 @@ public class DriveHelper {
         if (code != DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
           showMessage(msg, ex);
         } else {
-          Log.logD(TAG, "old backup not found");
+          Log.logD(TAG, "backup not found");
         }
       } else {
         showMessage(msg, ex);
       }
+    }
+    if (!TextUtils.isEmpty(driveIdString)) {
+      // delete from database regardless
+      BackupRepo.INST(App.INST())
+        .removeBackup(DriveId.decodeFromString(driveIdString));
     }
     BackupRepo.INST(App.INST()).postIsLoading(false);
   }
 
   /**
    * Generic Task failure
-   * @param msg      error message
-   * @param ex       causing exception
+   * @param msg error message
+   * @param ex  causing exception
    */
   private void onTaskFailure(String msg, Exception ex) {
     showMessage(msg, ex);

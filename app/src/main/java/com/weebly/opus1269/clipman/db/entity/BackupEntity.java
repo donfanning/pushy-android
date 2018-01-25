@@ -35,13 +35,16 @@ import com.weebly.opus1269.clipman.model.MyDevice;
 import java.util.Map;
 
 /** A backup file */
-@Entity(tableName = "backups", indices = {@Index(value = "drive_id_string", unique = true)})
+@Entity(tableName = "backups", indices = {@Index(value = "drive_id_invariant", unique = true)})
 public class BackupEntity implements AdapterItem {
   @PrimaryKey(autoGenerate = true)
   private long id;
 
   @ColumnInfo(name = "drive_id_string")
   private String driveIdString;
+
+  @ColumnInfo(name = "drive_id_invariant")
+  private String driveIdInvariant;
 
   private Boolean isMine;
   private String name;
@@ -55,6 +58,7 @@ public class BackupEntity implements AdapterItem {
 
   public BackupEntity(Context context, final Metadata metadata) {
     driveIdString = metadata.getDriveId().encodeToString();
+    driveIdInvariant = metadata.getDriveId().toInvariantString();
     name = metadata.getTitle();
     date = metadata.getModifiedDate().getTime();
     model = "";
@@ -136,6 +140,14 @@ public class BackupEntity implements AdapterItem {
     this.driveIdString = driveIdString;
   }
 
+  public String getDriveIdInvariant() {
+    return driveIdInvariant;
+  }
+
+  public void setDriveIdInvariant(String driveIdInvariant) {
+    this.driveIdInvariant = driveIdInvariant;
+  }
+
   public String getName() {
     return name;
   }
@@ -193,7 +205,6 @@ public class BackupEntity implements AdapterItem {
     BackupEntity that = (BackupEntity) o;
 
     if (date != that.date) return false;
-    if (!isMine.equals(that.isMine)) return false;
     if (!driveIdString.equals(that.driveIdString)) return false;
     if (!name.equals(that.name)) return false;
     if (!nickname.equals(that.nickname)) return false;
@@ -204,8 +215,7 @@ public class BackupEntity implements AdapterItem {
 
   @Override
   public int hashCode() {
-    int result = isMine.hashCode();
-    result = 31 * result + driveIdString.hashCode();
+    int result = driveIdString.hashCode();
     result = 31 * result + name.hashCode();
     result = 31 * result + nickname.hashCode();
     result = 31 * result + model.hashCode();

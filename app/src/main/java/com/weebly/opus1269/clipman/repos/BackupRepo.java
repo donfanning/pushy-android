@@ -19,6 +19,7 @@ import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.BackupDB;
 import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.model.User;
@@ -43,11 +44,10 @@ public class BackupRepo extends BaseRepo {
     mDB = BackupDB.INST(app);
 
     backupList = new MediatorLiveData<>();
-    backupList.postValue(null);
     backupList.addSource(mDB.backupDao().getAll(), backups -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         postInfoMessage(backups);
-        backupList.postValue(backups);
+        backupList.setValue(backups);
       }
     });
   }
@@ -102,8 +102,9 @@ public class BackupRepo extends BaseRepo {
    */
   public void removeBackup(@NonNull final DriveId driveId) {
     App.getExecutors().diskIO().execute(() -> {
-      final String driveIdString = driveId.encodeToString();
-      mDB.backupDao().delete(driveIdString);
+      final String driveIdInvariant = driveId.toInvariantString();
+      int nRows = mDB.backupDao().delete(driveIdInvariant);
+      Log.logD(TAG, "db removeBackup: " + nRows);
     });
   }
 
