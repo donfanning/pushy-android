@@ -35,7 +35,8 @@ class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
   DeviceHandlers, DeviceViewModel, DevicesAdapter.DeviceViewHolder> {
 
   DevicesAdapter(LifecycleOwner owner, DeviceHandlers handlers) {
-    super(new DeviceViewHolderFactory(), new DeviceViewModelFactory(), R.layout.device_row, owner, handlers);
+    super(new DeviceViewHolderFactory(), new DeviceViewModelFactory(),
+      R.layout.device_row, owner, handlers);
   }
 
   /** Factory to create an instance of our ViewHolder */
