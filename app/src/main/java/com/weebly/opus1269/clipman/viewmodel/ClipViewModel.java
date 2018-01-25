@@ -9,12 +9,19 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
+
+import org.threeten.bp.Instant;
 
 /** ViewModel for a {@link ClipEntity} */
 public class ClipViewModel extends AndroidViewModel {
@@ -23,6 +30,9 @@ public class ClipViewModel extends AndroidViewModel {
 
   /** Our Repo */
   private final MainRepo mRepo;
+
+  /** Our working status */
+  private final MediatorLiveData<Boolean> isLoading = new MediatorLiveData<>();
 
   /** Our Clip */
   private final MutableLiveData<ClipEntity> clip = new MutableLiveData<>();
@@ -33,9 +43,17 @@ public class ClipViewModel extends AndroidViewModel {
   /** Original text of the clip */
   private final MutableLiveData<String> originalText  = new MutableLiveData<>();
 
-  public ClipViewModel(@NonNull Application app, ClipEntity theClip) {
+  public final boolean addMode;
+
+  public ClipViewModel(@NonNull Application app, ClipEntity theClip, boolean addMode) {
     super(app);
     mRepo = MainRepo.INST(app);
+
+    isLoading.addSource(mRepo.getIsLoading(), loading -> {
+      this.isLoading.setValue(loading);
+    });
+
+    this.addMode = addMode;
 
     clip.setValue(theClip);
 
@@ -49,6 +67,14 @@ public class ClipViewModel extends AndroidViewModel {
     });
   }
 
+  public LiveData<Boolean> getIsLoading() {
+    return isLoading;
+  }
+
+  public ErrorMsg getErrorMsg() {
+    return mRepo.getErrorMsg().getValue();
+  }
+
   public MutableLiveData<ClipEntity> getClip() {
     return clip;
   }
@@ -59,6 +85,25 @@ public class ClipViewModel extends AndroidViewModel {
 
   public MutableLiveData<String> getOriginalText() {
     return originalText;
+  }
+
+  public void saveClip() {
+    final ClipEntity clipEntity = this.clip.getValue();
+    if ((clipEntity == null) || (text == null)) {
+      return;
+    }
+
+    final Context context = getApplication();
+    final String oldText = originalText.getValue();
+    final String newText = text.getValue();
+    Log.logD(TAG, "text: " + newText);
+
+    // save new or changed
+    clipEntity.setText(context, newText);
+    clipEntity.setRemote(false);
+    clipEntity.setDate(Instant.now().toEpochMilli());
+    MainRepo.INST(App.INST()).addClipIfNewAsync(clipEntity);
+
   }
 
   public void setText(String text) {

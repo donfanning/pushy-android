@@ -375,6 +375,8 @@
   <string name="content_favorite">Select to make favorite</string>
   <string name="content_copy">Copy item to clipboard</string>
   <string name="device_forget">Forget device</string>
+  <string name="clip_edit_text">Edit clip text</string>
+  <string name="clip_add_text">Add clip</string>
   <string name="label">Label</string>
   <string name="label_delete">Delete label</string>
   <string name="label_edit">Edit label</string>

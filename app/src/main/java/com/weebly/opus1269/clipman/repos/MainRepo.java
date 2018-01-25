@@ -20,6 +20,7 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
 
@@ -109,8 +110,16 @@ public class MainRepo extends BaseRepo {
    * @param clip Clip to insert or replace
    */
   public void addClipIfNewAsync(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO()
-      .execute(() -> MainDB.INST(mApp).clipDao().insertIfNew(clip));
+    postIsLoading(true);
+    App.getExecutors().diskIO().execute(() -> {
+      long id = MainDB.INST(mApp).clipDao().insertIfNew(clip);
+      if (id == -1L) {
+        errorMsg.postValue(new ErrorMsg("error", "clip exists"));
+      } else {
+        errorMsg.postValue(null);
+      }
+      postIsLoading(false);
+    });
   }
 
   /**
@@ -127,7 +136,7 @@ public class MainRepo extends BaseRepo {
   }
 
   public void updateClipAsync(@NonNull String newText,
-                               @NonNull String oldText) {
+                              @NonNull String oldText) {
     App.getExecutors().diskIO()
       .execute(() -> MainDB.INST(mApp).clipDao().updateText(newText, oldText));
   }

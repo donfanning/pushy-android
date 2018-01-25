@@ -6,10 +6,25 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<ScrollView
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <import type="android.text.TextUtils" />
+
+    <variable
+      name="text"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+
+    <variable
+      name="addMode"
+      type="boolean" />
+
+  </data>
+
+<ScrollView
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -23,6 +38,11 @@
     android:inputType="textMultiLine"
     android:selectAllOnFocus="false"
     android:textAppearance="?attr/textAppearanceListItem"
-    tools:text="Clip text here\nline 2\n\nLine 3" />
+    android:hint="@{safeUnbox(addMode) ? @string/clip_add_text : @string/clip_edit_text}"
+    android:text="@={text}"
+
+    />
 
 </ScrollView>
+
+</layout>

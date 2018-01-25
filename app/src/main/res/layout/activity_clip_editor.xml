@@ -1,34 +1,57 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
   ~ Licensed under Apache 2.0
   ~ https://opensource.org/licenses/Apache-2.0
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:fitsSystemWindows="true"
-  tools:context=".ui.clips.ClipViewerActivity">
+  xmlns:bind="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <android.support.design.widget.AppBarLayout
+  <data>
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.ClipViewModel" />
+
+    <variable
+      name="text"
+      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+
+    <variable
+      name="addMode"
+      type="boolean" />
+
+  </data>
+
+  <android.support.design.widget.CoordinatorLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:theme="@style/AppTheme.AppBarOverlay">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.clips.ClipViewerActivity">
 
-    <android.support.v7.widget.Toolbar
-      android:id="@+id/toolbar"
+    <android.support.design.widget.AppBarLayout
       android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:background="?attr/colorPrimary"
-      app:popupTheme="@style/AppTheme.PopupOverlay" />
+      android:layout_height="wrap_content"
+      android:theme="@style/AppTheme.AppBarOverlay">
 
-  </android.support.design.widget.AppBarLayout>
+      <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-  <include layout="@layout/content_clip_editor" />
+    </android.support.design.widget.AppBarLayout>
+
+    <include
+      layout="@layout/content_clip_editor"
+      bind:addMode="@{addMode}"
+      bind:text="@{text}" />
 
 
-</android.support.design.widget.CoordinatorLayout>
+  </android.support.design.widget.CoordinatorLayout>
+
+</layout>
