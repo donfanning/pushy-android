@@ -20,6 +20,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 
@@ -30,7 +31,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   U extends ViewDataBinding, V extends BaseHandlers, VM extends ViewModel,
   VH extends BaseViewHolder> extends RecyclerView.Adapter<VH> {
   /** Class identifier */
-  protected final String TAG = this.getClass().getSimpleName();
+  private final String TAG = this.getClass().getSimpleName();
 
   /** Our LifecycleOwner */
   private final LifecycleOwner mLifecycleOwner;
@@ -79,6 +80,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   @Override
   public void onBindViewHolder(VH holder, int position) {
     mViewModel = mVMFactory.create(getItem(position));
+    //noinspection unchecked
     holder.bind(mLifecycleOwner, mViewModel, mHandlers);
   }
 
@@ -145,7 +147,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     public boolean areContentsTheSame(@NonNull T oldItem,
                                       @NonNull T newItem) {
       final boolean equal = oldItem.equals(newItem);
-      if (!equal) {
+      if (BuildConfig.DEBUG && !equal) {
         Log.logD(TAG, "contents changed:\n" + oldItem.toString() +
           '\n' + newItem.toString());
       }
