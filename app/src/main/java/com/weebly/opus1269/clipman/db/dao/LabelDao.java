@@ -22,10 +22,10 @@ import java.util.List;
 @Dao
 public interface LabelDao {
   @Query("SELECT * FROM labels ORDER BY LOWER(name) ASC")
-  LiveData<List<LabelEntity>> getAll();
+  LiveData<List<LabelEntity>> loadAll();
 
   @Query("SELECT * FROM labels WHERE name = :name LIMIT 1")
-  LiveData<LabelEntity> getLabel(String name);
+  LiveData<LabelEntity> load(String name);
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(LabelEntity... labelEntities);

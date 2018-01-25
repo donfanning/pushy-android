@@ -57,7 +57,7 @@ public class MainRepo extends BaseRepo {
 
     labelsList = new MediatorLiveData<>();
     labelsList.postValue(new ArrayList<>());
-    labelsList.addSource(mDB.labelDao().getAll(), labels -> {
+    labelsList.addSource(mDB.labelDao().loadAll(), labels -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         labelsList.postValue(labels);
       }
@@ -75,16 +75,20 @@ public class MainRepo extends BaseRepo {
     return sInstance;
   }
 
-  public MutableLiveData<List<ClipEntity>> getClips() {
+  public LiveData<List<ClipEntity>> getClips() {
     return clipsList;
   }
 
-  public MutableLiveData<List<LabelEntity>> getLabels() {
+  public LiveData<List<LabelEntity>> loadLabels() {
     return labelsList;
   }
 
   public LiveData<ClipEntity> loadClip(final String text) {
     return mDB.clipDao().load(text);
+  }
+
+  public LiveData<LabelEntity> loadLabel(final String name) {
+    return mDB.labelDao().load(name);
   }
 
   private void postLabels(@NonNull List<LabelEntity> labels) {
@@ -174,7 +178,7 @@ public class MainRepo extends BaseRepo {
   }
 
   public LiveData<LabelEntity> getLabelAsync(String name) {
-    return MainDB.INST(mApp).labelDao().getLabel(name);
+    return MainDB.INST(mApp).labelDao().load(name);
     //App.getExecutors().diskIO()
     //  .execute(() -> MainDB.INST(mApp).labelDao().getLabel(name));
   }

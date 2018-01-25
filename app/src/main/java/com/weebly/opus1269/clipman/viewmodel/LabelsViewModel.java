@@ -44,8 +44,8 @@ public class LabelsViewModel extends AndroidViewModel {
     isLoading.addSource(repo.getIsLoading(), isLoading::setValue);
 
     labels = new MediatorLiveData<>();
-    labels.setValue(repo.getLabels().getValue());
-    labels.addSource(repo.getLabels(), labels::setValue);
+    labels.setValue(repo.loadLabels().getValue());
+    labels.addSource(repo.loadLabels(), labels::setValue);
   }
 
   @NonNull
