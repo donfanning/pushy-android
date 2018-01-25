@@ -24,28 +24,19 @@ import android.support.annotation.NonNull;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
-import com.weebly.opus1269.clipman.model.BackupFile;
+import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
 import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
-import java.util.List;
-
-/** Bridge between the BackupFile RecyclerView and the Backups class */
-class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, BackupHandlers, BackupViewModel, BackupAdapter.BackupViewHolder> {
+/** Bridge between the BackupEntity RecyclerView and the Backups class */
+class BackupAdapter extends BaseBindingAdapter<BackupEntity, BackupRowBinding, BackupHandlers, BackupViewModel, BackupAdapter.BackupViewHolder> {
 
   BackupAdapter(LifecycleOwner owner, BackupHandlers handlers) {
     super(new BackupViewHolderFactory(), new BackupViewModelFactory(),
       R.layout.backup_row, owner, handlers);
-  }
-
-  @Override
-  public void setList(List<BackupFile> list) {
-    super.setList(list);
-    // TODO diff stuff not working why?
-    notifyDataSetChanged();
   }
 
   /** Factory to create an instance of our ViewHolder */
@@ -61,10 +52,10 @@ class BackupAdapter extends BaseBindingAdapter<BackupFile, BackupRowBinding, Bac
   
   /** Factory to create an instance of our ViewModel */
   static class BackupViewModelFactory implements
-    VMAdapterFactory<BackupViewModel, BackupFile> {
+    VMAdapterFactory<BackupViewModel, BackupEntity> {
 
     @Override
-    public BackupViewModel create(BackupFile item) {
+    public BackupViewModel create(BackupEntity item) {
       return new BackupViewModel(App.INST(), item);
     }
   }

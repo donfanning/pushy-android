@@ -19,8 +19,8 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
+import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.model.BackupContents;
-import com.weebly.opus1269.clipman.model.BackupFile;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Label;
@@ -107,20 +107,20 @@ public class BackupHelper {
 
   /**
    * Delete a backup
-   * @param file File to delete
+   * @param backup File to delete
    */
-  public void deleteBackupAsync(BackupFile file) {
+  public void deleteBackupAsync(BackupEntity backup) {
     App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
-      .deleteBackupAsync(file.getDriveId()));
+      .deleteBackupAsync(backup.getDriveId()));
   }
 
   /**
    * Get the contents of a backup
-   * @param file File to restore
+   * @param backup File to restore
    */
-  public void getBackupContentsAsync(BackupFile file, boolean isSync) {
+  public void getBackupContentsAsync(BackupEntity backup, boolean isSync) {
     try {
-      final DriveFile driveFile = file.getDriveId().asDriveFile();
+      final DriveFile driveFile = backup.getDriveId().asDriveFile();
       App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
         .getBackupContentsAsync(driveFile, isSync));
     } catch (Exception ex) {

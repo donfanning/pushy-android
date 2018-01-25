@@ -13,13 +13,13 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.model.BackupFile;
+import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
 
 import java.util.List;
 
-/** ViewModel for BackupFiles */
+/** ViewModel for BackupEntitys */
 public class BackupsViewModel extends AndroidViewModel {
   /** Error message */
   private final MediatorLiveData<ErrorMsg> errorMsg;
@@ -31,7 +31,7 @@ public class BackupsViewModel extends AndroidViewModel {
   private final MediatorLiveData<Boolean> isLoading;
 
   /** BackFile list */
-  private final MediatorLiveData<List<BackupFile>> files;
+  private final MediatorLiveData<List<BackupEntity>> files;
 
   public BackupsViewModel(@NonNull Application app) {
     super(app);
@@ -69,7 +69,7 @@ public class BackupsViewModel extends AndroidViewModel {
     return isLoading;
   }
 
-  public MutableLiveData<List<BackupFile>> getFiles() {
+  public MutableLiveData<List<BackupEntity>> getFiles() {
     return files;
   }
 }

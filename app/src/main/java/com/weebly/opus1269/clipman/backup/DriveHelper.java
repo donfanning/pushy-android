@@ -116,7 +116,7 @@ public class DriveHelper {
       .addOnSuccessListener(metadataBuffer -> {
         // populate the files list
         Log.logD(TAG, "got list of files");
-        BackupRepo.INST(App.INST()).postFiles(metadataBuffer);
+        BackupRepo.INST(App.INST()).addBackups(metadataBuffer);
         metadataBuffer.release();
         BackupRepo.INST(App.INST()).postIsLoading(false);
       })
@@ -187,7 +187,7 @@ public class DriveHelper {
       .continueWithTask(task -> {
         final Metadata metadata = task.getResult();
 
-        BackupRepo.INST(App.INST()).addFile(metadata);
+        BackupRepo.INST(App.INST()).addBackup(metadata);
 
         // persist to Prefs
         final String fileString = metadata.getDriveId().encodeToString();
@@ -355,7 +355,7 @@ public class DriveHelper {
    */
   private void onDeleteSuccess(DriveId driveId) {
     Log.logD(TAG, "deleted file");
-      BackupRepo.INST(App.INST()).removeFile(driveId);
+      BackupRepo.INST(App.INST()).removeBackup(driveId);
       BackupRepo.INST(App.INST()).postIsLoading(false);
   }
 

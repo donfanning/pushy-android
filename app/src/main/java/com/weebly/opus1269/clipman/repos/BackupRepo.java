@@ -9,6 +9,7 @@ package com.weebly.opus1269.clipman.repos;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
@@ -16,30 +17,39 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.model.BackupFile;
+import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.db.BackupDB;
+import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.model.User;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
-/** Singleton - Repository for {@link BackupFile} objects */
+/** Singleton - Repository for {@link BackupEntity} objects */
 public class BackupRepo extends BaseRepo {
   @SuppressLint("StaticFieldLeak")
   private static BackupRepo sInstance;
 
+  /** Database */
+  private final BackupDB mDB;
+
   /** BackFile list */
-  private final MutableLiveData<List<BackupFile>> files;
+  private final MediatorLiveData<List<BackupEntity>> backupList;
 
   private BackupRepo(final Application app) {
     super(app);
 
-    files = new MutableLiveData<>();
-    files.setValue(new ArrayList<>());
-    files.observeForever(this::postInfoMessage);
+    mDB = BackupDB.INST(app);
+
+    backupList = new MediatorLiveData<>();
+    backupList.postValue(null);
+    backupList.addSource(mDB.backupDao().getAll(), backups -> {
+      if (mDB.getDatabaseCreated().getValue() != null) {
+        postInfoMessage(backups);
+        backupList.postValue(backups);
+      }
+    });
   }
 
   public static BackupRepo INST(final Application app) {
@@ -53,75 +63,53 @@ public class BackupRepo extends BaseRepo {
     return sInstance;
   }
 
-  public MutableLiveData<List<BackupFile>> getFiles() {
-    return files;
+  public MutableLiveData<List<BackupEntity>> getFiles() {
+    return backupList;
   }
 
   /**
    * Set the list of backups from Drive
-   * @param metadataBuffer buffer containing list of files
+   * @param metadataBuffer buffer containing list of backupList
    */
-  public void postFiles(@NonNull MetadataBuffer metadataBuffer) {
-    List<BackupFile> backupFiles = new ArrayList<>();
+  public void addBackups(@NonNull MetadataBuffer metadataBuffer) {
+    final List<BackupEntity> backups = new ArrayList<>();
     for (Metadata metadata : metadataBuffer) {
-      final BackupFile file = new BackupFile(mApp, metadata);
-      backupFiles.add(file);
+      final BackupEntity backup = new BackupEntity(mApp, metadata);
+      backups.add(backup);
     }
-    postFiles(backupFiles);
+    App.getExecutors().diskIO().execute(() -> {
+      mDB.runInTransaction(() -> {
+        mDB.backupDao().deleteAll();
+        mDB.backupDao().insertAll(backups);
+      });
+    });
   }
 
   /**
-   * Add a flle to the list
+   * Add a backup to the list
    * @param metadata file to add
    */
-  public void addFile(Metadata metadata) {
-    if (this.files.getValue() == null)  {
-      this.files.postValue(new ArrayList<>());
-    }
-    List<BackupFile> backupFiles = this.files.getValue();
-    if (backupFiles == null)  {
-      return;
-    }
-    final BackupFile file = new BackupFile(mApp, metadata);
-    boolean added = backupFiles.add(file);
-    if (added) {
-      Log.logD(TAG, "added file to list");
-      postFiles(backupFiles);
-    }
+  public void addBackup(Metadata metadata) {
+    final BackupEntity backup = new BackupEntity(mApp, metadata);
+    App.getExecutors().diskIO().execute(() -> {
+      mDB.backupDao().insertAll(backup);
+    });
   }
 
   /**
-   * Remove a flle from the list by DriveId
+   * Remove a backup from the list by DriveId
    * @param driveId id of file to remove
    */
-  public void removeFile(@NonNull final DriveId driveId) {
-    List<BackupFile> backupFiles = this.files.getValue();
-    if (backupFiles == null)  {
-      return;
-    }
-    boolean found = false;
-    for (final Iterator<BackupFile> i = backupFiles.iterator(); i.hasNext(); ) {
-      final BackupFile backupFile = i.next();
-      if (backupFile.getDriveId().equals(driveId)) {
-        found = true;
-        i.remove();
-        Log.logD(TAG, "removed file from list");
-        break;
-      }
-    }
-    if (found) {
-      postFiles(backupFiles);
-    }
+  public void removeBackup(@NonNull final DriveId driveId) {
+    App.getExecutors().diskIO().execute(() -> {
+      final String driveIdString = driveId.encodeToString();
+      mDB.backupDao().delete(driveIdString);
+    });
   }
 
-  private void postFiles(@NonNull List<BackupFile> backupFiles) {
-    sortFiles(backupFiles);
-    this.files.postValue(new ArrayList<>(backupFiles));
-  }
-
-  private void postInfoMessage(@NonNull List<BackupFile> backupFiles) {
+  private void postInfoMessage(List<BackupEntity> backupFiles) {
     final String msg;
-    if (backupFiles.isEmpty()) {
+    if (AppUtils.isEmpty(backupFiles)) {
       msg = mApp.getString(R.string.err_no_backups);
     } else if (!User.INST(mApp).isLoggedIn()) {
       msg = mApp.getString(R.string.err_not_signed_in);
@@ -129,30 +117,5 @@ public class BackupRepo extends BaseRepo {
       msg = "";
     }
     infoMessage.postValue(msg);
-  }
-
-  /**
-   *  Sort list of files in place - mine first, then by date
-   *  @param backupFiles List to sort
-   */
-  private void sortFiles(List<BackupFile> backupFiles) {
-    // mine first, then by date
-    // see: https://goo.gl/RZG4u8
-    final Comparator<BackupFile> cmp = (lhs, rhs) -> {
-      // mine first
-      Boolean lhMine = lhs.isMine();
-      Boolean rhMine = rhs.isMine();
-      int mineCompare = rhMine.compareTo(lhMine);
-
-      if (mineCompare != 0) {
-        return mineCompare;
-      } else {
-        // newest first
-        Long lhDate = lhs.getDate();
-        Long rhDate = rhs.getDate();
-        return rhDate.compareTo(lhDate);
-      }
-    };
-    Collections.sort(backupFiles, cmp);
   }
 }

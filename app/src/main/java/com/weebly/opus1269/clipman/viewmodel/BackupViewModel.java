@@ -11,17 +11,17 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.model.BackupFile;
+import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 
-/** ViewModel for a {@link BackupFile} */
+/** ViewModel for a {@link BackupEntity} */
 public class BackupViewModel extends AndroidViewModel {
 
   /** Our File */
-  public final BackupFile backupFile;
+  public final BackupEntity backupEntity;
 
-  public BackupViewModel(@NonNull Application app, BackupFile backupFile) {
+  public BackupViewModel(@NonNull Application app, BackupEntity backupEntity) {
     super(app);
 
-    this.backupFile = backupFile;
+    this.backupEntity = backupEntity;
   }
 }

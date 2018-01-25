@@ -37,7 +37,8 @@
       android:text="@string/this_device"
       android:textAppearance="?attr/textAppearanceListItem"
       android:textIsSelectable="false"
-      android:visibility="@{vm.backupFile.isMine ? View.VISIBLE : View.GONE}" />
+      app:visibleGone="@{safeUnbox(vm.backupEntity.getMine)}"
+      />
 
     <LinearLayout
       android:layout_width="wrap_content"
@@ -62,7 +63,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/activity_vertical_margin"
-          android:onClick="@{() -> handlers.onRestoreClick(context, vm.backupFile)}"
+          android:onClick="@{() -> handlers.onRestoreClick(context, vm.backupEntity)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_restore"
           app:tintAccent="@{true}"
@@ -73,7 +74,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/activity_vertical_margin"
-          android:onClick="@{() -> handlers.onSyncClick(context, vm.backupFile)}"
+          android:onClick="@{() -> handlers.onSyncClick(context, vm.backupEntity)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_sync"
           app:tintAccent="@{true}"
@@ -84,7 +85,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="end"
-          android:onClick="@{() -> handlers.onDeleteClick(context, vm.backupFile)}"
+          android:onClick="@{() -> handlers.onDeleteClick(context, vm.backupEntity)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_delete"
           app:tintAccent="@{true}"
@@ -105,7 +106,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_nickname_fmt(vm.backupFile.nickname)}"
+          android:text="@{@string/backup_nickname_fmt(vm.backupEntity.nickname)}"
           tools:text="Nickname: " />
 
         <TextView
@@ -114,7 +115,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_model_fmt(vm.backupFile.model)}"
+          android:text="@{@string/backup_model_fmt(vm.backupEntity.model)}"
           tools:text="Model: " />
 
         <TextView
@@ -123,7 +124,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_SN_fmt(vm.backupFile.SN)}"
+          android:text="@{@string/backup_SN_fmt(vm.backupEntity.SN)}"
           tools:text="SN: " />
 
         <TextView
@@ -132,14 +133,14 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_OS_fmt(vm.backupFile.OS)}"
+          android:text="@{@string/backup_OS_fmt(vm.backupEntity.OS)}"
           tools:text="OS: " />
 
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:maxLines="2"
-          android:text="@{@string/backup_date_fmt(AppUtils.getRelativeDisplayTime(context, vm.backupFile.date))}"
+          android:text="@{@string/backup_date_fmt(AppUtils.getRelativeDisplayTime(context, vm.backupEntity.date))}"
           android:textAppearance="?attr/textAppearanceListItemSmall"
           android:textColor="?android:textColorTertiary"
           android:textIsSelectable="false"

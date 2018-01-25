@@ -18,7 +18,7 @@ import android.widget.Button;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.BackupFile;
+import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -32,8 +32,8 @@ public class BackupHandlers  extends BaseHandlers
   /** Our activity */
   private final BackupActivity mActivity;
 
-  /** File that may be operated on */
-  private BackupFile mFile;
+  /** Backup that may be operated on */
+  private BackupEntity mBackup;
 
   BackupHandlers(BackupActivity backupActivity) {
     this.mActivity = backupActivity;
@@ -48,18 +48,18 @@ public class BackupHandlers  extends BaseHandlers
     Analytics.INST(context).buttonClick(mActivity.getTAG(), button);
 
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
-      BackupHelper.INST(App.INST()).deleteBackupAsync(mFile);
+      BackupHelper.INST(App.INST()).deleteBackupAsync(mBackup);
     } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
-      BackupHelper.INST(context).getBackupContentsAsync(mFile, false);
+      BackupHelper.INST(context).getBackupContentsAsync(mBackup, false);
     } else if (mActivity.getString(R.string.button_sync).equals(btnText)) {
-      BackupHelper.INST(context).getBackupContentsAsync(mFile, true);
+      BackupHelper.INST(context).getBackupContentsAsync(mBackup, true);
     } else if (mActivity.getString(R.string.button_backup).equals(btnText)) {
       BackupHelper.INST(App.INST()).createBackupAsync();
     } else if (mActivity.getString(R.string.button_details).equals(btnText)) {
       final Intent intent = new Intent(context, ErrorViewerActivity.class);
       AppUtils.startActivity(context, intent);
     }
-    mFile = null;
+    mBackup = null;
   }
 
   /**
@@ -84,33 +84,33 @@ public class BackupHandlers  extends BaseHandlers
   /**
    * Click on restore button
    * @param context The View
-   * @param file    The file
+   * @param backup    The file
    */
-  public void onRestoreClick(Context context, BackupFile file) {
+  public void onRestoreClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "restoreBackup");
-    mFile = file;
+    mBackup = backup;
     showDialog(R.string.backup_dialog_restore_message, R.string.button_restore);
   }
 
   /**
    * Click on sync button
    * @param context The View
-   * @param file    The file
+   * @param backup    The file
    */
-  public void onSyncClick(Context context, BackupFile file) {
+  public void onSyncClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "syncBackup");
-    mFile = file;
+    mBackup = backup;
     showDialog(R.string.backup_dialog_sync_message, R.string.button_sync);
   }
 
   /**
    * Click on delete button
    * @param context The View
-   * @param file    The file
+   * @param backup    The file
    */
-  public void onDeleteClick(Context context, BackupFile file) {
+  public void onDeleteClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "deleteBackup");
-    mFile = file;
+    mBackup = backup;
     showDialog(R.string.backup_dialog_delete_message, R.string.button_delete);
   }
 
