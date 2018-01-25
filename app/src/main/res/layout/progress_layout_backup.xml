@@ -15,7 +15,7 @@
 
     <variable
       name="isLoading"
-      type="android.arch.lifecycle.MutableLiveData&lt;Boolean&gt;" />
+      type="android.arch.lifecycle.LiveData&lt;Boolean&gt;" />
   </data>
 
   <LinearLayout

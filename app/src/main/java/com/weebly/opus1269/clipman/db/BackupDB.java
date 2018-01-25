@@ -43,6 +43,7 @@ public abstract class BackupDB extends RoomDatabase {
     }
     return sInstance;
   }
+
   /**
    * Build the database. {@link Builder#build()} only sets up the database
    * configuration and creates a new instance of the database.

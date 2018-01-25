@@ -26,7 +26,10 @@ import com.weebly.opus1269.clipman.model.AdapterItem;
 
 import java.util.List;
 
-/** Abstract bridge between a {@link RecyclerView} and its' data */
+/**
+ * Abstract bridge between a {@link RecyclerView} and its' data
+ * using a ViewModel and data binding
+ */
 public abstract class BaseBindingAdapter<T extends AdapterItem,
   U extends ViewDataBinding, V extends BaseHandlers, VM extends ViewModel,
   VH extends BaseViewHolder> extends RecyclerView.Adapter<VH> {

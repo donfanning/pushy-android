@@ -14,15 +14,13 @@
 
     <import type="android.text.TextUtils" />
 
-    <import type="android.view.View" />
-
     <variable
       name="isLoading"
-      type="android.arch.lifecycle.MutableLiveData&lt;Boolean&gt;" />
+      type="android.arch.lifecycle.LiveData&lt;Boolean&gt;" />
 
     <variable
       name="infoMessage"
-      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+      type="android.arch.lifecycle.LiveData&lt;String&gt;" />
   </data>
 
   <LinearLayout
@@ -48,6 +46,7 @@
 
       <include
         layout="@layout/backup_list"
+        android:id="@+id/backupListLayout"
         bind:infoMessage="@{infoMessage}" />
 
       <TextView

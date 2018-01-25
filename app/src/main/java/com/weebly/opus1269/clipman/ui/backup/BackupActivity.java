@@ -9,8 +9,6 @@ package com.weebly.opus1269.clipman.ui.backup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -47,28 +45,29 @@ public class BackupActivity extends BaseActivity {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    BackupsViewModel viewModel = new BackupsViewModel(getApplication());
+    BackupsViewModel vm = new BackupsViewModel(getApplication());
     mHandlers = new BackupHandlers(this);
     final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
     binding.setLifecycleOwner(this);
-    binding.setVm(viewModel);
-    binding.setIsLoading(viewModel.getIsLoading());
-    binding.setInfoMessage(viewModel.getInfoMessage());
+    binding.setVm(vm);
+    binding.setIsLoading(vm.getIsLoading());
+    binding.setInfoMessage(vm.getInfoMessage());
     binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 
     // observe errors
-    viewModel.getErrorMsg().observe(this, errorMsg -> {
+    vm.getErrorMsg().observe(this, errorMsg -> {
       if (errorMsg != null) {
         mHandlers.showErrorMessage(errorMsg);
       }
     });
 
-    // setup RecyclerView
-    final RecyclerView recyclerView = findViewById(R.id.backupList);
-    if (recyclerView != null) {
-      setupRecyclerView(recyclerView, viewModel);
-    }
+    mAdapter = new BackupAdapter(this, mHandlers);
+    binding.contentBackupLayout.backupListLayout.backupRecyclerView
+      .setAdapter(mAdapter);
+
+    // Observe backups
+    vm.loadBackups().observe(this, backups -> mAdapter.setList(backups));
   }
 
   @Override
@@ -147,13 +146,4 @@ public class BackupActivity extends BaseActivity {
     BackupHelper.INST(this).getBackupsAsync();
   }
 
-  /** Connect the {@link BackupAdapter} to the {@link RecyclerView} */
-  private void setupRecyclerView(@NonNull RecyclerView recyclerView,
-                                 BackupsViewModel viewModel) {
-    mAdapter = new BackupAdapter(this, mHandlers);
-    recyclerView.setAdapter(mAdapter);
-
-    // Observe files
-    viewModel.getFiles().observe(this, files -> mAdapter.setList(files));
-  }
 }

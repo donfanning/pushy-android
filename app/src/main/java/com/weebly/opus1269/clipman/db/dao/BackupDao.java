@@ -21,7 +21,7 @@ import java.util.List;
 @Dao
 public interface BackupDao {
   @Query("SELECT * FROM backups ORDER BY isMine DESC, date DESC")
-  LiveData<List<BackupEntity>> getAll();
+  LiveData<List<BackupEntity>> loadAll();
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(BackupEntity... backupEntities);

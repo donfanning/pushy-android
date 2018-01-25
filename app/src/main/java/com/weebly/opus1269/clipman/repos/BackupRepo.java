@@ -9,8 +9,8 @@ package com.weebly.opus1269.clipman.repos;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.drive.DriveId;
@@ -44,10 +44,10 @@ public class BackupRepo extends BaseRepo {
     mDB = BackupDB.INST(app);
 
     backupList = new MediatorLiveData<>();
-    backupList.addSource(mDB.backupDao().getAll(), backups -> {
+    backupList.addSource(mDB.backupDao().loadAll(), backups -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         postInfoMessage(backups);
-        backupList.setValue(backups);
+        backupList.postValue(backups);
       }
     });
   }
@@ -63,7 +63,7 @@ public class BackupRepo extends BaseRepo {
     return sInstance;
   }
 
-  public MutableLiveData<List<BackupEntity>> getFiles() {
+  public LiveData<List<BackupEntity>> loadBackups() {
     return backupList;
   }
 

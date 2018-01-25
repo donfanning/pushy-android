@@ -9,8 +9,8 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.BackupEntity;
@@ -31,7 +31,7 @@ public class BackupsViewModel extends AndroidViewModel {
   private final MediatorLiveData<Boolean> isLoading;
 
   /** BackFile list */
-  private final MediatorLiveData<List<BackupEntity>> files;
+  private final MediatorLiveData<List<BackupEntity>> backupList;
 
   public BackupsViewModel(@NonNull Application app) {
     super(app);
@@ -50,26 +50,26 @@ public class BackupsViewModel extends AndroidViewModel {
     isLoading.setValue(repo.getIsLoading().getValue());
     isLoading.addSource(repo.getIsLoading(), isLoading::setValue);
 
-    files = new MediatorLiveData<>();
-    files.setValue(repo.getFiles().getValue());
-    files.addSource(repo.getFiles(), files::setValue);
+    backupList = new MediatorLiveData<>();
+    backupList.setValue(repo.loadBackups().getValue());
+    backupList.addSource(repo.loadBackups(), backupList::setValue);
   }
 
   @NonNull
-  public MutableLiveData<ErrorMsg> getErrorMsg() {
+  public LiveData<ErrorMsg> getErrorMsg() {
     return errorMsg;
   }
 
   @NonNull
-  public MutableLiveData<String> getInfoMessage() {
+  public LiveData<String> getInfoMessage() {
     return infoMessage;
   }
 
-  public MutableLiveData<Boolean> getIsLoading() {
+  public LiveData<Boolean> getIsLoading() {
     return isLoading;
   }
 
-  public MutableLiveData<List<BackupEntity>> getFiles() {
-    return files;
+  public LiveData<List<BackupEntity>> loadBackups() {
+    return backupList;
   }
 }

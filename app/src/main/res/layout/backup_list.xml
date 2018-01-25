@@ -15,15 +15,13 @@
 
     <import type="android.text.TextUtils" />
 
-    <import type="android.view.View" />
-
     <variable
       name="infoMessage"
-      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
+      type="android.arch.lifecycle.LiveData&lt;String&gt;" />
   </data>
 
   <android.support.v7.widget.RecyclerView
-    android:id="@+id/backupList"
+    android:id="@+id/backupRecyclerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layoutManager="android.support.v7.widget.LinearLayoutManager"
