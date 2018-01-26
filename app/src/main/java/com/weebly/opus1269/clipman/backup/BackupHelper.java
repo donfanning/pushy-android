@@ -67,7 +67,12 @@ public class BackupHelper {
   /** Get the list of backups from Drive */
   public void getBackupsAsync() {
     App.getExecutors().networkIO()
-      .execute(() -> DriveHelper.INST(mContext).getBackupsAsync());
+      .execute(() -> {
+        BackupRepo.INST(App.INST()).postIsLoading(true);
+        List<BackupEntity> backups = DriveHelper.INST(mContext).getBackups();
+        BackupRepo.INST(App.INST()).addBackups(backups);
+        BackupRepo.INST(App.INST()).postIsLoading(false);
+      });
   }
 
   /** Perform a backup */

@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.app;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.BuildConfig;
@@ -60,7 +61,7 @@ public final class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  public static String logE(Context ctxt, String tag, String message,
+  public static String logE(@Nullable Context ctxt, String tag, String message,
                             String title, boolean notify) {
     if (TextUtils.isEmpty(message)) {
       message = ctxt.getString(R.string.err_unknown);
@@ -76,7 +77,7 @@ public final class Log {
 
     android.util.Log.e(MY_APP + tag, msg);
 
-    if (sLogErrors) {
+    if (sLogErrors && (ctxt != null)) {
       Analytics.INST(ctxt).error(tag, msg);
 
       // save last error
@@ -97,7 +98,7 @@ public final class Log {
    * @param notify  notify user if true
    * @return The message
    */
-  public static String logE(Context ctxt, String tag, String message,
+  public static String logE(@Nullable Context ctxt, String tag, String message,
                             boolean notify) {
     final String title = ctxt.getString(R.string.error_not_title);
     return logE(ctxt, tag, message, title, notify);

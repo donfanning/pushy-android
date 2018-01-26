@@ -133,7 +133,7 @@ public class BackupActivity extends BaseActivity {
       return;
     }
 
-    if (!DriveHelper.INST(this).hasAppFolderPermission()) {
+    if (DriveHelper.INST(this).noAppFolderPermission()) {
       GoogleSignIn.requestPermissions(this, RC_DRIVE_SUCCESS,
         account, Drive.SCOPE_APPFOLDER);
     } else {

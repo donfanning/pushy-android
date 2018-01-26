@@ -15,7 +15,6 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -24,7 +23,6 @@ import com.weebly.opus1269.clipman.db.BackupDB;
 import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton - Repository for {@link BackupEntity} objects */
@@ -69,14 +67,9 @@ public class BackupRepo extends BaseRepo {
 
   /**
    * Set the list of backups from Drive
-   * @param metadataBuffer buffer containing list of backupList
+   * @param backups list of backups
    */
-  public void addBackups(@NonNull MetadataBuffer metadataBuffer) {
-    final List<BackupEntity> backups = new ArrayList<>();
-    for (Metadata metadata : metadataBuffer) {
-      final BackupEntity backup = new BackupEntity(mApp, metadata);
-      backups.add(backup);
-    }
+  public void addBackups(@NonNull List<BackupEntity> backups) {
     App.getExecutors().diskIO().execute(() -> {
       mDB.runInTransaction(() -> {
         mDB.backupDao().deleteAll();
@@ -91,9 +84,8 @@ public class BackupRepo extends BaseRepo {
    */
   public void addBackup(Metadata metadata) {
     final BackupEntity backup = new BackupEntity(mApp, metadata);
-    App.getExecutors().diskIO().execute(() -> {
-      mDB.backupDao().insertAll(backup);
-    });
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.backupDao().insertAll(backup));
   }
 
   /**

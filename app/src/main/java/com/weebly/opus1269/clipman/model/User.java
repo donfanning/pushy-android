@@ -124,7 +124,7 @@ public class User {
       setPhotoUri("");
     }
 
-    if (!DriveHelper.INST(mContext).hasAppFolderPermission()) {
+    if (DriveHelper.INST(mContext).noAppFolderPermission()) {
       // if new user does not have Drive scope
       Prefs.INST(mContext).unsetAutoBackup();
     }

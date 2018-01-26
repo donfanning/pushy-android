@@ -25,6 +25,7 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.DriveStatusCodes;
 import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filter;
 import com.google.android.gms.drive.query.Filters;
@@ -44,6 +45,9 @@ import com.weebly.opus1269.clipman.repos.BackupRepo;
 
 import java.io.BufferedInputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /** Singleton to manage interactions with Google Drive */
 public class DriveHelper {
@@ -55,11 +59,18 @@ public class DriveHelper {
   /** Global Application Context */
   private final Context mAppCtxt;
 
+  /** Mime type of backups */
+  private final String MIME_TYPE = "application/zip";
+
+  /** InterruptedException err */
+  private final String ERR_INTERRUPTED;
+
   /** Class Indentifier */
   private final String TAG = this.getClass().getSimpleName();
 
   private DriveHelper(@NonNull Context context) {
     mAppCtxt = context.getApplicationContext();
+    ERR_INTERRUPTED = mAppCtxt.getString(R.string.err_interrupted_drive);
   }
 
   /**
@@ -75,65 +86,70 @@ public class DriveHelper {
     }
   }
 
-  /** Do we have permissions for our appFolder */
-  public boolean hasAppFolderPermission() {
+  /** No permission for our appFolder */
+  public boolean noAppFolderPermission() {
     final GoogleSignInAccount account = User.INST(mAppCtxt).getGoogleAccount();
-    return ((account != null) &&
-      GoogleSignIn.hasPermissions(account, Drive.SCOPE_APPFOLDER));
+    return ((account == null) ||
+      !GoogleSignIn.hasPermissions(account, Drive.SCOPE_APPFOLDER));
   }
 
-  /** Retrieve the metadata for all the backups in our appFolder */
-  void getBackupsAsync() {
+  /**
+   * Retrieve all the backups in our appFolder - blocks
+   * @return list of backups
+   */
+  @NonNull
+  List<BackupEntity> getBackups() {
+    final List<BackupEntity> backups = new ArrayList<>();
     final String errMessage = mAppCtxt.getString(R.string.err_get_backups);
+
     final DriveClient driveClient = getDriveClient();
     if (driveClient == null) {
       onClientError(errMessage);
-      return;
+      return backups;
     }
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
       onClientError(errMessage);
-      return;
+      return backups;
     }
 
-    BackupRepo.INST(App.INST()).postIsLoading(true);
+    // task to run synchronously
+    final Task<MetadataBuffer> getBackups;
+
     // sync with drive
-    driveClient.requestSync()
-      .continueWithTask(task -> {
-        // get app folder
-        return resourceClient.getAppFolder();
-      })
-      .continueWithTask(task -> {
-        final DriveFolder folder = task.getResult();
+    getBackups = driveClient.requestSync().continueWithTask(task -> {
+      // get app folder
+      return resourceClient.getAppFolder();
+    }).continueWithTask(task -> {
+      final DriveFolder folder = task.getResult();
 
-        final Filter filter =
-          Filters.eq(SearchableField.MIME_TYPE, "application/zip");
-        final Query query = new Query.Builder().addFilter(filter).build();
+      final Filter filter = Filters.eq(SearchableField.MIME_TYPE, MIME_TYPE);
+      final Query query = new Query.Builder().addFilter(filter).build();
 
-        // query app folder
-        return resourceClient.queryChildren(folder, query);
-      })
-      .addOnSuccessListener(metadataBuffer -> {
-        // populate the files list
-        Log.logD(TAG, "got list of files");
-        BackupRepo.INST(App.INST()).addBackups(metadataBuffer);
-        metadataBuffer.release();
-        BackupRepo.INST(App.INST()).postIsLoading(false);
-      })
-      .addOnFailureListener(ex -> {
-        if (ex instanceof ApiException) {
-          final int code = ((ApiException) ex).getStatusCode();
-          if (code != DriveStatusCodes.DRIVE_RATE_LIMIT_EXCEEDED) {
-            // don't show rate limit errors
-            showMessage(errMessage, ex);
-          } else {
-            Log.logD(TAG, "rate limited");
-          }
-        } else {
-          showMessage(errMessage, ex);
-        }
-        BackupRepo.INST(App.INST()).postIsLoading(false);
-      });
+      // query app folder
+      return resourceClient.queryChildren(folder, query);
+    });
+
+    try {
+      // Block on a task and get the result synchronously.
+      MetadataBuffer metadataBuffer = Tasks.await(getBackups);
+      Log.logD(TAG, "got list of files");
+      for (Metadata metadata : metadataBuffer) {
+        final BackupEntity backup = new BackupEntity(mAppCtxt, metadata);
+        backups.add(backup);
+      }
+      metadataBuffer.release();
+    } catch (ExecutionException ex) {
+      showMessage(errMessage, ex);
+      // The Task failed, this is the same exception you'd get in a non-blocking
+      // failure handler.
+      showMessage(errMessage, ex);
+    } catch (InterruptedException ex) {
+      // An interrupt occurred while waiting for the task to complete.
+      showMessage(ERR_INTERRUPTED, ex);
+    }
+
+    return backups;
   }
 
   /**
@@ -171,7 +187,7 @@ public class DriveHelper {
 
         MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
           .setTitle(filename)
-          .setMimeType("application/zip");
+          .setMimeType(MIME_TYPE);
         BackupEntity.setCustomProperties(mAppCtxt, builder);
 
         final MetadataChangeSet changeSet = builder.build();

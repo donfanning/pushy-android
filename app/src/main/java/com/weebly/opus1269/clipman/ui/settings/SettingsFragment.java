@@ -297,7 +297,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers
 
     if (account == null) {
       unsetAutoBackup(context);
-    } else if (!DriveHelper.INST(context).hasAppFolderPermission()) {
+    } else if (DriveHelper.INST(context).noAppFolderPermission()) {
       GoogleSignIn.requestPermissions(this, RC_DRIVE_SUCCESS,
         account, Drive.SCOPE_APPFOLDER);
     }
