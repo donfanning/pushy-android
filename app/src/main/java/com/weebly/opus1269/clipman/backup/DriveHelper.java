@@ -62,8 +62,11 @@ public class DriveHelper {
   /** Mime type of backups */
   private final String MIME_TYPE = "application/zip";
 
+  /** ExcetutionException err */
+  public final String ERR_EXECUTION;
+
   /** InterruptedException err */
-  private final String ERR_INTERRUPTED;
+  public final String ERR_INTERRUPTED;
 
   /** Class Indentifier */
   private final String TAG = this.getClass().getSimpleName();
@@ -71,6 +74,7 @@ public class DriveHelper {
   private DriveHelper(@NonNull Context context) {
     mAppCtxt = context.getApplicationContext();
     ERR_INTERRUPTED = mAppCtxt.getString(R.string.err_interrupted_drive);
+    ERR_EXECUTION = mAppCtxt.getString(R.string.err_execution_drive);
   }
 
   /**

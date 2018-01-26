@@ -66,13 +66,12 @@ public class BackupHelper {
 
   /** Get the list of backups from Drive */
   public void getBackupsAsync() {
-    App.getExecutors().networkIO()
-      .execute(() -> {
-        BackupRepo.INST(App.INST()).postIsLoading(true);
-        List<BackupEntity> backups = DriveHelper.INST(mContext).getBackups();
-        BackupRepo.INST(App.INST()).addBackups(backups);
-        BackupRepo.INST(App.INST()).postIsLoading(false);
-      });
+    App.getExecutors().networkIO().execute(() -> {
+      BackupRepo.INST(App.INST()).postIsLoading(true);
+      List<BackupEntity> backups = DriveHelper.INST(mContext).getBackups();
+      BackupRepo.INST(App.INST()).addBackups(backups);
+      BackupRepo.INST(App.INST()).postIsLoading(false);
+    });
   }
 
   /** Perform a backup */
@@ -87,7 +86,8 @@ public class BackupHelper {
         DriveHelper.INST(mContext)
           .createBackupAsync(zipName, zipData, lastBackup);
       } catch (Exception ex) {
-        final String errMessage = mContext.getString(R.string.err_create_backup);
+        final String errMessage = mContext.getString(R.string
+          .err_create_backup);
         showMessage(errMessage, ex);
       }
     });
@@ -103,7 +103,8 @@ public class BackupHelper {
       final String zipName = getZipFilename();
       final byte[] zipData =
         BackupHelper.INST(mContext).createZipFileContentsFromDB();
-      DriveHelper.INST(mContext).createBackupAsync(zipName, zipData, lastBackup);
+      DriveHelper.INST(mContext).createBackupAsync(zipName, zipData,
+        lastBackup);
     } catch (Exception ex) {
       final String errMessage = mContext.getString(R.string.err_create_backup);
       showMessage(errMessage, ex);

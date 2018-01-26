@@ -16,12 +16,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.drive.Drive;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
 import com.weebly.opus1269.clipman.databinding.ActivityBackupBinding;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.repos.BackupRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
 
@@ -67,7 +69,14 @@ public class BackupActivity extends BaseActivity {
       .setAdapter(mAdapter);
 
     // Observe backups
-    vm.loadBackups().observe(this, backups -> mAdapter.setList(backups));
+    vm.loadBackups().observe(this, backups -> {
+      if (backups == null) {
+        BackupRepo.INST(App.INST()).postIsLoading(true);
+      } else {
+        mAdapter.setList(backups);
+        BackupRepo.INST(App.INST()).postIsLoading(false);
+      }
+    });
   }
 
   @Override

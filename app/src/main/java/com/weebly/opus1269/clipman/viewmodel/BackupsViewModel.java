@@ -51,8 +51,9 @@ public class BackupsViewModel extends AndroidViewModel {
     isLoading.addSource(repo.getIsLoading(), isLoading::setValue);
 
     backupList = new MediatorLiveData<>();
-    backupList.setValue(repo.loadBackups().getValue());
-    backupList.addSource(repo.loadBackups(), backupList::setValue);
+    backupList.setValue(null);
+    LiveData<List<BackupEntity>> backups = repo.loadBackups();
+    backupList.addSource(backups, backupList::setValue);
   }
 
   @NonNull

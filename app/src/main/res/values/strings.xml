@@ -257,6 +257,7 @@
   <string name="progress_working">Working&#8230;</string>
   <string name="err_drive_scope_denied">User did not grant access to Google Drive</string>
   <string name="err_internal_drive">Unable to access Google Drive</string>
+  <string name="err_execution_drive">A Drive operation failed to execute</string>
   <string name="err_interrupted_drive">A Drive operation was interrupted</string>
   <string name="err_app_folder">Failed to get app folder from Google Drive</string>
   <string name="err_no_backups">No backups exist on Google Drive</string>
