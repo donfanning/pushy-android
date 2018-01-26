@@ -14,7 +14,6 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.Metadata;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -80,10 +79,9 @@ public class BackupRepo extends BaseRepo {
 
   /**
    * Add a backup to the list
-   * @param metadata file to add
+   * @param backup backup to add
    */
-  public void addBackup(Metadata metadata) {
-    final BackupEntity backup = new BackupEntity(mApp, metadata);
+  public void addBackup(BackupEntity backup) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.backupDao().insertAll(backup));
   }

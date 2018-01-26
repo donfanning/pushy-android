@@ -27,7 +27,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
 /** Handlers for UI events */
-public class BackupHandlers  extends BaseHandlers
+public class BackupHandlers extends BaseHandlers
   implements DialogInterface.OnClickListener {
   /** Our activity */
   private final BackupActivity mActivity;
@@ -50,9 +50,9 @@ public class BackupHandlers  extends BaseHandlers
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
       BackupHelper.INST(App.INST()).deleteBackupAsync(mBackup);
     } else if (mActivity.getString(R.string.button_restore).equals(btnText)) {
-      BackupHelper.INST(context).getBackupContentsAsync(mBackup, false);
+      BackupHelper.INST(context).restoreBackupAsync(mBackup);
     } else if (mActivity.getString(R.string.button_sync).equals(btnText)) {
-      BackupHelper.INST(context).getBackupContentsAsync(mBackup, true);
+      BackupHelper.INST(context).syncContentsAsync(mBackup);
     } else if (mActivity.getString(R.string.button_backup).equals(btnText)) {
       BackupHelper.INST(App.INST()).createBackupAsync();
     } else if (mActivity.getString(R.string.button_details).equals(btnText)) {
@@ -67,7 +67,8 @@ public class BackupHandlers  extends BaseHandlers
    * @param context A context
    */
   public void onFabClick(Context context) {
-    Analytics.INST(context).imageClick(mActivity.getTAG(), "refreshBackups");
+    Analytics.INST(context)
+      .imageClick(mActivity.getTAG(), "refreshBackups");
     BackupHelper.INST(context).getBackupsAsync();
   }
 
@@ -84,7 +85,7 @@ public class BackupHandlers  extends BaseHandlers
   /**
    * Click on restore button
    * @param context The View
-   * @param backup    The file
+   * @param backup  The file
    */
   public void onRestoreClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "restoreBackup");
@@ -95,7 +96,7 @@ public class BackupHandlers  extends BaseHandlers
   /**
    * Click on sync button
    * @param context The View
-   * @param backup    The file
+   * @param backup  The file
    */
   public void onSyncClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "syncBackup");
@@ -106,7 +107,7 @@ public class BackupHandlers  extends BaseHandlers
   /**
    * Click on delete button
    * @param context The View
-   * @param backup    The file
+   * @param backup  The file
    */
   public void onDeleteClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "deleteBackup");
