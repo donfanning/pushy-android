@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.DriveId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
@@ -86,8 +87,8 @@ public class BackupHelper {
         DriveHelper.INST(mContext)
           .createBackupAsync(zipName, zipData, lastBackup);
       } catch (Exception ex) {
-        final String errMessage = mContext.getString(R.string
-          .err_create_backup);
+        final String errMessage =
+          mContext.getString(R.string.err_create_backup);
         showMessage(errMessage, ex);
       }
     });
@@ -115,9 +116,14 @@ public class BackupHelper {
    * Delete a backup
    * @param backup File to delete
    */
-  public void deleteBackupAsync(BackupEntity backup) {
-    App.getExecutors().networkIO().execute(() -> DriveHelper.INST(mContext)
-      .deleteBackupAsync(backup.getDriveId()));
+  public void deleteBackupAsync(@NonNull BackupEntity backup) {
+    App.getExecutors().networkIO().execute(() -> {
+      final DriveId driveId = backup.getDriveId();
+      BackupRepo.INST(App.INST()).postIsLoading(true);
+      DriveHelper.INST(mContext).deleteBackup(driveId);
+      BackupRepo.INST(App.INST()).removeBackup(driveId);
+      BackupRepo.INST(App.INST()).postIsLoading(false);
+    });
   }
 
   /**

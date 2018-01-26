@@ -63,10 +63,10 @@ public class DriveHelper {
   private final String MIME_TYPE = "application/zip";
 
   /** ExcetutionException err */
-  public final String ERR_EXECUTION;
+  private final String ERR_EXECUTION;
 
   /** InterruptedException err */
-  public final String ERR_INTERRUPTED;
+  private final String ERR_INTERRUPTED;
 
   /** Class Indentifier */
   private final String TAG = this.getClass().getSimpleName();
@@ -98,7 +98,7 @@ public class DriveHelper {
   }
 
   /**
-   * Retrieve all the backups in our appFolder - blocks
+   * Retrieve all the backups in our appFolder
    * @return list of backups
    */
   @NonNull
@@ -117,7 +117,6 @@ public class DriveHelper {
       return backups;
     }
 
-    // task to run synchronously
     final Task<MetadataBuffer> getBackups;
 
     // sync with drive
@@ -135,7 +134,6 @@ public class DriveHelper {
     });
 
     try {
-      // Block on a task and get the result synchronously.
       MetadataBuffer metadataBuffer = Tasks.await(getBackups);
       Log.logD(TAG, "got list of files");
       for (Metadata metadata : metadataBuffer) {
@@ -145,11 +143,7 @@ public class DriveHelper {
       metadataBuffer.release();
     } catch (ExecutionException ex) {
       showMessage(errMessage, ex);
-      // The Task failed, this is the same exception you'd get in a non-blocking
-      // failure handler.
-      showMessage(errMessage, ex);
     } catch (InterruptedException ex) {
-      // An interrupt occurred while waiting for the task to complete.
       showMessage(ERR_INTERRUPTED, ex);
     }
 
@@ -308,7 +302,7 @@ public class DriveHelper {
    * Delete a backup
    * @param driveId driveId to delete
    */
-  void deleteBackupAsync(@NonNull final DriveId driveId) {
+  void deleteBackup(@NonNull final DriveId driveId) {
     final String errMessage = mAppCtxt.getString(R.string.err_delete_backup);
     final DriveResourceClient resourceClient = getDriveResourceClient();
     if (resourceClient == null) {
@@ -317,13 +311,15 @@ public class DriveHelper {
     }
 
     final DriveFile file = driveId.asDriveFile();
-    final Task<Void> deleteTask = resourceClient.delete(file);
 
-    BackupRepo.INST(App.INST()).postIsLoading(true);
-    deleteTask
-      .addOnSuccessListener(aVoid -> onDeleteSuccess(driveId))
-      .addOnFailureListener(
-        ex -> onDeleteFailure(driveId.encodeToString(), errMessage, ex));
+    try {
+      Tasks.await(resourceClient.delete(file));
+      Log.logD(TAG, "deleted file");
+    } catch (ExecutionException ex) {
+      onDeleteFailure(driveId.encodeToString(), errMessage, ex);
+    } catch (InterruptedException ex) {
+      showMessage(ERR_INTERRUPTED, ex);
+    }
   }
 
   /**

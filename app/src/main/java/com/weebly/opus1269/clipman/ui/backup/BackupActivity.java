@@ -70,11 +70,8 @@ public class BackupActivity extends BaseActivity {
 
     // Observe backups
     vm.loadBackups().observe(this, backups -> {
-      if (backups == null) {
-        BackupRepo.INST(App.INST()).postIsLoading(true);
-      } else {
+      if (backups != null) {
         mAdapter.setList(backups);
-        BackupRepo.INST(App.INST()).postIsLoading(false);
       }
     });
   }
