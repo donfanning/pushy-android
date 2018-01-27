@@ -54,6 +54,10 @@ public abstract class BaseRepo {
     return isLoading;
   }
 
+  public void setErrorMsg(ErrorMsg value) {
+    errorMsg.setValue(value);
+  }
+
   public void postErrorMsg(ErrorMsg value) {
     errorMsg.postValue(value);
   }

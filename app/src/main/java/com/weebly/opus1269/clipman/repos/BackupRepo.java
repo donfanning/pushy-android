@@ -98,6 +98,16 @@ public class BackupRepo extends BaseRepo {
     });
   }
 
+  /**
+   * Remove all backups
+   */
+  public void removeAll() {
+    App.getExecutors().diskIO().execute(() -> {
+      int nRows = mDB.backupDao().deleteAll();
+      Log.logD(TAG, "db removeBackup: " + nRows);
+    });
+  }
+
   private void postInfoMessage(List<BackupEntity> backupFiles) {
     final String msg;
     if (AppUtils.isEmpty(backupFiles)) {

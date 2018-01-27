@@ -68,24 +68,45 @@ public class BackupHelper {
   /** Get the list of backups from Drive */
   public void getBackupsAsync() {
     App.getExecutors().networkIO().execute(() -> {
-      BackupRepo.INST(App.INST()).postIsLoading(true);
-      List<BackupEntity> backups = DriveHelper.INST(mContext).getBackups();
-      BackupRepo.INST(App.INST()).addBackups(backups);
-      BackupRepo.INST(App.INST()).postIsLoading(false);
+      try {
+        BackupRepo.INST(App.INST()).postIsLoading(true);
+        List<BackupEntity> backups = DriveHelper.INST(mContext).getBackups();
+        BackupRepo.INST(App.INST()).addBackups(backups);
+      } catch (Exception ex) {
+        BackupRepo.INST(App.INST()).removeAll();
+        final String err = mContext.getString(R.string.err_get_backups);
+        showMessage(err, ex);
+      } finally {
+        BackupRepo.INST(App.INST()).postIsLoading(false);
+      }
     });
   }
 
   /** Create a backup on Drive */
   public void createBackupAsync() {
-    App.getExecutors().diskIO().execute(this::doBackup);
-  }
-
-  /**
-   * Create a backup on Drive - don't call from main thread
-   * TODO anything special here?
-   */
-  public void createBackup() {
-    doBackup();
+    App.getExecutors().diskIO().execute(() -> {
+      try {
+        BackupRepo.INST(App.INST()).postIsLoading(true);
+        final String zipName = getZipFilename();
+        final byte[] zipData = createZipContentsFromDB();
+        final BackupEntity backup =
+          DriveHelper.INST(mContext).createBackup(zipName, zipData);
+        BackupRepo.INST(App.INST()).addBackup(backup);
+        final String lastBackup = Prefs.INST(mContext).getLastBackup();
+        Prefs.INST(mContext).setLastBackup(backup.getDriveIdString());
+        if (!TextUtils.isEmpty(lastBackup)) {
+          // delete old backup
+          final DriveId driveId = DriveId.decodeFromString(lastBackup);
+          DriveHelper.INST(mContext).deleteBackup(driveId);
+          BackupRepo.INST(App.INST()).removeBackup(driveId);
+        }
+      } catch (Exception ex) {
+        final String err = mContext.getString(R.string.err_create_backup);
+        showMessage(err, ex);
+      } finally {
+        BackupRepo.INST(App.INST()).postIsLoading(false);
+      }
+    });
   }
 
   /**
@@ -99,15 +120,10 @@ public class BackupHelper {
         final DriveFile driveFile = backup.getDriveId().asDriveFile();
         final BackupContents contents =
           DriveHelper.INST(mContext).getBackupContents(driveFile);
-        if (contents != null) {
-          BackupHelper.INST(mContext).saveContentsToDB(contents);
-        } else {
-          throw new IllegalArgumentException("Failed to get backup file");
-        }
+        saveContentsToDB(contents);
       } catch (Exception ex) {
-        final String errMessage =
-          mContext.getString(R.string.err_restore_backup);
-        showMessage(errMessage, ex);
+        final String err = mContext.getString(R.string.err_restore_backup);
+        showMessage(err, ex);
       } finally {
         BackupRepo.INST(App.INST()).postIsLoading(false);
       }
@@ -125,20 +141,14 @@ public class BackupHelper {
         final DriveFile driveFile = backup.getDriveId().asDriveFile();
         final BackupContents contents =
           DriveHelper.INST(mContext).getBackupContents(driveFile);
-        if (contents != null) {
-          final BackupContents mergedContents =
-            BackupHelper.INST(mContext).saveMergedContentsToDB(contents);
-          final byte[] mergedData = mergedContents.getAsJSON().getBytes();
-          final byte[] data =
-            BackupHelper.INST(mContext).createZipContents(mergedData);
-          DriveHelper.INST(mContext).updateBackup(driveFile, data);
-          BackupHelper.INST(mContext).getBackupsAsync();
-        } else {
-          throw new IllegalArgumentException("Failed to get backup file");
-        }
+        final BackupContents mergedContents = saveMergedContentsToDB(contents);
+        final byte[] mergedData = mergedContents.getAsJSON().getBytes();
+        final byte[] data = createZipContents(mergedData);
+        DriveHelper.INST(mContext).updateBackup(driveFile, data);
+        getBackupsAsync();
       } catch (Exception ex) {
-        final String errMessage = mContext.getString(R.string.err_sync_backup);
-        showMessage(errMessage, ex);
+        final String err = mContext.getString(R.string.err_sync_backup);
+        showMessage(err, ex);
       }
     });
   }
@@ -149,41 +159,17 @@ public class BackupHelper {
    */
   public void deleteBackupAsync(@NonNull BackupEntity backup) {
     App.getExecutors().networkIO().execute(() -> {
-      final DriveId driveId = backup.getDriveId();
-      BackupRepo.INST(App.INST()).postIsLoading(true);
-      DriveHelper.INST(mContext).deleteBackup(driveId);
-      BackupRepo.INST(App.INST()).removeBackup(driveId);
-      BackupRepo.INST(App.INST()).postIsLoading(false);
-    });
-  }
-
-  /** Do the backup */
-  private void doBackup() {
-    try {
-      BackupRepo.INST(App.INST()).postIsLoading(true);
-      final String zipName = getZipFilename();
-      final byte[] zipData =
-        BackupHelper.INST(mContext).createZipContentsFromDB();
-      final BackupEntity backup =
-        DriveHelper.INST(mContext).createBackup(zipName, zipData);
-      if (backup != null) {
-        BackupRepo.INST(App.INST()).addBackup(backup);
-        final String lastBackup = Prefs.INST(mContext).getLastBackup();
-        Prefs.INST(mContext).setLastBackup(backup.getDriveIdString());
-        if (!TextUtils.isEmpty(lastBackup)) {
-          // delete old backup
-          final DriveId driveId = DriveId.decodeFromString(lastBackup);
-          DriveHelper.INST(mContext).deleteBackup(driveId);
-          BackupRepo.INST(App.INST()).removeBackup(driveId);
-        }
+      try {
+        final DriveId driveId = backup.getDriveId();
+        BackupRepo.INST(App.INST()).postIsLoading(true);
+        DriveHelper.INST(mContext).deleteBackup(driveId);
+        BackupRepo.INST(App.INST()).removeBackup(driveId);
+        BackupRepo.INST(App.INST()).postIsLoading(false);
+      } catch (Exception ex) {
+        final String err = mContext.getString(R.string.err_delete_backup);
+        showMessage(err, ex);
       }
-    } catch (Exception ex) {
-      final String errMessage =
-        mContext.getString(R.string.err_create_backup);
-      showMessage(errMessage, ex);
-    } finally {
-      BackupRepo.INST(App.INST()).postIsLoading(false);
-    }
+    });
   }
 
   /**

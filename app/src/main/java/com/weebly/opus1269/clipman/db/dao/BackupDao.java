@@ -30,7 +30,7 @@ public interface BackupDao {
   void insertAll(List<BackupEntity> backupEntities);
 
   @Query("DELETE FROM backups")
-  void deleteAll();
+  int deleteAll();
 
   @Query("DELETE FROM backups WHERE drive_id_invariant = :driveIdInvariant")
   int delete(String driveIdInvariant);

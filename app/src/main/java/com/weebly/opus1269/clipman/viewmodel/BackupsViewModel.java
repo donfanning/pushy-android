@@ -36,7 +36,8 @@ public class BackupsViewModel extends AndroidViewModel {
   public BackupsViewModel(@NonNull Application app) {
     super(app);
 
-    BackupRepo repo = BackupRepo.INST(app);
+    final BackupRepo repo = BackupRepo.INST(app);
+    repo.setErrorMsg(null);
 
     errorMsg = new MediatorLiveData<>();
     errorMsg.setValue(repo.getErrorMsg().getValue());
