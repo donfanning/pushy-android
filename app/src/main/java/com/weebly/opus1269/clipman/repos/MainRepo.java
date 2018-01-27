@@ -11,9 +11,9 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
@@ -75,7 +75,7 @@ public class MainRepo extends BaseRepo {
     return sInstance;
   }
 
-  public LiveData<List<ClipEntity>> getClips() {
+  public LiveData<List<ClipEntity>> loadClips() {
     return clipsList;
   }
 
@@ -85,6 +85,10 @@ public class MainRepo extends BaseRepo {
 
   public LiveData<ClipEntity> loadClip(final String text) {
     return mDB.clipDao().load(text);
+  }
+
+  @Nullable public ClipEntity getClip(final String text) {
+    return mDB.clipDao().get(text);
   }
 
   public LiveData<LabelEntity> loadLabel(final String name) {
@@ -110,7 +114,10 @@ public class MainRepo extends BaseRepo {
    */
   public void addClipAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
-      .execute(() -> MainDB.INST(mApp).clipDao().insertAll(clip));
+      .execute(() -> {
+        final long row = MainDB.INST(mApp).clipDao().insert(clip);
+        Log.logD(TAG, "add, row: " + row);
+      });
   }
 
   /**
@@ -120,13 +127,17 @@ public class MainRepo extends BaseRepo {
   public void addClipIfNewAsync(@NonNull ClipEntity clip) {
     postIsLoading(true);
     App.getExecutors().diskIO().execute(() -> {
-      long id = MainDB.INST(mApp).clipDao().insertIfNew(clip);
-      if (id == -1L) {
-        errorMsg.postValue(new ErrorMsg("error", "clip exists"));
+      if (MainDB.INST(mApp).clipDao().get(clip.getText()) == null) {
+        long row = MainDB.INST(mApp).clipDao().insert(clip);
+        if (row == -1L) {
+          errorMsg.postValue(new ErrorMsg("insert failed"));
+        } else {
+          errorMsg.postValue(null);
+        }
+        postIsLoading(false);
       } else {
-        errorMsg.postValue(null);
+        errorMsg.postValue(new ErrorMsg("clip exists"));
       }
-      postIsLoading(false);
     });
   }
 
@@ -143,10 +154,30 @@ public class MainRepo extends BaseRepo {
     MainDB.INST(App.INST()).clipDao().insert(clip);
   }
 
-  public void updateClipAsync(@NonNull String newText,
-                              @NonNull String oldText) {
-    App.getExecutors().diskIO()
-      .execute(() -> MainDB.INST(mApp).clipDao().updateText(newText, oldText));
+  /**
+   * Insert a clip only if it does not exist and copy to clipboard
+   * @param clip Clip to insert and copy
+   */
+  public void addClipIfNewAndCopyAsync(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO().execute(() -> {
+      if (MainDB.INST(mApp).clipDao().get(clip.getText()) == null) {
+        postIsLoading(true);
+        //long row = MainDB.INST(mApp).clipDao().delete(clip);
+        //Log.logD(TAG, "delete row: " + row);
+        Log.logD(TAG, "current row: " + clip.getId());
+        long row = MainDB.INST(mApp).clipDao().insert(clip);
+        Log.logD(TAG, "insert row: " + row);
+        if (row == -1L) {
+          errorMsg.postValue(new ErrorMsg("insert failed"));
+        } else {
+          errorMsg.postValue(null);
+        }
+        clip.copyToClipboard(mApp);
+        postIsLoading(false);
+      } else {
+        errorMsg.postValue(new ErrorMsg("clip exists"));
+      }
+    });
   }
 
 

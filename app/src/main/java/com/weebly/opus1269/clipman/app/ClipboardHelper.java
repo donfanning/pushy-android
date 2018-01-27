@@ -19,7 +19,6 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.MyDevice;
@@ -33,8 +32,9 @@ import java.util.List;
 
 /** Static methods for interacting with the system clipboard */
 public class ClipboardHelper {
+  private static final String TAG = "ClipboardHelper";
+
   public static final String TEXT_PLAIN = "text/plain";
-  private static final String TAG = "ClipEntity";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
   private static final String LABELS_LABEL = "ClipItem Labels";
@@ -134,15 +134,6 @@ public class ClipboardHelper {
     // display status message
     final String msg = context.getString(id);
     AppUtils.showMessage(context, view, msg);
-  }
-
-  /**
-   * Determine if a {@link ClipEntity} exists with given text and is a favorite
-   * @param clipText text to query
-   * @return true if exists and fav is true
-   */
-  public static boolean hasClipWithFav(Context context, String clipText) {
-    return ClipTable.INST(context).exists(clipText, true);
   }
 
   /**

@@ -34,10 +34,7 @@ public interface ClipDao {
   ClipEntity getIfTrueFav(String text);
 
   @Query("UPDATE clips SET text = :newText WHERE text = :oldText")
-  void updateText(String newText, String oldText);
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(ClipEntity... clipEntities);
+  long updateText(String newText, String oldText);
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(List<ClipEntity> clipEntities);
@@ -49,11 +46,11 @@ public interface ClipDao {
   long insertIfNew(ClipEntity clipEntity);
 
   @Query("DELETE FROM clips")
-  void deleteAll();
+  int deleteAll();
 
   @Query("DELETE FROM clips WHERE fav = 0")
-  void deleteAllNonFavs();
+  int deleteAllNonFavs();
 
   @Delete
-  void delete(ClipEntity clipEntity);
+  int delete(ClipEntity clipEntity);
 }

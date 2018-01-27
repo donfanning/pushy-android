@@ -17,6 +17,11 @@ public class ErrorMsg {
     this.msg = "";
   }
 
+  public ErrorMsg(String msg) {
+    this.title = "";
+    this.msg = msg;
+  }
+
   public ErrorMsg(String title, String msg) {
     this.title = title;
     this.msg = msg;

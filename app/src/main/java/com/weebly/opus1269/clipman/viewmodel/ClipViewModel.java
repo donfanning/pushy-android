@@ -19,6 +19,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
+import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
@@ -32,36 +33,39 @@ public class ClipViewModel extends AndroidViewModel {
   private final MainRepo mRepo;
 
   /** Our working status */
-  private final MediatorLiveData<Boolean> isLoading = new MediatorLiveData<>();
+  private final MediatorLiveData<Boolean> isLoading;
 
   /** Our Clip */
-  private final LiveData<ClipEntity> clip;
+  private final MutableLiveData<ClipEntity> clip;
 
   /** Our text */
-  private final MutableLiveData<String> text = new MutableLiveData<>();
+  private final MutableLiveData<String> text;
 
   /** Original text of the clip */
-  private final MutableLiveData<String> originalText  = new MutableLiveData<>();
+  private final MutableLiveData<String> originalText;
 
   public final boolean addMode;
 
-  public ClipViewModel(@NonNull Application app, String clipText, boolean addMode) {
+  public ClipViewModel(@NonNull Application app, @NonNull ClipEntity clip, boolean addMode) {
     super(app);
     mRepo = MainRepo.INST(app);
+    mRepo.setErrorMsg(null);
 
-    isLoading.addSource(mRepo.getIsLoading(), loading -> {
-      this.isLoading.setValue(loading);
-    });
+    isLoading = new MediatorLiveData<>();
+    isLoading.addSource(mRepo.getIsLoading(), this.isLoading::setValue);
 
     this.addMode = addMode;
 
-    clip = mRepo.loadClip(clipText);
+    this.clip = new MutableLiveData<>();
+    this.clip.setValue(clip);
 
-    text.setValue(clipText);
+    this.text = new MutableLiveData<>();
+    this.text.setValue(clip.getText());
 
-    originalText.setValue(clipText);
+    this.originalText = new MutableLiveData<>();
+    this.originalText.setValue(clip.getText());
 
-    clip.observeForever((clipEntity) -> {
+    this.clip.observeForever((clipEntity) -> {
       if (clipEntity != null) {
         Log.logD(TAG, "clip changed: " + clipEntity.getText());
         setOriginalText(clipEntity.getText());
@@ -95,7 +99,9 @@ public class ClipViewModel extends AndroidViewModel {
 
   public void saveClip() {
     final ClipEntity clipEntity = this.clip.getValue();
-    if ((clipEntity == null) || (text == null)) {
+    if ((clipEntity == null) || (text == null) || (text.getValue() == null) ||
+      (originalText.getValue() == null)) {
+      mRepo.setErrorMsg(new ErrorMsg("no clip or text"));
       return;
     }
 
@@ -103,18 +109,22 @@ public class ClipViewModel extends AndroidViewModel {
     final String oldText = originalText.getValue();
     final String newText = text.getValue();
     Log.logD(TAG, "text: " + newText);
+    if (oldText.equals(newText)) {
+      mRepo.setErrorMsg(new ErrorMsg("no changes"));
+    }
 
     // save new or changed
     clipEntity.setText(context, newText);
     clipEntity.setRemote(false);
+    clipEntity.setDevice(MyDevice.INST(context).getDisplayName());
     clipEntity.setDate(Instant.now().toEpochMilli());
-    MainRepo.INST(App.INST()).addClipIfNewAsync(clipEntity);
 
+    MainRepo.INST(App.INST()).addClipIfNewAndCopyAsync(clipEntity);
   }
 
-  public void setText(String text) {
-    mRepo.updateClipAsync(text, originalText.getValue());
-  }
+  //public void setText(String text) {
+  //  mRepo.updateClipTextAsync(text, originalText.getValue());
+  //}
 
   private void setOriginalText(String originalText) {
     this.originalText.setValue(originalText);

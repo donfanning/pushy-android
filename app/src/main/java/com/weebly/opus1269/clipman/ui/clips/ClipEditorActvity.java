@@ -15,11 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ActivityClipEditorBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.ClipViewModel;
@@ -46,6 +45,7 @@ public class ClipEditorActvity extends BaseActivity {
     boolean addMode = false;
     ClipEntity clip = (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
     if (clip == null) {
+      Log.logD(TAG, "add mode");
       addMode = true;
       clip = new ClipEntity(this);
       final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
@@ -59,7 +59,7 @@ public class ClipEditorActvity extends BaseActivity {
     setTitle(addMode);
 
     // setup ViewModel and data binding
-    mVm = new ClipViewModel(getApplication(), clip.getText(), addMode);
+    mVm = new ClipViewModel(getApplication(), clip, addMode);
     final ActivityClipEditorBinding binding =
       (ActivityClipEditorBinding) mBinding;
     binding.setLifecycleOwner(this);
@@ -69,19 +69,19 @@ public class ClipEditorActvity extends BaseActivity {
     binding.executePendingBindings();
 
     // observe working
-    mVm.getIsLoading().observe(this, isLoading -> {
-      if ((isLoading != null) && !isLoading) {
-        final ErrorMsg errorMsg = mVm.getErrorMsg();
-        if (errorMsg != null) {
-          AppUtils.showMessage(this, null, errorMsg.msg);
-        } else if (mVm.getClipLive().getValue() != null){
-          mVm.getClipLive().getValue().copyToClipboard(this);
-          finish();
-        }
-      }
-    });
+    //mVm.getIsLoading().observe(this, isLoading -> {
+    //  if ((isLoading != null) && !isLoading) {
+    //    final ErrorMsg errorMsg = mVm.getErrorMsg();
+    //    if (errorMsg != null) {
+    //      AppUtils.showMessage(this, null, errorMsg.msg);
+    //    } else if (mVm.getClipLive().getValue() != null){
+    //      mVm.getClipLive().getValue().copyToClipboard(this);
+    //      finish();
+    //    }
+    //  }
+    //});
 
-    //// observe error
+    // observe error
     //mVm.getErrorMsg().observe(this, errorMsg -> {
     //  if (errorMsg == null) {
     //    mVm.getClip().getValue().copyToClipboard(this);

@@ -27,7 +27,6 @@ import android.view.View;
 
 import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 import com.weebly.opus1269.clipman.model.Clip;
@@ -37,7 +36,6 @@ import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
-import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
 
@@ -379,30 +377,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     final Intent sendIntent = Intent.createChooser(intent,
       ctxt.getResources().getString(R.string.share_text_to));
     AppUtils.startNewTaskActivity(ctxt, sendIntent);
-  }
-
-  /**
-   * Add to database
-   * @param onNewOnly if true, only add if text is not in database
-   */
-  private void add(boolean onNewOnly) {
-    MainRepo.INST(App.INST()).addClipAsync(this, onNewOnly);
-  }
-
-  /**
-   * Add to database if it is a new item
-   */
-  @Override
-  public void addIfNew(Context context) {
-    add(true);
-  }
-
-  /**
-   * Add to database
-   */
-  @Override
-  public void add(Context context) {
-    add(false);
   }
 
   /**
