@@ -9,8 +9,11 @@ package com.weebly.opus1269.clipman.ui;
 
 import android.databinding.BindingAdapter;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 
+import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
 /** Data binding utility methods */
@@ -27,7 +30,7 @@ public class BindingAdapters {
 
   /**
    * Set enabled state and show greyed out when disabled
-   * @param view The view
+   * @param view   The view
    * @param enable The state
    */
   @BindingAdapter("enabled")
@@ -38,7 +41,7 @@ public class BindingAdapters {
 
   /**
    * Tint the view with the accent color
-   * @param view The view
+   * @param view   The view
    * @param isTrue tint if true
    */
   @BindingAdapter("tintAccent")
@@ -50,11 +53,46 @@ public class BindingAdapters {
 
   /**
    * Tint the view with the primary color
-   * @param view The view
+   * @param view      The view
    * @param noReverse revese color if true
    */
   @BindingAdapter("tintPrimary")
   public static void tintPrimary(ImageView view, boolean noReverse) {
-      DrawableHelper.tintPrimaryColor(view, !noReverse);
+    DrawableHelper.tintPrimaryColor(view, !noReverse);
+  }
+
+  /**
+   * Tint the fav
+   * @param checkBox   The view
+   * @param isTrue tint if true
+   */
+  @BindingAdapter("tintFav")
+  public static void tintFav(CheckBox checkBox, boolean isTrue) {
+    if (isTrue) {
+      final int color;
+      final int drawableFav;
+      final int colorFav;
+
+      if (Prefs.INST(checkBox.getContext()).isLightTheme()) {
+        color = android.R.color.primary_text_light;
+      } else {
+        color = android.R.color.primary_text_dark;
+      }
+
+      if (checkBox.isChecked()) {
+        drawableFav = R.drawable.ic_favorite_black_24dp;
+        colorFav = R.color.red_500_translucent;
+      } else {
+        drawableFav = R.drawable.ic_favorite_border_black_24dp;
+        colorFav = color;
+      }
+
+      DrawableHelper
+        .withContext(checkBox.getContext())
+        .withColor(colorFav)
+        .withDrawable(drawableFav)
+        .tint()
+        .applyToDrawableLeft(checkBox);
+    }
   }
 }

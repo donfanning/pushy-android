@@ -7,10 +7,25 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<LinearLayout android:id="@+id/clipRow"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <import type="com.weebly.opus1269.clipman.app.AppUtils"/>
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.ClipViewModel" />
+
+    <variable
+      name="handlers"
+      type="com.weebly.opus1269.clipman.ui.main.ClipHandlers" />
+  </data>
+
+  <LinearLayout
+    android:id="@+id/clipRow"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:clickable="true"
@@ -69,6 +84,7 @@
         android:paddingStart="@dimen/row_image_horizontal_margin"
         android:paddingRight="@dimen/row_image_horizontal_margin"
         android:paddingEnd="@dimen/row_image_horizontal_margin"
+        app:tintFav="@{true}"
         android:contentDescription="@string/content_favorite" />
 
       <TextView
@@ -82,6 +98,7 @@
         android:textAppearance="?attr/textAppearanceListItemSecondary"
         android:textColor="?android:textColorTertiary"
         android:textIsSelectable="false"
+        android:text="@{AppUtils.getRelativeDisplayTime(context, vm.clip.date)}"
         tools:text="Test date" />
 
       <ImageButton
@@ -103,6 +120,7 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/content_copy"
         android:gravity="center_vertical"
+        app:tintPrimary="@{true}"
         app:srcCompat="@drawable/ic_content_copy_black_24dp" />
 
       <TextView
@@ -122,6 +140,7 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textIsSelectable="false"
+        android:text="@{vm.clip.text}"
         tools:text="Test clip text\nTest clip text\nTest clip text\n http://www.cnn.com Test clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\n" />
 
       <ImageButton
@@ -144,6 +163,7 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/content_copy"
         android:gravity="center_vertical"
+        app:tintPrimary="@{true}"
         app:srcCompat="@drawable/ic_label_outline" />
 
     </RelativeLayout>
@@ -152,3 +172,4 @@
 
 </LinearLayout>
 
+</layout>

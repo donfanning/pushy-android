@@ -7,27 +7,47 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<android.support.v4.widget.DrawerLayout android:id="@+id/drawer_layout"
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:fitsSystemWindows="true"
-  tools:openDrawer="start">
+  xmlns:bind="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <include
-    layout="@layout/app_bar_main"
+  <data>
+
+    <import type="android.text.TextUtils" />
+
+    <import type="android.view.View" />
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.MainViewModel" />
+
+    <variable
+      name="handlers"
+      type="com.weebly.opus1269.clipman.ui.main.ClipHandlers" />
+  </data>
+
+  <android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
-
-  <android.support.design.widget.NavigationView
-    android:id="@+id/nav_view"
-    android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:layout_gravity="start"
     android:fitsSystemWindows="true"
-    app:headerLayout="@layout/nav_header_main"
-    app:menu="@menu/menu_nav" />
+    tools:openDrawer="start">
 
-</android.support.v4.widget.DrawerLayout>
+    <include
+      layout="@layout/app_bar_main"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
+    <android.support.design.widget.NavigationView
+      android:id="@+id/nav_view"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_gravity="start"
+      android:fitsSystemWindows="true"
+      app:headerLayout="@layout/nav_header_main"
+      app:menu="@menu/menu_nav" />
+
+  </android.support.v4.widget.DrawerLayout>
+
+</layout>

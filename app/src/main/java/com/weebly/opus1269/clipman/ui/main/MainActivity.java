@@ -22,6 +22,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -34,6 +35,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.databinding.ActivityMainBinding;
 import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
@@ -58,6 +60,7 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
+import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,14 +74,17 @@ public class MainActivity extends BaseActivity implements
   SortTypeDialogFragment.SortTypeDialogListener,
   SharedPreferences.OnSharedPreferenceChangeListener {
 
+  /** Event handlers */
+  private ClipHandlers mHandlers = null;
+
+  /** Adapter used to display the list's data */
+  private ClipAdapter mAdapter = null;
+
   /** The selected position in the list, delegated to ClipCursorAdapter */
   private static final String STATE_POS = "pos";
 
   /** The database _ID of the selected item, delegated to ClipCursorAdapter */
   private static final String STATE_ITEM_ID = "item_id";
-
-  /** Delegate for RecyclerView */
-  private ClipLoaderManager mLoaderManager;
 
   /** Items from last delete operation */
   private List<ClipItem> mUndoItems = new ArrayList<>(0);
@@ -95,6 +101,7 @@ public class MainActivity extends BaseActivity implements
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     mLayoutID = R.layout.activity_main;
+    mIsBound = true;
 
     // We are the big dog, no need for this
     mHomeUpEnabled = false;
@@ -120,15 +127,46 @@ public class MainActivity extends BaseActivity implements
       .getDefaultSharedPreferences(this)
       .registerOnSharedPreferenceChangeListener(this);
 
-    // handles the adapter and RecyclerView
-    mLoaderManager = new ClipLoaderManager(this);
+    // setup ViewModel and data binding
+    MainViewModel vm = new MainViewModel(getApplication());
+    mHandlers = new ClipHandlers(this);
+    final ActivityMainBinding binding = (ActivityMainBinding) mBinding;
+    binding.setLifecycleOwner(this);
+    binding.setVm(vm);
+    //binding.setIsWorking(vm.getIsWorking());
+    //binding.setInfoMessage(vm.getInfoMessage());
+    binding.setHandlers(mHandlers);
+    binding.executePendingBindings();
 
-    // Check whether we're recreating a previously destroyed instance
-    if (savedInstanceState != null) {
-      final int pos = savedInstanceState.getInt(STATE_POS);
-      final long id = savedInstanceState.getLong(STATE_ITEM_ID);
-      mLoaderManager.getAdapter().restoreSelection(pos, id);
-    }
+    // observe errors
+    //vm.getErrorMsg().observe(this, errorMsg -> {
+    //  if (errorMsg != null) {
+    //    mHandlers.showErrorMessage(errorMsg);
+    //  }
+    //});
+
+    final RecyclerView recyclerView = findViewById(R.id.clipList);
+    mAdapter = new ClipAdapter(this, mHandlers);
+    //binding.contentBackupLayout.backupListLayout.backupRecyclerView
+    //  .setAdapter(mAdapter);
+    recyclerView.setAdapter(mAdapter);
+
+    // Observe clips
+    vm.loadClips().observe(this, clips -> {
+      if (clips != null) {
+        mAdapter.setList(clips);
+      }
+    });
+
+    // handles the adapter and RecyclerView
+    //mLoaderManager = new ClipLoaderManager(this);
+
+    //// Check whether we're recreating a previously destroyed instance
+    //if (savedInstanceState != null) {
+    //  final int pos = savedInstanceState.getInt(STATE_POS);
+    //  final long id = savedInstanceState.getLong(STATE_ITEM_ID);
+    //  mLoaderManager.getAdapter().restoreSelection(pos, id);
+    //}
 
     setupNavigationView();
 
@@ -161,9 +199,9 @@ public class MainActivity extends BaseActivity implements
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
 
-    final ClipCursorAdapter adapter = mLoaderManager.getAdapter();
-    outState.putInt(STATE_POS, adapter.getSelectedPos());
-    outState.putLong(STATE_ITEM_ID, adapter.getSelectedItemID());
+    //final ClipCursorAdapter adapter = mLoaderManager.getAdapter();
+    //outState.putInt(STATE_POS, adapter.getSelectedPos());
+    //outState.putLong(STATE_ITEM_ID, adapter.getSelectedItemID());
   }
 
   @Override
@@ -180,9 +218,6 @@ public class MainActivity extends BaseActivity implements
     updateOptionsMenu();
 
     Notifications.INST(this).removeClips();
-
-    // update clips
-    mLoaderManager.getAdapter().notifyDataSetChanged();
   }
 
   @Override
@@ -202,7 +237,7 @@ public class MainActivity extends BaseActivity implements
   protected boolean setQueryString(String queryString) {
     boolean ret = false;
     if (super.setQueryString(queryString)) {
-      getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+      //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
       ret = true;
     }
     return ret;
@@ -255,14 +290,14 @@ public class MainActivity extends BaseActivity implements
         Prefs.INST(this).setPinFav(mPinFav);
         updateOptionsMenu();
         // reload clips
-        getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+        //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_fav_filter:
         mFavFilter = !mFavFilter;
         Prefs.INST(this).setFavFilter(mFavFilter);
         updateOptionsMenu();
         // reload clips
-        getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+        //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_sort:
         showSortTypeDialog();
@@ -400,7 +435,7 @@ public class MainActivity extends BaseActivity implements
 
   @Override
   public void onSortTypeSelected() {
-    getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+    //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
   }
 
   @Override
@@ -421,7 +456,9 @@ public class MainActivity extends BaseActivity implements
 
   String getQueryString() {return mQueryString;}
 
-  ClipLoaderManager getClipLoaderManager() {return mLoaderManager;}
+  ClipLoaderManager getClipLoaderManager() {
+    return null;
+  }
 
   /** Display progress UI */
   private void showProgress() {
