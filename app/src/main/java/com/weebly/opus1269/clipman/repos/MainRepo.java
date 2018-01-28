@@ -160,23 +160,27 @@ public class MainRepo extends BaseRepo {
    */
   public void addClipIfNewAndCopyAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO().execute(() -> {
+      postIsLoading(true);
       if (MainDB.INST(mApp).clipDao().get(clip.getText()) == null) {
-        postIsLoading(true);
-        //long row = MainDB.INST(mApp).clipDao().delete(clip);
-        //Log.logD(TAG, "delete row: " + row);
-        Log.logD(TAG, "current row: " + clip.getId());
-        long row = MainDB.INST(mApp).clipDao().insert(clip);
-        Log.logD(TAG, "insert row: " + row);
-        if (row == -1L) {
-          errorMsg.postValue(new ErrorMsg("insert failed"));
-        } else {
-          errorMsg.postValue(null);
+        if (!Prefs.INST(mApp).isMonitorClipboard()) {
+          // if not monitoring clipboard, need to handle insert ourselves
+          // otherwise the ClipWatcher will handle it
+          int nRows = MainDB.INST(mApp).clipDao().delete(clip);
+          Log.logD(TAG, "deleted rows: " + nRows);
+          Log.logD(TAG, "current row: " + clip.getId());
+          long row = MainDB.INST(mApp).clipDao().insert(clip);
+          Log.logD(TAG, "insert row: " + row);
+          if (row == -1L) {
+            errorMsg.postValue(new ErrorMsg("insert failed"));
+          } else {
+            errorMsg.postValue(null);
+          }
         }
         clip.copyToClipboard(mApp);
-        postIsLoading(false);
       } else {
         errorMsg.postValue(new ErrorMsg("clip exists"));
       }
+      postIsLoading(false);
     });
   }
 
@@ -196,7 +200,7 @@ public class MainRepo extends BaseRepo {
         id = MainDB.INST(mApp).clipDao().insert(clip);
       }
 
-      Log.logD(TAG, "id: " + id);
+      Log.logD(TAG, "addClipAndSendAsync id: " + id);
 
       if (id != -1L) {
         Notifications.INST(cntxt).show(clip);

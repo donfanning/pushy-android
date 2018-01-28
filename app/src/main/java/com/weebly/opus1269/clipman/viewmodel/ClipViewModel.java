@@ -35,8 +35,17 @@ public class ClipViewModel extends AndroidViewModel {
   /** Our working status */
   private final MediatorLiveData<Boolean> isLoading;
 
+  /** Our error status */
+  private final MediatorLiveData<ErrorMsg> errorMsg;
+
   /** Our Clip */
-  private final MutableLiveData<ClipEntity> clip;
+  private final ClipEntity clip;
+
+  /** Our pk */
+  private final MutableLiveData<Long> id;
+
+  /** Our original pk */
+  public long originalId;
 
   /** Our text */
   private final MutableLiveData<String> text;
@@ -46,18 +55,27 @@ public class ClipViewModel extends AndroidViewModel {
 
   public final boolean addMode;
 
-  public ClipViewModel(@NonNull Application app, @NonNull ClipEntity clip, boolean addMode) {
+  public ClipViewModel(@NonNull Application app, @NonNull ClipEntity clip,
+                       boolean addMode) {
     super(app);
+
     mRepo = MainRepo.INST(app);
+
     mRepo.setErrorMsg(null);
+    mRepo.setIsLoading(null);
+
+    errorMsg = new MediatorLiveData<>();
+    errorMsg.addSource(mRepo.getErrorMsg(), this.errorMsg::setValue);
 
     isLoading = new MediatorLiveData<>();
     isLoading.addSource(mRepo.getIsLoading(), this.isLoading::setValue);
 
     this.addMode = addMode;
 
-    this.clip = new MutableLiveData<>();
-    this.clip.setValue(clip);
+    this.id = new MutableLiveData<>();
+    this.id.setValue(clip.getId());
+
+    this.originalId = -1L;
 
     this.text = new MutableLiveData<>();
     this.text.setValue(clip.getText());
@@ -65,28 +83,23 @@ public class ClipViewModel extends AndroidViewModel {
     this.originalText = new MutableLiveData<>();
     this.originalText.setValue(clip.getText());
 
-    this.clip.observeForever((clipEntity) -> {
-      if (clipEntity != null) {
-        Log.logD(TAG, "clip changed: " + clipEntity.getText());
-        setOriginalText(clipEntity.getText());
-      }
-    });
+    this.clip = clip;
   }
 
   public LiveData<Boolean> getIsLoading() {
     return isLoading;
   }
 
-  public ErrorMsg getErrorMsg() {
-    return mRepo.getErrorMsg().getValue();
+  public LiveData<ErrorMsg> getErrorMsg() {
+    return mRepo.getErrorMsg();
   }
 
-  public LiveData<ClipEntity> getClipLive() {
-    return clip;
+  public void resetErrorMsg() {
+    mRepo.setErrorMsg(null);
   }
 
   public ClipEntity getClip() {
-    return clip.getValue();
+    return clip;
   }
 
   public MutableLiveData<String> getText() {
@@ -98,7 +111,7 @@ public class ClipViewModel extends AndroidViewModel {
   }
 
   public void saveClip() {
-    final ClipEntity clipEntity = this.clip.getValue();
+    final ClipEntity clipEntity = this.clip;
     if ((clipEntity == null) || (text == null) || (text.getValue() == null) ||
       (originalText.getValue() == null)) {
       mRepo.setErrorMsg(new ErrorMsg("no clip or text"));
@@ -111,10 +124,12 @@ public class ClipViewModel extends AndroidViewModel {
     Log.logD(TAG, "text: " + newText);
     if (oldText.equals(newText)) {
       mRepo.setErrorMsg(new ErrorMsg("no changes"));
+      return;
     }
 
     // save new or changed
     clipEntity.setText(context, newText);
+    //setOriginalText(newText);
     clipEntity.setRemote(false);
     clipEntity.setDevice(MyDevice.INST(context).getDisplayName());
     clipEntity.setDate(Instant.now().toEpochMilli());
@@ -126,7 +141,7 @@ public class ClipViewModel extends AndroidViewModel {
   //  mRepo.updateClipTextAsync(text, originalText.getValue());
   //}
 
-  private void setOriginalText(String originalText) {
+  public void setOriginalText(String originalText) {
     this.originalText.setValue(originalText);
   }
 }

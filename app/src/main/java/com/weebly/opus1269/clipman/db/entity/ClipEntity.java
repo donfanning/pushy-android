@@ -28,6 +28,7 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 import com.weebly.opus1269.clipman.model.Clip;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -171,6 +172,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     return remote;
   }
 
+  // TODO set device to MyDevice if false
   public void setRemote(Boolean remote) {
     this.remote = remote;
   }
@@ -321,6 +323,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
       if (clipboard != null) {
         final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
         clipboard.setPrimaryClip(clip);
+        Log.logD(TAG, "copied to clipboard");
       }
     });
   }

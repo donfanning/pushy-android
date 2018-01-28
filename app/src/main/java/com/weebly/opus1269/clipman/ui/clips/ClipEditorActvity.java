@@ -15,10 +15,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ActivityClipEditorBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.ClipViewModel;
@@ -43,7 +45,8 @@ public class ClipEditorActvity extends BaseActivity {
     final Intent intent = getIntent();
 
     boolean addMode = false;
-    ClipEntity clip = (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+    ClipEntity clip = (ClipEntity) intent.getSerializableExtra(Intents
+      .EXTRA_CLIP);
     if (clip == null) {
       Log.logD(TAG, "add mode");
       addMode = true;
@@ -69,27 +72,42 @@ public class ClipEditorActvity extends BaseActivity {
     binding.executePendingBindings();
 
     // observe working
-    //mVm.getIsLoading().observe(this, isLoading -> {
-    //  if ((isLoading != null) && !isLoading) {
-    //    final ErrorMsg errorMsg = mVm.getErrorMsg();
-    //    if (errorMsg != null) {
-    //      AppUtils.showMessage(this, null, errorMsg.msg);
-    //    } else if (mVm.getClipLive().getValue() != null){
-    //      mVm.getClipLive().getValue().copyToClipboard(this);
+    mVm.getIsLoading().observe(this, isLoading -> {
+      if ((isLoading != null) && !isLoading) {
+        final ErrorMsg errorMsg = mVm.getErrorMsg().getValue();
+        if (errorMsg != null) {
+          AppUtils.showMessage(this, null, errorMsg.msg);
+          mVm.resetErrorMsg();
+        } else {
+          finish();
+        }
+      }
+    });
+
+    //// observe clip pk
+    //mVm.getId().observe(this, Id -> {
+    //  if ((Id != null) && (Id != mVm.originalId)) {
+    //    Log.logD(TAG, "clip edit complete");
+    //    finish();
+    //  }
+    //});
+
+    // observe clip
+    //mVm.getClipLive().observe(this, clipEntity -> {
+    //  if (clipEntity != null && mVm.getOriginalText().getValue() != null) {
+    //    if (!mVm.getOriginalText().getValue().equals(clipEntity.getText())) {
+    //      Log.logD(TAG, "clip edit complete");
     //      finish();
     //    }
     //  }
     //});
 
     // observe error
-    //mVm.getErrorMsg().observe(this, errorMsg -> {
-    //  if (errorMsg == null) {
-    //    mVm.getClip().getValue().copyToClipboard(this);
-    //    finish();
-    //  } else {
-    //    AppUtils.showMessage(this, null, errorMsg.msg);
-    //  }
-    //});
+    mVm.getErrorMsg().observe(this, errorMsg -> {
+      if (errorMsg != null) {
+        AppUtils.showMessage(this, null, errorMsg.msg);
+      }
+    });
   }
 
   @Override
@@ -119,7 +137,7 @@ public class ClipEditorActvity extends BaseActivity {
         finish();
         break;
       case R.id.action_save_changes:
-        save();
+        mVm.saveClip();
         break;
       default:
         processed = false;
@@ -131,11 +149,6 @@ public class ClipEditorActvity extends BaseActivity {
     }
 
     return processed || super.onOptionsItemSelected(item);
-  }
-
-  private void save() {
-    mVm.saveClip();
-    //finish();
   }
 
   private void setTitle(boolean state) {
