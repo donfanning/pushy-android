@@ -69,7 +69,7 @@ public class BackupHelper {
   public void getBackupsAsync() {
     App.getExecutors().networkIO().execute(() -> {
       try {
-        BackupRepo.INST(App.INST()).postIsLoading(true);
+        BackupRepo.INST(App.INST()).postIsWorking(true);
         List<BackupEntity> backups = DriveHelper.INST(mContext).getBackups();
         BackupRepo.INST(App.INST()).addBackups(backups);
       } catch (Exception ex) {
@@ -77,7 +77,7 @@ public class BackupHelper {
         final String err = mContext.getString(R.string.err_get_backups);
         showMessage(err, ex);
       } finally {
-        BackupRepo.INST(App.INST()).postIsLoading(false);
+        BackupRepo.INST(App.INST()).postIsWorking(false);
       }
     });
   }
@@ -86,7 +86,7 @@ public class BackupHelper {
   public void createBackupAsync() {
     App.getExecutors().diskIO().execute(() -> {
       try {
-        BackupRepo.INST(App.INST()).postIsLoading(true);
+        BackupRepo.INST(App.INST()).postIsWorking(true);
         final String zipName = getZipFilename();
         final byte[] zipData = createZipContentsFromDB();
         final BackupEntity backup =
@@ -104,7 +104,7 @@ public class BackupHelper {
         final String err = mContext.getString(R.string.err_create_backup);
         showMessage(err, ex);
       } finally {
-        BackupRepo.INST(App.INST()).postIsLoading(false);
+        BackupRepo.INST(App.INST()).postIsWorking(false);
       }
     });
   }
@@ -116,7 +116,7 @@ public class BackupHelper {
   public void restoreBackupAsync(final BackupEntity backup) {
     App.getExecutors().networkIO().execute(() -> {
       try {
-        BackupRepo.INST(App.INST()).postIsLoading(true);
+        BackupRepo.INST(App.INST()).postIsWorking(true);
         final DriveFile driveFile = backup.getDriveId().asDriveFile();
         final BackupContents contents =
           DriveHelper.INST(mContext).getBackupContents(driveFile);
@@ -125,7 +125,7 @@ public class BackupHelper {
         final String err = mContext.getString(R.string.err_restore_backup);
         showMessage(err, ex);
       } finally {
-        BackupRepo.INST(App.INST()).postIsLoading(false);
+        BackupRepo.INST(App.INST()).postIsWorking(false);
       }
     });
   }
@@ -137,7 +137,7 @@ public class BackupHelper {
   public void syncContentsAsync(final BackupEntity backup) {
     App.getExecutors().networkIO().execute(() -> {
       try {
-        BackupRepo.INST(App.INST()).postIsLoading(true);
+        BackupRepo.INST(App.INST()).postIsWorking(true);
         final DriveFile driveFile = backup.getDriveId().asDriveFile();
         final BackupContents contents =
           DriveHelper.INST(mContext).getBackupContents(driveFile);
@@ -161,10 +161,10 @@ public class BackupHelper {
     App.getExecutors().networkIO().execute(() -> {
       try {
         final DriveId driveId = backup.getDriveId();
-        BackupRepo.INST(App.INST()).postIsLoading(true);
+        BackupRepo.INST(App.INST()).postIsWorking(true);
         DriveHelper.INST(mContext).deleteBackup(driveId);
         BackupRepo.INST(App.INST()).removeBackup(driveId);
-        BackupRepo.INST(App.INST()).postIsLoading(false);
+        BackupRepo.INST(App.INST()).postIsWorking(false);
       } catch (Exception ex) {
         final String err = mContext.getString(R.string.err_delete_backup);
         showMessage(err, ex);

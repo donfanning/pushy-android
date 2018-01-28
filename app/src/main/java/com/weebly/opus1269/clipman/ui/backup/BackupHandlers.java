@@ -122,7 +122,7 @@ public class BackupHandlers extends BaseHandlers
   public void showErrorMessage(@NonNull ErrorMsg errorMsg) {
     // reset error
     BackupRepo.INST(App.INST()).postErrorMsg(null);
-    BackupRepo.INST(App.INST()).postIsLoading(false);
+    BackupRepo.INST(App.INST()).postIsWorking(false);
     final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
       .setTitle(errorMsg.title)
       .setMessage(errorMsg.msg)

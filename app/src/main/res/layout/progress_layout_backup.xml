@@ -14,7 +14,7 @@
     <import type="android.view.View" />
 
     <variable
-      name="isLoading"
+      name="isWorking"
       type="android.arch.lifecycle.LiveData&lt;Boolean&gt;" />
   </data>
 
@@ -25,7 +25,7 @@
     android:layout_marginTop="64dp"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    app:visibleGone="@{safeUnbox(isLoading)}"
+    app:visibleGone="@{safeUnbox(isWorking)}"
     tools:visibility="visible">
 
     <ProgressBar

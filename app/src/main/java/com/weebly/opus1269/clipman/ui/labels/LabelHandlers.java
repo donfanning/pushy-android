@@ -9,7 +9,6 @@ package com.weebly.opus1269.clipman.ui.labels;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.widget.Button;
 
@@ -18,7 +17,6 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
@@ -50,14 +48,6 @@ public class LabelHandlers extends BaseHandlers
   }
 
   /**
-   * Click on fab button
-   * @param context A context
-   */
-  public void onFabClick(Context context) {
-    Analytics.INST(context).imageClick(TAG, "refreshBackups");
-  }
-
-  /**
    * Click on delete button
    * @param context     A context
    * @param labelEntity The Label
@@ -68,24 +58,6 @@ public class LabelHandlers extends BaseHandlers
     mLabelEntity = labelEntity;
     showDialog(R.string.label_delete_dialog_title,
       R.string.label_delete_dialog_message, R.string.button_delete);
-  }
-
-  /**
-   * Display an error in a dialog
-   * @param errorMsg the error
-   */
-  public void showErrorMessage(@NonNull ErrorMsg errorMsg) {
-    // reset error
-    //BackupRepo.INST(App.INST()).postErrorMsg(null);
-    //BackupRepo.INST(App.INST()).postIsLoading(false);
-    //final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
-    //  .setTitle(errorMsg.title)
-    //  .setMessage(errorMsg.msg)
-    //  .setPositiveButton(R.string.button_dismiss, null)
-    //  .setNegativeButton(R.string.button_details, this)
-    //  .create();
-    //
-    //alertDialog.show();
   }
 
   /**

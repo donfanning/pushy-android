@@ -32,7 +32,7 @@ public class ClipViewModel extends AndroidViewModel {
   /** Our Repo */
   private final MainRepo mRepo;
 
-  /** Our working status */
+  /** True if performing async op */
   private final MediatorLiveData<Boolean> isWorking;
 
   /** Our error status */
@@ -57,13 +57,13 @@ public class ClipViewModel extends AndroidViewModel {
     mRepo = MainRepo.INST(app);
 
     mRepo.setErrorMsg(null);
-    mRepo.setIsLoading(null);
+    mRepo.setIsWorking(null);
 
     errorMsg = new MediatorLiveData<>();
     errorMsg.addSource(mRepo.getErrorMsg(), this.errorMsg::setValue);
 
     isWorking = new MediatorLiveData<>();
-    isWorking.addSource(mRepo.getIsLoading(), this.isWorking::setValue);
+    isWorking.addSource(mRepo.getIsWorking(), this.isWorking::setValue);
 
     this.text = new MutableLiveData<>();
     this.text.setValue(clip.getText());

@@ -28,7 +28,7 @@ public abstract class BaseRepo {
   protected final MutableLiveData<String> infoMessage;
 
   /** True if loading */
-  protected final MutableLiveData<Boolean> isLoading;
+  protected final MutableLiveData<Boolean> isWorking;
 
   BaseRepo(final Application app) {
     mApp = app;
@@ -39,8 +39,8 @@ public abstract class BaseRepo {
     infoMessage = new MutableLiveData<>();
     infoMessage.postValue("");
 
-    isLoading = new MutableLiveData<>();
-    isLoading.postValue(false);
+    isWorking = new MutableLiveData<>();
+    isWorking.postValue(false);
   }
 
   public LiveData<ErrorMsg> getErrorMsg() {
@@ -51,16 +51,16 @@ public abstract class BaseRepo {
     return infoMessage;
   }
 
-  public LiveData<Boolean> getIsLoading() {
-    return isLoading;
+  public LiveData<Boolean> getIsWorking() {
+    return isWorking;
   }
 
   public void setErrorMsg(ErrorMsg value) {
     errorMsg.setValue(value);
   }
 
-  public void setIsLoading(Boolean value) {
-    isLoading.setValue(value);
+  public void setIsWorking(Boolean value) {
+    isWorking.setValue(value);
   }
 
   public void setInfoMessage(String value) {
@@ -71,8 +71,8 @@ public abstract class BaseRepo {
     errorMsg.postValue(value);
   }
 
-  public void postIsLoading(Boolean value) {
-    isLoading.postValue(value);
+  public void postIsWorking(Boolean value) {
+    isWorking.postValue(value);
   }
 
   public void postInfoMessage(String value) {

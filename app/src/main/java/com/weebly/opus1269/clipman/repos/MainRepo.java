@@ -125,7 +125,7 @@ public class MainRepo extends BaseRepo {
    * @param clip Clip to insert or replace
    */
   public void addClipIfNewAsync(@NonNull ClipEntity clip) {
-    postIsLoading(true);
+    postIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
       if (mDB.clipDao().get(clip.getText()) == null) {
         long row = mDB.clipDao().insert(clip);
@@ -134,7 +134,7 @@ public class MainRepo extends BaseRepo {
         } else {
           errorMsg.postValue(null);
         }
-        postIsLoading(false);
+        postIsWorking(false);
       } else {
         errorMsg.postValue(new ErrorMsg("clip exists"));
       }
@@ -159,7 +159,7 @@ public class MainRepo extends BaseRepo {
    */
   public void addClipIfNewAndCopyAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO().execute(() -> {
-      postIsLoading(true);
+      postIsWorking(true);
       if (mDB.clipDao().get(clip.getText()) == null) {
         if (!Prefs.INST(mApp).isMonitorClipboard()) {
           // if not monitoring clipboard, need to handle insert ourselves
@@ -179,7 +179,7 @@ public class MainRepo extends BaseRepo {
       } else {
         errorMsg.postValue(new ErrorMsg("clip exists"));
       }
-      postIsLoading(false);
+      postIsWorking(false);
     });
   }
 
@@ -192,7 +192,7 @@ public class MainRepo extends BaseRepo {
   public void addClipAndSendAsync(Context cntxt, ClipEntity clip,
                                   boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
-      postIsLoading(true);
+      postIsWorking(true);
       long id;
       if (onNewOnly) {
         id = mDB.clipDao().insertIfNew(clip);
@@ -209,7 +209,7 @@ public class MainRepo extends BaseRepo {
           clip.send(cntxt);
         }
       }
-      postIsLoading(false);
+      postIsWorking(false);
     });
   }
 

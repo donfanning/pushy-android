@@ -24,8 +24,8 @@ public class LabelsViewModel extends AndroidViewModel {
   /** Error message */
   private final MediatorLiveData<ErrorMsg> errorMsg;
 
-  /** True if loading */
-  private final MediatorLiveData<Boolean> isLoading;
+  /** True if performing async op */
+  private final MediatorLiveData<Boolean> isWorking;
 
   /** Labels list */
   private final MediatorLiveData<List<LabelEntity>> labels;
@@ -39,9 +39,9 @@ public class LabelsViewModel extends AndroidViewModel {
     errorMsg.setValue(repo.getErrorMsg().getValue());
     errorMsg.addSource(repo.getErrorMsg(), errorMsg::setValue);
 
-    isLoading = new MediatorLiveData<>();
-    isLoading.setValue(repo.getIsLoading().getValue());
-    isLoading.addSource(repo.getIsLoading(), isLoading::setValue);
+    isWorking = new MediatorLiveData<>();
+    isWorking.setValue(repo.getIsWorking().getValue());
+    isWorking.addSource(repo.getIsWorking(), isWorking::setValue);
 
     labels = new MediatorLiveData<>();
     labels.setValue(repo.loadLabels().getValue());
@@ -53,8 +53,8 @@ public class LabelsViewModel extends AndroidViewModel {
     return errorMsg;
   }
 
-  public MutableLiveData<Boolean> getIsLoading() {
-    return isLoading;
+  public MutableLiveData<Boolean> getIsWorking() {
+    return isWorking;
   }
 
   public MutableLiveData<List<LabelEntity>> getLabels() {

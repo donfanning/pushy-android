@@ -56,7 +56,7 @@ public class LabelsSelectActivity extends BaseActivity {
     final ActivityLabelsSelectBinding binding = (ActivityLabelsSelectBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(viewModel);
-    binding.setIsLoading(viewModel.getIsLoading());
+    binding.setIsWorking(viewModel.getIsWorking());
     //TODO binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 

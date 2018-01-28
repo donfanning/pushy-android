@@ -27,8 +27,8 @@ public class BackupsViewModel extends AndroidViewModel {
   /** Info message */
   private final MediatorLiveData<String> infoMessage;
 
-  /** True if loading */
-  private final MediatorLiveData<Boolean> isLoading;
+  /** True if performing async op */
+  private final MediatorLiveData<Boolean> isWorking;
 
   /** BackFile list */
   private final MediatorLiveData<List<BackupEntity>> backupList;
@@ -47,9 +47,9 @@ public class BackupsViewModel extends AndroidViewModel {
     infoMessage.setValue(repo.getInfoMessage().getValue());
     infoMessage.addSource(repo.getInfoMessage(), infoMessage::setValue);
 
-    isLoading = new MediatorLiveData<>();
-    isLoading.setValue(repo.getIsLoading().getValue());
-    isLoading.addSource(repo.getIsLoading(), isLoading::setValue);
+    isWorking = new MediatorLiveData<>();
+    isWorking.setValue(repo.getIsWorking().getValue());
+    isWorking.addSource(repo.getIsWorking(), isWorking::setValue);
 
     backupList = new MediatorLiveData<>();
     backupList.setValue(null);
@@ -67,8 +67,8 @@ public class BackupsViewModel extends AndroidViewModel {
     return infoMessage;
   }
 
-  public LiveData<Boolean> getIsLoading() {
-    return isLoading;
+  public LiveData<Boolean> getIsWorking() {
+    return isWorking;
   }
 
   public LiveData<List<BackupEntity>> loadBackups() {

@@ -98,9 +98,7 @@ public class BackupRepo extends BaseRepo {
     });
   }
 
-  /**
-   * Remove all backups
-   */
+  /** Remove all backups */
   public void removeAll() {
     App.getExecutors().diskIO().execute(() -> {
       int nRows = mDB.backupDao().deleteAll();
