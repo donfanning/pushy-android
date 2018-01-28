@@ -8,7 +8,6 @@
 package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
@@ -16,18 +15,14 @@ import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.repos.DeviceRepo;
 
 /** ViewModel for a {@link Device} */
-public class DeviceViewModel extends AndroidViewModel {
-  /** Device Repo */
-  private final DeviceRepo mRepo;
-
+public class DeviceViewModel extends BaseRepoViewModel<DeviceRepo> {
   /** Our Device */
   private final DeviceEntity device;
 
   public DeviceViewModel(@NonNull Application app, DeviceEntity device) {
-    super(app);
+    super(app, DeviceRepo.INST(app));
 
     this.device = device;
-    mRepo = DeviceRepo.INST(app);
   }
 
   public Device getDevice() {

@@ -56,7 +56,7 @@ public class DriveHelper {
   private final Context mAppCtxt;
 
   /** Timeout for task completion */
-  private final int WAIT_TIME_SECS = 40;
+  private final int WAIT_TIME_SECS = 20;
 
   /** Mime type of backups */
   private final String MIME_TYPE = "application/zip";

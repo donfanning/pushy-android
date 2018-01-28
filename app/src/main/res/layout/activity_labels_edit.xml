@@ -21,10 +21,6 @@
       type="com.weebly.opus1269.clipman.viewmodel.LabelsViewModel" />
 
     <variable
-      name="isWorking"
-      type="android.arch.lifecycle.MutableLiveData&lt;Boolean&gt;" />
-
-    <variable
       name="handlers"
       type="com.weebly.opus1269.clipman.ui.labels.LabelHandlers" />
   </data>

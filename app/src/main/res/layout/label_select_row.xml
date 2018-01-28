@@ -23,7 +23,7 @@
 
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.backup.BackupHandlers" />
+      type="com.weebly.opus1269.clipman.ui.labels.LabelHandlers" />
   </data>
 
   <RelativeLayout

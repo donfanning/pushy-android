@@ -8,53 +8,26 @@
 package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
-import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import java.util.List;
 
 /** ViewModel for Labels */
-public class LabelsViewModel extends AndroidViewModel {
-  /** Error message */
-  private final MediatorLiveData<ErrorMsg> errorMsg;
-
-  /** True if performing async op */
-  private final MediatorLiveData<Boolean> isWorking;
-
+public class LabelsViewModel extends BaseRepoViewModel<MainRepo> {
   /** Labels list */
   private final MediatorLiveData<List<LabelEntity>> labels;
 
   public LabelsViewModel(@NonNull Application app) {
-    super(app);
-
-    MainRepo repo = MainRepo.INST(app);
-
-    errorMsg = new MediatorLiveData<>();
-    errorMsg.setValue(repo.getErrorMsg().getValue());
-    errorMsg.addSource(repo.getErrorMsg(), errorMsg::setValue);
-
-    isWorking = new MediatorLiveData<>();
-    isWorking.setValue(repo.getIsWorking().getValue());
-    isWorking.addSource(repo.getIsWorking(), isWorking::setValue);
+    super(app, MainRepo.INST(app));
 
     labels = new MediatorLiveData<>();
-    labels.setValue(repo.loadLabels().getValue());
-    labels.addSource(repo.loadLabels(), labels::setValue);
-  }
-
-  @NonNull
-  public MutableLiveData<ErrorMsg> getErrorMsg() {
-    return errorMsg;
-  }
-
-  public MutableLiveData<Boolean> getIsWorking() {
-    return isWorking;
+    labels.setValue(mRepo.loadLabels().getValue());
+    labels.addSource(mRepo.loadLabels(), labels::setValue);
   }
 
   public MutableLiveData<List<LabelEntity>> getLabels() {

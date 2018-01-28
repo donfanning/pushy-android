@@ -40,7 +40,6 @@ public class LabelsEditActivity extends BaseActivity {
       (ActivityLabelsEditBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(viewModel);
-    binding.setIsWorking(viewModel.getIsWorking());
     binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 

@@ -52,12 +52,11 @@ public class LabelsSelectActivity extends BaseActivity {
 
     // setup ViewModel and data binding
     LabelsViewModel viewModel = new LabelsViewModel(getApplication());
-    // TODO mHandlers = new LabelHandlers(this);
+    LabelHandlers mHandlers = new LabelHandlers(this);
     final ActivityLabelsSelectBinding binding = (ActivityLabelsSelectBinding) mBinding;
     binding.setLifecycleOwner(this);
     binding.setVm(viewModel);
-    binding.setIsWorking(viewModel.getIsWorking());
-    //TODO binding.setHandlers(mHandlers);
+    binding.setHandlers(mHandlers);
     binding.executePendingBindings();
 
     // observe errors

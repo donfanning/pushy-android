@@ -54,9 +54,6 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   /** Factory to create a typed ViewModel */
   private final VMAdapterFactory<VM, T> mVMFactory;
 
-  /** Our ViewModel */
-  protected VM mViewModel;
-
   protected BaseBindingAdapter(VHAdapterFactory<VH, U> holderFactory,
                                VMAdapterFactory<VM, T> modelFactory,
                                int layoutId, LifecycleOwner owner, V handlers) {
@@ -82,9 +79,9 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
 
   @Override
   public void onBindViewHolder(VH holder, int position) {
-    mViewModel = mVMFactory.create(getItem(position));
+    final VM vm = mVMFactory.create(getItem(position));
     //noinspection unchecked
-    holder.bind(mLifecycleOwner, mViewModel, mHandlers);
+    holder.bind(mLifecycleOwner, vm, mHandlers);
   }
 
   @Override

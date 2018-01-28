@@ -48,6 +48,7 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
     final String originalName = label.getName();
 
     final EditText labelText = holder.binding.labelText;
+    final LabelViewModel vm = holder.binding.getVm();
     labelText.setOnFocusChangeListener((view, hasFocus) -> {
       if (!hasFocus) {
         String text = labelText.getText().toString();
@@ -55,14 +56,14 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
         if (text.length() > 0) {
           if (!text.equals(originalName)) {
             // update label
-            mViewModel.setName(text);
+            vm.setName(text);
           } else {
             // reset to orginal value
-            mViewModel.getName().setValue(originalName);
+            vm.getName().setValue(originalName);
           }
         } else {
           // reset to orginal value
-          mViewModel.getName().setValue(originalName);
+          vm.getName().setValue(originalName);
         }
       }
     });
