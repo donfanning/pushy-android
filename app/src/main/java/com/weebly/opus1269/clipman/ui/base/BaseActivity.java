@@ -38,7 +38,8 @@ import java.text.Collator;
  * This Activity handles lots of the basic stuff. Make sure you use a standard
  * naming convention for you Activities views and actions. Extend from this.
  */
-public abstract class BaseActivity extends AppCompatActivity implements
+public abstract class BaseActivity<T extends ViewDataBinding> extends
+  AppCompatActivity implements
   SearchView.OnQueryTextListener {
 
   /** saved instance state - query text */
@@ -59,7 +60,7 @@ public abstract class BaseActivity extends AppCompatActivity implements
   protected boolean mIsBound = false;
 
   /** Our data bining */
-  protected ViewDataBinding mBinding = null;
+  protected T mBinding = null;
 
   /** Option menu resource id */
   protected int mOptionsMenuID = -1;

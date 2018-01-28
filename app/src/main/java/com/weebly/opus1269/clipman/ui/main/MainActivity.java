@@ -66,7 +66,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Top level Activity for the app */
-public class MainActivity extends BaseActivity implements
+public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   NavigationView.OnNavigationItemSelectedListener,
   View.OnLayoutChangeListener,
   ClipViewerFragment.OnClipChanged,
@@ -130,13 +130,12 @@ public class MainActivity extends BaseActivity implements
     // setup ViewModel and data binding
     MainViewModel vm = new MainViewModel(getApplication());
     mHandlers = new ClipHandlers(this);
-    final ActivityMainBinding binding = (ActivityMainBinding) mBinding;
-    binding.setLifecycleOwner(this);
-    binding.setVm(vm);
-    //binding.setIsWorking(vm.getIsWorking());
-    //binding.setInfoMessage(vm.getInfoMessage());
-    binding.setHandlers(mHandlers);
-    binding.executePendingBindings();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(vm);
+    //mBinding.setIsWorking(vm.getIsWorking());
+    //mBinding.setInfoMessage(vm.getInfoMessage());
+    mBinding.setHandlers(mHandlers);
+    mBinding.executePendingBindings();
 
     // observe errors
     //vm.getErrorMsg().observe(this, errorMsg -> {

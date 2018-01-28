@@ -32,6 +32,7 @@
 
     <include
       layout="@layout/device_list"
+      android:id="@+id/deviceListLayout"
       bind:infoMessage="@{infoMessage}" />
 
     <TextView

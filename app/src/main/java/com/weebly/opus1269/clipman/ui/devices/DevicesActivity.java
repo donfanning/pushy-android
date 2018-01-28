@@ -8,8 +8,6 @@
 package com.weebly.opus1269.clipman.ui.devices;
 
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.databinding.ActivityDevicesBinding;
@@ -18,7 +16,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 
 /** Activity to manage our connected devices */
-public class DevicesActivity extends BaseActivity {
+public class DevicesActivity extends BaseActivity<ActivityDevicesBinding> {
   private DevicesAdapter mAdapter;
 
   @Override
@@ -32,18 +30,19 @@ public class DevicesActivity extends BaseActivity {
     // setup ViewModel and data binding
     final DevicesViewModel vm = new DevicesViewModel(getApplication());
     final DeviceHandlers handlers = new DeviceHandlers(getTAG());
-    final ActivityDevicesBinding binding = (ActivityDevicesBinding) mBinding;
-    binding.setLifecycleOwner(this);
-    binding.setVm(vm);
-    binding.setInfoMessage(vm.getInfoMessage());
-    binding.setHandlers(handlers);
-    binding.executePendingBindings();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(vm);
+    mBinding.setInfoMessage(vm.getInfoMessage());
+    mBinding.setHandlers(handlers);
+    mBinding.executePendingBindings();
 
     // setup RecyclerView
-    final RecyclerView recyclerView = findViewById(R.id.deviceList);
-    if (recyclerView != null) {
-      setupRecyclerView(recyclerView, vm, handlers);
-    }
+    mAdapter = new DevicesAdapter(this, handlers);
+    mBinding.contentDevicesLayout.deviceListLayout.deviceRecyclerView
+      .setAdapter(mAdapter);
+
+    // Observe devices
+    vm.loadDevices().observe(this, devices -> mAdapter.setList(devices));
   }
 
   @Override
@@ -52,14 +51,5 @@ public class DevicesActivity extends BaseActivity {
 
     // remove any displayed device notifications
     Notifications.INST(this).removeDevices();
-  }
-
-  private void setupRecyclerView(RecyclerView recyclerView, DevicesViewModel vm,
-                                 DeviceHandlers handlers) {
-    mAdapter = new DevicesAdapter(this, handlers);
-    recyclerView.setAdapter(mAdapter);
-
-    // Observe devices
-    vm.loadDevices().observe(this, devices -> mAdapter.setList(devices));
   }
 }

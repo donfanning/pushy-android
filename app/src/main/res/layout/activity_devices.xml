@@ -49,6 +49,7 @@
 
     <include
       layout="@layout/content_devices"
+      android:id="@+id/contentDevicesLayout"
       bind:infoMessage="@{infoMessage}" />
 
     <android.support.design.widget.FloatingActionButton

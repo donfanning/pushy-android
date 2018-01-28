@@ -19,7 +19,8 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
 /** Activity for editing the List of {@link Label} items */
-public class LabelsEditActivity extends BaseActivity {
+public class LabelsEditActivity
+  extends BaseActivity<ActivityLabelsEditBinding> {
   /** Event handlers */
   private LabelHandlers mHandlers = null;
 
@@ -36,12 +37,10 @@ public class LabelsEditActivity extends BaseActivity {
     // setup ViewModel and data binding
     LabelsViewModel viewModel = new LabelsViewModel(getApplication());
     mHandlers = new LabelHandlers(this);
-    final ActivityLabelsEditBinding binding =
-      (ActivityLabelsEditBinding) mBinding;
-    binding.setLifecycleOwner(this);
-    binding.setVm(viewModel);
-    binding.setHandlers(mHandlers);
-    binding.executePendingBindings();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(viewModel);
+    mBinding.setHandlers(mHandlers);
+    mBinding.executePendingBindings();
 
     // observe errors
     viewModel.getErrorMsg().observe(this, errorMsg -> {

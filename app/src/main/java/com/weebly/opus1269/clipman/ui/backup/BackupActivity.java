@@ -26,7 +26,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
 
 /** Manage our backups on Google Drive */
-public class BackupActivity extends BaseActivity {
+public class BackupActivity extends BaseActivity<ActivityBackupBinding> {
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;
 
@@ -47,13 +47,12 @@ public class BackupActivity extends BaseActivity {
     // setup ViewModel and data binding
     BackupsViewModel vm = new BackupsViewModel(getApplication());
     mHandlers = new BackupHandlers(this);
-    final ActivityBackupBinding binding = (ActivityBackupBinding) mBinding;
-    binding.setLifecycleOwner(this);
-    binding.setVm(vm);
-    binding.setIsWorking(vm.getIsWorking());
-    binding.setInfoMessage(vm.getInfoMessage());
-    binding.setHandlers(mHandlers);
-    binding.executePendingBindings();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(vm);
+    mBinding.setIsWorking(vm.getIsWorking());
+    mBinding.setInfoMessage(vm.getInfoMessage());
+    mBinding.setHandlers(mHandlers);
+    mBinding.executePendingBindings();
 
     // observe errors
     vm.getErrorMsg().observe(this, errorMsg -> {
@@ -63,7 +62,7 @@ public class BackupActivity extends BaseActivity {
     });
 
     mAdapter = new BackupAdapter(this, mHandlers);
-    binding.contentBackupLayout.backupListLayout.backupRecyclerView
+    mBinding.contentBackupLayout.backupListLayout.backupRecyclerView
       .setAdapter(mAdapter);
 
     // Observe backups
