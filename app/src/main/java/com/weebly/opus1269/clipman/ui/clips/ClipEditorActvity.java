@@ -45,8 +45,8 @@ public class ClipEditorActvity extends BaseActivity {
     final Intent intent = getIntent();
 
     boolean addMode = false;
-    ClipEntity clip = (ClipEntity) intent.getSerializableExtra(Intents
-      .EXTRA_CLIP);
+    ClipEntity clip =
+      (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
     if (clip == null) {
       Log.logD(TAG, "add mode");
       addMode = true;
@@ -72,35 +72,17 @@ public class ClipEditorActvity extends BaseActivity {
     binding.executePendingBindings();
 
     // observe working
-    mVm.getIsLoading().observe(this, isLoading -> {
-      if ((isLoading != null) && !isLoading) {
+    mVm.getIsWorking().observe(this, isWorking -> {
+      if ((isWorking != null) && !isWorking) {
         final ErrorMsg errorMsg = mVm.getErrorMsg().getValue();
         if (errorMsg != null) {
-          AppUtils.showMessage(this, null, errorMsg.msg);
           mVm.resetErrorMsg();
         } else {
+          // done with changes
           finish();
         }
       }
     });
-
-    //// observe clip pk
-    //mVm.getId().observe(this, Id -> {
-    //  if ((Id != null) && (Id != mVm.originalId)) {
-    //    Log.logD(TAG, "clip edit complete");
-    //    finish();
-    //  }
-    //});
-
-    // observe clip
-    //mVm.getClipLive().observe(this, clipEntity -> {
-    //  if (clipEntity != null && mVm.getOriginalText().getValue() != null) {
-    //    if (!mVm.getOriginalText().getValue().equals(clipEntity.getText())) {
-    //      Log.logD(TAG, "clip edit complete");
-    //      finish();
-    //    }
-    //  }
-    //});
 
     // observe error
     mVm.getErrorMsg().observe(this, errorMsg -> {

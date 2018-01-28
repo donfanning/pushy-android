@@ -115,7 +115,7 @@ public class MainRepo extends BaseRepo {
   public void addClipAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> {
-        final long row = MainDB.INST(mApp).clipDao().insert(clip);
+        final long row = mDB.clipDao().insert(clip);
         Log.logD(TAG, "add, row: " + row);
       });
   }
@@ -127,8 +127,8 @@ public class MainRepo extends BaseRepo {
   public void addClipIfNewAsync(@NonNull ClipEntity clip) {
     postIsLoading(true);
     App.getExecutors().diskIO().execute(() -> {
-      if (MainDB.INST(mApp).clipDao().get(clip.getText()) == null) {
-        long row = MainDB.INST(mApp).clipDao().insert(clip);
+      if (mDB.clipDao().get(clip.getText()) == null) {
+        long row = mDB.clipDao().insert(clip);
         if (row == -1L) {
           errorMsg.postValue(new ErrorMsg("insert failed"));
         } else {
@@ -146,8 +146,7 @@ public class MainRepo extends BaseRepo {
    * @param clip Clip to insert or replace
    */
   public void addClipKeepTrueFav(@NonNull ClipEntity clip) {
-    ClipEntity existingClip =
-      MainDB.INST(mApp).clipDao().getIfTrueFav(clip.getText());
+    ClipEntity existingClip = mDB.clipDao().getIfTrueFav(clip.getText());
     if ((existingClip != null) && existingClip.getFav()) {
       clip.setFav(true);
     }
@@ -161,14 +160,14 @@ public class MainRepo extends BaseRepo {
   public void addClipIfNewAndCopyAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO().execute(() -> {
       postIsLoading(true);
-      if (MainDB.INST(mApp).clipDao().get(clip.getText()) == null) {
+      if (mDB.clipDao().get(clip.getText()) == null) {
         if (!Prefs.INST(mApp).isMonitorClipboard()) {
           // if not monitoring clipboard, need to handle insert ourselves
           // otherwise the ClipWatcher will handle it
-          int nRows = MainDB.INST(mApp).clipDao().delete(clip);
+          int nRows = mDB.clipDao().delete(clip);
           Log.logD(TAG, "deleted rows: " + nRows);
           Log.logD(TAG, "current row: " + clip.getId());
-          long row = MainDB.INST(mApp).clipDao().insert(clip);
+          long row = mDB.clipDao().insert(clip);
           Log.logD(TAG, "insert row: " + row);
           if (row == -1L) {
             errorMsg.postValue(new ErrorMsg("insert failed"));
@@ -187,17 +186,18 @@ public class MainRepo extends BaseRepo {
 
   public void removeClipAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
-      .execute(() -> MainDB.INST(mApp).clipDao().delete(clip));
+      .execute(() -> mDB.clipDao().delete(clip));
   }
 
   public void addClipAndSendAsync(Context cntxt, ClipEntity clip,
                                   boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
+      postIsLoading(true);
       long id;
       if (onNewOnly) {
-        id = MainDB.INST(mApp).clipDao().insertIfNew(clip);
+        id = mDB.clipDao().insertIfNew(clip);
       } else {
-        id = MainDB.INST(mApp).clipDao().insert(clip);
+        id = mDB.clipDao().insert(clip);
       }
 
       Log.logD(TAG, "addClipAndSendAsync id: " + id);
@@ -209,29 +209,30 @@ public class MainRepo extends BaseRepo {
           clip.send(cntxt);
         }
       }
+      postIsLoading(false);
     });
   }
 
   public LiveData<LabelEntity> getLabelAsync(String name) {
-    return MainDB.INST(mApp).labelDao().load(name);
+    return mDB.labelDao().load(name);
     //App.getExecutors().diskIO()
-    //  .execute(() -> MainDB.INST(mApp).labelDao().getLabel(name));
+    //  .execute(() -> mDB.labelDao().getLabel(name));
   }
 
   public void addLabelAsync(@NonNull LabelEntity label) {
     App.getExecutors().diskIO()
-      .execute(() -> MainDB.INST(mApp).labelDao().insertAll(label));
+      .execute(() -> mDB.labelDao().insertAll(label));
   }
 
   public void updateLabelAsync(@NonNull String newName,
                                @NonNull String oldName) {
     App.getExecutors().diskIO()
-      .execute(() -> MainDB.INST(mApp).labelDao().updateName(newName, oldName));
+      .execute(() -> mDB.labelDao().updateName(newName, oldName));
   }
 
   public void removeLabelAsync(@NonNull LabelEntity label) {
     App.getExecutors().diskIO()
-      .execute(() -> MainDB.INST(mApp).labelDao().delete(label));
+      .execute(() -> mDB.labelDao().delete(label));
   }
 
   /**

@@ -33,25 +33,20 @@ public class ClipViewModel extends AndroidViewModel {
   private final MainRepo mRepo;
 
   /** Our working status */
-  private final MediatorLiveData<Boolean> isLoading;
+  private final MediatorLiveData<Boolean> isWorking;
 
   /** Our error status */
   private final MediatorLiveData<ErrorMsg> errorMsg;
 
-  /** Our Clip */
-  private final ClipEntity clip;
-
-  /** Our pk */
-  private final MutableLiveData<Long> id;
-
-  /** Our original pk */
-  public long originalId;
-
   /** Our text */
   private final MutableLiveData<String> text;
 
+  /** Our Clip */
+  @NonNull
+  private final ClipEntity clip;
+
   /** Original text of the clip */
-  private final MutableLiveData<String> originalText;
+  private final String originalText;
 
   public final boolean addMode;
 
@@ -67,81 +62,56 @@ public class ClipViewModel extends AndroidViewModel {
     errorMsg = new MediatorLiveData<>();
     errorMsg.addSource(mRepo.getErrorMsg(), this.errorMsg::setValue);
 
-    isLoading = new MediatorLiveData<>();
-    isLoading.addSource(mRepo.getIsLoading(), this.isLoading::setValue);
-
-    this.addMode = addMode;
-
-    this.id = new MutableLiveData<>();
-    this.id.setValue(clip.getId());
-
-    this.originalId = -1L;
+    isWorking = new MediatorLiveData<>();
+    isWorking.addSource(mRepo.getIsLoading(), this.isWorking::setValue);
 
     this.text = new MutableLiveData<>();
     this.text.setValue(clip.getText());
 
-    this.originalText = new MutableLiveData<>();
-    this.originalText.setValue(clip.getText());
+    this.addMode = addMode;
+
+    this.originalText = clip.getText();
 
     this.clip = clip;
   }
 
-  public LiveData<Boolean> getIsLoading() {
-    return isLoading;
+  public LiveData<Boolean> getIsWorking() {
+    return isWorking;
   }
 
   public LiveData<ErrorMsg> getErrorMsg() {
-    return mRepo.getErrorMsg();
-  }
-
-  public void resetErrorMsg() {
-    mRepo.setErrorMsg(null);
-  }
-
-  public ClipEntity getClip() {
-    return clip;
+    return errorMsg;
   }
 
   public MutableLiveData<String> getText() {
     return text;
   }
 
-  public MutableLiveData<String> getOriginalText() {
-    return originalText;
+  public void resetErrorMsg() {
+    mRepo.setErrorMsg(null);
   }
 
   public void saveClip() {
-    final ClipEntity clipEntity = this.clip;
-    if ((clipEntity == null) || (text == null) || (text.getValue() == null) ||
-      (originalText.getValue() == null)) {
+    if ((text == null) || (text.getValue() == null) ||
+      (originalText == null)) {
       mRepo.setErrorMsg(new ErrorMsg("no clip or text"));
       return;
     }
 
     final Context context = getApplication();
-    final String oldText = originalText.getValue();
     final String newText = text.getValue();
     Log.logD(TAG, "text: " + newText);
-    if (oldText.equals(newText)) {
+    if (originalText.equals(newText)) {
       mRepo.setErrorMsg(new ErrorMsg("no changes"));
       return;
     }
 
-    // save new or changed
-    clipEntity.setText(context, newText);
-    //setOriginalText(newText);
-    clipEntity.setRemote(false);
-    clipEntity.setDevice(MyDevice.INST(context).getDisplayName());
-    clipEntity.setDate(Instant.now().toEpochMilli());
+    // update clip
+    this.clip.setText(context, newText);
+    this.clip.setRemote(false);
+    this.clip.setDevice(MyDevice.INST(context).getDisplayName());
+    this.clip.setDate(Instant.now().toEpochMilli());
 
-    MainRepo.INST(App.INST()).addClipIfNewAndCopyAsync(clipEntity);
-  }
-
-  //public void setText(String text) {
-  //  mRepo.updateClipTextAsync(text, originalText.getValue());
-  //}
-
-  public void setOriginalText(String originalText) {
-    this.originalText.setValue(originalText);
+    MainRepo.INST(App.INST()).addClipIfNewAndCopyAsync(this.clip);
   }
 }

@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.repos;
 
 import android.app.Application;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -42,15 +43,15 @@ public abstract class BaseRepo {
     isLoading.postValue(false);
   }
 
-  public MutableLiveData<ErrorMsg> getErrorMsg() {
+  public LiveData<ErrorMsg> getErrorMsg() {
     return errorMsg;
   }
 
-  public MutableLiveData<String> getInfoMessage() {
+  public LiveData<String> getInfoMessage() {
     return infoMessage;
   }
 
-  public MutableLiveData<Boolean> getIsLoading() {
+  public LiveData<Boolean> getIsLoading() {
     return isLoading;
   }
 
@@ -60,6 +61,10 @@ public abstract class BaseRepo {
 
   public void setIsLoading(Boolean value) {
     isLoading.setValue(value);
+  }
+
+  public void setInfoMessage(String value) {
+    infoMessage.setValue(value);
   }
 
   public void postErrorMsg(ErrorMsg value) {
