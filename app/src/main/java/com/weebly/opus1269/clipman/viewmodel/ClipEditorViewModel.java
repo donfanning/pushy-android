@@ -25,7 +25,7 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 import org.threeten.bp.Instant;
 
 /** ViewModel for a {@link ClipEntity} */
-public class ClipViewModel extends AndroidViewModel {
+public class ClipEditorViewModel extends AndroidViewModel {
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
 
@@ -50,8 +50,8 @@ public class ClipViewModel extends AndroidViewModel {
 
   public final boolean addMode;
 
-  public ClipViewModel(@NonNull Application app, @NonNull ClipEntity clip,
-                       boolean addMode) {
+  public ClipEditorViewModel(@NonNull Application app, @NonNull ClipEntity clip,
+                             boolean addMode) {
     super(app);
 
     mRepo = MainRepo.INST(app);

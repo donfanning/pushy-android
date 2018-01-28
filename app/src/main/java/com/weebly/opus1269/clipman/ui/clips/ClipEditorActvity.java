@@ -23,12 +23,12 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
-import com.weebly.opus1269.clipman.viewmodel.ClipViewModel;
+import com.weebly.opus1269.clipman.viewmodel.ClipEditorViewModel;
 
 /** Activity to edit the text of a {@link ClipEntity} */
 public class ClipEditorActvity extends BaseActivity {
   /** Our ViewModel */
-  private ClipViewModel mVm;
+  private ClipEditorViewModel mVm;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +62,7 @@ public class ClipEditorActvity extends BaseActivity {
     setTitle(addMode);
 
     // setup ViewModel and data binding
-    mVm = new ClipViewModel(getApplication(), clip, addMode);
+    mVm = new ClipEditorViewModel(getApplication(), clip, addMode);
     final ActivityClipEditorBinding binding =
       (ActivityClipEditorBinding) mBinding;
     binding.setLifecycleOwner(this);
