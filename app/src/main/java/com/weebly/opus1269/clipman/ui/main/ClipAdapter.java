@@ -74,35 +74,6 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
     public void bind(LifecycleOwner owner, ClipViewModel vm,
                      ClipHandlers handlers) {
       super.bind(owner, vm, handlers);
-      tintFav();
-    }
-
-    /** Color the fav based on theme and state */
-    private void tintFav() {
-      final int color;
-      final int drawableFav;
-      final int colorFav;
-
-      if (Prefs.INST(itemView.getContext()).isLightTheme()) {
-        color = android.R.color.primary_text_light;
-      } else {
-        color = android.R.color.primary_text_dark;
-      }
-
-      if (binding.favCheckBox.isChecked()) {
-        drawableFav = R.drawable.ic_favorite_black_24dp;
-        colorFav = R.color.red_500_translucent;
-      } else {
-        drawableFav = R.drawable.ic_favorite_border_black_24dp;
-        colorFav = color;
-      }
-
-      DrawableHelper
-        .withContext(itemView.getContext())
-        .withColor(colorFav)
-        .withDrawable(drawableFav)
-        .tint()
-        .applyToDrawableLeft(binding.favCheckBox);
     }
   }
 }

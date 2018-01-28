@@ -9,10 +9,10 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
@@ -25,47 +25,31 @@ public class ClipViewModel extends AndroidViewModel {
   private final MainRepo mRepo;
 
   /** Our Clip */
-  private final MutableLiveData<ClipEntity> clip = new MutableLiveData<>();
-
-  /** Our text */
-  private final MutableLiveData<String> text = new MutableLiveData<>();
-
-  /** Original text of our Clip */
-  private final MutableLiveData<String> originalText = new MutableLiveData<>();
+  private final MutableLiveData<ClipEntity> clip;
 
   public ClipViewModel(@NonNull Application app, ClipEntity theClip) {
     super(app);
+
     mRepo = MainRepo.INST(app);
 
+    clip = new MutableLiveData<>();
     clip.setValue(theClip);
-
-    text.setValue(theClip.getText());
-
-    originalText.setValue(theClip.getText());
-
-    clip.observeForever((clipEntity) -> {
-      Log.logD(TAG, "clip changed: " + clipEntity.getText());
-      setOriginalText(clipEntity.getText());
-    });
   }
 
-  public MutableLiveData<ClipEntity> getClip() {
+  public LiveData<ClipEntity> getClip() {
     return clip;
   }
 
-  public MutableLiveData<String> getText() {
-    return text;
-  }
+  public void changeFav(boolean state) {
+    ClipEntity clipEntity = clip.getValue();
+    if (clipEntity != null) {
+      clipEntity.setFav(state);
 
-  public MutableLiveData<String> getOriginalText() {
-    return originalText;
-  }
+      // update clip
+      clip.setValue(clipEntity);
 
-  public void setText(String text) {
-    // TODO mRepo.updateClipAsync(text, originalText.getValue());
-  }
-
-  private void setOriginalText(String originalText) {
-    this.originalText.setValue(originalText);
+      // update database
+      mRepo.updateFavAsync(clipEntity);
+    }
   }
 }

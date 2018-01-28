@@ -186,6 +186,32 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     this.device = device;
   }
 
+  /**
+   * Send to our devices
+   * @param cntxt A Context
+   */
+  @Override
+  public void send(Context cntxt) {
+    if (User.INST(cntxt).isLoggedIn() && Prefs.INST(cntxt).isPushClipboard()) {
+      MessagingClient.INST(cntxt).send(this);
+    }
+  }
+
+  /** Copy to the clipboard */
+  @Override
+  public void copyToClipboard(final Context context) {
+    final Handler handler = new Handler(Looper.getMainLooper());
+    handler.post(() -> {
+      final ClipboardManager clipboard =
+        (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+      if (clipboard != null) {
+        final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
+        clipboard.setPrimaryClip(clip);
+        Log.logD(TAG, "copied to clipboard");
+      }
+    });
+  }
+
   @Override
   public int hashCode() {
     return text.hashCode();
@@ -243,37 +269,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     return this.labels.contains(label);
   }
 
-  /**
-   * Update the label id with the id of the given label - don't save
-   * @param theLabel label with new id
-   */
-  public void updateLabelIdNoSave(@NonNull Label theLabel) {
-    long newId = theLabel.getId();
-
-    int pos = this.labels.indexOf(theLabel);
-    if (pos != -1) {
-      final long oldId = this.labels.get(pos).getId();
-      this.labels.set(pos, theLabel);
-      final int idPos = this.labelsId.indexOf(oldId);
-      if (idPos != -1) {
-        this.labelsId.set(idPos, newId);
-      }
-    }
-  }
-
-  /**
-   * Add the given labels if they don't exit - don't save
-   * @param labels label list to add from
-   */
-  public void addLabelsNoSave(@NonNull List<Label> labels) {
-    for (Label label : labels) {
-      if (!hasLabel(label)) {
-        this.labels.add(label);
-        this.labelsId.add(label.getId());
-      }
-    }
-  }
-
   //public void addLabel(Context context, Label label) {
   //  if (!hasLabel(label)) {
   //    this.labels.add(label);
@@ -313,19 +308,35 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   //  return cv;
   //}
 
-  /** Copy to the clipboard */
-  @Override
-  public void copyToClipboard(final Context context) {
-    final Handler handler = new Handler(Looper.getMainLooper());
-    handler.post(() -> {
-      final ClipboardManager clipboard =
-        (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-      if (clipboard != null) {
-        final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
-        clipboard.setPrimaryClip(clip);
-        Log.logD(TAG, "copied to clipboard");
+  /**
+   * Update the label id with the id of the given label - don't save
+   * @param theLabel label with new id
+   */
+  public void updateLabelIdNoSave(@NonNull Label theLabel) {
+    long newId = theLabel.getId();
+
+    int pos = this.labels.indexOf(theLabel);
+    if (pos != -1) {
+      final long oldId = this.labels.get(pos).getId();
+      this.labels.set(pos, theLabel);
+      final int idPos = this.labelsId.indexOf(oldId);
+      if (idPos != -1) {
+        this.labelsId.set(idPos, newId);
       }
-    });
+    }
+  }
+
+  /**
+   * Add the given labels if they don't exit - don't save
+   * @param labels label list to add from
+   */
+  public void addLabelsNoSave(@NonNull List<Label> labels) {
+    for (Label label : labels) {
+      if (!hasLabel(label)) {
+        this.labels.add(label);
+        this.labelsId.add(label.getId());
+      }
+    }
   }
 
   /**
@@ -380,17 +391,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     final Intent sendIntent = Intent.createChooser(intent,
       ctxt.getResources().getString(R.string.share_text_to));
     AppUtils.startNewTaskActivity(ctxt, sendIntent);
-  }
-
-  /**
-   * Send to our devices
-   * @param cntxt A Context
-   */
-  @Override
-  public void send(Context cntxt) {
-    if (User.INST(cntxt).isLoggedIn() && Prefs.INST(cntxt).isPushClipboard()) {
-      MessagingClient.INST(cntxt).send(this);
-    }
   }
 
   ///**

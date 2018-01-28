@@ -43,6 +43,7 @@ public class LabelViewModel extends AndroidViewModel {
 
     originalName.setValue(theLabel.getName());
 
+    // TODO cant do this put in Activity
     label.observeForever((labelEntity) -> {
       Log.logD(TAG, "label changed: " + labelEntity.getName());
       setOriginalName(labelEntity.getName());

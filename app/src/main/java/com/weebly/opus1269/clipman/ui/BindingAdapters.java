@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
@@ -63,36 +64,35 @@ public class BindingAdapters {
 
   /**
    * Tint the fav
-   * @param checkBox   The view
-   * @param isTrue tint if true
+   * @param checkBox The view
+   * @param state    Checkbox state
    */
   @BindingAdapter("tintFav")
-  public static void tintFav(CheckBox checkBox, boolean isTrue) {
-    if (isTrue) {
-      final int color;
-      final int drawableFav;
-      final int colorFav;
+  public static void tintFav(CheckBox checkBox, boolean state) {
+    Log.logD("BindingAdapter", "tintFav:" + state);
+    final int color;
+    final int drawableFav;
+    final int colorFav;
 
-      if (Prefs.INST(checkBox.getContext()).isLightTheme()) {
-        color = android.R.color.primary_text_light;
-      } else {
-        color = android.R.color.primary_text_dark;
-      }
-
-      if (checkBox.isChecked()) {
-        drawableFav = R.drawable.ic_favorite_black_24dp;
-        colorFav = R.color.red_500_translucent;
-      } else {
-        drawableFav = R.drawable.ic_favorite_border_black_24dp;
-        colorFav = color;
-      }
-
-      DrawableHelper
-        .withContext(checkBox.getContext())
-        .withColor(colorFav)
-        .withDrawable(drawableFav)
-        .tint()
-        .applyToDrawableLeft(checkBox);
+    if (Prefs.INST(checkBox.getContext()).isLightTheme()) {
+      color = android.R.color.primary_text_light;
+    } else {
+      color = android.R.color.primary_text_dark;
     }
+
+    if (state) {
+      drawableFav = R.drawable.ic_favorite_black_24dp;
+      colorFav = R.color.red_500_translucent;
+    } else {
+      drawableFav = R.drawable.ic_favorite_border_black_24dp;
+      colorFav = color;
+    }
+
+    DrawableHelper
+      .withContext(checkBox.getContext())
+      .withColor(colorFav)
+      .withDrawable(drawableFav)
+      .tint()
+      .applyToDrawableLeft(checkBox);
   }
 }

@@ -18,14 +18,11 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -38,9 +35,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.databinding.LabelSelectRowBinding;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Label;
-import com.weebly.opus1269.clipman.model.LabelNew;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
@@ -88,7 +83,7 @@ class LabelsSelectAdapter extends
     final Label label = holder.label;
 
     // set checked state
-    final boolean checked = mActivity.getClipItem().hasLabel(label);
+    final boolean checked = mActivity.getClip().hasLabel(label);
     holder.checkBox.setChecked(checked);
 
     holder.labelText.setText(label.getName());
@@ -118,7 +113,7 @@ class LabelsSelectAdapter extends
   // * @param label   label to add or remove
   // */
   //private void addOrRemoveLabel(boolean checked, Label label) {
-  //  final ClipItem clipItem = mActivity.getClipItem();
+  //  final ClipItem clipItem = mActivity.getClip();
   //  if (checked) {
   //    clipItem.addLabel(mContext, label);
   //  } else {

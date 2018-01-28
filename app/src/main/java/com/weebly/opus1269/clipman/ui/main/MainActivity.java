@@ -553,7 +553,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
 
   /** Send the clipboard contents to our devices */
   private void sendClipboardContents() {
-    ClipboardHelper.sendClipboardContents(this, findViewById(R.id.fab));
+    ClipboardHelper.sendClipboardContents(this, mBinding.fab);
   }
 
   /** Show the {@link DeleteDialogFragment} for verifying delete all */

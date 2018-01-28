@@ -84,7 +84,9 @@
         android:paddingStart="@dimen/row_image_horizontal_margin"
         android:paddingRight="@dimen/row_image_horizontal_margin"
         android:paddingEnd="@dimen/row_image_horizontal_margin"
-        app:tintFav="@{true}"
+        android:checked="@{vm.clip.fav}"
+        android:onClick="@{() -> handlers.onFavClick(vm, favCheckBox)}"
+        app:tintFav="@{vm.clip.fav}"
         android:contentDescription="@string/content_favorite" />
 
       <TextView
@@ -121,6 +123,7 @@
         android:contentDescription="@string/content_copy"
         android:gravity="center_vertical"
         app:tintPrimary="@{true}"
+        android:onClick="@{() -> handlers.onCopyClick(vm.clip, copyButton)}"
         app:srcCompat="@drawable/ic_content_copy_black_24dp" />
 
       <TextView
@@ -164,6 +167,7 @@
         android:contentDescription="@string/content_copy"
         android:gravity="center_vertical"
         app:tintPrimary="@{true}"
+        android:onClick="@{() -> handlers.onLabelsClick(vm.clip, labelButton)}"
         app:srcCompat="@drawable/ic_label_outline" />
 
     </RelativeLayout>

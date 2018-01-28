@@ -184,6 +184,11 @@ public class MainRepo extends BaseRepo {
   }
 
 
+  public void updateFavAsync(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
+  }
+
   public void removeClipAsync(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.clipDao().delete(clip));

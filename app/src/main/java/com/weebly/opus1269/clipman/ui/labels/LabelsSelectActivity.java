@@ -14,21 +14,23 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.databinding.ActivityLabelsSelectBinding;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
-public class LabelsSelectActivity extends BaseActivity {
-  /** Saved state for mClipItem */
+public class LabelsSelectActivity extends
+  BaseActivity<ActivityLabelsSelectBinding> {
+  /** Saved state for mClip */
   private static final String STATE_CLIP_ITEM = "clipItem";
 
   /** Adapter used to display the list's data */
   private LabelsSelectAdapter mAdapter = null;
 
   /** Clipitem we are modifiying the list for */
-  private ClipItem mClipItem;
+  private ClipEntity mClip;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -42,22 +44,15 @@ public class LabelsSelectActivity extends BaseActivity {
       actionBar.setHomeAsUpIndicator(R.drawable.ic_clear);
     }
 
-    if (savedInstanceState == null) {
-      mClipItem =
-        (ClipItem) getIntent().getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
-    } else {
-      mClipItem =
-        (ClipItem) savedInstanceState.getSerializable(STATE_CLIP_ITEM);
-    }
+    mClip = (ClipEntity) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
 
     // setup ViewModel and data binding
     LabelsViewModel viewModel = new LabelsViewModel(getApplication());
     LabelHandlers mHandlers = new LabelHandlers(this);
-    final ActivityLabelsSelectBinding binding = (ActivityLabelsSelectBinding) mBinding;
-    binding.setLifecycleOwner(this);
-    binding.setVm(viewModel);
-    binding.setHandlers(mHandlers);
-    binding.executePendingBindings();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(viewModel);
+    mBinding.setHandlers(mHandlers);
+    mBinding.executePendingBindings();
 
     // observe errors
     viewModel.getErrorMsg().observe(this, errorMsg -> {
@@ -77,7 +72,7 @@ public class LabelsSelectActivity extends BaseActivity {
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
 
-    outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
+    outState.putSerializable(STATE_CLIP_ITEM, mClip);
   }
 
   @Override
@@ -95,7 +90,7 @@ public class LabelsSelectActivity extends BaseActivity {
     return false;
   }
 
-  ClipItem getClipItem() {return mClipItem;}
+  ClipEntity getClip() {return mClip;}
 
   /** Connect the {@link LabelsSelectAdapter} to the {@link RecyclerView} */
   private void setupRecyclerView(@NonNull RecyclerView recyclerView,

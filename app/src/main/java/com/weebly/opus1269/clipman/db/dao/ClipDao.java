@@ -36,6 +36,9 @@ public interface ClipDao {
   @Query("UPDATE clips SET text = :newText WHERE text = :oldText")
   long updateText(String newText, String oldText);
 
+  @Query("UPDATE clips SET fav = :fav WHERE text = :text")
+  long updateFav(String text, Boolean fav);
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(List<ClipEntity> clipEntities);
 
