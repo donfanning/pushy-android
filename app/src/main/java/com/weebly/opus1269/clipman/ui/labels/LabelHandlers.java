@@ -55,21 +55,24 @@ public class LabelHandlers extends BaseHandlers {
    * @param labelEntity The Label
    */
   public void onDeleteClick(Context context, LabelEntity labelEntity) {
-    Log.logD(TAG, "delete clicked");
     Analytics.INST(context).imageClick(TAG, "deleteLabel");
     mLabelEntity = labelEntity;
     showConfirmationDialog(context, R.string.label_delete_dialog_title,
       R.string.label_delete_dialog_message, R.string.button_delete);
   }
 
+  /**
+   * Listen for FocusChange events on the Label name
+   * @param vm The ViewModel
+   * @return The listener
+   */
   public View.OnFocusChangeListener OnFocusChangeListener(LabelViewModel vm) {
     return (view, isFocused) -> {
-      Log.logD(TAG, "focus changed");
-
-      String name = vm.getName().getValue();
       if (isFocused) {
         return;
       }
+
+      String name = vm.getName().getValue();
       if (!TextUtils.isEmpty(name)) {
         name = name.trim();
         if (!TextUtils.equals(name, vm.originalName)) {
