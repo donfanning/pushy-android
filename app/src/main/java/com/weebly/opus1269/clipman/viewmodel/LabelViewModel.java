@@ -24,9 +24,10 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
   private final MutableLiveData<String> name;
 
   /** Original name of our Label */
-  private final MutableLiveData<String> originalName;
+  public final String originalName;
 
-  public LabelViewModel(@NonNull Application app, LabelEntity theLabel) {
+  public LabelViewModel(@NonNull Application app,
+                        @NonNull LabelEntity theLabel) {
     super(app, MainRepo.INST(app));
 
     label = new MutableLiveData<>();
@@ -35,8 +36,7 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
     name = new MutableLiveData<>();
     name.setValue(theLabel.getName());
 
-    originalName = new MutableLiveData<>();
-    originalName.setValue(theLabel.getName());
+    originalName = theLabel.getName();
   }
 
   @Override
@@ -53,19 +53,11 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
     return name;
   }
 
-  public LiveData<String> getOriginalName() {
-    return originalName;
-  }
-
   public void changeName(String name, String oldName) {
     mRepo.updateLabelAsync(name, oldName);
   }
 
   public void resetName() {
-    name.setValue(originalName.getValue());
-  }
-
-  public void setOriginalName(String originalName) {
-    this.originalName.setValue(originalName);
+    name.setValue(originalName);
   }
 }

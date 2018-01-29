@@ -58,25 +58,17 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
       }
     });
 
-    // observe Label
-    vm.getLabel().observe(mLifecycleOwner, (labelEntity) -> {
-      if (labelEntity != null) {
-        vm.setOriginalName(labelEntity.getName());
-      }
-    });
-
     final EditText labelText = holder.binding.labelText;
     labelText.setOnFocusChangeListener((view, isFocused) -> {
       String name = vm.getName().getValue();
-      final String originalName = vm.getOriginalName().getValue();
       if (isFocused) {
         return;
       }
       if (!TextUtils.isEmpty(name)) {
         name = name.trim();
-        if (!TextUtils.equals(name, originalName)) {
+        if (!TextUtils.equals(name, vm.originalName)) {
           // update label
-          vm.changeName(name, originalName);
+          vm.changeName(name, vm.originalName);
         } else {
           vm.resetName();
         }
