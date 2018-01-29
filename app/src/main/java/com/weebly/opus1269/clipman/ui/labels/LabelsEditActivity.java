@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.ActivityLabelsEditBinding;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -35,24 +36,17 @@ public class LabelsEditActivity
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    LabelsViewModel viewModel = new LabelsViewModel(getApplication());
+    LabelsViewModel vm = new LabelsViewModel(getApplication());
     mHandlers = new LabelHandlers(this);
     mBinding.setLifecycleOwner(this);
-    mBinding.setVm(viewModel);
+    mBinding.setVm(vm);
     mBinding.setHandlers(mHandlers);
     mBinding.executePendingBindings();
-
-    // observe errors
-    viewModel.getErrorMsg().observe(this, errorMsg -> {
-      //TODO if (errorMsg != null) {
-      //  mHandlers.showErrorMessage(errorMsg);
-      //}
-    });
 
     // setup RecyclerView
     final RecyclerView recyclerView = findViewById(R.id.labelList);
     if (recyclerView != null) {
-      setupRecyclerView(recyclerView, viewModel);
+      setupRecyclerView(recyclerView, vm);
     }
   }
 

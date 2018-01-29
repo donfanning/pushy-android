@@ -87,7 +87,8 @@ public class MainRepo extends BaseRepo {
     return mDB.clipDao().load(text);
   }
 
-  @Nullable public ClipEntity getClip(final String text) {
+  @Nullable
+  public ClipEntity getClip(final String text) {
     return mDB.clipDao().get(text);
   }
 
@@ -231,8 +232,12 @@ public class MainRepo extends BaseRepo {
 
   public void updateLabelAsync(@NonNull String newName,
                                @NonNull String oldName) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.labelDao().updateName(newName, oldName));
+    App.getExecutors().diskIO().execute(() -> {
+      final int nRows = mDB.labelDao().updateName(newName, oldName);
+      if (nRows == 0) {
+        postErrorMsg(new ErrorMsg("Label exists"));
+      }
+    });
   }
 
   public void removeLabelAsync(@NonNull LabelEntity label) {

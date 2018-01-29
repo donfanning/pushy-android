@@ -13,6 +13,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.database.sqlite.SQLiteConstraintException;
 
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 
@@ -33,8 +34,8 @@ public interface LabelDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(List<LabelEntity> labelEntities);
 
-  @Query("UPDATE labels SET name = :newName WHERE name = :oldName")
-  void updateName(String newName, String oldName);
+  @Query("UPDATE OR IGNORE labels SET name = :newName WHERE name = :oldName")
+  int updateName(String newName, String oldName);
 
   @Query("DELETE FROM labels")
   void deleteAll();

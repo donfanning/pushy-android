@@ -19,10 +19,12 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.text.TextUtils;
 import android.widget.EditText;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
@@ -33,10 +35,12 @@ import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
-  LabelEditRowBinding, LabelHandlers, LabelViewModel, LabelsEditAdapter.LabelViewHolder> {
+  LabelEditRowBinding, LabelHandlers, LabelViewModel, LabelsEditAdapter
+  .LabelViewHolder> {
 
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
-    super(new LabelViewHolderFactory(), new LabelViewModelFactory(), R.layout.label_edit_row, owner,
+    super(new LabelViewHolderFactory(), new LabelViewModelFactory(), R.layout
+        .label_edit_row, owner,
       handlers);
   }
 
@@ -44,27 +48,40 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
     super.onBindViewHolder(holder, position);
 
-    final LabelEntity label = getItem(position);
-    final String originalName = label.getName();
+    final LabelViewModel vm = holder.vm;
+
+    // observe error
+    vm.getErrorMsg().observe(mLifecycleOwner, errorMsg -> {
+      if (errorMsg != null) {
+        vm.resetName();
+        AppUtils.showMessage(holder.itemView.getContext(), null, errorMsg.msg);
+      }
+    });
+
+    // observe Label
+    vm.getLabel().observe(mLifecycleOwner, (labelEntity) -> {
+      if (labelEntity != null) {
+        vm.setOriginalName(labelEntity.getName());
+      }
+    });
 
     final EditText labelText = holder.binding.labelText;
-    final LabelViewModel vm = holder.binding.getVm();
-    labelText.setOnFocusChangeListener((view, hasFocus) -> {
-      if (!hasFocus) {
-        String text = labelText.getText().toString();
-        text = text.trim();
-        if (text.length() > 0) {
-          if (!text.equals(originalName)) {
-            // update label
-            vm.setName(text);
-          } else {
-            // reset to orginal value
-            vm.getName().setValue(originalName);
-          }
+    labelText.setOnFocusChangeListener((view, isFocused) -> {
+      String name = vm.getName().getValue();
+      final String originalName = vm.getOriginalName().getValue();
+      if (isFocused) {
+        return;
+      }
+      if (!TextUtils.isEmpty(name)) {
+        name = name.trim();
+        if (!TextUtils.equals(name, originalName)) {
+          // update label
+          vm.changeName(name, originalName);
         } else {
-          // reset to orginal value
-          vm.getName().setValue(originalName);
+          vm.resetName();
         }
+      } else {
+        vm.resetName();
       }
     });
   }

@@ -13,7 +13,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 
@@ -69,7 +68,6 @@ public class BindingAdapters {
    */
   @BindingAdapter("tintFav")
   public static void tintFav(CheckBox checkBox, boolean state) {
-    Log.logD("BindingAdapter", "tintFav:" + state);
     final int color;
     final int drawableFav;
     final int colorFav;

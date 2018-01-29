@@ -39,6 +39,8 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
 
     mRepo = repo;
 
+    initRepo();
+
     errorMsg = new MediatorLiveData<>();
     errorMsg.setValue(mRepo.getErrorMsg().getValue());
     errorMsg.addSource(mRepo.getErrorMsg(), errorMsg::setValue);
@@ -77,5 +79,9 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
 
   protected void postIsWorking(final boolean value) {
     isWorking.postValue(value);
+  }
+
+  protected void initRepo() {
+    // noop
   }
 }

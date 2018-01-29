@@ -8,49 +8,44 @@
 package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** ViewModel for a {@link LabelEntity} */
-public class LabelViewModel extends AndroidViewModel {
-  /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
-
-  /** Our Repo */
-  private final MainRepo mRepo;
-
+public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our Label */
-  private final MutableLiveData<LabelEntity> label = new MutableLiveData<>();
+  private final MutableLiveData<LabelEntity> label;
 
   /** Our Label name */
-  private final MutableLiveData<String> name = new MutableLiveData<>();
+  private final MutableLiveData<String> name;
 
   /** Original name of our Label */
-  private final MutableLiveData<String> originalName  = new MutableLiveData<>();
+  private final MutableLiveData<String> originalName;
 
   public LabelViewModel(@NonNull Application app, LabelEntity theLabel) {
-    super(app);
-    mRepo = MainRepo.INST(app);
+    super(app, MainRepo.INST(app));
 
+    label = new MutableLiveData<>();
     label.setValue(theLabel);
 
+    name = new MutableLiveData<>();
     name.setValue(theLabel.getName());
 
+    originalName = new MutableLiveData<>();
     originalName.setValue(theLabel.getName());
-
-    // TODO cant do this put in Activity
-    label.observeForever((labelEntity) -> {
-      Log.logD(TAG, "label changed: " + labelEntity.getName());
-      setOriginalName(labelEntity.getName());
-    });
   }
 
-  public MutableLiveData<LabelEntity> getLabel() {
+  @Override
+  protected void initRepo() {
+    super.initRepo();
+    mRepo.setErrorMsg(null);
+  }
+
+  public LiveData<LabelEntity> getLabel() {
     return label;
   }
 
@@ -58,15 +53,19 @@ public class LabelViewModel extends AndroidViewModel {
     return name;
   }
 
-  public MutableLiveData<String> getOriginalName() {
+  public LiveData<String> getOriginalName() {
     return originalName;
   }
 
-  public void setName(String name) {
-    mRepo.updateLabelAsync(name, originalName.getValue());
+  public void changeName(String name, String oldName) {
+    mRepo.updateLabelAsync(name, oldName);
   }
 
-  private void setOriginalName(String originalName) {
+  public void resetName() {
+    name.setValue(originalName.getValue());
+  }
+
+  public void setOriginalName(String originalName) {
     this.originalName.setValue(originalName);
   }
 }

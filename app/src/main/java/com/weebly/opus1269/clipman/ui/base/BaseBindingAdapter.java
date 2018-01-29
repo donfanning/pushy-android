@@ -34,16 +34,16 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   U extends ViewDataBinding, V extends BaseHandlers, VM extends ViewModel,
   VH extends BaseViewHolder> extends RecyclerView.Adapter<VH> {
   /** Class identifier */
-  private final String TAG = this.getClass().getSimpleName();
+  protected final String TAG = this.getClass().getSimpleName();
 
   /** Our LifecycleOwner */
-  private final LifecycleOwner mLifecycleOwner;
+  protected final LifecycleOwner mLifecycleOwner;
 
   /** Our layout */
   private final int mlayoutId;
 
   /** Our event handlers */
-  private final V mHandlers;
+  protected final V mHandlers;
 
   /** Helper to handle List */
   private final ListAdapterHelper<T> mHelper;
