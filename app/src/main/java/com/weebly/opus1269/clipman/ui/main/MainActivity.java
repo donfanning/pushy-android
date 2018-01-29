@@ -74,6 +74,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   SortTypeDialogFragment.SortTypeDialogListener,
   SharedPreferences.OnSharedPreferenceChangeListener {
 
+  /** ViewModel */
+  public MainViewModel mVm = null;
+
   /** Event handlers */
   private ClipHandlers mHandlers = null;
 
@@ -85,18 +88,6 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
 
   /** The database _ID of the selected item, delegated to ClipCursorAdapter */
   private static final String STATE_ITEM_ID = "item_id";
-
-  /** Items from last delete operation */
-  private List<ClipItem> mUndoItems = new ArrayList<>(0);
-
-  /** AppBar setting for pin favs */
-  private Boolean mPinFav = false;
-
-  /** AppBar setting for fav filter */
-  private Boolean mFavFilter = false;
-
-  /** Label filter */
-  private String mLabelFilter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -118,20 +109,16 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
       }
     }
 
-    mPinFav = Prefs.INST(this).isPinFav();
-    mFavFilter = Prefs.INST(this).isFavFilter();
-    mLabelFilter = Prefs.INST(this).getLabelFilter();
-
     // listen for preference changes
     PreferenceManager
       .getDefaultSharedPreferences(this)
       .registerOnSharedPreferenceChangeListener(this);
 
     // setup ViewModel and data binding
-    MainViewModel vm = new MainViewModel(getApplication());
+    mVm = new MainViewModel(getApplication());
     mHandlers = new ClipHandlers(this);
     mBinding.setLifecycleOwner(this);
-    mBinding.setVm(vm);
+    mBinding.setVm(mVm);
     //mBinding.setIsWorking(vm.getIsWorking());
     //mBinding.setInfoMessage(vm.getInfoMessage());
     mBinding.setHandlers(mHandlers);
@@ -151,7 +138,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     recyclerView.setAdapter(mAdapter);
 
     // Observe clips
-    vm.loadClips().observe(this, clips -> {
+    mVm.loadClips().observe(this, clips -> {
       if (clips != null) {
         mAdapter.setList(clips);
       }
@@ -208,7 +195,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     super.onResume();
 
     // in case filter changed
-    mLabelFilter = Prefs.INST(this).getLabelFilter();
+    mVm.labelFilter = Prefs.INST(this).getLabelFilter();
 
     setTitle();
 
@@ -253,7 +240,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
 
   @Override
   public void onBackPressed() {
-    if (!TextUtils.isEmpty(mLabelFilter)) {
+    if (!TextUtils.isEmpty(mVm.labelFilter)) {
       // if filtered, create unfiltered MainActivity on Back
       Prefs.INST(this).setLabelFilter("");
       startActivity(MainActivity.class);
@@ -267,7 +254,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   protected void onPause() {
     super.onPause();
 
-    mUndoItems = new ArrayList<>(0);
+    mVm.undoItems = new ArrayList<>(0);
   }
 
   @Override
@@ -285,15 +272,15 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         sendClipboardContents();
         break;
       case R.id.action_pin:
-        mPinFav = !mPinFav;
-        Prefs.INST(this).setPinFav(mPinFav);
+        mVm.pinFavs = !mVm.pinFavs;
+        Prefs.INST(this).setPinFav(mVm.pinFavs);
         updateOptionsMenu();
         // reload clips
         //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_fav_filter:
-        mFavFilter = !mFavFilter;
-        Prefs.INST(this).setFavFilter(mFavFilter);
+        mVm.filterByFavs = !mVm.filterByFavs;
+        Prefs.INST(this).setFavFilter(mVm.filterByFavs);
         updateOptionsMenu();
         // reload clips
         //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
@@ -308,7 +295,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         break;
       case R.id.action_add_clip:
         intent = new Intent(this, ClipEditorActvity.class);
-        intent.putExtra(Intents.EXTRA_TEXT, mLabelFilter);
+        intent.putExtra(Intents.EXTRA_TEXT, mVm.labelFilter);
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_edit_text:
@@ -362,7 +349,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         startActivity(LabelsEditActivity.class);
         break;
       case R.id.nav_clips:
-        if (!AppUtils.isWhitespace(mLabelFilter)) {
+        if (!AppUtils.isWhitespace(mVm.labelFilter)) {
           Prefs.INST(this).setLabelFilter("");
           startActivity(MainActivity.class);
           finish();
@@ -371,7 +358,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
       case Menu.NONE:
         // all Labels items
         final String label = item.getTitle().toString();
-        if (!label.equals(mLabelFilter)) {
+        if (!label.equals(mVm.labelFilter)) {
           Prefs.INST(this).setLabelFilter(label);
           startActivity(MainActivity.class);
           finish();
@@ -449,9 +436,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     }
   }
 
-  Boolean getFavFilter() {return mFavFilter;}
+  Boolean getFavFilter() {return mVm.filterByFavs;}
 
-  String getLabelFilter() {return mLabelFilter;}
+  String getLabelFilter() {return mVm.labelFilter;}
 
   String getQueryString() {return mQueryString;}
 
@@ -590,8 +577,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   /** Set title based on currently selected {@link ClipItem} */
   private void setTitle() {
     String prefix = getString(R.string.title_activity_main);
-    if (!AppUtils.isWhitespace(mLabelFilter)) {
-      prefix = mLabelFilter;
+    if (!AppUtils.isWhitespace(mVm.labelFilter)) {
+      prefix = mVm.labelFilter;
     }
     if (AppUtils.isDualPane(this)) {
       final ClipItem clipItem = getClipItemClone();
@@ -687,7 +674,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
       // pin fav state
       final MenuItem pinMenu =
         mOptionsMenu.findItem(R.id.action_pin);
-      if (mPinFav) {
+      if (mVm.pinFavs) {
         pinMenu.setIcon(R.drawable.ic_pin);
         pinMenu.setTitle(R.string.action_no_pin);
       } else {
@@ -701,7 +688,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
       final MenuItem favFilterMenu =
         mOptionsMenu.findItem(R.id.action_fav_filter);
       int colorID;
-      if (mFavFilter) {
+      if (mVm.filterByFavs) {
         favFilterMenu.setIcon(R.drawable.ic_favorite_black_24dp);
         favFilterMenu.setTitle(R.string.action_show_all);
         colorID = R.color.red_500_translucent;
@@ -733,14 +720,15 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
       Integer ret = 0;
       // save items for undo
       if (mActivity != null) {
-        ((MainActivity) mActivity).mUndoItems = ClipTable.INST(mActivity)
-          .getAll(mDeleteFavs, ((MainActivity) mActivity).mLabelFilter);
+        // TODO
+        //((MainActivity) mActivity).mVm.undoItems = ClipTable.INST(mActivity)
+        //  .getAll(mDeleteFavs, ((MainActivity) mActivity).mVm.labelFilter);
       }
 
       if (mActivity != null) {
         // delete items
         ret = ClipTable.INST(mActivity)
-          .deleteAll(mDeleteFavs, ((MainActivity) mActivity).mLabelFilter);
+          .deleteAll(mDeleteFavs, ((MainActivity) mActivity).mVm.labelFilter);
       }
 
       return ret;
@@ -774,7 +762,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
             Analytics.INST(ctxt)
               .imageClick(TAG, ctxt.getString(R.string.button_undo));
             if (mActivity != null) {
-              ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mUndoItems);
+              // TODO
+              //ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mVm.undoItems);
             } else {
               Log.logD(TAG, "No activity to undo delete with");
             }
@@ -787,7 +776,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
               if (mActivity != null) {
-                ((MainActivity) mActivity).mUndoItems =
+                ((MainActivity) mActivity).mVm.undoItems =
                   new ArrayList<>(0);
               }
             }
