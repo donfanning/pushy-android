@@ -22,8 +22,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 
 /** Handlers for UI events */
-public class LabelHandlers extends BaseHandlers
-  implements DialogInterface.OnClickListener {
+public class LabelHandlers extends BaseHandlers {
   private final BaseActivity mActivity;
   private final String TAG;
   private LabelEntity mLabelEntity;
@@ -56,24 +55,7 @@ public class LabelHandlers extends BaseHandlers
     Log.logD(TAG, "delete clicked");
     Analytics.INST(context).imageClick(TAG, "deleteLabel");
     mLabelEntity = labelEntity;
-    showDialog(R.string.label_delete_dialog_title,
+    showConfirmationDialog(context, R.string.label_delete_dialog_title,
       R.string.label_delete_dialog_message, R.string.button_delete);
-  }
-
-  /**
-   * Display a confirmation dialog
-   * @param titleId  resource id of dialog title
-   * @param msgId    resource id of dialog message
-   * @param buttonId resource id of dialog positive button
-   */
-  private void showDialog(int titleId, int msgId, int buttonId) {
-    final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
-      .setMessage(msgId)
-      .setTitle(titleId)
-      .setPositiveButton(buttonId, this)
-      .setNegativeButton(R.string.button_cancel, null)
-      .create();
-
-    alertDialog.show();
   }
 }

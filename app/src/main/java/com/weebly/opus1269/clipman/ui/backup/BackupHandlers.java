@@ -27,8 +27,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 
 /** Handlers for UI events */
-public class BackupHandlers extends BaseHandlers
-  implements DialogInterface.OnClickListener {
+public class BackupHandlers extends BaseHandlers {
   /** Our activity */
   private final BackupActivity mActivity;
 
@@ -79,7 +78,8 @@ public class BackupHandlers extends BaseHandlers
    */
   public void onBackupClick(Context context, MenuItem menu) {
     Analytics.INST(context).menuClick(mActivity.getTAG(), menu);
-    showDialog(R.string.backup_dialog_backup_message, R.string.button_backup);
+    showConfirmationDialog(context, R.string.backup_dialog_title,
+      R.string.backup_dialog_backup_message, R.string.button_backup);
   }
 
   /**
@@ -90,7 +90,8 @@ public class BackupHandlers extends BaseHandlers
   public void onRestoreClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "restoreBackup");
     mBackup = backup;
-    showDialog(R.string.backup_dialog_restore_message, R.string.button_restore);
+    showConfirmationDialog(context, R.string.backup_dialog_title,
+      R.string.backup_dialog_restore_message, R.string.button_restore);
   }
 
   /**
@@ -101,7 +102,8 @@ public class BackupHandlers extends BaseHandlers
   public void onSyncClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "syncBackup");
     mBackup = backup;
-    showDialog(R.string.backup_dialog_sync_message, R.string.button_sync);
+    showConfirmationDialog(context, R.string.backup_dialog_title,
+      R.string.backup_dialog_sync_message, R.string.button_sync);
   }
 
   /**
@@ -112,7 +114,8 @@ public class BackupHandlers extends BaseHandlers
   public void onDeleteClick(Context context, BackupEntity backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "deleteBackup");
     mBackup = backup;
-    showDialog(R.string.backup_dialog_delete_message, R.string.button_delete);
+    showConfirmationDialog(context, R.string.backup_dialog_title,
+      R.string.backup_dialog_delete_message, R.string.button_delete);
   }
 
   /**
@@ -123,29 +126,12 @@ public class BackupHandlers extends BaseHandlers
     // reset error
     BackupRepo.INST(App.INST()).postErrorMsg(null);
     BackupRepo.INST(App.INST()).postIsWorking(false);
-    final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
+    new AlertDialog.Builder(mActivity)
       .setTitle(errorMsg.title)
       .setMessage(errorMsg.msg)
       .setPositiveButton(R.string.button_dismiss, null)
       .setNegativeButton(R.string.button_details, this)
-      .create();
-
-    alertDialog.show();
-  }
-
-  /**
-   * Display confirmation dialog on undoable actions
-   * @param msgId    resource id of dialog message
-   * @param buttonId resource id of dialog positive button
-   */
-  private void showDialog(int msgId, int buttonId) {
-    final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
-      .setMessage(msgId)
-      .setTitle(R.string.backup_dialog_title)
-      .setPositiveButton(buttonId, this)
-      .setNegativeButton(R.string.button_cancel, null)
-      .create();
-
-    alertDialog.show();
+      .create()
+      .show();
   }
 }
