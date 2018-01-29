@@ -61,9 +61,12 @@
       android:inputType="textCapWords"
       android:maxLength="32"
       android:maxLines="1"
-      android:text="@={vm.name}"
       android:textAppearance="?attr/textAppearanceListItem"
-      android:textIsSelectable="false" />
+      android:textIsSelectable="false"
+      android:text="@={vm.name}"
+      app:onFocusChange="@{handlers.OnFocusChangeListener(vm)}"
+
+      />
 
     <ImageButton
       android:id="@+id/deleteButton"

@@ -19,8 +19,6 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.arch.lifecycle.LifecycleOwner;
-import android.text.TextUtils;
-import android.widget.EditText;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -54,25 +52,6 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
       if (errorMsg != null) {
         vm.resetName();
         AppUtils.showMessage(holder.itemView.getContext(), null, errorMsg.msg);
-      }
-    });
-
-    final EditText labelText = holder.binding.labelText;
-    labelText.setOnFocusChangeListener((view, isFocused) -> {
-      String name = vm.getName().getValue();
-      if (isFocused) {
-        return;
-      }
-      if (!TextUtils.isEmpty(name)) {
-        name = name.trim();
-        if (!TextUtils.equals(name, vm.originalName)) {
-          // update label
-          vm.changeName(name, vm.originalName);
-        } else {
-          vm.resetName();
-        }
-      } else {
-        vm.resetName();
       }
     });
   }

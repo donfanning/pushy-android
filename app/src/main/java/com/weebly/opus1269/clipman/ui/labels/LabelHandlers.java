@@ -10,6 +10,8 @@ package com.weebly.opus1269.clipman.ui.labels;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 
 import com.weebly.opus1269.clipman.R;
@@ -20,6 +22,7 @@ import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
+import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
 /** Handlers for UI events */
 public class LabelHandlers extends BaseHandlers {
@@ -57,5 +60,27 @@ public class LabelHandlers extends BaseHandlers {
     mLabelEntity = labelEntity;
     showConfirmationDialog(context, R.string.label_delete_dialog_title,
       R.string.label_delete_dialog_message, R.string.button_delete);
+  }
+
+  public View.OnFocusChangeListener OnFocusChangeListener(LabelViewModel vm) {
+    return (view, isFocused) -> {
+      Log.logD(TAG, "focus changed");
+
+      String name = vm.getName().getValue();
+      if (isFocused) {
+        return;
+      }
+      if (!TextUtils.isEmpty(name)) {
+        name = name.trim();
+        if (!TextUtils.equals(name, vm.originalName)) {
+          // update label
+          vm.changeName(name, vm.originalName);
+        } else {
+          vm.resetName();
+        }
+      } else {
+        vm.resetName();
+      }
+    };
   }
 }

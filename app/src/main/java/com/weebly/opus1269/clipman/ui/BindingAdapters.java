@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.ui;
 import android.databinding.BindingAdapter;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
@@ -37,6 +38,17 @@ public class BindingAdapters {
   public static void enabled(ImageView view, boolean enable) {
     view.setEnabled(enable);
     view.setImageAlpha(enable ? 255 : 64);
+  }
+
+  /**
+   * FocusChange event on a EditText
+   * @param text   The EditText
+   * @param listener The listener
+   */
+  @BindingAdapter("app:onFocusChange")
+  public static void onFocusChange(EditText text,
+                                   final View.OnFocusChangeListener listener) {
+    text.setOnFocusChangeListener(listener);
   }
 
   /**
