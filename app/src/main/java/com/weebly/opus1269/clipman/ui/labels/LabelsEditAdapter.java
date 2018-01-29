@@ -35,13 +35,12 @@ import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
-  LabelEditRowBinding, LabelHandlers, LabelViewModel, LabelsEditAdapter
-  .LabelViewHolder> {
+  LabelEditRowBinding, LabelHandlers, LabelViewModel,
+  LabelsEditAdapter.LabelViewHolder> {
 
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
-    super(new LabelViewHolderFactory(), new LabelViewModelFactory(), R.layout
-        .label_edit_row, owner,
-      handlers);
+    super(new LabelViewHolderFactory(), new LabelViewModelFactory(),
+      R.layout.label_edit_row, owner, handlers);
   }
 
   @Override
