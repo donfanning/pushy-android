@@ -22,7 +22,6 @@ import android.arch.lifecycle.LifecycleOwner;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
@@ -45,13 +44,10 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
     super.onBindViewHolder(holder, position);
 
-    final LabelViewModel vm = holder.vm;
-
     // observe error
-    vm.getErrorMsg().observe(mLifecycleOwner, errorMsg -> {
+    holder.vm.getErrorMsg().observe(mLifecycleOwner, errorMsg -> {
       if (errorMsg != null) {
-        vm.resetName();
-        AppUtils.showMessage(holder.itemView.getContext(), null, errorMsg.msg);
+        holder.vm.resetName();
       }
     });
   }

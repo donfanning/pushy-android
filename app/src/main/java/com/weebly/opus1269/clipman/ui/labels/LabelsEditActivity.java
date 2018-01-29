@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.ActivityLabelsEditBinding;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -41,6 +42,14 @@ public class LabelsEditActivity
     mBinding.setVm(vm);
     mBinding.setHandlers(mHandlers);
     mBinding.executePendingBindings();
+
+
+    // observe error
+    vm.getErrorMsg().observe(this, errorMsg -> {
+      if (errorMsg != null) {
+        AppUtils.showMessage(this, mBinding.getRoot(), errorMsg.msg);
+      }
+    });
 
     // setup RecyclerView
     final RecyclerView recyclerView = findViewById(R.id.labelList);

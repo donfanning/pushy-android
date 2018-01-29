@@ -30,6 +30,12 @@ public class LabelsViewModel extends BaseRepoViewModel<MainRepo> {
     labels.addSource(mRepo.loadLabels(), labels::setValue);
   }
 
+  @Override
+  protected void initRepo() {
+    super.initRepo();
+    mRepo.setErrorMsg(null);
+  }
+
   public MutableLiveData<List<LabelEntity>> getLabels() {
     return labels;
   }
