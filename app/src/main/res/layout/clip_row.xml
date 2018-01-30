@@ -13,7 +13,7 @@
 
   <data>
 
-    <import type="com.weebly.opus1269.clipman.app.AppUtils"/>
+    <import type="com.weebly.opus1269.clipman.app.AppUtils" />
 
     <variable
       name="vm"
@@ -26,154 +26,156 @@
 
   <LinearLayout
     android:id="@+id/clipRow"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:clickable="true"
-  android:focusable="true"
-  android:foreground="?attr/selectableItemBackground"
-  android:orientation="vertical">
-
-  <View style="@style/Divider" />
-
-  <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/clipRowSelector">
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:onClick="@{() -> handlers.onItemClick(vm)}"
+    >
 
-    <RelativeLayout
-      android:id="@+id/clipBackground"
-      android:layout_width="0dp"
-      android:layout_height="match_parent"
-      android:background="@color/red_500_translucent"
-      tools:layout_width="match_parent">
+    <View style="@style/Divider" />
 
-      <ImageView
-        android:layout_width="@dimen/row_image_large_size"
-        android:layout_height="@dimen/row_image_large_size"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="12dp"
-        android:focusable="false"
-        android:tint="@color/icons"
-        app:srcCompat="@drawable/ic_delete_black_24dp"
-        tools:ignore="ContentDescription" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-      android:id="@+id/clipForeground"
+    <FrameLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      android:layout_height="wrap_content"
+      android:background="?attr/clipRowSelector">
 
-      <CheckBox
-        android:id="@+id/favCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/row_image_vertical_margin"
-        android:layout_marginLeft="@dimen/zero_dp"
-        android:layout_marginStart="@dimen/zero_dp"
-        android:background="@android:color/transparent"
-        android:button="@android:color/transparent"
-        tools:drawableLeft="@drawable/ic_favorite_border_black_24dp"
-        tools:drawableStart="@drawable/ic_favorite_border_black_24dp"
-        android:paddingBottom="@dimen/row_image_vertical_margin"
-        android:paddingTop="@dimen/row_image_vertical_margin"
-        android:paddingLeft="@dimen/row_image_horizontal_margin"
-        android:paddingStart="@dimen/row_image_horizontal_margin"
-        android:paddingRight="@dimen/row_image_horizontal_margin"
-        android:paddingEnd="@dimen/row_image_horizontal_margin"
-        android:checked="@{vm.clip.fav}"
-        android:onClick="@{() -> handlers.onFavClick(vm, favCheckBox)}"
-        app:tintFav="@{vm.clip.fav}"
-        android:contentDescription="@string/content_favorite" />
+      <RelativeLayout
+        android:id="@+id/clipBackground"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/red_500_translucent"
+        tools:layout_width="match_parent">
 
-      <TextView
-        android:id="@+id/dateText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/favCheckBox"
-        android:layout_alignBottom="@+id/favCheckBox"
-        android:layout_centerHorizontal="true"
-        android:maxLines="1"
-        android:textAppearance="?attr/textAppearanceListItemSecondary"
-        android:textColor="?android:textColorTertiary"
-        android:textIsSelectable="false"
-        android:text="@{AppUtils.getRelativeDisplayTime(context, vm.clip.date)}"
-        tools:text="Test date" />
+        <ImageView
+          android:layout_width="@dimen/row_image_large_size"
+          android:layout_height="@dimen/row_image_large_size"
+          android:layout_alignParentLeft="true"
+          android:layout_alignParentStart="true"
+          android:layout_centerVertical="true"
+          android:layout_marginLeft="12dp"
+          android:layout_marginStart="12dp"
+          android:focusable="false"
+          android:tint="@color/icons"
+          app:srcCompat="@drawable/ic_delete_black_24dp"
+          tools:ignore="ContentDescription" />
 
-      <ImageButton
-        android:id="@+id/copyButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="@dimen/row_image_vertical_margin"
-        android:layout_marginTop="@dimen/row_image_vertical_margin"
-        android:layout_marginRight="@dimen/zero_dp"
-        android:layout_marginEnd="@dimen/zero_dp"
-        android:paddingBottom="@dimen/row_image_vertical_margin"
-        android:paddingTop="@dimen/row_image_vertical_margin"
-        android:paddingLeft="@dimen/row_image_horizontal_margin"
-        android:paddingStart="@dimen/row_image_horizontal_margin"
-        android:paddingRight="@dimen/row_image_horizontal_margin"
-        android:paddingEnd="@dimen/row_image_horizontal_margin"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/content_copy"
-        android:gravity="center_vertical"
-        app:tintPrimary="@{true}"
-        android:onClick="@{() -> handlers.onCopyClick(vm.clip, copyButton)}"
-        app:srcCompat="@drawable/ic_content_copy_black_24dp" />
+      </RelativeLayout>
 
-      <TextView
-        android:id="@+id/clipText"
+      <RelativeLayout
+        android:id="@+id/clipForeground"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/favCheckBox"
-        android:layout_toLeftOf="@+id/labelButton"
-        android:layout_toStartOf="@+id/labelButton"
-        android:ellipsize="end"
-        android:lines="2"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_vertical_margin"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingEnd="@dimen/activity_vertical_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:textIsSelectable="false"
-        android:text="@{vm.clip.text}"
-        tools:text="Test clip text\nTest clip text\nTest clip text\n http://www.cnn.com Test clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\nTest clip text\n" />
+        android:layout_height="match_parent">
 
-      <ImageButton
-        android:id="@+id/labelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/copyButton"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="@dimen/row_image_vertical_margin"
-        android:layout_marginTop="@dimen/row_image_vertical_margin"
-        android:layout_marginRight="@dimen/zero_dp"
-        android:layout_marginEnd="@dimen/zero_dp"
-        android:paddingBottom="@dimen/row_image_vertical_margin"
-        android:paddingTop="@dimen/row_image_vertical_margin"
-        android:paddingLeft="@dimen/row_image_horizontal_margin"
-        android:paddingStart="@dimen/row_image_horizontal_margin"
-        android:paddingRight="@dimen/row_image_horizontal_margin"
-        android:paddingEnd="@dimen/row_image_horizontal_margin"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/content_copy"
-        android:gravity="center_vertical"
-        app:tintPrimary="@{true}"
-        android:onClick="@{() -> handlers.onLabelsClick(vm.clip, labelButton)}"
-        app:srcCompat="@drawable/ic_label_outline" />
+        <CheckBox
+          android:id="@+id/favCheckBox"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="@dimen/zero_dp"
+          android:layout_marginStart="@dimen/zero_dp"
+          android:layout_marginTop="@dimen/row_image_vertical_margin"
+          android:background="@android:color/transparent"
+          android:button="@android:color/transparent"
+          android:checked="@{vm.clip.fav}"
+          android:contentDescription="@string/content_favorite"
+          android:onClick="@{() -> handlers.onFavClick(vm, favCheckBox)}"
+          android:paddingBottom="@dimen/row_image_vertical_margin"
+          android:paddingEnd="@dimen/row_image_horizontal_margin"
+          android:paddingLeft="@dimen/row_image_horizontal_margin"
+          android:paddingRight="@dimen/row_image_horizontal_margin"
+          android:paddingStart="@dimen/row_image_horizontal_margin"
+          android:paddingTop="@dimen/row_image_vertical_margin"
+          app:tintFav="@{vm.clip.fav}"
+          tools:drawableLeft="@drawable/ic_favorite_border_black_24dp"
+          tools:drawableStart="@drawable/ic_favorite_border_black_24dp" />
 
-    </RelativeLayout>
+        <TextView
+          android:id="@+id/dateText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignBaseline="@+id/favCheckBox"
+          android:layout_alignBottom="@+id/favCheckBox"
+          android:layout_centerHorizontal="true"
+          android:maxLines="1"
+          android:text="@{AppUtils.getRelativeDisplayTime(context, vm.clip.date)}"
+          android:textAppearance="?attr/textAppearanceListItemSecondary"
+          android:textColor="?android:textColorTertiary"
+          android:textIsSelectable="false"
+          tools:text="Test date" />
 
-  </FrameLayout>
+        <ImageButton
+          android:id="@+id/copyButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentEnd="true"
+          android:layout_alignParentRight="true"
+          android:layout_marginBottom="@dimen/row_image_vertical_margin"
+          android:layout_marginEnd="@dimen/zero_dp"
+          android:layout_marginRight="@dimen/zero_dp"
+          android:layout_marginTop="@dimen/row_image_vertical_margin"
+          android:background="@android:color/transparent"
+          android:contentDescription="@string/content_copy"
+          android:gravity="center_vertical"
+          android:onClick="@{() -> handlers.onCopyClick(vm.clip, copyButton)}"
+          android:paddingBottom="@dimen/row_image_vertical_margin"
+          android:paddingEnd="@dimen/row_image_horizontal_margin"
+          android:paddingLeft="@dimen/row_image_horizontal_margin"
+          android:paddingRight="@dimen/row_image_horizontal_margin"
+          android:paddingStart="@dimen/row_image_horizontal_margin"
+          android:paddingTop="@dimen/row_image_vertical_margin"
+          app:srcCompat="@drawable/ic_content_copy_black_24dp"
+          app:tintPrimary="@{true}" />
 
-</LinearLayout>
+        <TextView
+          android:id="@+id/clipText"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/favCheckBox"
+          android:layout_toLeftOf="@+id/labelButton"
+          android:layout_toStartOf="@+id/labelButton"
+          android:ellipsize="end"
+          android:lines="2"
+          android:paddingBottom="@dimen/activity_vertical_margin"
+          android:paddingEnd="@dimen/activity_vertical_margin"
+          android:paddingLeft="@dimen/activity_horizontal_margin"
+          android:paddingRight="@dimen/activity_vertical_margin"
+          android:paddingStart="@dimen/activity_horizontal_margin"
+          android:paddingTop="@dimen/activity_vertical_margin"
+          android:text="@{vm.clip.text}"
+          android:textAppearance="?attr/textAppearanceListItem"
+          android:textIsSelectable="false"
+          tools:text="Test clip text\nTest clip text\n" />
+
+        <ImageButton
+          android:id="@+id/labelButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentEnd="true"
+          android:layout_alignParentRight="true"
+          android:layout_below="@+id/copyButton"
+          android:layout_marginBottom="@dimen/row_image_vertical_margin"
+          android:layout_marginEnd="@dimen/zero_dp"
+          android:layout_marginRight="@dimen/zero_dp"
+          android:layout_marginTop="@dimen/row_image_vertical_margin"
+          android:background="@android:color/transparent"
+          android:contentDescription="@string/content_copy"
+          android:gravity="center_vertical"
+          android:onClick="@{() -> handlers.onLabelsClick(vm.clip, labelButton)}"
+          android:paddingBottom="@dimen/row_image_vertical_margin"
+          android:paddingEnd="@dimen/row_image_horizontal_margin"
+          android:paddingLeft="@dimen/row_image_horizontal_margin"
+          android:paddingRight="@dimen/row_image_horizontal_margin"
+          android:paddingStart="@dimen/row_image_horizontal_margin"
+          android:paddingTop="@dimen/row_image_vertical_margin"
+          app:srcCompat="@drawable/ic_label_outline"
+          app:tintPrimary="@{true}" />
+
+      </RelativeLayout>
+
+    </FrameLayout>
+
+  </LinearLayout>
 
 </layout>

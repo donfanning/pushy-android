@@ -32,6 +32,7 @@ import android.view.SubMenu;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
@@ -48,6 +49,7 @@ import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clips.ClipEditorActvity;
 import com.weebly.opus1269.clipman.ui.clips.ClipViewerActivity;
@@ -476,18 +478,19 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   /**
    * Start the {@link ClipViewerActivity}
    * or update the {@link ClipViewerFragment}
-   * @param clipItem item to display
+   * @param clipEntity item to display
    */
-  void startOrUpdateClipViewer(ClipItem clipItem) {
+  void startOrUpdateClipViewer(ClipEntity clipEntity) {
     if (AppUtils.isDualPane(this)) {
       final ClipViewerFragment fragment = getClipViewerFragment();
       if (fragment != null) {
-        fragment.setClipItem(clipItem);
+        // TODO
+        //fragment.setClipItem(clipEntity);
         fragment.setHighlightText(mQueryString);
       }
     } else {
       final Intent intent = new Intent(this, ClipViewerActivity.class);
-      intent.putExtra(Intents.EXTRA_CLIP_ITEM, clipItem);
+      intent.putExtra(Intents.EXTRA_CLIP, clipEntity);
       intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
       AppUtils.startActivity(this, intent);
     }
@@ -505,21 +508,21 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         final String sharedText =
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          final ClipItem item = new ClipItem(this, sharedText);
-          item.save(this);
-          startOrUpdateClipViewer(item);
-          MessagingClient.INST(this).send(item);
+          final ClipEntity clip = new ClipEntity(this, sharedText);
+          MainRepo.INST(App.INST()).addClipAsync(clip);
+          startOrUpdateClipViewer(clip);
+          MessagingClient.INST(this).send(clip);
         }
       }
-    } else if (intent.hasExtra(Intents.EXTRA_CLIP_ITEM)) {
+    } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {
       // from clip notification
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
-        final ClipItem item =
-          (ClipItem) intent.getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
-        intent.removeExtra(Intents.EXTRA_CLIP_ITEM);
-        startOrUpdateClipViewer(item);
+        final ClipEntity clip =
+          (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+        intent.removeExtra(Intents.EXTRA_CLIP);
+        startOrUpdateClipViewer(clip);
       }
     }
   }

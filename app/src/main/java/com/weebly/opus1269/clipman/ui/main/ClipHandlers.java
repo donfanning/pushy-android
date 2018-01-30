@@ -29,7 +29,6 @@ import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 public class ClipHandlers extends BaseHandlers {
   private final MainActivity mActivity;
   private final String TAG;
-  private ClipEntity mClipEntity;
 
   ClipHandlers(MainActivity activity) {
     super();
@@ -46,8 +45,21 @@ public class ClipHandlers extends BaseHandlers {
       Log.logD(TAG, "fab clicked");
       // TODO
       //mClipItem.doShare(getContext(), v);
-      //Analytics.INST(context).imageClick(TAG, "shareClipItem");
+      Analytics.INST(mActivity).imageClick(TAG, "shareClipItem");
     }
+  }
+
+  /**
+   * Click on fav checkbox
+   * @param vm The ViewModel
+   */
+  public void onItemClick(ClipViewModel vm) {
+    final ClipEntity clipEntity = vm.getClip().getValue();
+    Log.logD(TAG, "item clicked");
+    Analytics.INST(mActivity).click(TAG, "clipItemRow");
+    mActivity.getAdapter().setSelectedClip(clipEntity);
+    // TODO
+    //mActivity.startOrUpdateClipViewer(clipEntity);
   }
 
   /**

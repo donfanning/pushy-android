@@ -14,6 +14,7 @@ ext {
   buildToolsVersion = '27.0.2'
   supportLibraryVersion = '27.0.2'
   archVersion = '1.0.0'
+  lifeCycleVersion = '1.1.0'
   gmsVersion = '11.8.0'
   gapiVersion = '1.23.0'
 }
