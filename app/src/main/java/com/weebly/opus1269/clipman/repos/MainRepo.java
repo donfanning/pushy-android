@@ -174,6 +174,7 @@ public class MainRepo extends BaseRepo {
             errorMsg.postValue(null);
           }
         }
+        // TODO need to delete old here too.
         clip.copyToClipboard(mApp);
       } else {
         errorMsg.postValue(new ErrorMsg("clip exists"));

@@ -107,7 +107,7 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends
       actionBar.setDisplayHomeAsUpEnabled(mHomeUpEnabled);
     }
 
-    // make sure Prefs are initialized
+    // TODO why here? make sure Prefs are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
   }
 

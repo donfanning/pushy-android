@@ -54,6 +54,10 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     filterByFavs = Prefs.INST(app).isFavFilter();
 
     labelFilter = Prefs.INST(app).getLabelFilter();
+    Log.logD(TAG, "labelFilter: " + labelFilter);
+    if (labelFilter == null) {
+      labelFilter = "";
+    }
 
     sortType = Prefs.INST(app).getSortType();
 

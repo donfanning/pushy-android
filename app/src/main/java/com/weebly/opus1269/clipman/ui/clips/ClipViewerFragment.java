@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import android.text.method.ArrowKeyMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.util.Linkify;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,8 +32,8 @@ import android.widget.TextView;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
@@ -42,16 +41,15 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 import java.io.Serializable;
 import java.text.Collator;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** A fragment to view a {@link ClipItem} */
+/** A fragment to view a {@link ClipEntity} */
 public class ClipViewerFragment extends BaseFragment
   implements View.OnClickListener {
 
   // saved state
-  private static final String STATE_CLIP_ITEM = "clip";
+  private static final String STATE_CLIP = "clip";
   private static final String STATE_CLIP_VIEWABLE = "viewable";
   private static final String STATE_CLIP_HIGHLIGHT = "highlight";
 
@@ -59,7 +57,7 @@ public class ClipViewerFragment extends BaseFragment
   private OnClipChanged mOnClipChanged = null;
 
   /** The clip we are viewing */
-  private ClipItem mClipItem = null;
+  private ClipEntity mClip = null;
 
   /** The text to be highlighted */
   private String mHighlightText = "";
@@ -70,12 +68,12 @@ public class ClipViewerFragment extends BaseFragment
    */
   private boolean mIsViewable = true;
 
-  /** Receive {@link ClipItem} actions */
-  private BroadcastReceiver mClipItemReceiver = null;
+  /** Receive {@link ClipEntity} actions */
+  private BroadcastReceiver mClipReceiver = null;
 
   /**
    * Factory method to create new fragment
-   * @param item      ClipItem to view
+   * @param item      ClipEntity to view
    * @param highlight text to highlight
    * @return new ClipViewerFragment
    */
@@ -84,7 +82,7 @@ public class ClipViewerFragment extends BaseFragment
     final ClipViewerFragment fragment = new ClipViewerFragment();
 
     final Bundle args = new Bundle();
-    args.putSerializable(Intents.EXTRA_CLIP_ITEM, item);
+    args.putSerializable(Intents.EXTRA_CLIP, item);
     args.putString(Intents.EXTRA_TEXT, highlight);
 
     fragment.setArguments(args);
@@ -115,25 +113,23 @@ public class ClipViewerFragment extends BaseFragment
 
     // Check whether we're recreating a previously destroyed instance
     if (savedInstanceState != null) {
-      mClipItem = (ClipItem) savedInstanceState.getSerializable
-        (STATE_CLIP_ITEM);
+      mClip = (ClipEntity) savedInstanceState.getSerializable(STATE_CLIP);
       mIsViewable = savedInstanceState.getBoolean(STATE_CLIP_VIEWABLE);
       mHighlightText = savedInstanceState.getString(STATE_CLIP_HIGHLIGHT);
     } else {
-      mClipItem = new ClipItem(getContext());
+      mClip = new ClipEntity(getContext());
       mHighlightText = "";
       mIsViewable = true;
     }
 
-    mOnClipChanged.clipChanged(mClipItem);
+    mOnClipChanged.clipChanged(mClip);
 
-    // listen for changes to ClipItems
-    mClipItemReceiver = new ClipItemReceiver();
+    // listen for changes to the clip
+    mClipReceiver = new ClipItemReceiver();
     final Context context = getContext();
     if (context != null) {
       LocalBroadcastManager.getInstance(context)
-        .registerReceiver(mClipItemReceiver,
-          new IntentFilter(Intents.FILTER_CLIP_ITEM));
+        .registerReceiver(mClipReceiver, new IntentFilter(Intents.FILTER_CLIP));
     }
   }
 
@@ -157,7 +153,7 @@ public class ClipViewerFragment extends BaseFragment
     final View rootView =
       inflater.inflate(R.layout.fragment_clip_viewer, container, false);
 
-    setText(mClipItem.getText());
+    setText(mClip.getText());
 
     return rootView;
   }
@@ -168,10 +164,10 @@ public class ClipViewerFragment extends BaseFragment
 
     final Bundle args = getArguments();
     if (args != null) {
-      if (args.containsKey(Intents.EXTRA_CLIP_ITEM)) {
-        final ClipItem clipItem =
-          (ClipItem) args.getSerializable(Intents.EXTRA_CLIP_ITEM);
-        setClipItem(clipItem);
+      if (args.containsKey(Intents.EXTRA_CLIP)) {
+        final ClipEntity clip =
+          (ClipEntity) args.getSerializable(Intents.EXTRA_CLIP);
+        setClip(clip);
       }
 
       if (args.containsKey(Intents.EXTRA_TEXT)) {
@@ -202,7 +198,7 @@ public class ClipViewerFragment extends BaseFragment
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
-    outState.putSerializable(STATE_CLIP_ITEM, mClipItem);
+    outState.putSerializable(STATE_CLIP, mClip);
     outState.putString(STATE_CLIP_HIGHLIGHT, mHighlightText);
     outState.putBoolean(STATE_CLIP_VIEWABLE, mIsViewable);
 
@@ -216,7 +212,7 @@ public class ClipViewerFragment extends BaseFragment
     final Context context = getContext();
     if (context != null) {
       LocalBroadcastManager.getInstance(context)
-        .unregisterReceiver(mClipItemReceiver);
+        .unregisterReceiver(mClipReceiver);
     }
   }
 
@@ -226,65 +222,65 @@ public class ClipViewerFragment extends BaseFragment
     final View fab = findViewById(R.id.fab);
     final View labelList = findViewById(R.id.labelList);
     if (v == fab) {
-      mClipItem.doShare(getContext(), v);
+      mClip.doShare(getContext(), v);
       Analytics.INST(context).imageClick(TAG, "shareClipItem");
     } else if (v == labelList) {
       Analytics.INST(context).click(TAG, "showLabelList");
       final Intent intent = new Intent(context, LabelsSelectActivity.class);
-      intent.putExtra(Intents.EXTRA_CLIP_ITEM, mClipItem);
+      intent.putExtra(Intents.EXTRA_CLIP, mClip);
       AppUtils.startActivity(context, intent);
     }
   }
 
-  /** Get a shallow copy of our ClipItem */
+  /** Get a shallow copy of our Clip */
   public @Nullable
-  ClipItem getClipItemClone() {
-    if (mClipItem != null) {
-      return new ClipItem(getContext(), mClipItem);
+  ClipEntity getClipClone() {
+    if (mClip != null) {
+      return new ClipEntity(getContext(), mClip);
     } else {
       return null;
     }
   }
 
   /**
-   * Set our ClipItem
-   * @param clipItem a ClipItem
+   * Set our Clip
+   * @param clip The clip
    */
-  public void setClipItem(ClipItem clipItem) {
+  public void setClip(ClipEntity clip) {
     if (!Collator.getInstance()
-      .equals(clipItem.getText(), mClipItem.getText())) {
+      .equals(clip.getText(), mClip.getText())) {
       // skip repaint if text is same
       final TextView textView = findViewById(R.id.clipViewerText);
       if (textView != null) {
         //force layout change animation
         textView.setVisibility(View.GONE);
         textView.setVisibility(View.VISIBLE);
-        setText(clipItem.getText());
+        setText(clip.getText());
       }
     }
 
-    mClipItem = clipItem;
+    mClip = clip;
 
     setupLabels();
 
     setupRemoteDevice();
 
-    mOnClipChanged.clipChanged(mClipItem);
+    mOnClipChanged.clipChanged(mClip);
   }
 
-  /** Copy our ClipItem to the Clipboard */
+  /** Copy our Clip to the Clipboard */
   void copyToClipboard() {
-    if (!ClipItem.isWhitespace(mClipItem)) {
+    if (!ClipEntity.isWhitespace(mClip)) {
       final Context context = getContext();
 
-      mClipItem.setRemote(false);
+      mClip.setRemote(false);
       setupRemoteDevice();
 
       // let listeners know
-      mOnClipChanged.clipChanged(mClipItem);
+      mOnClipChanged.clipChanged(mClip);
 
       // copy and let user know
-      mClipItem.copyToClipboard(context);
+      mClip.copyToClipboard(context);
       View view = getView();
       AppUtils.showMessage(context, view, getString(R.string.clipboard_copy));
     }
@@ -304,9 +300,9 @@ public class ClipViewerFragment extends BaseFragment
 
     if (TextUtils.isEmpty(highlightText)) {
       // make sure to reset spans
-      setText(mClipItem.getText());
+      setText(mClip.getText());
     } else {
-      final String text = mClipItem.getText();
+      final String text = mClip.getText();
       final Spannable spanText =
         Spannable.Factory.getInstance().newSpannable(text);
       final int color =
@@ -337,11 +333,11 @@ public class ClipViewerFragment extends BaseFragment
     final View divider = findViewById(R.id.remoteDivider);
     assert divider != null;
 
-    if (mClipItem.isRemote() && !AppUtils.isDualPane(textView.getContext())) {
+    if (mClip.getRemote() && !AppUtils.isDualPane(textView.getContext())) {
       textView.setVisibility(View.VISIBLE);
       divider.setVisibility(View.VISIBLE);
       textView
-        .setText(getString(R.string.remote_device_fmt, mClipItem.getDevice()));
+        .setText(getString(R.string.remote_device_fmt, mClip.getDevice()));
     } else {
       textView.setVisibility(View.GONE);
       divider.setVisibility(View.GONE);
@@ -354,40 +350,41 @@ public class ClipViewerFragment extends BaseFragment
       return;
     }
 
-    mClipItem.loadLabels(getContext());
-    final List<Label> labels = mClipItem.getLabels();
-
-    final LinearLayout labelLayout = findViewById(R.id.labelLayout);
-    assert labelLayout != null;
-    if (!AppUtils.isEmpty(labels)) {
-      labelLayout.setVisibility(View.VISIBLE);
-    } else {
-      labelLayout.setVisibility(View.GONE);
-      return;
-    }
-
-    final LinearLayout labelList = findViewById(R.id.labelList);
-    assert labelList != null;
-    if (labelList.getChildCount() > 0) {
-      labelList.removeAllViews();
-    }
-
-    // to set margins
-    final LinearLayout.LayoutParams llp =
-      new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT);
-    // llp.setMargins(left, top, right, bottom);
-    final int rightMargin = AppUtils.dp2px(labelLayout.getContext(), 8);
-    llp.setMargins(0, 0, rightMargin, 0);
-
-    for (Label label : labels) {
-      final ContextThemeWrapper wrapper =
-        new ContextThemeWrapper(getContext(), R.style.LabelItemView);
-      final TextView textView = new TextView(wrapper, null, 0);
-      textView.setText(label.getName());
-      textView.setLayoutParams(llp);
-      labelList.addView(textView);
-    }
+    // TODO
+    //mClip.loadLabels(getContext());
+    //final List<Label> labels = mClip.getLabels();
+    //
+    //final LinearLayout labelLayout = findViewById(R.id.labelLayout);
+    //assert labelLayout != null;
+    //if (!AppUtils.isEmpty(labels)) {
+    //  labelLayout.setVisibility(View.VISIBLE);
+    //} else {
+    //  labelLayout.setVisibility(View.GONE);
+    //  return;
+    //}
+    //
+    //final LinearLayout labelList = findViewById(R.id.labelList);
+    //assert labelList != null;
+    //if (labelList.getChildCount() > 0) {
+    //  labelList.removeAllViews();
+    //}
+    //
+    //// to set margins
+    //final LinearLayout.LayoutParams llp =
+    //  new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+    //    LinearLayout.LayoutParams.WRAP_CONTENT);
+    //// llp.setMargins(left, top, right, bottom);
+    //final int rightMargin = AppUtils.dp2px(labelLayout.getContext(), 8);
+    //llp.setMargins(0, 0, rightMargin, 0);
+    //
+    //for (Label label : labels) {
+    //  final ContextThemeWrapper wrapper =
+    //    new ContextThemeWrapper(getContext(), R.style.LabelItemView);
+    //  final TextView textView = new TextView(wrapper, null, 0);
+    //  textView.setText(label.getName());
+    //  textView.setLayoutParams(llp);
+    //  labelList.addView(textView);
+    //}
   }
 
   /**
@@ -436,34 +433,34 @@ public class ClipViewerFragment extends BaseFragment
 
   /** Activities implement this to get notified of clip changes */
   public interface OnClipChanged {
-    void clipChanged(ClipItem clipItem);
+    void clipChanged(ClipEntity clip);
   }
 
 
-  /** {@link BroadcastReceiver} to handle {@link ClipItem} actions */
+  /** {@link BroadcastReceiver} to handle {@link ClipEntity} actions */
   class ClipItemReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_CLIP_ITEM);
+      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_CLIP);
       if (bundle == null) {
         return;
       }
-      final String action = bundle.getString(Intents.ACTION_TYPE_CLIP_ITEM);
+      final String action = bundle.getString(Intents.ACTION_TYPE_CLIP);
       if (action == null) {
         return;
       }
 
       switch (action) {
-        case Intents.TYPE_TEXT_CHANGED_CLIP_ITEM:
+        case Intents.TYPE_TEXT_CHANGED_CLIP:
           Log.logD(TAG, "text changed");
           // text changed on a clip, see if it is us
           final String oldText = bundle.getString(Intents.EXTRA_TEXT);
-          if ((oldText != null) && oldText.equals(mClipItem.getText())) {
+          if ((oldText != null) && oldText.equals(mClip.getText())) {
             // us
-            final ClipItem clipItem =
-              (ClipItem) bundle.getSerializable(Intents.EXTRA_CLIP_ITEM);
-            setClipItem(clipItem);
+            final ClipEntity clipItem =
+              (ClipEntity) bundle.getSerializable(Intents.EXTRA_CLIP);
+            setClip(clipItem);
           }
           break;
         default:

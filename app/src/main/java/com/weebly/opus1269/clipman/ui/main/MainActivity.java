@@ -38,11 +38,9 @@ import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ActivityMainBinding;
-import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.LastError;
@@ -161,7 +159,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
       final ClipViewerFragment fragment =
-        ClipViewerFragment.newInstance(new ClipItem(this), "");
+        ClipViewerFragment.newInstance(new ClipEntity(this), "");
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();
@@ -286,8 +284,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         break;
       case R.id.action_labels:
         intent = new Intent(this, LabelsSelectActivity.class);
-        // TODO replace with ClipEntiy
-        intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
+        intent.putExtra(Intents.EXTRA_CLIP, this.getClipClone());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_add_clip:
@@ -297,10 +294,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         break;
       case R.id.action_edit_text:
         intent = new Intent(this, ClipEditorActvity.class);
-        // TODO replace with Clone
-        final ClipEntity clip = new ClipEntity(this);
-        clip.setText(this.getClipItemClone().getText());
-        intent.putExtra(Intents.EXTRA_CLIP, clip);
+        intent.putExtra(Intents.EXTRA_CLIP, this.getClipClone());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_delete:
@@ -407,8 +401,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   }
 
   @Override
-  public void clipChanged(ClipItem clipItem) {
-    setFabVisibility(!ClipItem.isWhitespace(clipItem));
+  public void clipChanged(ClipEntity clip) {
+    setFabVisibility(!ClipEntity.isWhitespace(clip));
     setTitle();
   }
 
@@ -484,8 +478,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     if (AppUtils.isDualPane(this)) {
       final ClipViewerFragment fragment = getClipViewerFragment();
       if (fragment != null) {
-        // TODO
-        //fragment.setClipItem(clipEntity);
+        fragment.setClip(clipEntity);
         fragment.setHighlightText(mQueryString);
       }
     } else {
@@ -504,7 +497,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
 
     if (Intent.ACTION_SEND.equals(action) && (type != null)) {
       // Share from other app
-      if (ClipItem.TEXT_PLAIN.equals(type)) {
+      if (ClipEntity.TEXT_PLAIN.equals(type)) {
         final String sharedText =
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
@@ -572,17 +565,17 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     });
   }
 
-  /** Set title based on currently selected {@link ClipItem} */
+  /** Set title based on currently selected {@link ClipEntity} */
   private void setTitle() {
     String prefix = getString(R.string.title_activity_main);
     if (!AppUtils.isWhitespace(mVm.labelFilter)) {
       prefix = mVm.labelFilter;
     }
     if (AppUtils.isDualPane(this)) {
-      final ClipItem clipItem = getClipItemClone();
-      if (clipItem.isRemote()) {
+      final ClipEntity clip = getClipClone();
+      if (clip.getRemote()) {
         setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
-          clipItem.getDevice()));
+          clip.getDevice()));
       } else {
         setTitle(getString(R.string.title_activity_main_local_fmt, prefix));
       }
@@ -597,9 +590,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
       .findFragmentById(R.id.clip_viewer_container);
   }
 
-  /** Get copy of currently selected {@link ClipItem} */
-  private ClipItem getClipItemClone() {
-    return getClipViewerFragment().getClipItemClone();
+  /** Get copy of currently selected {@link ClipEntity} */
+  private ClipEntity getClipClone() {
+    return getClipViewerFragment().getClipClone();
   }
 
   /** Update the Navigation View */
@@ -725,8 +718,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
 
       if (mActivity != null) {
         // delete items
-        ret = ClipTable.INST(mActivity)
-          .deleteAll(mDeleteFavs, ((MainActivity) mActivity).mVm.labelFilter);
+        // TODO
+        //ret = ClipTable.INST(mActivity)
+        //  .deleteAll(mDeleteFavs, ((MainActivity) mActivity).mVm.labelFilter);
       }
 
       return ret;

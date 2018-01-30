@@ -58,8 +58,7 @@ public class ClipHandlers extends BaseHandlers {
     Log.logD(TAG, "item clicked");
     Analytics.INST(mActivity).click(TAG, "clipItemRow");
     mActivity.getAdapter().setSelectedClip(clipEntity);
-    // TODO
-    //mActivity.startOrUpdateClipViewer(clipEntity);
+    mActivity.startOrUpdateClipViewer(clipEntity);
   }
 
   /**

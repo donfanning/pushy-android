@@ -13,26 +13,26 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.Intents;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 
 import java.io.Serializable;
 
-/** This Activity manages the display of a {@link ClipItem} */
+/** This Activity manages the display of a {@link ClipEntity} */
 public class ClipViewerActivity extends BaseActivity implements
   ClipViewerFragment.OnClipChanged {
 
   /** Item from last delete operation */
-  private ClipItem mUndoItem = null;
+  private ClipEntity mUndoItem = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +50,7 @@ public class ClipViewerActivity extends BaseActivity implements
       // Create the viewer fragment and add it to the activity
       // using a fragment transaction.
       final Serializable clipItem =
-        getIntent().getSerializableExtra(Intents.EXTRA_CLIP_ITEM);
+        getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
       final String highlightText =
         getIntent().getStringExtra(Intents.EXTRA_TEXT);
 
@@ -105,19 +105,16 @@ public class ClipViewerActivity extends BaseActivity implements
         break;
       case R.id.action_labels:
         intent = new Intent(this, LabelsSelectActivity.class);
-        intent.putExtra(Intents.EXTRA_CLIP_ITEM, getClipItemClone());
+        intent.putExtra(Intents.EXTRA_CLIP, getClipClone());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_edit_text:
         intent = new Intent(this, ClipEditorActvity.class);
-        // TODO replace with Clone
-        final ClipEntity clip = new ClipEntity(this);
-        clip.setText(getClipItemClone().getText());
-        intent.putExtra(Intents.EXTRA_CLIP, clip);
+        intent.putExtra(Intents.EXTRA_CLIP, getClipClone());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_search_web:
-        AppUtils.performWebSearch(this, getClipItemClone().getText());
+        AppUtils.performWebSearch(this, getClipClone().getText());
         break;
       case R.id.action_copy:
         copyClipItem();
@@ -138,15 +135,15 @@ public class ClipViewerActivity extends BaseActivity implements
   }
 
   @Override
-  public void clipChanged(ClipItem clipItem) {
-    setFabVisibility(!ClipItem.isWhitespace(clipItem));
+  public void clipChanged(ClipEntity clip) {
+    setFabVisibility(!ClipEntity.isWhitespace(clip));
     setTitle();
   }
 
-  /** Set Activity title based on current {@link ClipItem} contents */
+  /** Set Activity title based on current {@link ClipEntity} contents */
   private void setTitle() {
-    final ClipItem clipItem = getClipItemClone();
-    if (clipItem.isRemote()) {
+    final ClipEntity clip = getClipClone();
+    if (clip.getRemote()) {
       setTitle(getString(R.string.title_activity_clip_viewer_remote));
     } else {
       setTitle(getString(R.string.title_activity_clip_viewer));
@@ -158,11 +155,11 @@ public class ClipViewerActivity extends BaseActivity implements
       .findFragmentById(R.id.clip_viewer_container);
   }
 
-  private ClipItem getClipItemClone() {
-    return getClipViewerFragment().getClipItemClone();
+  private ClipEntity getClipClone() {
+    return getClipViewerFragment().getClipClone();
   }
 
-  /** Copy the {@link ClipItem} to the clipboard */
+  /** Copy the {@link ClipEntity} to the clipboard */
   private void copyClipItem() {
     ClipViewerFragment clipViewerFragment = getClipViewerFragment();
     if (clipViewerFragment != null) {
@@ -170,34 +167,27 @@ public class ClipViewerActivity extends BaseActivity implements
     }
   }
 
-  /** Delete the {@link ClipItem} from the db */
+  /** Delete the {@link ClipEntity} from the db */
   private void deleteClipItem() {
-    final ClipItem clipItem = getClipViewerFragment().getClipItemClone();
-    if (clipItem == null) {
+    final ClipEntity clip = getClipViewerFragment().getClipClone();
+    if (clip == null) {
       return;
     }
 
     // delete from database
-    final boolean deleted = clipItem.delete(this);
+    MainRepo.INST(App.INST()).removeClipAsync(clip);
+    // save for undo
+    mUndoItem = clip;
 
     String message = getResources().getString(R.string.clip_deleted);
-    if (!deleted) {
-      message = getResources().getString(R.string.item_delete_empty);
-    } else {
-      // save for undo
-      mUndoItem = clipItem;
-    }
 
     final Snackbar snack =
       Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
 
-    if (deleted) {
-      snack.setAction(R.string.button_undo, new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          mUndoItem.save(v.getContext());
-          Analytics.INST(v.getContext()).imageClick(TAG, getString(R.string.button_undo));
-        }
+      snack.setAction(R.string.button_undo, v -> {
+        MainRepo.INST(App.INST()).addClipAsync(mUndoItem);
+        Analytics.INST(v.getContext())
+          .imageClick(TAG, getString(R.string.button_undo));
       }).addCallback(new Snackbar.Callback() {
 
         @Override
@@ -211,29 +201,28 @@ public class ClipViewerActivity extends BaseActivity implements
           }
         }
       });
-    }
 
     snack.show();
   }
 
-  /** Toggle the favortie state of the {@link ClipItem} */
+  /** Toggle the favortie state of the {@link ClipEntity} */
   private void toggleFavorite() {
     ClipViewerFragment clipViewerFragment = getClipViewerFragment();
-    ClipItem clipItem = clipViewerFragment.getClipItemClone();
-    if (clipItem == null) {
+    ClipEntity clip = clipViewerFragment.getClipClone();
+    if (clip == null) {
       return;
     }
 
-    clipItem.setFav(!clipItem.isFav());
+    clip.setFav(!clip.getFav());
 
     // let fragment know
-    clipViewerFragment.setClipItem(clipItem);
+    clipViewerFragment.setClip(clip);
 
     // update MenuItem
     setFavoriteMenuItem();
 
     // update database
-    clipItem.save(this);
+    MainRepo.INST(App.INST()).updateFavAsync(clip);
   }
 
   /** Set the favorite {@link MenuItem} appearence */
@@ -241,7 +230,7 @@ public class ClipViewerActivity extends BaseActivity implements
     final MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
 
     if (menuItem != null) {
-      final boolean isFav = getClipItemClone().isFav();
+      final boolean isFav = getClipClone().getFav();
       final int colorID = isFav ? R.color.red_500_translucent : R.color.icons;
       final int icon = isFav ? R.drawable.ic_favorite_black_24dp :
         R.drawable.ic_favorite_border_black_24dp;
