@@ -24,6 +24,21 @@ public interface ClipDao {
   @Query("SELECT * FROM clips ORDER BY date DESC")
   LiveData<List<ClipEntity>> loadAll();
 
+  @Query("SELECT * FROM clips ORDER BY LOWER(text) ASC")
+  LiveData<List<ClipEntity>> loadAllByText();
+
+  @Query("SELECT * FROM clips ORDER BY fav DESC, date DESC")
+  LiveData<List<ClipEntity>> loadAllPinFavs();
+
+  @Query("SELECT * FROM clips ORDER BY fav DESC, LOWER(text) ASC")
+  LiveData<List<ClipEntity>> loadAllPinFavsByText();
+
+  @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY date DESC")
+  LiveData<List<ClipEntity>> loadFavs();
+
+  @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY LOWER(text) ASC")
+  LiveData<List<ClipEntity>> loadFavsByText();
+
   @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
   LiveData<ClipEntity> load(String text);
 

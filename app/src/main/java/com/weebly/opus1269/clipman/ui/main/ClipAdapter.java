@@ -22,23 +22,59 @@ import android.arch.lifecycle.LifecycleOwner;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.ClipRowBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
 import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
-import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.ClipViewModel;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
 class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
   ClipHandlers, ClipViewModel, ClipAdapter.ClipViewHolder> {
 
+  /** The currently selected position in the list */
+  private int mSelectedPos = 0;
+
   ClipAdapter(LifecycleOwner owner, ClipHandlers handlers) {
     super(new ClipViewHolderFactory(), new ClipViewModelFactory(),
       R.layout.clip_row, owner, handlers);
+  }
+
+  @Override
+  public void onBindViewHolder(ClipViewHolder holder, int position) {
+    super.onBindViewHolder(holder, position);
+
+    if (AppUtils.isDualPane(App.INST())) {
+      // set selected state of the view
+      if (getSelectedPos() == position) {
+        if (!holder.itemView.isSelected()) {
+          holder.itemView.setSelected(true);
+        }
+      } else {
+        holder.itemView.setSelected(false);
+      }
+    }
+  }
+
+  public int getSelectedPos() {
+    return mSelectedPos;
+  }
+  void setSelectedPos(int position) {
+    if (mSelectedPos == position) {
+      return;
+    }
+
+    if (position < 0) {
+      mSelectedPos = -1;
+      //mSelectedItemID = -1L;
+    } else {
+      notifyItemChanged(mSelectedPos);
+      mSelectedPos = position;
+      notifyItemChanged(mSelectedPos);
+    }
   }
 
   /** Factory to create an instance of our ViewHolder */

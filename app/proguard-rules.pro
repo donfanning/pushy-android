@@ -16,5 +16,8 @@
 #   public *;
 #}
 -dontwarn org.slf4j.impl.**
+-dontwarn okhttp3.**
+-dontwarn com.squareup.**
+-dontwarn okio.**
 -keep class android.support.v7.widget.SearchView { *; }
 -keep class com.weebly.opus1269.clipman.backend.** { *; }

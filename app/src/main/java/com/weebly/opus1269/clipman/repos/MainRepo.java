@@ -36,9 +36,6 @@ public class MainRepo extends BaseRepo {
   /** Database */
   private final MainDB mDB;
 
-  /** Clip list */
-  private final MediatorLiveData<List<ClipEntity>> clipsList;
-
   /** Label list */
   private final MediatorLiveData<List<LabelEntity>> labelsList;
 
@@ -46,14 +43,6 @@ public class MainRepo extends BaseRepo {
     super(app);
 
     mDB = MainDB.INST(app);
-
-    clipsList = new MediatorLiveData<>();
-    clipsList.postValue(new ArrayList<>());
-    clipsList.addSource(mDB.clipDao().loadAll(), clips -> {
-      if (mDB.getDatabaseCreated().getValue() != null) {
-        clipsList.postValue(clips);
-      }
-    });
 
     labelsList = new MediatorLiveData<>();
     labelsList.postValue(new ArrayList<>());
@@ -75,8 +64,24 @@ public class MainRepo extends BaseRepo {
     return sInstance;
   }
 
-  public LiveData<List<ClipEntity>> loadClips() {
-    return clipsList;
+  public LiveData<List<ClipEntity>> loadClips(boolean filterByFavs,
+                                              boolean pinFavs, int sortType) {
+    if (filterByFavs) {
+      if (sortType == 1) {
+        return mDB.clipDao().loadFavsByText();
+      }
+      return mDB.clipDao().loadFavs();
+    }
+    if (pinFavs) {
+      if (sortType == 1) {
+        return mDB.clipDao().loadAllPinFavsByText();
+      }
+      return mDB.clipDao().loadAllPinFavs();
+    }
+    if (sortType == 1) {
+      return mDB.clipDao().loadAllByText();
+    }
+    return mDB.clipDao().loadAll();
   }
 
   public LiveData<List<LabelEntity>> loadLabels() {
@@ -101,24 +106,17 @@ public class MainRepo extends BaseRepo {
     this.labelsList.postValue(labels);
   }
 
-  public void addClipAsync(@NonNull ClipEntity clip, boolean onNewOnly) {
-    if (onNewOnly) {
-      addClipIfNewAsync(clip);
-    } else {
-      addClipAsync(clip);
-    }
-  }
-
   /**
    * Insert or replace a clip
    * @param clip Clip to insert or replace
    */
   public void addClipAsync(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO()
-      .execute(() -> {
-        final long row = mDB.clipDao().insert(clip);
-        Log.logD(TAG, "add, row: " + row);
-      });
+    App.getExecutors().diskIO().execute(() -> {
+      postIsWorking(true);
+      final long row = mDB.clipDao().insert(clip);
+      Log.logD(TAG, "add, row: " + row);
+      postIsWorking(false);
+    });
   }
 
   /**
@@ -126,8 +124,8 @@ public class MainRepo extends BaseRepo {
    * @param clip Clip to insert or replace
    */
   public void addClipIfNewAsync(@NonNull ClipEntity clip) {
-    postIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
+      postIsWorking(true);
       if (mDB.clipDao().get(clip.getText()) == null) {
         long row = mDB.clipDao().insert(clip);
         if (row == -1L) {
@@ -135,10 +133,10 @@ public class MainRepo extends BaseRepo {
         } else {
           errorMsg.postValue(null);
         }
-        postIsWorking(false);
       } else {
         errorMsg.postValue(new ErrorMsg("clip exists"));
       }
+      postIsWorking(false);
     });
   }
 

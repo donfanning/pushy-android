@@ -50,10 +50,10 @@ public class Prefs {
   // Preferences that are not set through the SettingsActivity
   private final String PREF_VERSION_NAME = "prefVersionName";
   private final String PREF_VERSION_CODE = "prefVersionCode";
-  private final String PREF_PIN_FAV = "prefPinFav";
-  private final String PREF_FAV_FILTER = "prefFavFilter";
-  private final String PREF_LABEL_FILTER = "preflabelFilter";
-  private final String PREF_SORT_TYPE = "prefSortType";
+  public final String PREF_PIN_FAV = "prefPinFav";
+  public final String PREF_FAV_FILTER = "prefFavFilter";
+  public final String PREF_LABEL_FILTER = "preflabelFilter";
+  public final String PREF_SORT_TYPE = "prefSortType";
   private final String PREF_DEVICE_REGISTERED = "prefDeviceRegistered";
   private final String PREF_NO_DEVICES_CT = "prefNoDeviceCt";
   private final String PREF_SN = "prefSN";

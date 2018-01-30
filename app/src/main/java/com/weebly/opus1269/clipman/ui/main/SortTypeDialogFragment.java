@@ -7,10 +7,8 @@
 
 package com.weebly.opus1269.clipman.ui.main;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -29,29 +27,8 @@ public class SortTypeDialogFragment extends DialogFragment {
   /** Screen name */
   private final String TAG = this.getClass().getSimpleName();
 
-  /** Activity must implement interface to get action events */
-  private SortTypeDialogFragment.SortTypeDialogListener mListener = null;
-
   /** The actual dialog */
   private AlertDialog mDialog;
-
-  // Override the Fragment.onAttach() method to instantiate the listener
-  @SuppressWarnings("ObjectToString")
-  @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-
-    final Activity activity = getActivity();
-    // Verify that the host activity implements the callback interface
-    try {
-      // Instantiate the DeleteDialogListener so we can send events to the host
-      mListener = (SortTypeDialogFragment.SortTypeDialogListener) activity;
-    } catch (final ClassCastException ignored) {
-      // The activity doesn't implement the interface, throw exception
-      throw new ClassCastException(
-        activity + " must implement SortTypeDialogListener");
-    }
-  }
 
   @NonNull
   @Override
@@ -63,18 +40,12 @@ public class SortTypeDialogFragment extends DialogFragment {
     final int selected = Prefs.INST(getContext()).getSortType();
 
     final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-    builder
-      .setSingleChoiceItems(R.array.sort_type_clips, selected,
-        new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            Analytics.INST(context).checkBoxClick(TAG, "sortType: " + which);
-            Prefs.INST(context).setSortType(which);
-            // tell the listener something was elected
-            mListener.onSortTypeSelected();
-            dialog.dismiss();
-          }
-        });
+    builder.setSingleChoiceItems(R.array.sort_type_clips, selected,
+      (dialog, which) -> {
+        Analytics.INST(context).checkBoxClick(TAG, "sortType: " + which);
+        Prefs.INST(context).setSortType(which);
+        dialog.dismiss();
+      });
 
     // Create the AlertDialog
     mDialog = builder.create();
@@ -89,23 +60,14 @@ public class SortTypeDialogFragment extends DialogFragment {
 
     final Window window = mDialog.getWindow();
     if (window != null) {
-
       // position and size the dialog at the top right of the window
       WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
       lp.copyFrom(window.getAttributes());
       lp.gravity = Gravity.TOP | Gravity.END;
       lp.x = 0;
       lp.y = 0;
-      lp.width = AppUtils.dp2px(getContext(), 200.0F);
+      lp.width = AppUtils.dp2px(window.getContext(), 200.0F);
       window.setAttributes(lp);
     }
-  }
-
-  /**
-   * The activity that creates an instance of this dialog fragment must
-   * implement this interface in order to receive event callbacks.
-   */
-  public interface SortTypeDialogListener {
-    void onSortTypeSelected();
   }
 }

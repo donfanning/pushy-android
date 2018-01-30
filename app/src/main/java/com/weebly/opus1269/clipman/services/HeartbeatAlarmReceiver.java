@@ -62,6 +62,5 @@ public class HeartbeatAlarmReceiver extends BroadcastReceiver {
     context.sendBroadcast(intnt);
     intnt = new Intent("com.google.android.intent.action.MCS_HEARTBEAT");
     context.sendBroadcast(intnt);
-    Log.logD(TAG, "onReceive, Sent heartbeat");
   }
 }

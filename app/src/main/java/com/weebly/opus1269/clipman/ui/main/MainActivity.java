@@ -24,6 +24,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,23 +72,18 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   View.OnLayoutChangeListener,
   ClipViewerFragment.OnClipChanged,
   DeleteDialogFragment.DeleteDialogListener,
-  SortTypeDialogFragment.SortTypeDialogListener,
   SharedPreferences.OnSharedPreferenceChangeListener {
-
-  /** ViewModel */
-  public MainViewModel mVm = null;
-
-  /** Event handlers */
-  private ClipHandlers mHandlers = null;
-
-  /** Adapter used to display the list's data */
-  private ClipAdapter mAdapter = null;
 
   /** The selected position in the list, delegated to ClipCursorAdapter */
   private static final String STATE_POS = "pos";
-
   /** The database _ID of the selected item, delegated to ClipCursorAdapter */
   private static final String STATE_ITEM_ID = "item_id";
+  /** ViewModel */
+  public MainViewModel mVm = null;
+  /** Event handlers */
+  private ClipHandlers mHandlers = null;
+  /** Adapter used to display the list's data */
+  private ClipAdapter mAdapter = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -119,8 +115,6 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     mHandlers = new ClipHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
-    //mBinding.setIsWorking(vm.getIsWorking());
-    //mBinding.setInfoMessage(vm.getInfoMessage());
     mBinding.setHandlers(mHandlers);
     mBinding.executePendingBindings();
 
@@ -136,6 +130,12 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     //binding.contentBackupLayout.backupListLayout.backupRecyclerView
     //  .setAdapter(mAdapter);
     recyclerView.setAdapter(mAdapter);
+
+    // handle touch events on the RecyclerView
+    final ItemTouchHelper.Callback callback = new ClipItemTouchHelper(this);
+    ItemTouchHelper helper = new ItemTouchHelper(callback);
+    helper.attachToRecyclerView(recyclerView);
+
 
     // Observe clips
     mVm.loadClips().observe(this, clips -> {
@@ -272,24 +272,19 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         sendClipboardContents();
         break;
       case R.id.action_pin:
-        mVm.pinFavs = !mVm.pinFavs;
-        Prefs.INST(this).setPinFav(mVm.pinFavs);
+        Prefs.INST(this).setPinFav(!mVm.pinFavs);
         updateOptionsMenu();
-        // reload clips
-        //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_fav_filter:
-        mVm.filterByFavs = !mVm.filterByFavs;
-        Prefs.INST(this).setFavFilter(mVm.filterByFavs);
+        Prefs.INST(this).setFavFilter(!mVm.filterByFavs);
         updateOptionsMenu();
-        // reload clips
-        //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
         break;
       case R.id.action_sort:
         showSortTypeDialog();
         break;
       case R.id.action_labels:
         intent = new Intent(this, LabelsSelectActivity.class);
+        // TODO replace with ClipEntiy
         intent.putExtra(Intents.EXTRA_CLIP_ITEM, this.getClipItemClone());
         AppUtils.startActivity(this, intent);
         break;
@@ -337,7 +332,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
         startActivity(SignInActivity.class);
         break;
       case R.id.nav_backup:
-        startActivity(com.weebly.opus1269.clipman.ui.backup.BackupActivity.class);
+        startActivity(com.weebly.opus1269.clipman.ui.backup.BackupActivity
+          .class);
         break;
       case R.id.nav_devices:
         startActivity(DevicesActivity.class);
@@ -420,11 +416,6 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
   }
 
   @Override
-  public void onSortTypeSelected() {
-    //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
-  }
-
-  @Override
   public void
   onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     final String keyPush = getString(R.string.key_pref_push_msg);
@@ -434,6 +425,10 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
     } else if (keyPush.equals(key)) {
       updateOptionsMenu();
     }
+  }
+
+  public ClipAdapter getAdapter() {
+    return mAdapter;
   }
 
   Boolean getFavFilter() {return mVm.filterByFavs;}
@@ -763,7 +758,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements
               .imageClick(TAG, ctxt.getString(R.string.button_undo));
             if (mActivity != null) {
               // TODO
-              //ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mVm.undoItems);
+              //ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mVm
+              // .undoItems);
             } else {
               Log.logD(TAG, "No activity to undo delete with");
             }
