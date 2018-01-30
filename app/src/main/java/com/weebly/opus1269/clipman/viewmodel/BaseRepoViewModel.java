@@ -63,6 +63,10 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
     errorMsg.postValue(value);
   }
 
+  public void setErrorMsg(final ErrorMsg value) {
+    errorMsg.setValue(value);
+  }
+
   @NonNull
   public LiveData<String> getInfoMessage() {
     return infoMessage;

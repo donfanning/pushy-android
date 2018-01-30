@@ -39,9 +39,6 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
                              boolean addMode) {
     super(app, MainRepo.INST(app));
 
-    mRepo.setErrorMsg(null);
-    mRepo.setIsWorking(null);
-
     this.text = new MutableLiveData<>();
     this.text.setValue(clip.getText());
 
@@ -50,6 +47,13 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     this.originalText = clip.getText();
 
     this.clip = clip;
+  }
+
+  @Override
+  protected void initRepo() {
+    super.initRepo();
+    mRepo.setErrorMsg(null);
+    mRepo.setIsWorking(null);
   }
 
   public MutableLiveData<String> getText() {

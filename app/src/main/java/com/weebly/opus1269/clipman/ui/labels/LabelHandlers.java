@@ -9,6 +9,7 @@ package com.weebly.opus1269.clipman.ui.labels;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
@@ -71,19 +72,22 @@ public class LabelHandlers extends BaseHandlers {
       if (isFocused) {
         return;
       }
+      updateName(vm);
+    };
+  }
 
-      String name = vm.getName().getValue();
-      if (!TextUtils.isEmpty(name)) {
-        name = name.trim();
-        if (!TextUtils.equals(name, vm.originalName)) {
-          // update label
-          vm.changeName(name, vm.originalName);
-        } else {
-          vm.resetName();
-        }
+  private void updateName(@NonNull LabelViewModel vm) {
+    String name = vm.getName().getValue();
+    if (!TextUtils.isEmpty(name)) {
+      name = name.trim();
+      if (!TextUtils.equals(name, vm.originalName)) {
+        // update label
+        vm.changeName(name, vm.originalName);
       } else {
         vm.resetName();
       }
-    };
+    } else {
+      vm.resetName();
+    }
   }
 }

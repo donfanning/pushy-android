@@ -64,6 +64,7 @@
       android:textAppearance="?attr/textAppearanceListItem"
       android:textIsSelectable="false"
       android:text="@={vm.name}"
+      android:imeOptions="actionNext"
       app:onFocusChange="@{handlers.OnFocusChangeListener(vm)}"
 
       />
