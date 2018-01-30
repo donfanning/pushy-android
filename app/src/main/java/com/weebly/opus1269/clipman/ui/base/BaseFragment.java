@@ -17,7 +17,7 @@ import android.view.View;
  * naming convention for you Activities views and actions. Extend from this.
  */
 public abstract class BaseFragment extends Fragment {
-
+  /** Class identifier */
   protected final String TAG = this.getClass().getSimpleName();
 
   /** findViewById that checks for null Activity */

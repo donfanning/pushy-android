@@ -7,60 +7,59 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.databinding.LabelCreateBinding;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
-import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
-
-import java.util.Arrays;
-import java.util.List;
+import com.weebly.opus1269.clipman.viewmodel.LabelCreateViewModel;
 
 /** Fragment to Create a new {@link Label} */
 public class LabelCreateFragement extends BaseFragment implements
-  TextView.OnEditorActionListener,
-  View.OnClickListener,
-  TextWatcher {
+  TextView.OnEditorActionListener {
+
+  /** Our ViewModel */
+  private LabelCreateViewModel mVm;
+
+  /** Our DataBinding */
+  private LabelCreateBinding mBinding;
 
   public LabelCreateFragement() {
     // Required empty public constructor
   }
 
   @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    setHasOptionsMenu(true);
-  }
-
-  @Override
   public View onCreateView(@NonNull LayoutInflater inflater,
                            ViewGroup container, Bundle savedInstanceState) {
-    final View rootView =
-      inflater.inflate(R.layout.fragment_label_create, container, false);
+    mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_label_create,
+      container, false);
+    final View rootView = mBinding.getRoot();
 
     setup(rootView);
+
+    // setup ViewModel and data binding
+    mVm = new LabelCreateViewModel(App.INST());
+    final LabelCreateHandlers handlers = new LabelCreateHandlers();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(mVm);
+    mBinding.setHandlers(handlers);
+    mBinding.executePendingBindings();
 
     return rootView;
   }
@@ -87,57 +86,17 @@ public class LabelCreateFragement extends BaseFragment implements
     return false;
   }
 
-  @Override
-  public void onClick(View view) {
-    if (view.getId() == R.id.addDoneButton) {
-      createLabel();
-      Analytics.INST(view.getContext()).imageClick(TAG, "addLabel");
-    }
-  }
-
-  @Override
-  public void beforeTextChanged(CharSequence text, int i, int i1, int i2) {
-    // noop
-  }
-
-  @Override
-  public void onTextChanged(CharSequence text, int i, int i1, int i2) {
-    //noop
-  }
-
-  @Override
-  public void afterTextChanged(Editable editable) {
-    final ImageButton doneButton = findViewById(R.id.addDoneButton);
-    final String text = editable.toString();
-    final boolean enabled = (TextUtils.getTrimmedLength(text) > 0);
-    if (doneButton != null) {
-      DrawableHelper.setImageViewEnabled(doneButton, enabled);
-    }
-  }
-
   /**
    * Initialize the view
    * @param rootView The View
    */
   private void setup(View rootView) {
-    final Context context = rootView.getContext();
-
-    final ImageView addImage = rootView.findViewById(R.id.addImage);
     final EditText addText = rootView.findViewById(R.id.addText);
-    final ImageButton addDoneButton = rootView.findViewById(R.id.addDoneButton);
-
-    // listen for clicks
-    addDoneButton.setOnClickListener(this);
 
     // listen for text changes and actions
-    addText.addTextChangedListener(this);
+    //addText.addTextChangedListener(this);
     addText.setOnEditorActionListener(this);
-
-    DrawableHelper.setImageViewEnabled(addDoneButton, false);
-
-    final List<ImageView> list = Arrays.asList(addImage, addDoneButton);
-    DrawableHelper.tintAccentColor(context, list);
-  }
+    }
 
   /** Create a new {@link Label} */
   private void createLabel() {

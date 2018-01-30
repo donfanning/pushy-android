@@ -34,6 +34,9 @@ public interface LabelDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(List<LabelEntity> labelEntities);
 
+  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  long insertIfNew(LabelEntity labelEntity);
+
   @Query("UPDATE OR IGNORE labels SET name = :newName WHERE name = :oldName")
   int updateName(String newName, String oldName);
 

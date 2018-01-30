@@ -15,6 +15,8 @@ import com.weebly.opus1269.clipman.R;
 
 /** Base class for Handlers of UI events */
 public class BaseHandlers implements DialogInterface.OnClickListener {
+  /** Class identifier */
+  protected String TAG = this.getClass().getSimpleName();
 
   public BaseHandlers() {
   }

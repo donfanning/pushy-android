@@ -229,6 +229,15 @@ public class MainRepo extends BaseRepo {
       .execute(() -> mDB.labelDao().insertAll(label));
   }
 
+  public void addIfNewAsync(@NonNull LabelEntity label) {
+    App.getExecutors().diskIO().execute(() -> {
+      final long id = mDB.labelDao().insertIfNew(label);
+      if (id == -1L) {
+        errorMsg.postValue(new ErrorMsg("Label exists"));
+      }
+    });
+  }
+
   public void updateLabelAsync(@NonNull String newName,
                                @NonNull String oldName) {
     App.getExecutors().diskIO().execute(() -> {

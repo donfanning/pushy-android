@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -254,18 +255,10 @@ public class AppUtils {
 
   /**
    * Is String null or all whitespace
-   * @param string string to check
+   * @param s string to check
    */
-  public static boolean isWhitespace(String string) {
-    boolean ret = true;
-    if (string != null) {
-      for (int i = 0; i < string.length(); i++) {
-        if (!Character.isWhitespace(string.charAt(i))) {
-          ret = false;
-        }
-      }
-    }
-    return ret;
+  public static boolean isWhitespace(@Nullable CharSequence s) {
+    return s == null || s.length() == 0 || TextUtils.getTrimmedLength(s) == 0;
   }
 
   /**
