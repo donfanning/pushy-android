@@ -16,13 +16,13 @@ import android.support.v7.widget.RecyclerView;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.databinding.ActivityLabelsSelectBinding;
+import com.weebly.opus1269.clipman.databinding.LabelsSelectBinding;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
 public class LabelsSelectActivity extends
-  BaseActivity<ActivityLabelsSelectBinding> {
+  BaseActivity<LabelsSelectBinding> {
   /** Saved state for mClip */
   private static final String STATE_CLIP_ITEM = "clipItem";
 

@@ -10,13 +10,13 @@ package com.weebly.opus1269.clipman.ui.devices;
 import android.os.Bundle;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.databinding.ActivityDevicesBinding;
+import com.weebly.opus1269.clipman.databinding.DevicesBinding;
 import com.weebly.opus1269.clipman.viewmodel.DevicesViewModel;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.model.Notifications;
 
 /** Activity to manage our connected devices */
-public class DevicesActivity extends BaseActivity<ActivityDevicesBinding> {
+public class DevicesActivity extends BaseActivity<DevicesBinding> {
   private DevicesAdapter mAdapter;
 
   @Override

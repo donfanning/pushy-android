@@ -19,14 +19,14 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.backup.DriveHelper;
-import com.weebly.opus1269.clipman.databinding.ActivityBackupBinding;
+import com.weebly.opus1269.clipman.databinding.BackupBinding;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.BackupsViewModel;
 
 /** Manage our backups on Google Drive */
-public class BackupActivity extends BaseActivity<ActivityBackupBinding> {
+public class BackupActivity extends BaseActivity<BackupBinding> {
   /** Request code for granting Drive scope */
   private final int RC_DRIVE_SUCCESS = 10;
 

@@ -14,14 +14,14 @@ import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.databinding.ActivityLabelsEditBinding;
+import com.weebly.opus1269.clipman.databinding.LabelsEditBinding;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
 /** Activity for editing the List of {@link Label} items */
 public class LabelsEditActivity
-  extends BaseActivity<ActivityLabelsEditBinding> {
+  extends BaseActivity<LabelsEditBinding> {
   /** Event handlers */
   private LabelHandlers mHandlers = null;
 

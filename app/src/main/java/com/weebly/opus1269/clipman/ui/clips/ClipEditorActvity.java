@@ -17,7 +17,7 @@ import android.view.MenuItem;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.databinding.ActivityClipEditorBinding;
+import com.weebly.opus1269.clipman.databinding.ClipEditorBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -26,7 +26,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.ClipEditorViewModel;
 
 /** Activity to edit the text of a {@link ClipEntity} */
-public class ClipEditorActvity extends BaseActivity {
+public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
   /** Our ViewModel */
   private ClipEditorViewModel mVm;
 
@@ -63,13 +63,11 @@ public class ClipEditorActvity extends BaseActivity {
 
     // setup ViewModel and data binding
     mVm = new ClipEditorViewModel(getApplication(), clip, addMode);
-    final ActivityClipEditorBinding binding =
-      (ActivityClipEditorBinding) mBinding;
-    binding.setLifecycleOwner(this);
-    binding.setText(mVm.getText());
-    binding.setAddMode(mVm.addMode);
-    binding.setVm(mVm);
-    binding.executePendingBindings();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setText(mVm.getText());
+    mBinding.setAddMode(mVm.addMode);
+    mBinding.setVm(mVm);
+    mBinding.executePendingBindings();
 
     // observe working
     mVm.getIsWorking().observe(this, isWorking -> {

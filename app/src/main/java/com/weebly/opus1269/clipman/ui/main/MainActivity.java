@@ -37,7 +37,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.databinding.ActivityMainBinding;
+import com.weebly.opus1269.clipman.databinding.MainBinding;
 import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -67,7 +67,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Top level Activity for the app */
-public class MainActivity extends BaseActivity<ActivityMainBinding> implements
+public class MainActivity extends BaseActivity<MainBinding> implements
   NavigationView.OnNavigationItemSelectedListener,
   View.OnLayoutChangeListener,
   ClipViewerFragment.OnClipChanged,
