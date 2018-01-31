@@ -19,6 +19,7 @@
 package com.weebly.opus1269.clipman.ui.main;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -36,19 +37,14 @@ import java.util.List;
 /** Bridge between the Devices RecyclerView and the Devices class */
 class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
   ClipHandlers, ClipViewModel, ClipAdapter.ClipViewHolder> {
+  /** Our Activity */
+  @NonNull
+  private final MainActivity mActivity;
 
-  /** our clips */
-  private List<ClipEntity> mClipList = null;
-
-  /** The currently selected Clip */
-  private ClipEntity mSelectedClip = null;
-
-  /** The currently selected position in the list */
-  private int mSelectedPos = 0;
-
-  ClipAdapter(LifecycleOwner owner, ClipHandlers handlers) {
+  ClipAdapter(@NonNull MainActivity activity, ClipHandlers handlers) {
     super(new ClipViewHolderFactory(), new ClipViewModelFactory(),
-      R.layout.clip_row, owner, handlers);
+      R.layout.clip_row, activity, handlers);
+    mActivity = activity;
   }
 
   @Override
@@ -57,11 +53,15 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
 
     if (AppUtils.isDualPane(App.INST())) {
       // set selected state of the view
-      if (getSelectedPos() == position) {
+      if (mActivity.getSelectedClipPos() == position) {
         if (!holder.itemView.isSelected()) {
           holder.itemView.setSelected(true);
         }
       } else {
+        holder.itemView.setSelected(false);
+      }
+    } else {
+      if (holder.itemView.isSelected()) {
         holder.itemView.setSelected(false);
       }
     }
@@ -70,40 +70,11 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
   @Override
   public void setList(List<ClipEntity> list) {
     super.setList(list);
-    mClipList = list;
-  }
-
-  public int getSelectedPos() {
-    return mSelectedPos;
-  }
-
-  void setSelectedPos(int position) {
-    if (mSelectedPos == position) {
-      return;
-    }
-
-    if (position < 0) {
-      mSelectedPos = -1;
-      mSelectedClip = null;
+    if (list != null) {
+      mActivity.setSelectedClipPos(0);
     } else {
-      notifyItemChanged(mSelectedPos);
-      mSelectedPos = position;
-      notifyItemChanged(mSelectedPos);
+      mActivity.setSelectedClipPos(-1);
     }
-  }
-
-  void setSelectedClip(ClipEntity clip) {
-    mSelectedClip = clip;
-    int pos = -1;
-    if (mClipList != null) {
-      for (int i = 0; i < mClipList.size(); i++) {
-        if (mClipList.get(i).getText().equals(clip.getText())) {
-          pos = i;
-          break;
-        }
-      }
-    }
-    setSelectedPos(pos);
   }
 
   /** Factory to create an instance of our ViewHolder */

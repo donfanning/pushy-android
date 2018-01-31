@@ -74,14 +74,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   DeleteDialogFragment.DeleteDialogListener,
   SharedPreferences.OnSharedPreferenceChangeListener {
 
-  /** The selected position in the list, delegated to ClipCursorAdapter */
-  private static final String STATE_POS = "pos";
-  /** The database _ID of the selected item, delegated to ClipCursorAdapter */
-  private static final String STATE_ITEM_ID = "item_id";
   /** ViewModel */
   public MainViewModel mVm = null;
+
   /** Event handlers */
   private ClipHandlers mHandlers = null;
+
   /** Adapter used to display the list's data */
   private ClipAdapter mAdapter = null;
 
@@ -132,10 +130,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     recyclerView.setAdapter(mAdapter);
 
     // handle touch events on the RecyclerView
-    final ItemTouchHelper.Callback callback = new ClipItemTouchHelper(this);
+    final ItemTouchHelper.Callback callback =
+      new ClipItemTouchHelper(this);
     ItemTouchHelper helper = new ItemTouchHelper(callback);
     helper.attachToRecyclerView(recyclerView);
-
 
     // Observe clips
     mVm.loadClips().observe(this, clips -> {
@@ -194,8 +192,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   protected void onResume() {
     super.onResume();
 
-    // in case filter changed
-    mVm.labelFilter = Prefs.INST(this).getLabelFilter();
+    // TODO in case filter changed
+    //mVm.labelFilter = Prefs.INST(this).getLabelFilter();
 
     setTitle();
 
@@ -423,10 +421,40 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     }
   }
 
-  public ClipAdapter getAdapter() {
-    return mAdapter;
+  public void setSelectedClip(ClipEntity clip) {
+    final List<ClipEntity> clips = mVm.getClips();
+    int pos = -1;
+    if (clip != null && clips != null) {
+      for (int i = 0; i < clips.size(); i++) {
+        if (clips.get(i).getText().equals(clip.getText())) {
+          pos = i;
+          break;
+        }
+      }
+      startOrUpdateClipViewer(clip);
+    }
+    setSelectedClipPos(pos);
   }
 
+  public int getSelectedClipPos() {
+    return mVm.selectedPos;
+  }
+
+  public void setSelectedClipPos(int position) {
+    if (mVm.selectedPos == position) {
+      return;
+    }
+
+    if (position < 0) {
+      mVm.selectedPos = -1;
+    } else {
+      mAdapter.notifyItemChanged(mVm.selectedPos);
+      mVm.selectedPos = position;
+      mAdapter.notifyItemChanged(mVm.selectedPos);
+    }
+  }
+
+  // TODO these four go when loadermanager goes
   Boolean getFavFilter() {return mVm.filterByFavs;}
 
   String getLabelFilter() {return mVm.labelFilter;}

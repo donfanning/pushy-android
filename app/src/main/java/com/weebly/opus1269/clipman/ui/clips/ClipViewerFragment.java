@@ -91,21 +91,6 @@ public class ClipViewerFragment extends BaseFragment
   }
 
   @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-
-    final Activity activity = getActivity();
-    // This makes sure that the container activity has implemented
-    // the callback interface. If not, it throws an exception
-    try {
-      mOnClipChanged = (OnClipChanged) activity;
-    } catch (final ClassCastException ignore) {
-      throw new ClassCastException(activity.getLocalClassName() +
-        " must implement OnClipChanged");
-    }
-  }
-
-  @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
@@ -122,7 +107,7 @@ public class ClipViewerFragment extends BaseFragment
       mIsViewable = true;
     }
 
-    mOnClipChanged.clipChanged(mClip);
+    //mOnClipChanged.clipChanged(mClip);
 
     // listen for changes to the clip
     mClipReceiver = new ClipItemReceiver();
@@ -188,6 +173,21 @@ public class ClipViewerFragment extends BaseFragment
   }
 
   @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+
+    final Activity activity = getActivity();
+    // This makes sure that the container activity has implemented
+    // the callback interface. If not, it throws an exception
+    try {
+      mOnClipChanged = (OnClipChanged) activity;
+    } catch (final ClassCastException ignore) {
+      throw new ClassCastException(activity.getLocalClassName() +
+        " must implement OnClipChanged");
+    }
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
 
@@ -247,8 +247,11 @@ public class ClipViewerFragment extends BaseFragment
    * @param clip The clip
    */
   public void setClip(ClipEntity clip) {
-    if (!Collator.getInstance()
-      .equals(clip.getText(), mClip.getText())) {
+    if (clip == null) {
+      return;
+    }
+
+    if (!Collator.getInstance().equals(clip.getText(), mClip.getText())) {
       // skip repaint if text is same
       final TextView textView = findViewById(R.id.clipViewerText);
       if (textView != null) {

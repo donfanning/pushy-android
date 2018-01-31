@@ -29,6 +29,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   /** Clips list */
   private final MediatorLiveData<List<ClipEntity>> clips;
 
+  /** Selected Clips position */
+  public int selectedPos;
+
   /** Clips Source */
   private LiveData<List<ClipEntity>> clipsSource;
 
@@ -44,20 +47,19 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   /** Show only Clips with the given label if non-whitespace */
   public String labelFilter;
 
+  /** Clips that were deleted */
   public List<ClipEntity> undoItems;
 
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
+
+    selectedPos = -1;
 
     pinFavs = Prefs.INST(app).isPinFav();
 
     filterByFavs = Prefs.INST(app).isFavFilter();
 
     labelFilter = Prefs.INST(app).getLabelFilter();
-    Log.logD(TAG, "labelFilter: " + labelFilter);
-    if (labelFilter == null) {
-      labelFilter = "";
-    }
 
     sortType = Prefs.INST(app).getSortType();
 
@@ -94,5 +96,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
   public LiveData<List<ClipEntity>> loadClips() {
     return clips;
+  }
+
+  public List<ClipEntity> getClips() {
+    return clips.getValue();
   }
 }

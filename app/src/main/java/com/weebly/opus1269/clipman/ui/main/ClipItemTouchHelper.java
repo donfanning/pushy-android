@@ -62,7 +62,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         (ClipAdapter.ClipViewHolder) viewHolder;
       final ClipEntity clipEntity = holder.binding.getVm().getClip().getValue();
       if (clipEntity != null) {
-        final int selectedPos = mActivity.getAdapter().getSelectedPos();
+        final int selectedPos = mActivity.getSelectedClipPos();
         mUndoItem =
           new UndoItem(clipEntity, selectedPos, holder.itemView.isSelected());
         MainRepo.INST(App.INST()).removeClipAsync(clipEntity);
@@ -164,7 +164,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
       if (mIsSelected) {
         // little hack to make sure item is selected if it was when deleted
         //mActivity.getClipLoaderManager().getAdapter().setSelectedItemID(-1L);
-        mActivity.getAdapter().setSelectedPos(mPos);
+        mActivity.setSelectedClipPos(mPos);
       }
     }
   }

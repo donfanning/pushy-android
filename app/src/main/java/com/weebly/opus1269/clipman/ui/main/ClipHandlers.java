@@ -45,20 +45,19 @@ public class ClipHandlers extends BaseHandlers {
       Log.logD(TAG, "fab clicked");
       // TODO
       //mClipItem.doShare(getContext(), v);
-      Analytics.INST(mActivity).imageClick(TAG, "shareClipItem");
+      Analytics.INST(mActivity).imageClick(TAG, "clipItemShare");
     }
   }
 
   /**
-   * Click on fav checkbox
+   * Click on Clip item
    * @param vm The ViewModel
    */
   public void onItemClick(ClipViewModel vm) {
     final ClipEntity clipEntity = vm.getClip().getValue();
     Log.logD(TAG, "item clicked");
     Analytics.INST(mActivity).click(TAG, "clipItemRow");
-    mActivity.getAdapter().setSelectedClip(clipEntity);
-    mActivity.startOrUpdateClipViewer(clipEntity);
+    mActivity.setSelectedClip(clipEntity);
   }
 
   /**
