@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:onClick="@{() -> handlers.onFabClick(vm)}"
+        android:onClick="@{(theView) -> handlers.onFabClick(theView, vm)}"
         app:tintPrimary="@{false}"
         app:srcCompat="@drawable/ic_share_black_24dp" />
 

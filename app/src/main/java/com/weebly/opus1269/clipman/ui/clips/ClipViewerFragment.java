@@ -15,7 +15,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
@@ -26,18 +25,18 @@ import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.databinding.ClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
-import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
+import com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel;
 
 import java.io.Serializable;
 import java.text.Collator;
@@ -45,8 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** A fragment to view a {@link ClipEntity} */
-public class ClipViewerFragment extends BaseFragment
-  implements View.OnClickListener {
+public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
   // saved state
   private static final String STATE_CLIP = "clip";
@@ -70,6 +68,10 @@ public class ClipViewerFragment extends BaseFragment
 
   /** Receive {@link ClipEntity} actions */
   private BroadcastReceiver mClipReceiver = null;
+
+  public ClipViewerFragment() {
+    // Required empty public constructor
+  }
 
   /**
    * Factory method to create new fragment
@@ -135,12 +137,22 @@ public class ClipViewerFragment extends BaseFragment
       return null;
     }
 
-    final View rootView =
-      inflater.inflate(R.layout.fragment_clip_viewer, container, false);
+    mLayoutID = R.layout.fragment_clip_viewer;
+    mIsBound = true;
+
+    super.onCreateView(inflater, container, savedInstanceState);
+
+    // setup ViewModel and data binding
+    final ClipViewerViewModel vm = new ClipViewerViewModel(App.INST(), mClip);
+    final ClipViewerHandlers handlers = new ClipViewerHandlers();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(vm);
+    mBinding.setHandlers(handlers);
+    mBinding.executePendingBindings();
 
     setText(mClip.getText());
 
-    return rootView;
+    return mBinding.getRoot();
   }
 
   @Override
@@ -159,16 +171,6 @@ public class ClipViewerFragment extends BaseFragment
         final String highlightText = args.getString(Intents.EXTRA_TEXT);
         setHighlightText(highlightText);
       }
-    }
-
-    final FloatingActionButton fab = findViewById(R.id.fab);
-    if (fab != null) {
-      fab.setOnClickListener(this);
-    }
-
-    final LinearLayout labelList = findViewById(R.id.labelList);
-    if (labelList != null) {
-      labelList.setOnClickListener(this);
     }
   }
 
@@ -213,22 +215,6 @@ public class ClipViewerFragment extends BaseFragment
     if (context != null) {
       LocalBroadcastManager.getInstance(context)
         .unregisterReceiver(mClipReceiver);
-    }
-  }
-
-  @Override
-  public void onClick(View v) {
-    final Context context = v.getContext();
-    final View fab = findViewById(R.id.fab);
-    final View labelList = findViewById(R.id.labelList);
-    if (v == fab) {
-      mClip.doShare(getContext(), v);
-      Analytics.INST(context).imageClick(TAG, "shareClipItem");
-    } else if (v == labelList) {
-      Analytics.INST(context).click(TAG, "showLabelList");
-      final Intent intent = new Intent(context, LabelsSelectActivity.class);
-      intent.putExtra(Intents.EXTRA_CLIP, mClip);
-      AppUtils.startActivity(context, intent);
     }
   }
 

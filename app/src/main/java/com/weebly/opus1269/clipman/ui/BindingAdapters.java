@@ -45,7 +45,7 @@ public class BindingAdapters {
    * @param text   The EditText
    * @param listener The listener
    */
-  @BindingAdapter("app:onFocusChange")
+  @BindingAdapter("onFocusChange")
   public static void onFocusChange(EditText text,
                                    final View.OnFocusChangeListener listener) {
     text.setOnFocusChangeListener(listener);

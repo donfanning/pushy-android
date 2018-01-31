@@ -431,6 +431,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
           break;
         }
       }
+      mVm.selectedClip = clip;
       startOrUpdateClipViewer(clip);
     }
     setSelectedClipPos(pos);

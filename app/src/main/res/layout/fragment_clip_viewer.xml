@@ -7,75 +7,102 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/clipFragment"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:layout_marginBottom="@dimen/activity_vertical_margin"
-  android:layout_marginEnd="@dimen/activity_horizontal_margin"
-  android:layout_marginLeft="@dimen/activity_horizontal_margin"
-  android:layout_marginRight="@dimen/activity_horizontal_margin"
-  android:layout_marginStart="@dimen/activity_horizontal_margin"
-  android:layout_marginTop="@dimen/activity_vertical_margin"
-  android:orientation="vertical"
-  tools:context=".ui.clips.ClipViewerFragment">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:bind="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <LinearLayout
-    android:id="@+id/labelLayout"
+  <data class="ClipViewerBinding">
+
+    <import type="android.text.TextUtils" />
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel" />
+
+    <variable
+      name="handlers"
+      type="com.weebly.opus1269.clipman.ui.clips.ClipViewerHandlers" />
+  </data>
+
+  <RelativeLayout
+    android:id="@+id/clipFragment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginStart="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context=".ui.clips.ClipViewerFragment">
 
-    <include layout="@layout/label_clip_list" />
-
-    <View
-      style="@style/Divider"
-      android:layout_marginBottom="@dimen/activity_vertical_margin"
-      android:layout_marginTop="@dimen/activity_vertical_margin" />
-
-  </LinearLayout>
-
-  <LinearLayout
-    android:id="@+id/remoteLayout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/labelLayout"
-    android:orientation="vertical">
-
-    <TextView
-      android:id="@+id/remoteDevice"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:maxLines="2"
-      android:textAppearance="?attr/textAppearanceListItem"
-      android:textColor="?android:textColorTertiary"
-      tools:text="Device: A device" />
-
-    <View
-      android:id="@+id/remoteDivider"
-      style="@style/Divider"
-      android:layout_marginBottom="@dimen/activity_vertical_margin"
-      android:layout_marginTop="@dimen/activity_vertical_margin" />
-
-  </LinearLayout>
-
-  <ScrollView
-    android:id="@+id/clipViewerScrollView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/remoteLayout"
-    android:animateLayoutChanges="true"
-    android:scrollbars="vertical">
-
-    <com.weebly.opus1269.clipman.ui.views.ClickableLinksTextView
-      android:id="@+id/clipViewerText"
+    <LinearLayout
+      android:id="@+id/labelLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:textAppearance="?attr/textAppearanceListItem"
-      android:textIsSelectable="true"
-      tools:text="Text web http://www.cnn.com\n email aaa@bbb.com  phone 555-1234" />
+      android:orientation="vertical">
 
-  </ScrollView>
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{() -> handlers.onLabelsClick(context, vm)}"
+        android:orientation="horizontal">
 
-</RelativeLayout>
+      </LinearLayout>
+
+      <View
+        style="@style/Divider"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin" />
+
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/remoteLayout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/labelLayout"
+      android:orientation="vertical">
+
+      <TextView
+        android:id="@+id/remoteDevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textColor="?android:textColorTertiary"
+        tools:text="Device: A device" />
+
+      <View
+        android:id="@+id/remoteDivider"
+        style="@style/Divider"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin" />
+
+    </LinearLayout>
+
+    <ScrollView
+      android:id="@+id/clipViewerScrollView"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/remoteLayout"
+      android:animateLayoutChanges="true"
+      android:scrollbars="vertical">
+
+      <com.weebly.opus1269.clipman.ui.views.ClickableLinksTextView
+        android:id="@+id/clipViewerText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textIsSelectable="true"
+        tools:text="Text web http://www.cnn.com\n email aaa@bbb.com  phone 555-1234" />
+
+    </ScrollView>
+
+  </RelativeLayout>
+
+</layout>

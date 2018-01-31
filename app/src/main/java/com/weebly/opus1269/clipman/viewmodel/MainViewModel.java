@@ -32,6 +32,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   /** Selected Clips position */
   public int selectedPos;
 
+  /** Selected Clip */
+  public ClipEntity selectedClip;
+
   /** Clips Source */
   private LiveData<List<ClipEntity>> clipsSource;
 

@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -22,7 +21,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseFragment;
 import com.weebly.opus1269.clipman.viewmodel.LabelCreateViewModel;
 
 /** Fragment to Create a new {@link Label} */
-public class LabelCreateFragement extends BaseFragment {
+public class LabelCreateFragement extends BaseFragment<LabelCreateBinding> {
 
   public LabelCreateFragement() {
     // Required empty public constructor
@@ -31,18 +30,39 @@ public class LabelCreateFragement extends BaseFragment {
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater,
                            ViewGroup container, Bundle savedInstanceState) {
-    final LabelCreateBinding binding = DataBindingUtil.inflate(inflater,
-      R.layout.fragment_label_create, container, false);
+    mLayoutID = R.layout.fragment_label_create;
+    mIsBound = true;
+
+    super.onCreateView(inflater, container, savedInstanceState);
 
     // setup ViewModel and data binding
     final LabelCreateViewModel vm = new LabelCreateViewModel(App.INST());
     final LabelCreateHandlers handlers = new LabelCreateHandlers();
-    binding.setLifecycleOwner(this);
-    binding.setVm(vm);
-    binding.setHandlers(handlers);
-    binding.executePendingBindings();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(vm);
+    mBinding.setHandlers(handlers);
+    mBinding.executePendingBindings();
 
-    return binding.getRoot();
+    return mBinding.getRoot();
   }
+//@Override
+  //public View onCreateView(@NonNull LayoutInflater inflater,
+  //                         ViewGroup container, Bundle savedInstanceState) {
+  //  mLayoutID= R.layout.fragment_label_create;
+  //  mIsBound = true;
+  //  
+  //  final LabelCreateBinding binding = DataBindingUtil.inflate(inflater,
+  //    R.layout.fragment_label_create, container, false);
+  //
+  //  // setup ViewModel and data binding
+  //  final LabelCreateViewModel vm = new LabelCreateViewModel(App.INST());
+  //  final LabelCreateHandlers handlers = new LabelCreateHandlers();
+  //  binding.setLifecycleOwner(this);
+  //  binding.setVm(vm);
+  //  binding.setHandlers(handlers);
+  //  binding.executePendingBindings();
+  //
+  //  return binding.getRoot();
+  //}
 }
 
