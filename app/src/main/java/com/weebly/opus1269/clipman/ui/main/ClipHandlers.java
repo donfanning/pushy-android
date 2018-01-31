@@ -20,7 +20,6 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
@@ -58,7 +57,9 @@ public class ClipHandlers extends BaseHandlers {
     final ClipEntity clipEntity = vm.getClip().getValue();
     Log.logD(TAG, "item clicked");
     Analytics.INST(mActivity).click(TAG, "clipItemRow");
-    mActivity.setSelectedClip(clipEntity);
+    if (mActivity.getVm().setSelectedClip(clipEntity)) {
+      mActivity.startOrUpdateClipViewer();
+    }
   }
 
   /**
@@ -71,7 +72,6 @@ public class ClipHandlers extends BaseHandlers {
     Log.logD(TAG, "copy row clicked");
     Analytics.INST(context).imageClick(TAG, "clipItemCopy");
     clipEntity.setRemote(false);
-    clipEntity.setDevice(MyDevice.INST(context).getDisplayName());
     clipEntity.copyToClipboard(context);
     if (!Prefs.INST(context).isMonitorClipboard()) {
       AppUtils.showMessage(mActivity, mActivity.getFab(),

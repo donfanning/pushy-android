@@ -58,6 +58,8 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
     selectedPos = -1;
 
+    selectedClip = null;
+
     pinFavs = Prefs.INST(app).isPinFav();
 
     filterByFavs = Prefs.INST(app).isFavFilter();
@@ -77,6 +79,12 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     PreferenceManager
       .getDefaultSharedPreferences(app)
       .registerOnSharedPreferenceChangeListener(this);
+  }
+
+  @Override
+  protected void initRepo() {
+    super.initRepo();
+    mRepo.setErrorMsg(null);
   }
 
   @Override
@@ -103,5 +111,23 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
   public List<ClipEntity> getClips() {
     return clips.getValue();
+  }
+
+  public boolean setSelectedClip(ClipEntity clip) {
+    boolean found = false;
+    final List<ClipEntity> clips = getClips();
+    int pos = -1;
+    if (clip != null && clips != null) {
+      for (int i = 0; i < clips.size(); i++) {
+        if (clips.get(i).getText().equals(clip.getText())) {
+          found = true;
+          pos = i;
+          break;
+        }
+      }
+      this.selectedClip = found ? clip : null;
+      this.selectedPos = pos;
+    }
+    return found;
   }
 }

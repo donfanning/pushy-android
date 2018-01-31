@@ -49,13 +49,13 @@ public class ClipViewerActivity extends BaseActivity implements
     if (savedInstanceState == null) {
       // Create the viewer fragment and add it to the activity
       // using a fragment transaction.
-      final Serializable clipItem =
+      final Serializable clip =
         getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
       final String highlightText =
         getIntent().getStringExtra(Intents.EXTRA_TEXT);
 
       final ClipViewerFragment fragment =
-        ClipViewerFragment.newInstance(clipItem, highlightText);
+        ClipViewerFragment.newInstance(clip, highlightText);
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();

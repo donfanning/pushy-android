@@ -26,6 +26,7 @@ import android.view.View;
 
 import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
@@ -62,11 +63,11 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   private String device;
 
   @Ignore
-  private List<Label> labels;
+  private List<Label> labels = new ArrayList<>(0);
 
   /** PK's of the labels - only used for backup/restore */
   @Ignore
-  private List<Long> labelsId;
+  private List<Long> labelsId = new ArrayList<>(0);
 
 
   public ClipEntity(String text, long date, boolean fav, boolean remote,
@@ -171,9 +172,11 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     return remote;
   }
 
-  // TODO set device to MyDevice if false
   public void setRemote(Boolean remote) {
     this.remote = remote;
+    if (!remote) {
+      setDevice(MyDevice.INST(App.INST()).getDisplayName());
+    }
   }
 
   @Override
@@ -183,6 +186,18 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
 
   public void setDevice(String device) {
     this.device = device;
+  }
+
+  public List<Label> getLabels() {
+    return labels;
+  }
+
+  private void setLabels(List<Label> labels) {
+    this.labels = labels;
+  }
+
+  public List<Long> getLabelsId() {
+    return labelsId;
   }
 
   /**
@@ -245,18 +260,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
           .sendBroadcast(intent);
       }
     }
-  }
-
-  public List<Label> getLabels() {
-    return labels;
-  }
-
-  private void setLabels(List<Label> labels) {
-    this.labels = labels;
-  }
-
-  public List<Long> getLabelsId() {
-    return labelsId;
   }
 
   /**

@@ -19,18 +19,14 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our Clip */
   @NonNull
-  private final ClipEntity clip;
-
-  private final MutableLiveData<String> text;
+  private final MutableLiveData<ClipEntity> clip;
 
   public ClipViewerViewModel(@NonNull Application app,
                              @NonNull ClipEntity clip) {
     super(app, MainRepo.INST(app));
 
-    this.text = new MutableLiveData<>();
-    this.text.setValue(clip.getText());
-
-    this.clip = clip;
+    this.clip = new MutableLiveData<>();
+    this.clip.setValue(clip);
   }
 
   @Override
@@ -39,13 +35,12 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setErrorMsg(null);
   }
 
-  @NonNull
-  public ClipEntity getClip() {
+  public LiveData<ClipEntity> getClip() {
     return clip;
   }
 
-  public LiveData<String> getText() {
-    return text;
+  public void setClip(ClipEntity clip) {
+    this.clip.setValue(clip);
   }
 
   public void resetErrorMsg() {
@@ -70,7 +65,6 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
     //// update clip
     //this.clip.setText(context, newText);
     //this.clip.setRemote(false);
-    //this.clip.setDevice(MyDevice.INST(context).getDisplayName());
     //this.clip.setDate(Instant.now().toEpochMilli());
     //
     //mRepo.addClipIfNewAndCopyAsync(this.clip);

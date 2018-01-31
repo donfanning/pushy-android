@@ -46,7 +46,6 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
-import com.weebly.opus1269.clipman.msg.MessagingClient;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clips.ClipEditorActvity;
@@ -75,7 +74,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   SharedPreferences.OnSharedPreferenceChangeListener {
 
   /** ViewModel */
-  public MainViewModel mVm = null;
+  private MainViewModel mVm = null;
 
   /** Event handlers */
   private ClipHandlers mHandlers = null;
@@ -116,12 +115,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mBinding.setHandlers(mHandlers);
     mBinding.executePendingBindings();
 
-    // observe errors
-    //vm.getErrorMsg().observe(this, errorMsg -> {
-    //  if (errorMsg != null) {
-    //    mHandlers.showErrorMessage(errorMsg);
-    //  }
-    //});
+     // observe errors
+    mVm.getErrorMsg().observe(this, errorMsg -> {
+      if (errorMsg != null) {
+        AppUtils.showMessage(this, mBinding.fab, errorMsg.msg);
+      }
+    });
 
     final RecyclerView recyclerView = findViewById(R.id.clipList);
     mAdapter = new ClipAdapter(this, mHandlers);
@@ -432,7 +431,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         }
       }
       mVm.selectedClip = clip;
-      startOrUpdateClipViewer(clip);
+      startOrUpdateClipViewer();
     }
     setSelectedClipPos(pos);
   }
@@ -453,6 +452,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       mVm.selectedPos = position;
       mAdapter.notifyItemChanged(mVm.selectedPos);
     }
+  }
+
+  public MainViewModel getVm() {
+    return mVm;
   }
 
   // TODO these four go when loadermanager goes
@@ -501,18 +504,17 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   /**
    * Start the {@link ClipViewerActivity}
    * or update the {@link ClipViewerFragment}
-   * @param clipEntity item to display
    */
-  void startOrUpdateClipViewer(ClipEntity clipEntity) {
+  void startOrUpdateClipViewer() {
     if (AppUtils.isDualPane(this)) {
       final ClipViewerFragment fragment = getClipViewerFragment();
       if (fragment != null) {
-        fragment.setClip(clipEntity);
+        fragment.setClip(mVm.selectedClip);
         fragment.setHighlightText(mQueryString);
       }
     } else {
       final Intent intent = new Intent(this, ClipViewerActivity.class);
-      intent.putExtra(Intents.EXTRA_CLIP, clipEntity);
+      intent.putExtra(Intents.EXTRA_CLIP, mVm.selectedClip);
       intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
       AppUtils.startActivity(this, intent);
     }
@@ -530,10 +532,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         final String sharedText =
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          final ClipEntity clip = new ClipEntity(this, sharedText);
-          MainRepo.INST(App.INST()).addClipAsync(clip);
-          startOrUpdateClipViewer(clip);
-          MessagingClient.INST(this).send(clip);
+          mVm.selectedClip = new ClipEntity(this, sharedText);
+          startOrUpdateClipViewer();
+          MainRepo.INST(App.INST())
+            .addClipAndSendAsync(this, mVm.selectedClip, false);
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {
@@ -541,10 +543,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
-        final ClipEntity clip =
+        mVm.selectedClip =
           (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
         intent.removeExtra(Intents.EXTRA_CLIP);
-        startOrUpdateClipViewer(clip);
+        startOrUpdateClipViewer();
       }
     }
   }

@@ -9,10 +9,11 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:bind="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
   <data class="ClipViewerBinding">
+
+    <import type="com.weebly.opus1269.clipman.app.AppUtils" />
 
     <import type="android.text.TextUtils" />
 
@@ -42,6 +43,7 @@
       android:id="@+id/labelLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      app:visibleGone="@{safeUnbox(vm.clip.labels.size > 0)}"
       android:orientation="vertical">
 
       <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -66,19 +68,19 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/labelLayout"
+      app:visibleGone="@{safeUnbox(vm.clip.remote)}"
       android:orientation="vertical">
 
       <TextView
-        android:id="@+id/remoteDevice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="2"
+        android:text="@{@string/remote_device_fmt(vm.clip.device)}"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="?android:textColorTertiary"
         tools:text="Device: A device" />
 
       <View
-        android:id="@+id/remoteDivider"
         style="@style/Divider"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginTop="@dimen/activity_vertical_margin" />
