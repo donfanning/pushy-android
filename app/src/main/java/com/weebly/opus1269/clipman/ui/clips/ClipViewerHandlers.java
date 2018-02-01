@@ -33,7 +33,7 @@ public class ClipViewerHandlers extends BaseHandlers {
     if (vm != null) {
       Analytics.INST(context).click(TAG, "showLabelList");
       final Intent intent = new Intent(context, LabelsSelectActivity.class);
-      intent.putExtra(Intents.EXTRA_CLIP, vm.getClip().getValue());
+      intent.putExtra(Intents.EXTRA_CLIP, vm.getClipSync());
       AppUtils.startActivity(context, intent);
     }
   }

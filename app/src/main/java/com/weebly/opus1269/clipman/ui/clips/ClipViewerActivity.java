@@ -9,6 +9,7 @@ package com.weebly.opus1269.clipman.ui.clips;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.view.Menu;
@@ -24,12 +25,16 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
+import com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel;
 
 import java.io.Serializable;
 
 /** This Activity manages the display of a {@link ClipEntity} */
 public class ClipViewerActivity extends BaseActivity implements
   ClipViewerFragment.OnClipChanged {
+
+  /** Our ViewModel */
+  private ClipViewerViewModel mVm = null;
 
   /** Item from last delete operation */
   private ClipEntity mUndoItem = null;
@@ -137,13 +142,14 @@ public class ClipViewerActivity extends BaseActivity implements
   @Override
   public void clipChanged(ClipEntity clip) {
     setFabVisibility(!ClipEntity.isWhitespace(clip));
+    setFavoriteMenuItem();
     setTitle();
   }
 
   /** Set Activity title based on current {@link ClipEntity} contents */
   private void setTitle() {
     final ClipEntity clip = getClipClone();
-    if (clip.getRemote()) {
+    if (clip != null && clip.getRemote()) {
       setTitle(getString(R.string.title_activity_clip_viewer_remote));
     } else {
       setTitle(getString(R.string.title_activity_clip_viewer));
@@ -155,7 +161,7 @@ public class ClipViewerActivity extends BaseActivity implements
       .findFragmentById(R.id.clip_viewer_container);
   }
 
-  private ClipEntity getClipClone() {
+  private @Nullable ClipEntity getClipClone() {
     return getClipViewerFragment().getClipClone();
   }
 
@@ -213,24 +219,21 @@ public class ClipViewerActivity extends BaseActivity implements
       return;
     }
 
-    clip.setFav(!clip.getFav());
-
-    // let fragment know
-    clipViewerFragment.setClip(clip);
-
-    // update MenuItem
-    setFavoriteMenuItem();
-
     // update database
+    clip.setFav(!clip.getFav());
     MainRepo.INST(App.INST()).updateFavAsync(clip);
   }
 
   /** Set the favorite {@link MenuItem} appearence */
   private void setFavoriteMenuItem() {
+    if(mOptionsMenu == null) {
+      return;
+    }
     final MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
+    final ClipEntity clipEntity = getClipClone();
 
-    if (menuItem != null) {
-      final boolean isFav = getClipClone().getFav();
+    if (menuItem != null && clipEntity != null) {
+      final boolean isFav = clipEntity.getFav();
       final int colorID = isFav ? R.color.red_500_translucent : R.color.icons;
       final int icon = isFav ? R.drawable.ic_favorite_black_24dp :
         R.drawable.ic_favorite_border_black_24dp;

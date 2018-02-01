@@ -11,12 +11,10 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.ArrowKeyMovementMethod;
@@ -114,17 +112,20 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
     super.onCreateView(inflater, container, savedInstanceState);
 
-    final ClipEntity clip = new ClipEntity(getContext());
-
     // setup ViewModel and data binding
-    mVm = new ClipViewerViewModel(App.INST(), clip);
+    mVm = new ClipViewerViewModel(App.INST());
     final ClipViewerHandlers handlers = new ClipViewerHandlers();
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
     mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
 
-    setText(clip.getText());
+    // observe clip
+    mVm.getClip().observe(this, clipEntity -> {
+      if (clipEntity != null) {
+        clipChanged(clipEntity);
+      }
+    });
 
     return mBinding.getRoot();
   }
@@ -169,12 +170,13 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     //mOnClipChanged.clipChanged(mClip);
 
     // listen for changes to the clip
-    mClipReceiver = new ClipItemReceiver();
-    final Context context = getContext();
-    if (context != null) {
-      LocalBroadcastManager.getInstance(context)
-        .registerReceiver(mClipReceiver, new IntentFilter(Intents.FILTER_CLIP));
-    }
+    //mClipReceiver = new ClipItemReceiver();
+    //final Context context = getContext();
+    //if (context != null) {
+    //  LocalBroadcastManager.getInstance(context)
+    //    .registerReceiver(mClipReceiver, new IntentFilter(Intents
+    // .FILTER_CLIP));
+    //}
   }
 
   @Override
@@ -186,7 +188,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
       if (args.containsKey(Intents.EXTRA_CLIP)) {
         final ClipEntity clip =
           (ClipEntity) args.getSerializable(Intents.EXTRA_CLIP);
-        setClip(clip);
+        mVm.setClip(clip);
       }
 
       if (args.containsKey(Intents.EXTRA_TEXT)) {
@@ -216,45 +218,43 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   public void onDestroy() {
     super.onDestroy();
 
-    final Context context = getContext();
-    if (context != null) {
-      LocalBroadcastManager.getInstance(context)
-        .unregisterReceiver(mClipReceiver);
-    }
+    //final Context context = getContext();
+    //if (context != null) {
+    //  LocalBroadcastManager.getInstance(context)
+    //    .unregisterReceiver(mClipReceiver);
+    //}
   }
 
   /** Get a shallow copy of our Clip */
   public @Nullable
   ClipEntity getClipClone() {
-    if (mVm.getClip().getValue() != null) {
-      return new ClipEntity(getContext(), mVm.getClip().getValue());
+    if (mVm.getClipSync() != null) {
+      return new ClipEntity(getContext(), mVm.getClipSync());
     } else {
       return null;
     }
   }
 
+  public void setClip(ClipEntity clip) {
+    mVm.setClip(clip);
+  }
+
   /**
-   * Set our Clip
+   * Our Clip changed
    * @param clip The clip
    */
-  public void setClip(ClipEntity clip) {
-    final ClipEntity clipEntity = mVm.getClip().getValue();
-    if (clip == null || clipEntity == null) {
+  private void clipChanged(@NonNull ClipEntity clip) {
+    if (ClipEntity.isWhitespace(clip)) {
       return;
     }
 
-    if (!Collator.getInstance().equals(clip.getText(), clipEntity.getText())) {
-      // skip repaint if text is same
-      final TextView textView = findViewById(R.id.clipViewerText);
-      if (textView != null) {
-        //force layout change animation
-        textView.setVisibility(View.GONE);
-        textView.setVisibility(View.VISIBLE);
-        setText(clip.getText());
-      }
+    final String curText = mBinding.clipViewerText.getText().toString();
+    if (!Collator.getInstance().equals(clip.getText(), curText)) {
+      // force repaint on text change
+      mBinding.clipViewerText.setVisibility(View.GONE);
+      mBinding.clipViewerText.setVisibility(View.VISIBLE);
+      setText(clip.getText());
     }
-
-    mVm.setClip(clip);
 
     setupLabels();
 
@@ -263,7 +263,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
   /** Copy our Clip to the Clipboard */
   void copyToClipboard() {
-    final ClipEntity clipEntity = mVm.getClip().getValue();
+    final ClipEntity clipEntity = mVm.getClipSync();
     if (!ClipEntity.isWhitespace(clipEntity)) {
       final Context context = getContext();
 
@@ -285,7 +285,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
    * @param highlightText the text to highlight (case insensitive)
    */
   public void setHighlightText(String highlightText) {
-    final ClipEntity clipEntity = mVm.getClip().getValue();
+    final ClipEntity clipEntity = mVm.getClipSync();
     if (clipEntity == null) {
       return;
     }
@@ -408,31 +408,30 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_CLIP);
-      if (bundle == null) {
-        return;
-      }
-      final String action = bundle.getString(Intents.ACTION_TYPE_CLIP);
-      if (action == null) {
-        return;
-      }
-
-      switch (action) {
-        case Intents.TYPE_TEXT_CHANGED_CLIP:
-          Log.logD(TAG, "text changed");
-          // text changed on a clip, see if it is us
-          final String oldText = bundle.getString(Intents.EXTRA_TEXT);
-          if ((oldText != null) && oldText.equals(mVm.getClip().getValue()
-            .getText())) {
-            // us
-            final ClipEntity clipItem =
-              (ClipEntity) bundle.getSerializable(Intents.EXTRA_CLIP);
-            setClip(clipItem);
-          }
-          break;
-        default:
-          break;
-      }
+      //final Bundle bundle = intent.getBundleExtra(Intents.BUNDLE_CLIP);
+      //if (bundle == null) {
+      //  return;
+      //}
+      //final String action = bundle.getString(Intents.ACTION_TYPE_CLIP);
+      //if (action == null) {
+      //  return;
+      //}
+      //
+      //switch (action) {
+      //  case Intents.TYPE_TEXT_CHANGED_CLIP:
+      //    Log.logD(TAG, "text changed");
+      //    // text changed on a clip, see if it is us
+      //    final String oldText = bundle.getString(Intents.EXTRA_TEXT);
+      //    if ((oldText != null) && oldText.equals(mVm.getClipSync().getText())) {
+      //      // us
+      //      final ClipEntity clipItem =
+      //        (ClipEntity) bundle.getSerializable(Intents.EXTRA_CLIP);
+      //      setClip(clipItem);
+      //    }
+      //    break;
+      //  default:
+      //    break;
+      //}
     }
   }
 }

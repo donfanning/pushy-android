@@ -241,6 +241,20 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     return text.equals(clipEntity.text);
   }
 
+  @Override
+  public String toString() {
+    return "ClipEntity{" +
+      "id=" + id +
+      ", text='" + text + '\'' +
+      ", date=" + date +
+      ", fav=" + fav +
+      ", remote=" + remote +
+      ", device='" + device + '\'' +
+      ", labels=" + labels +
+      ", labelsId=" + labelsId +
+      '}';
+  }
+
   public void setText(@NonNull Context context, @NonNull String text) {
     if (!text.equals(this.text)) {
       final String oldText = this.text;

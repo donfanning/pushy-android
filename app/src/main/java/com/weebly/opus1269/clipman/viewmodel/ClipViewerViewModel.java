@@ -9,9 +9,11 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
@@ -19,28 +21,51 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our Clip */
   @NonNull
-  private final MutableLiveData<ClipEntity> clip;
+  private final MediatorLiveData<ClipEntity> clip;
 
-  public ClipViewerViewModel(@NonNull Application app,
-                             @NonNull ClipEntity clip) {
+  /** Clip Source */
+  private LiveData<ClipEntity> clipSource;
+
+  public ClipViewerViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
-    this.clip = new MutableLiveData<>();
-    this.clip.setValue(clip);
+    this.clipSource = null;
+    this.clip = new MediatorLiveData<>();
+    this.clip.setValue(null);
   }
 
   @Override
   protected void initRepo() {
     super.initRepo();
     mRepo.setErrorMsg(null);
+    mRepo.setInfoMessage(null);
   }
 
   public LiveData<ClipEntity> getClip() {
+    if (clip.getValue() != null) {
+      Log.logD(TAG, "getting clip: " + clip.getValue().toString());
+    }
     return clip;
   }
 
-  public void setClip(ClipEntity clip) {
-    this.clip.setValue(clip);
+
+  @Nullable
+  public ClipEntity getClipSync() {
+    if (clip.getValue() != null) {
+      Log.logD(TAG, "getting clip sync: " + clip.getValue().toString());
+    }
+    return clip.getValue();
+  }
+
+  public void setClip(ClipEntity clipEntity) {
+    if (!ClipEntity.isWhitespace(clipEntity)) {
+      Log.logD(TAG, "setting clip: " + clipEntity.toString());
+      if (clipSource != null) {
+        clip.removeSource(clipSource);
+      }
+      clipSource = mRepo.loadClip(clipEntity.getText());
+      clip.addSource(clipSource, clip::setValue);
+    }
   }
 
   public void resetErrorMsg() {

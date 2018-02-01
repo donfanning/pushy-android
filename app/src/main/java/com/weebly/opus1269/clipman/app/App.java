@@ -16,7 +16,9 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
+import com.google.firebase.crash.FirebaseCrash;
 import com.jakewharton.threetenabp.AndroidThreeTen;
+import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.ClipsDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -86,6 +88,11 @@ public class App extends Application implements
     sInstance = this;
 
     mActivityTaskMap = new HashMap<>();
+
+    // turn off crash reporting for debug
+    if (BuildConfig.DEBUG) {
+      FirebaseCrash.setCrashCollectionEnabled(false);
+    }
 
     // initialize Date Time stuff
     AndroidThreeTen.init(this);
