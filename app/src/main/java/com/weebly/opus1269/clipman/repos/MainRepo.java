@@ -88,8 +88,8 @@ public class MainRepo extends BaseRepo {
     return labelsList;
   }
 
-  public LiveData<ClipEntity> loadClip(final String text) {
-    return mDB.clipDao().load(text);
+  public LiveData<ClipEntity> loadClip(final long id) {
+    return mDB.clipDao().load(id);
   }
 
   @Nullable
@@ -115,6 +115,7 @@ public class MainRepo extends BaseRepo {
       postIsWorking(true);
       final long row = mDB.clipDao().insert(clip);
       Log.logD(TAG, "add, row: " + row);
+      postInfoMessage("Added clip");
       postIsWorking(false);
     });
   }
@@ -215,6 +216,18 @@ public class MainRepo extends BaseRepo {
         }
       }
       postIsWorking(false);
+    });
+  }
+
+  public void updateClipAsync(@NonNull String newText,
+                               @NonNull String oldText) {
+    App.getExecutors().diskIO().execute(() -> {
+      final int nRows = mDB.clipDao().updateText(newText, oldText);
+      if (nRows == 0) {
+        postErrorMsg(new ErrorMsg("Clip exists"));
+      } else {
+        postInfoMessage("Clip Updated");
+      }
     });
   }
 

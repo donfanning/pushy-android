@@ -44,25 +44,11 @@ import java.util.regex.Pattern;
 /** A fragment to view a {@link ClipEntity} */
 public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
-  // saved state
-  private static final String STATE_CLIP = "clip";
-  private static final String STATE_CLIP_VIEWABLE = "viewable";
-  private static final String STATE_CLIP_HIGHLIGHT = "highlight";
-
   /** The Activity that has implemented our interface */
   private OnClipChanged mOnClipChanged = null;
 
   /** Our ViewModel */
   private ClipViewerViewModel mVm = null;
-
-  /** The text to be highlighted */
-  private String mHighlightText = "";
-
-  /**
-   * Flag to indicate if we are viewable (as opposed to recreated from a
-   * savedInstanceState but will not be seen.
-   */
-  private boolean mIsViewable = true;
 
   /** Receive {@link ClipEntity} actions */
   private BroadcastReceiver mClipReceiver = null;
@@ -102,7 +88,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
       // won't be displayed.  Note this is not needed -- we could
       // just run the code below, where we would create and return
       // the view hierarchy; it would just never be used.
-      mIsViewable = false;
       setHasOptionsMenu(false);
       return null;
     }
@@ -165,8 +150,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
     //final ClipEntity clip = new ClipEntity(getContext());
 
-    mHighlightText = "";
-    mIsViewable = true;
+    //mIsViewable = true;
     //mOnClipChanged.clipChanged(mClip);
 
     // listen for changes to the clip
@@ -183,19 +167,21 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    final Bundle args = getArguments();
-    if (args != null) {
-      if (args.containsKey(Intents.EXTRA_CLIP)) {
-        final ClipEntity clip =
-          (ClipEntity) args.getSerializable(Intents.EXTRA_CLIP);
-        mVm.setClip(clip);
-      }
+    //if (savedInstanceState == null) {
+      final Bundle args = getArguments();
+      if (args != null) {
+        if (args.containsKey(Intents.EXTRA_CLIP)) {
+          final ClipEntity clip =
+            (ClipEntity) args.getSerializable(Intents.EXTRA_CLIP);
+          mVm.setClip(clip);
+        }
 
-      if (args.containsKey(Intents.EXTRA_TEXT)) {
-        final String highlightText = args.getString(Intents.EXTRA_TEXT);
-        setHighlightText(highlightText);
+        if (args.containsKey(Intents.EXTRA_TEXT)) {
+          final String highlightText = args.getString(Intents.EXTRA_TEXT);
+          setHighlightText(highlightText);
+        }
       }
-    }
+    //}
   }
 
   @Override
@@ -225,14 +211,10 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     //}
   }
 
-  /** Get a shallow copy of our Clip */
+  /** Get our Clip */
   public @Nullable
-  ClipEntity getClipClone() {
-    if (mVm.getClipSync() != null) {
-      return new ClipEntity(getContext(), mVm.getClipSync());
-    } else {
-      return null;
-    }
+  ClipEntity getClip() {
+    return mVm.getClipSync();
   }
 
   public void setClip(ClipEntity clip) {
@@ -284,25 +266,24 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
    * Highlight all occurrences of the given String
    * @param highlightText the text to highlight (case insensitive)
    */
-  public void setHighlightText(String highlightText) {
+  public void setHighlightText(@Nullable String highlightText) {
+    mVm.highlightText = (highlightText == null) ? "" : highlightText;
+
     final ClipEntity clipEntity = mVm.getClipSync();
     if (clipEntity == null) {
       return;
     }
 
-    mHighlightText = highlightText;
-
-    final TextView textView = mBinding.clipViewerText;
-
     if (TextUtils.isEmpty(highlightText)) {
       // make sure to reset spans
       setText(clipEntity.getText());
     } else {
+      final Context context = mBinding.clipFragment.getContext();
       final String text = clipEntity.getText();
       final Spannable spanText =
         Spannable.Factory.getInstance().newSpannable(text);
       final int color =
-        ContextCompat.getColor(textView.getContext(), R.color.search_highlight);
+        ContextCompat.getColor(context, R.color.search_highlight);
       final Pattern p =
         Pattern.compile(highlightText, Pattern.CASE_INSENSITIVE);
       final Matcher m = p.matcher(text);
@@ -320,10 +301,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
   /** Add the Views containing our {@link Label} items */
   private void setupLabels() {
-    if (!mIsViewable) {
-      return;
-    }
-
     // TODO
     //mClip.loadLabels(getContext());
     //final List<Label> labels = mClip.getLabels();
@@ -366,9 +343,8 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
    * @param text text to be linkified
    */
   private void setText(String text) {
-    final TextView textView = mBinding.clipViewerText;
-    textView.setText(text);
-    linkifyTextView(textView);
+    mBinding.clipViewerText.setText(text);
+    linkifyTextView(mBinding.clipViewerText);
   }
 
   /**
@@ -376,9 +352,8 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
    * @param text text as Spannable
    */
   private void setText(Spannable text) {
-    final TextView textView = mBinding.clipViewerText;
-    textView.setText(text);
-    linkifyTextView(textView);
+    mBinding.clipViewerText.setText(text);
+    linkifyTextView(mBinding.clipViewerText);
   }
 
   /**

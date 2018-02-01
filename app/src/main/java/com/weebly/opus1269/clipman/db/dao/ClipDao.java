@@ -13,6 +13,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 
@@ -39,8 +40,8 @@ public interface ClipDao {
   @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY LOWER(text) ASC")
   LiveData<List<ClipEntity>> loadFavsByText();
 
-  @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
-  LiveData<ClipEntity> load(String text);
+  @Query("SELECT * FROM clips WHERE id = :id")
+  LiveData<ClipEntity> load(long id);
 
   @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
   ClipEntity get(String text);
@@ -48,8 +49,8 @@ public interface ClipDao {
   @Query("SELECT * FROM clips WHERE text = :text AND fav = '1' LIMIT 1")
   ClipEntity getIfTrueFav(String text);
 
-  @Query("UPDATE clips SET text = :newText WHERE text = :oldText")
-  long updateText(String newText, String oldText);
+  @Query("UPDATE OR IGNORE clips SET text = :newText WHERE text = :oldText")
+  int updateText(String newText, String oldText);
 
   @Query("UPDATE clips SET fav = :fav WHERE text = :text")
   long updateFav(String text, Boolean fav);
@@ -59,6 +60,9 @@ public interface ClipDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   long insert(ClipEntity clipEntity);
+
+  @Update(onConflict = OnConflictStrategy.IGNORE)
+  int update(ClipEntity clipEntity);
 
   @Insert(onConflict = OnConflictStrategy.IGNORE)
   long insertIfNew(ClipEntity clipEntity);

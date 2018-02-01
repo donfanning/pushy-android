@@ -92,7 +92,7 @@ public class ClipboardHelper {
 
     ClipEntity clipEntity = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
-      clipEntity = new ClipEntity(context);
+      clipEntity = new ClipEntity();
       clipEntity.setText(context, String.valueOf(clipText));
       clipEntity.setFav(fav);
       clipEntity.setRemote(remote);

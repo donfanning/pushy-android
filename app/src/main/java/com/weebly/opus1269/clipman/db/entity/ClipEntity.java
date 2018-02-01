@@ -69,7 +69,15 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   @Ignore
   private List<Long> labelsId = new ArrayList<>(0);
 
+  public ClipEntity() {
+    text = "";
+    date = Instant.now().toEpochMilli();
+    fav = false;
+    remote = false;
+    device = MyDevice.INST(App.INST()).getDisplayName();
+  }
 
+  @Ignore
   public ClipEntity(String text, long date, boolean fav, boolean remote,
                     String device) {
     this.text = text;
@@ -79,58 +87,13 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     this.device = device;
   }
 
-  public ClipEntity(Context context) {
-    init(context);
-  }
-
-  public ClipEntity(Context context, String text) {
-    init(context);
-    this.text = text;
-    //loadLabels(context);
-  }
-
-  public ClipEntity(Context context, String text, Instant instant,
-                    Boolean fav,
-                    @SuppressWarnings("SameParameterValue") Boolean remote,
-                    String device) {
-    init(context);
-    this.text = text;
-    this.date = instant.toEpochMilli();
-    this.fav = fav;
-    this.remote = remote;
-    this.device = device;
-    //loadLabels(context);
-  }
-
-  public ClipEntity(Context context, ClipEntity clipEntity) {
-    init(context);
-    this.text = clipEntity.getText();
-    this.date = clipEntity.getDate();
-    this.fav = clipEntity.getFav();
-    this.remote = clipEntity.getRemote();
-    this.device = clipEntity.getDevice();
-    //loadLabels(context);
-  }
-
-  public ClipEntity(Context context, ClipEntity clipEntity,
-                    List<Label> labels, List<Long> labelsId) {
-    init(context);
-    this.text = clipEntity.getText();
-    this.date = clipEntity.getDate();
-    this.fav = clipEntity.getFav();
-    this.remote = clipEntity.getRemote();
-    this.device = clipEntity.getDevice();
-    this.labels = new ArrayList<>(labels);
-    this.labelsId = new ArrayList<>(labelsId);
-  }
-
   /**
    * Is a {@link Clip} all whitespace
    * @param clip item
    * @return true if null of whitespace
    */
-  public static boolean isWhitespace(Clip clip) {
-    return (clip == null) || AppUtils.isWhitespace(clip.getText());
+  public static boolean isWhitespace(@Nullable Clip clip) {
+    return clip == null || AppUtils.isWhitespace(clip.getText());
   }
 
   @Override
@@ -425,19 +388,5 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   //  }
   //}
   //
-
-  /**
-   * Initialize the members
-   * @param context A Context
-   */
-  private void init(Context context) {
-    text = "";
-    date = Instant.now().toEpochMilli();
-    fav = false;
-    remote = false;
-    device = MyDevice.INST(context).getDisplayName();
-    labels = new ArrayList<>(0);
-    labelsId = new ArrayList<>(0);
-  }
 }
 

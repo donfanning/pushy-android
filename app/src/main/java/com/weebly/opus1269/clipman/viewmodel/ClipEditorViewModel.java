@@ -12,6 +12,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -52,6 +53,7 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
   @Override
   protected void initRepo() {
     super.initRepo();
+    mRepo.setInfoMessage(null);
     mRepo.setErrorMsg(null);
     mRepo.setIsWorking(null);
   }
@@ -82,9 +84,16 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     // update clip
     this.clip.setText(context, newText);
     this.clip.setRemote(false);
-    this.clip.setDevice(MyDevice.INST(context).getDisplayName());
     this.clip.setDate(Instant.now().toEpochMilli());
+    if (addMode) {
+      mRepo.addClipIfNewAndCopyAsync(this.clip);
+    } else {
+      mRepo.updateClipAsync(this.clip.getText(), originalText);
+    }
+  }
 
-    mRepo.addClipIfNewAndCopyAsync(this.clip);
+  public void copyToClipboard() {
+    Log.logD(TAG, "copying to clipboard");
+    clip.copyToClipboard(getApplication());
   }
 }

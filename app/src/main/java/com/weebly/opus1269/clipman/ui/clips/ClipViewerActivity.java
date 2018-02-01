@@ -162,7 +162,7 @@ public class ClipViewerActivity extends BaseActivity implements
   }
 
   private @Nullable ClipEntity getClipClone() {
-    return getClipViewerFragment().getClipClone();
+    return getClipViewerFragment().getClip();
   }
 
   /** Copy the {@link ClipEntity} to the clipboard */
@@ -175,7 +175,7 @@ public class ClipViewerActivity extends BaseActivity implements
 
   /** Delete the {@link ClipEntity} from the db */
   private void deleteClipItem() {
-    final ClipEntity clip = getClipViewerFragment().getClipClone();
+    final ClipEntity clip = getClipViewerFragment().getClip();
     if (clip == null) {
       return;
     }
@@ -214,7 +214,7 @@ public class ClipViewerActivity extends BaseActivity implements
   /** Toggle the favortie state of the {@link ClipEntity} */
   private void toggleFavorite() {
     ClipViewerFragment clipViewerFragment = getClipViewerFragment();
-    ClipEntity clip = clipViewerFragment.getClipClone();
+    ClipEntity clip = clipViewerFragment.getClip();
     if (clip == null) {
       return;
     }

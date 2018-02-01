@@ -50,7 +50,7 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     if (clip == null) {
       Log.logD(TAG, "add mode");
       addMode = true;
-      clip = new ClipEntity(this);
+      clip = new ClipEntity();
       final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
       if (!TextUtils.isEmpty(labelName)) {
         // added from a list filtered by labelName
@@ -70,22 +70,30 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     mBinding.executePendingBindings();
 
     // observe working
-    mVm.getIsWorking().observe(this, isWorking -> {
-      if ((isWorking != null) && !isWorking) {
-        final ErrorMsg errorMsg = mVm.getErrorMsg().getValue();
-        if (errorMsg != null) {
-          mVm.resetErrorMsg();
-        } else {
-          // done with changes
-          finish();
-        }
+    //mVm.getIsWorking().observe(this, isWorking -> {
+    //  if ((isWorking != null) && !isWorking) {
+    //    final ErrorMsg errorMsg = mVm.getErrorMsg().getValue();
+    //    if (errorMsg != null) {
+    //      mVm.resetErrorMsg();
+    //    } else {
+    //      // done with changes
+    //      finish();
+    //    }
+    //  }
+    //});
+
+    // observe info message
+    mVm.getInfoMessage().observe(this, infoMsg -> {
+      if (infoMsg != null) {
+        mVm.copyToClipboard();
+        finish();
       }
     });
 
-    // observe error
+    // observe error message
     mVm.getErrorMsg().observe(this, errorMsg -> {
       if (errorMsg != null) {
-        AppUtils.showMessage(this, null, errorMsg.msg);
+        AppUtils.showMessage(this, mBinding.getRoot(), errorMsg.msg);
       }
     });
   }

@@ -28,7 +28,7 @@ public class MainDBInitializer {
   public static List<ClipEntity> getClips() {
     List<ClipEntity> clipEntities = new ArrayList<>(TEXT.length);
     for (int i = 0; i < TEXT.length; i++) {
-      final ClipEntity clipEntity = new ClipEntity(App.INST());
+      final ClipEntity clipEntity = new ClipEntity();
       clipEntity.setText(TEXT[i]);
       clipEntity.setFav(FAV[i]);
       // so dates aren't all the same

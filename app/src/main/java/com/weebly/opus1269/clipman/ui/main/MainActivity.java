@@ -156,7 +156,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
       final ClipViewerFragment fragment =
-        ClipViewerFragment.newInstance(new ClipEntity(this), "");
+        ClipViewerFragment.newInstance(new ClipEntity(), "");
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();
@@ -532,10 +532,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         final String sharedText =
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          mVm.selectedClip = new ClipEntity(this, sharedText);
-          startOrUpdateClipViewer();
+          //todo cant do this
+          mVm.selectedClip = new ClipEntity();
+          mVm.selectedClip.setText(sharedText);
           MainRepo.INST(App.INST())
             .addClipAndSendAsync(this, mVm.selectedClip, false);
+          startOrUpdateClipViewer();
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {
@@ -604,7 +606,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     }
     if (AppUtils.isDualPane(this)) {
       final ClipEntity clip = getClipClone();
-      if (clip.getRemote()) {
+      if (clip != null && clip.getRemote()) {
         setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
           clip.getDevice()));
       } else {
@@ -623,7 +625,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   /** Get copy of currently selected {@link ClipEntity} */
   private ClipEntity getClipClone() {
-    return getClipViewerFragment().getClipClone();
+    return getClipViewerFragment().getClip();
   }
 
   /** Update the Navigation View */

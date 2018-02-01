@@ -22,14 +22,18 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our Clip */
   @NonNull
   private final MediatorLiveData<ClipEntity> clip;
-
+  /** Our highlighted text */
+  public String highlightText;
   /** Clip Source */
   private LiveData<ClipEntity> clipSource;
 
   public ClipViewerViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
+    highlightText = "";
+
     this.clipSource = null;
+
     this.clip = new MediatorLiveData<>();
     this.clip.setValue(null);
   }
@@ -42,19 +46,7 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   public LiveData<ClipEntity> getClip() {
-    if (clip.getValue() != null) {
-      Log.logD(TAG, "getting clip: " + clip.getValue().toString());
-    }
     return clip;
-  }
-
-
-  @Nullable
-  public ClipEntity getClipSync() {
-    if (clip.getValue() != null) {
-      Log.logD(TAG, "getting clip sync: " + clip.getValue().toString());
-    }
-    return clip.getValue();
   }
 
   public void setClip(ClipEntity clipEntity) {
@@ -63,9 +55,14 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
       if (clipSource != null) {
         clip.removeSource(clipSource);
       }
-      clipSource = mRepo.loadClip(clipEntity.getText());
+      clipSource = mRepo.loadClip(clipEntity.getId());
       clip.addSource(clipSource, clip::setValue);
     }
+  }
+
+  @Nullable
+  public ClipEntity getClipSync() {
+    return clip.getValue();
   }
 
   public void resetErrorMsg() {

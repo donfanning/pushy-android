@@ -23,7 +23,7 @@ public interface Clip {
 
   String getDevice();
 
-  void send(Context context);
+  void send(final Context context);
 
   void copyToClipboard(final Context context);
 }
