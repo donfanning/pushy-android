@@ -14,7 +14,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
@@ -39,13 +38,13 @@ public class ClipHandlers extends BaseHandlers {
 
   /**
    * Click on fab button
-   * @param vm The ViewModel
+   * @param fab The View
+   * @param vm  The ViewModel
    */
   public void onFabClick(View fab, MainViewModel vm) {
     if (vm != null && vm.selectedClip != null) {
-      Log.logD(TAG, "fab clicked");
-      vm.selectedClip.doShare(App.INST(), fab);
-      Analytics.INST(App.INST()).imageClick(TAG, "clipItemShare");
+      vm.selectedClip.doShare(vm.getApplication(), fab);
+      Analytics.INST(vm.getApplication()).imageClick(TAG, "clipItemShare");
     }
   }
 

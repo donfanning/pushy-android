@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.databinding.ActivityClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -27,10 +28,9 @@ import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel;
 
-import java.io.Serializable;
-
 /** This Activity manages the display of a {@link ClipEntity} */
-public class ClipViewerActivity extends BaseActivity implements
+public class ClipViewerActivity extends
+  BaseActivity<ActivityClipViewerBinding> implements
   ClipViewerFragment.OnClipChanged {
 
   /** Our ViewModel */
@@ -42,6 +42,7 @@ public class ClipViewerActivity extends BaseActivity implements
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     mLayoutID = R.layout.activity_clip_viewer;
+    mIsBound = true;
 
     super.onCreate(savedInstanceState);
 
@@ -51,11 +52,28 @@ public class ClipViewerActivity extends BaseActivity implements
       return;
     }
 
+    // setup ViewModel and data binding
+    mVm = new ClipViewerViewModel(getApplication());
+    final ClipViewerHandlers handlers = new ClipViewerHandlers();
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(mVm);
+    mBinding.setHandlers(handlers);
+    mBinding.executePendingBindings();
+
+    // observe clip
+    mVm.getClip().observe(this, clipEntity -> {
+      if (clipEntity != null) {
+        setFavoriteMenuItem();
+        setTitle();
+      }
+    });
+
     if (savedInstanceState == null) {
       // Create the viewer fragment and add it to the activity
       // using a fragment transaction.
-      final Serializable clip =
-        getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
+      final ClipEntity clip =
+        (ClipEntity) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
+
       final String highlightText =
         getIntent().getStringExtra(Intents.EXTRA_TEXT);
 
@@ -110,16 +128,16 @@ public class ClipViewerActivity extends BaseActivity implements
         break;
       case R.id.action_labels:
         intent = new Intent(this, LabelsSelectActivity.class);
-        intent.putExtra(Intents.EXTRA_CLIP, getClipClone());
+        intent.putExtra(Intents.EXTRA_CLIP, getClip());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_edit_text:
         intent = new Intent(this, ClipEditorActvity.class);
-        intent.putExtra(Intents.EXTRA_CLIP, getClipClone());
+        intent.putExtra(Intents.EXTRA_CLIP, getClip());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_search_web:
-        AppUtils.performWebSearch(this, getClipClone().getText());
+        AppUtils.performWebSearch(this, getClip().getText());
         break;
       case R.id.action_copy:
         copyClipItem();
@@ -141,14 +159,12 @@ public class ClipViewerActivity extends BaseActivity implements
 
   @Override
   public void clipChanged(ClipEntity clip) {
-    setFabVisibility(!ClipEntity.isWhitespace(clip));
-    setFavoriteMenuItem();
-    setTitle();
+    mVm.setClip(clip);
   }
 
   /** Set Activity title based on current {@link ClipEntity} contents */
   private void setTitle() {
-    final ClipEntity clip = getClipClone();
+    final ClipEntity clip = getClip();
     if (clip != null && clip.getRemote()) {
       setTitle(getString(R.string.title_activity_clip_viewer_remote));
     } else {
@@ -161,7 +177,8 @@ public class ClipViewerActivity extends BaseActivity implements
       .findFragmentById(R.id.clip_viewer_container);
   }
 
-  private @Nullable ClipEntity getClipClone() {
+  private @Nullable
+  ClipEntity getClip() {
     return getClipViewerFragment().getClip();
   }
 
@@ -190,23 +207,23 @@ public class ClipViewerActivity extends BaseActivity implements
     final Snackbar snack =
       Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
 
-      snack.setAction(R.string.button_undo, v -> {
-        MainRepo.INST(App.INST()).addClipAsync(mUndoItem);
-        Analytics.INST(v.getContext())
-          .imageClick(TAG, getString(R.string.button_undo));
-      }).addCallback(new Snackbar.Callback() {
+    snack.setAction(R.string.button_undo, v -> {
+      MainRepo.INST(App.INST()).addClipAsync(mUndoItem);
+      Analytics.INST(v.getContext())
+        .imageClick(TAG, getString(R.string.button_undo));
+    }).addCallback(new Snackbar.Callback() {
 
-        @Override
-        public void onShown(Snackbar snackbar) {}
+      @Override
+      public void onShown(Snackbar snackbar) {}
 
-        @Override
-        public void onDismissed(Snackbar snackbar, int event) {
-          mUndoItem = null;
-          if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
-            finish();
-          }
+      @Override
+      public void onDismissed(Snackbar snackbar, int event) {
+        mUndoItem = null;
+        if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
+          finish();
         }
-      });
+      }
+    });
 
     snack.show();
   }
@@ -226,11 +243,11 @@ public class ClipViewerActivity extends BaseActivity implements
 
   /** Set the favorite {@link MenuItem} appearence */
   private void setFavoriteMenuItem() {
-    if(mOptionsMenu == null) {
+    if (mOptionsMenu == null) {
       return;
     }
     final MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
-    final ClipEntity clipEntity = getClipClone();
+    final ClipEntity clipEntity = getClip();
 
     if (menuItem != null && clipEntity != null) {
       final boolean isFav = clipEntity.getFav();

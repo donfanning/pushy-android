@@ -9,12 +9,16 @@ package com.weebly.opus1269.clipman.ui.clips;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
+import com.weebly.opus1269.clipman.viewmodel.ClipViewerFragViewModel;
 import com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel;
 
 /** Handlers for UI events */
@@ -25,12 +29,29 @@ public class ClipViewerHandlers extends BaseHandlers {
   }
 
   /**
-   * Click on labels
-   * @param context A Context
+   * Click on fab button
+   * @param fab The View
    * @param vm  The ViewModel
    */
-  public void onLabelsClick(Context context, ClipViewerViewModel vm) {
+  public void onFabClick(View fab, ClipViewerViewModel vm) {
+    Log.logD(TAG, "fab clicked");
     if (vm != null) {
+      final ClipEntity clipEntity = vm.getClipSync();
+      if (clipEntity != null) {
+        final Context context = fab.getContext();
+        clipEntity.doShare(context, fab);
+        Analytics.INST(context).imageClick(TAG, "clipItemShare");
+      }
+    }
+  }
+
+  /**
+   * Click on labels
+   * @param vm  The ViewModel
+   */
+  public void onLabelsClick(ClipViewerFragViewModel vm) {
+    if (vm != null) {
+      final Context context = vm.getApplication();
       Analytics.INST(context).click(TAG, "showLabelList");
       final Intent intent = new Intent(context, LabelsSelectActivity.class);
       intent.putExtra(Intents.EXTRA_CLIP, vm.getClipSync());

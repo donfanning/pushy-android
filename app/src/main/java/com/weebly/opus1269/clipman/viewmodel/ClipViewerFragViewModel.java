@@ -18,27 +18,22 @@ import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** ViewModel for a {@link ClipEntity} */
-public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
-  /** Clip from last delete operation */
-  private ClipEntity undoClip;
-
+public class ClipViewerFragViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our Clip */
   @NonNull
   private final MediatorLiveData<ClipEntity> clip;
 
-  /** Our query text */
+  /** Our highlighted text */
   @NonNull
-  private String query;
+  private String highlight;
 
   /** Clip Source */
   private LiveData<ClipEntity> clipSource;
 
-  public ClipViewerViewModel(@NonNull Application app) {
+  public ClipViewerFragViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
-    undoClip = null;
-
-    query = "";
+    highlight = "";
 
     this.clipSource = null;
 
@@ -54,13 +49,13 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @NonNull
-  public String getQuery() {
-    return query;
+  public String getHighlight() {
+    return highlight;
   }
 
-  public void setQuery(@Nullable String query) {
-    query = (query == null) ? "" : query;
-    this.query = query;
+  public void setHighlight(@Nullable String highlight) {
+    highlight = (highlight == null) ? "" : highlight;
+    this.highlight = highlight;
   }
 
   @NonNull

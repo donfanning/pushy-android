@@ -19,7 +19,7 @@
 
     <variable
       name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel" />
+      type="com.weebly.opus1269.clipman.viewmodel.ClipViewerFragViewModel" />
 
     <variable
       name="handlers"
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> handlers.onLabelsClick(context, vm)}"
+        android:onClick="@{() -> handlers.onLabelsClick(vm)}"
         android:orientation="horizontal">
 
       </LinearLayout>

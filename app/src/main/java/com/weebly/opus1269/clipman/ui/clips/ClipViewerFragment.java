@@ -32,7 +32,7 @@ import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
-import com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel;
+import com.weebly.opus1269.clipman.viewmodel.ClipViewerFragViewModel;
 
 import java.io.Serializable;
 import java.text.Collator;
@@ -45,7 +45,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   private OnClipChanged mOnClipChanged = null;
 
   /** Our ViewModel */
-  private ClipViewerViewModel mVm = null;
+  private ClipViewerFragViewModel mVm = null;
 
   public ClipViewerFragment() {
     // Required empty public constructor
@@ -92,7 +92,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     super.onCreateView(inflater, container, savedInstanceState);
 
     // setup ViewModel and data binding
-    mVm = new ClipViewerViewModel(App.INST());
+    mVm = new ClipViewerFragViewModel(App.INST());
     final ClipViewerHandlers handlers = new ClipViewerHandlers();
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
