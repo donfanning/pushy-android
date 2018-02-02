@@ -9,10 +9,9 @@ package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
-import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
@@ -21,18 +20,16 @@ import org.threeten.bp.Instant;
 
 /** ViewModel for a {@link ClipEntity} */
 public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
-  /** Our Clip */
-  @NonNull
-  private final ClipEntity clip;
-
-  /** Our Clip text */
-  private final MutableLiveData<String> text;
-
-  /** Original text of the clip */
-  private final String originalText;
-
   /** True if creating new {@link ClipEntity} */
   public final boolean addMode;
+
+  /** Our Clip */
+  @NonNull
+  public final ClipEntity clip;
+
+  /** Our editable Clip text */
+  @NonNull
+  public final MutableLiveData<String> text;
 
   public ClipEditorViewModel(@NonNull Application app, @NonNull ClipEntity clip,
                              boolean addMode) {
@@ -43,8 +40,6 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
 
     this.addMode = addMode;
 
-    this.originalText = clip.getText();
-
     this.clip = clip;
   }
 
@@ -53,43 +48,33 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     super.initRepo();
     mRepo.setInfoMessage(null);
     mRepo.setErrorMsg(null);
-    mRepo.setIsWorking(null);
   }
 
-  public MutableLiveData<String> getText() {
-    return text;
-  }
-
+  /** Save clip to database */
   public void saveClip() {
-    if ((text == null) || (text.getValue() == null) ||
-      (originalText == null)) {
-      mRepo.setErrorMsg(new ErrorMsg("no clip or text"));
+    if (TextUtils.isEmpty(text.getValue())) {
+      mRepo.setErrorMsg(new ErrorMsg("No text"));
       return;
     }
 
-    final Context context = getApplication();
     final String newText = text.getValue();
-    Log.logD(TAG, "text: " + newText);
-    if (originalText.equals(newText)) {
-      mRepo.setErrorMsg(new ErrorMsg("no changes"));
+    if (newText.equals(clip.getText())) {
       return;
     }
 
     // update clip
-    this.clip.setText(context, newText);
+    this.clip.setText(getApplication(), newText);
     this.clip.setRemote(false);
     this.clip.setDate(Instant.now().toEpochMilli());
     if (addMode) {
-      //mRepo.addClipIfNewAndCopyAsync(this.clip);
       mRepo.addClipIfNewAsync(this.clip);
     } else {
-      //mRepo.updateClipAsync(this.clip.getText(), originalText);
       mRepo.updateClipAsync(this.clip);
     }
   }
 
+  /** Copy clip to clipboard */
   public void copyToClipboard() {
-    Log.logD(TAG, "copying to clipboard");
     clip.copyToClipboard(getApplication());
   }
 }

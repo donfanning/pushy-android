@@ -71,6 +71,9 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     mBinding.setVm(mVm);
     mBinding.executePendingBindings();
 
+    // observe text
+    mVm.text.observe(this, text -> updateOptionMenus());
+
     // observe info message
     mVm.getInfoMessage().observe(this, infoMsg -> {
       if (!TextUtils.isEmpty(infoMsg)) {
@@ -93,6 +96,8 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     mOptionsMenuID = R.menu.menu_clipeditor;
 
     super.onCreateOptionsMenu(menu);
+
+    updateOptionMenus();
 
     return true;
   }
@@ -127,5 +132,29 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     }
 
     return processed || super.onOptionsItemSelected(item);
+  }
+
+  /** Set menu states */
+  private void updateOptionMenus() {
+    if (mOptionsMenu == null) {
+      return;
+    }
+    final MenuItem saveManu = mOptionsMenu.findItem(R.id.action_save_changes);
+    if (saveManu == null) {
+      return;
+    }
+
+    final boolean enabled = saveManu.isEnabled();
+    if (AppUtils.isWhitespace(mVm.text.getValue())) {
+      if (enabled) {
+        Log.logD(TAG, "disabling");
+        saveManu.setEnabled(false);
+        saveManu.getIcon().setAlpha(64);
+      }
+    } else if (!enabled) {
+      Log.logD(TAG, "enabling");
+      saveManu.setEnabled(true);
+      saveManu.getIcon().setAlpha(255);
+    }
   }
 }
