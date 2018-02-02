@@ -84,7 +84,7 @@ public class ClipViewerActivity extends BaseActivity implements
     if (super.setQueryString(queryString)) {
       final ClipViewerFragment fragment = getClipViewerFragment();
       if (fragment != null) {
-        fragment.setHighlightText(mQueryString);
+        fragment.setHighlight(mQueryString);
         ret = true;
       }
     }

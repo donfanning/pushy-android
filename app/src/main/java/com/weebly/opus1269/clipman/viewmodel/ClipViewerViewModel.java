@@ -22,15 +22,18 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our Clip */
   @NonNull
   private final MediatorLiveData<ClipEntity> clip;
+
   /** Our highlighted text */
-  public String highlightText;
+  @NonNull
+  private String highlight;
+
   /** Clip Source */
   private LiveData<ClipEntity> clipSource;
 
   public ClipViewerViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
-    highlightText = "";
+    highlight = "";
 
     this.clipSource = null;
 
@@ -45,8 +48,24 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setInfoMessage(null);
   }
 
+  @NonNull
+  public String getHighlight() {
+    return highlight;
+  }
+
+  public void setHighlight(@Nullable String highlight) {
+    highlight = (highlight == null) ? "" : highlight;
+    this.highlight = highlight;
+  }
+
+  @NonNull
   public LiveData<ClipEntity> getClip() {
     return clip;
+  }
+
+  @Nullable
+  public ClipEntity getClipSync() {
+    return clip.getValue();
   }
 
   public void setClip(ClipEntity clipEntity) {
@@ -58,37 +77,5 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
       clipSource = mRepo.loadClip(clipEntity.getId());
       clip.addSource(clipSource, clip::setValue);
     }
-  }
-
-  @Nullable
-  public ClipEntity getClipSync() {
-    return clip.getValue();
-  }
-
-  public void resetErrorMsg() {
-    mRepo.setErrorMsg(null);
-  }
-
-  public void saveClip() {
-    //if ((text == null) || (text.getValue() == null) ||
-    //  (originalText == null)) {
-    //  mRepo.setErrorMsg(new ErrorMsg("no clip or text"));
-    //  return;
-    //}
-    //
-    //final Context context = getApplication();
-    //final String newText = text.getValue();
-    //Log.logD(TAG, "text: " + newText);
-    //if (originalText.equals(newText)) {
-    //  mRepo.setErrorMsg(new ErrorMsg("no changes"));
-    //  return;
-    //}
-    //
-    //// update clip
-    //this.clip.setText(context, newText);
-    //this.clip.setRemote(false);
-    //this.clip.setDate(Instant.now().toEpochMilli());
-    //
-    //mRepo.addClipIfNewAndCopyAsync(this.clip);
   }
 }

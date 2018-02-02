@@ -510,7 +510,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       final ClipViewerFragment fragment = getClipViewerFragment();
       if (fragment != null) {
         fragment.setClip(mVm.selectedClip);
-        fragment.setHighlightText(mQueryString);
+        fragment.setHighlight(mQueryString);
       }
     } else {
       final Intent intent = new Intent(this, ClipViewerActivity.class);
