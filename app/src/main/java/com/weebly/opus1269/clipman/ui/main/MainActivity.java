@@ -532,11 +532,11 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         final String sharedText =
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          //todo cant do this
+          //TODO cant do this
           mVm.selectedClip = new ClipEntity();
           mVm.selectedClip.setText(sharedText);
           MainRepo.INST(App.INST())
-            .addClipAndSendAsync(this, mVm.selectedClip, false);
+            .addClipAndSendAsync(mVm.selectedClip, false);
           startOrUpdateClipViewer();
         }
       }

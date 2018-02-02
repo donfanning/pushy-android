@@ -72,7 +72,7 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
     return infoMessage;
   }
 
-  protected void postInfoMessage(final String value) {
+  public void postInfoMessage(final String value) {
     infoMessage.postValue(value);
   }
 

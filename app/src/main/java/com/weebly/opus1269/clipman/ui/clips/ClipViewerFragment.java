@@ -167,13 +167,14 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    //if (savedInstanceState == null) {
       final Bundle args = getArguments();
       if (args != null) {
         if (args.containsKey(Intents.EXTRA_CLIP)) {
           final ClipEntity clip =
             (ClipEntity) args.getSerializable(Intents.EXTRA_CLIP);
-          mVm.setClip(clip);
+          if (mVm != null) {
+            mVm.setClip(clip);
+          }
         }
 
         if (args.containsKey(Intents.EXTRA_TEXT)) {
@@ -181,7 +182,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
           setHighlightText(highlightText);
         }
       }
-    //}
   }
 
   @Override
@@ -230,6 +230,8 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
       return;
     }
 
+    Log.logD(TAG, "clip changed\n" + clip.toString());
+
     final String curText = mBinding.clipViewerText.getText().toString();
     if (!Collator.getInstance().equals(clip.getText(), curText)) {
       // force repaint on text change
@@ -257,8 +259,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
       // copy and let user know
       clipEntity.copyToClipboard(context);
-      View view = getView();
-      AppUtils.showMessage(context, view, getString(R.string.clipboard_copy));
+      AppUtils.showMessage(context, getView(), getString(R.string.clipboard_copy));
     }
   }
 

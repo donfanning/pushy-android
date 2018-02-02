@@ -12,11 +12,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
-import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
@@ -62,10 +60,6 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     return text;
   }
 
-  public void resetErrorMsg() {
-    mRepo.setErrorMsg(null);
-  }
-
   public void saveClip() {
     if ((text == null) || (text.getValue() == null) ||
       (originalText == null)) {
@@ -86,9 +80,11 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     this.clip.setRemote(false);
     this.clip.setDate(Instant.now().toEpochMilli());
     if (addMode) {
-      mRepo.addClipIfNewAndCopyAsync(this.clip);
+      //mRepo.addClipIfNewAndCopyAsync(this.clip);
+      mRepo.addClipIfNewAsync(this.clip);
     } else {
-      mRepo.updateClipAsync(this.clip.getText(), originalText);
+      //mRepo.updateClipAsync(this.clip.getText(), originalText);
+      mRepo.updateClipAsync(this.clip);
     }
   }
 

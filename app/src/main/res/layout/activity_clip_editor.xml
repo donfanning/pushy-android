@@ -15,15 +15,6 @@
     <variable
       name="vm"
       type="com.weebly.opus1269.clipman.viewmodel.ClipEditorViewModel" />
-
-    <variable
-      name="text"
-      type="android.arch.lifecycle.MutableLiveData&lt;String&gt;" />
-
-    <variable
-      name="addMode"
-      type="boolean" />
-
   </data>
 
   <android.support.design.widget.CoordinatorLayout
@@ -48,9 +39,8 @@
 
     <include
       layout="@layout/content_clip_editor"
-      bind:addMode="@{addMode}"
-      bind:text="@{text}" />
-
+      bind:addMode="@{vm.addMode}"
+      bind:text="@{vm.text}" />
 
   </android.support.design.widget.CoordinatorLayout>
 

@@ -167,6 +167,6 @@ public class ClipboardWatcherService extends Service implements
    * @param onNewOnly if true, only save if the text doesn't exist
    */
   private void saveAndSend(ClipEntity clip, boolean onNewOnly) {
-    MainRepo.INST(App.INST()).addClipAndSendAsync(this, clip, onNewOnly);
+    MainRepo.INST(App.INST()).addClipAndSendAsync(clip, onNewOnly);
   }
 }

@@ -20,7 +20,6 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipEditorBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.ClipEditorViewModel;
@@ -51,40 +50,31 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
       Log.logD(TAG, "add mode");
       addMode = true;
       clip = new ClipEntity();
-      final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
-      if (!TextUtils.isEmpty(labelName)) {
-        // added from a list filtered by labelName
-        // TODO
-        //mClip.addLabel(this, new Label(labelName));
-      }
+
+      // TODO
+      //final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
+      //if (!TextUtils.isEmpty(labelName)) {
+      //   added from a list filtered by labelName
+      //  mClip.addLabel(this, new Label(labelName));
+      //}
     }
 
-    setTitle(addMode);
+    if (addMode) {
+      setTitle(R.string.title_activity_clip_editor_add_mode);
+    } else {
+      setTitle(R.string.title_activity_clip_editor);
+    }
 
     // setup ViewModel and data binding
     mVm = new ClipEditorViewModel(getApplication(), clip, addMode);
     mBinding.setLifecycleOwner(this);
-    mBinding.setText(mVm.getText());
-    mBinding.setAddMode(mVm.addMode);
     mBinding.setVm(mVm);
     mBinding.executePendingBindings();
 
-    // observe working
-    //mVm.getIsWorking().observe(this, isWorking -> {
-    //  if ((isWorking != null) && !isWorking) {
-    //    final ErrorMsg errorMsg = mVm.getErrorMsg().getValue();
-    //    if (errorMsg != null) {
-    //      mVm.resetErrorMsg();
-    //    } else {
-    //      // done with changes
-    //      finish();
-    //    }
-    //  }
-    //});
-
     // observe info message
     mVm.getInfoMessage().observe(this, infoMsg -> {
-      if (infoMsg != null) {
+      if (!TextUtils.isEmpty(infoMsg)) {
+        // our save operation succeeded.
         mVm.copyToClipboard();
         finish();
       }
@@ -137,13 +127,5 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     }
 
     return processed || super.onOptionsItemSelected(item);
-  }
-
-  private void setTitle(boolean state) {
-    if (state) {
-      setTitle(R.string.title_activity_clip_editor_add_mode);
-    } else {
-      setTitle(R.string.title_activity_clip_editor);
-    }
   }
 }

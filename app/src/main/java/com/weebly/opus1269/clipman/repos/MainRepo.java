@@ -24,7 +24,6 @@ import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
 
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +65,7 @@ public class MainRepo extends BaseRepo {
 
   public LiveData<List<ClipEntity>> loadClips(boolean filterByFavs,
                                               boolean pinFavs, int sortType) {
+    // itty bitty FSM - Room needs better way
     if (filterByFavs) {
       if (sortType == 1) {
         return mDB.clipDao().loadFavsByText();
@@ -97,15 +97,6 @@ public class MainRepo extends BaseRepo {
     return mDB.clipDao().get(text);
   }
 
-  public LiveData<LabelEntity> loadLabel(final String name) {
-    return mDB.labelDao().load(name);
-  }
-
-  private void postLabels(@NonNull List<LabelEntity> labels) {
-    sortLabels(labels);
-    this.labelsList.postValue(labels);
-  }
-
   /**
    * Insert or replace a clip
    * @param clip Clip to insert or replace
@@ -121,21 +112,36 @@ public class MainRepo extends BaseRepo {
   }
 
   /**
-   * Insert a clip only if it does not exist
+   * Insert a clip only if the text does not exist
    * @param clip Clip to insert or replace
    */
   public void addClipIfNewAsync(@NonNull ClipEntity clip) {
+    addClipIfNewAsync(clip, false);
+  }
+
+  /**
+   * Insert a clip only if the text does not exist
+   * @param clip   Clip to insert or replace
+   * @param silent if true, no messages
+   */
+  public void addClipIfNewAsync(@NonNull ClipEntity clip, boolean silent) {
     App.getExecutors().diskIO().execute(() -> {
       postIsWorking(true);
       if (mDB.clipDao().get(clip.getText()) == null) {
         long row = mDB.clipDao().insert(clip);
         if (row == -1L) {
-          errorMsg.postValue(new ErrorMsg("insert failed"));
+          if (!silent) {
+            errorMsg.postValue(new ErrorMsg("Add failed"));
+          }
         } else {
-          errorMsg.postValue(null);
+          // success
+          if (!silent) {
+            infoMessage.postValue("Clip added");
+            errorMsg.postValue(null);
+          }
         }
-      } else {
-        errorMsg.postValue(new ErrorMsg("clip exists"));
+      } else if (!silent) {
+        errorMsg.postValue(new ErrorMsg("Clip exists"));
       }
       postIsWorking(false);
     });
@@ -195,51 +201,57 @@ public class MainRepo extends BaseRepo {
       .execute(() -> mDB.clipDao().delete(clip));
   }
 
-  public void addClipAndSendAsync(Context cntxt, ClipEntity clip,
-                                  boolean onNewOnly) {
+  /**
+   * Insert or update clip and optionally send to remote devices
+   * @param clip      The Clip
+   * @param onNewOnly if true, only add if it doesn't exist
+   */
+  public void addClipAndSendAsync(ClipEntity clip, boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
+      final Context context = mApp;
       postIsWorking(true);
-      long id;
+      long id = -1L;
+      int nRows = 0;
       if (onNewOnly) {
         id = mDB.clipDao().insertIfNew(clip);
       } else {
-        id = mDB.clipDao().insert(clip);
+        final ClipEntity existingClip = mDB.clipDao().get(clip.getText());
+        if (existingClip != null) {
+          // clip exists, update it
+          clip.setId(existingClip.getId());
+          nRows = mDB.clipDao().update(clip);
+        } else {
+          id = mDB.clipDao().insert(clip);
+        }
       }
 
-      Log.logD(TAG, "addClipAndSendAsync id: " + id);
+      if (id != -1L || nRows != 0) {
+        // success
+        if (id != -1L) {
+          Log.logD(TAG, "addClipAndSendAsync added id: " + id);
+        } else {
+          Log.logD(TAG, "addClipAndSendAsync updated id: " + clip.getId());
+        }
 
-      if (id != -1L) {
-        Notifications.INST(cntxt).show(clip);
+        Notifications.INST(context).show(clip);
 
-        if (!clip.getRemote() && Prefs.INST(cntxt).isAutoSend()) {
-          clip.send(cntxt);
+        if (!clip.getRemote() && Prefs.INST(context).isAutoSend()) {
+          clip.send(context);
         }
       }
       postIsWorking(false);
     });
   }
 
-  public void updateClipAsync(@NonNull String newText,
-                               @NonNull String oldText) {
+  public void updateClipAsync(@NonNull ClipEntity clipEntity) {
     App.getExecutors().diskIO().execute(() -> {
-      final int nRows = mDB.clipDao().updateText(newText, oldText);
+      final int nRows = mDB.clipDao().update(clipEntity);
       if (nRows == 0) {
         postErrorMsg(new ErrorMsg("Clip exists"));
       } else {
         postInfoMessage("Clip Updated");
       }
     });
-  }
-
-  public LiveData<LabelEntity> getLabelAsync(String name) {
-    return mDB.labelDao().load(name);
-    //App.getExecutors().diskIO()
-    //  .execute(() -> mDB.labelDao().getLabel(name));
-  }
-
-  public void addLabelAsync(@NonNull LabelEntity label) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.labelDao().insertAll(label));
   }
 
   public void addIfNewAsync(@NonNull LabelEntity label) {
@@ -264,13 +276,5 @@ public class MainRepo extends BaseRepo {
   public void removeLabelAsync(@NonNull LabelEntity label) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.labelDao().delete(label));
-  }
-
-  /**
-   * Sort list of labelsList in place - alphabetical
-   * @param labels List to sort
-   */
-  private void sortLabels(@NonNull List<LabelEntity> labels) {
-    java.util.Collections.sort(labels, Collator.getInstance());
   }
 }

@@ -34,7 +34,6 @@ import java.util.List;
 public class ClipboardHelper {
   private static final String TAG = "ClipboardHelper";
 
-  public static final String TEXT_PLAIN = "text/plain";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
   private static final String LABELS_LABEL = "ClipItem Labels";
@@ -115,7 +114,7 @@ public class ClipboardHelper {
     int id = R.string.clipboard_no_text;
 
     if (!ClipEntity.isWhitespace(clipEntity)) {
-      MainRepo.INST(App.INST()).addClipIfNewAsync(clipEntity);
+      MainRepo.INST(App.INST()).addClipIfNewAsync(clipEntity, true);
 
       // send to registered devices , if possible
       if (!User.INST(context).isLoggedIn()) {

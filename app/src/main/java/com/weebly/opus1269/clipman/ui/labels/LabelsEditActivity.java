@@ -8,9 +8,6 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -20,13 +17,7 @@ import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
 /** Activity for editing the List of {@link Label} items */
-public class LabelsEditActivity
-  extends BaseActivity<LabelsEditBinding> {
-  /** Event handlers */
-  private LabelHandlers mHandlers = null;
-
-  /** Adapter used to display the list's data */
-  private LabelsEditAdapter mAdapter = null;
+public class LabelsEditActivity extends BaseActivity<LabelsEditBinding> {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +28,11 @@ public class LabelsEditActivity
 
     // setup ViewModel and data binding
     LabelsViewModel vm = new LabelsViewModel(getApplication());
-    mHandlers = new LabelHandlers(this);
+    LabelHandlers handlers = new LabelHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(vm);
-    mBinding.setHandlers(mHandlers);
+    mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
-
 
     // observe error
     vm.getErrorMsg().observe(this, errorMsg -> {
@@ -52,20 +42,10 @@ public class LabelsEditActivity
     });
 
     // setup RecyclerView
-    final RecyclerView recyclerView = findViewById(R.id.labelList);
-    if (recyclerView != null) {
-      setupRecyclerView(recyclerView, vm);
-    }
-  }
-
-  /** Connect the {@link LabelsEditAdapter} to the {@link RecyclerView} */
-  private void setupRecyclerView(@NonNull RecyclerView recyclerView,
-                                 LabelsViewModel viewModel) {
-    mAdapter = new LabelsEditAdapter(this, mHandlers);
-    recyclerView.setAdapter(mAdapter);
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    LabelsEditAdapter adapter = new LabelsEditAdapter(this, handlers);
+    mBinding.content.recyclerView.setAdapter(adapter);
 
     // Observe labels
-    viewModel.getLabels().observe(this, labels -> mAdapter.setList(labels));
+    vm.getLabels().observe(this, adapter::setList);
   }
 }
