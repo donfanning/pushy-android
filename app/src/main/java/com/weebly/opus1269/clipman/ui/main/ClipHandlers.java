@@ -42,8 +42,8 @@ public class ClipHandlers extends BaseHandlers {
    * @param vm  The ViewModel
    */
   public void onFabClick(View fab, MainViewModel vm) {
-    if (vm != null && vm.selectedClip != null) {
-      vm.selectedClip.doShare(vm.getApplication(), fab);
+    if (vm != null && vm.getSelectedClipSync() != null) {
+      vm.getSelectedClipSync().doShare(vm.getApplication(), fab);
       Analytics.INST(vm.getApplication()).imageClick(TAG, "clipItemShare");
     }
   }
@@ -56,9 +56,7 @@ public class ClipHandlers extends BaseHandlers {
     final ClipEntity clipEntity = vm.getClip().getValue();
     Log.logD(TAG, "item clicked");
     Analytics.INST(mActivity).click(TAG, "clipItemRow");
-    if (mActivity.getVm().setSelectedClip(clipEntity)) {
-      mActivity.startOrUpdateClipViewer();
-    }
+    mActivity.startOrUpdateClipViewer(clipEntity);
   }
 
   /**

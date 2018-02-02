@@ -13,6 +13,7 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 
 import com.weebly.opus1269.clipman.app.Log;
@@ -28,37 +29,34 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   /** Clips list */
   private final MediatorLiveData<List<ClipEntity>> clips;
-
+  /** Selected Clip */
+  private final MediatorLiveData<ClipEntity> selectedClip;
   /** Selected Clips position */
   public int selectedPos;
-
-  /** Selected Clip */
-  public ClipEntity selectedClip;
-
-  /** Clips Source */
-  private LiveData<List<ClipEntity>> clipsSource;
-
   /** Sort with favorites first if true */
   public boolean pinFavs;
-
   /** Sort by date or text */
   public int sortType;
-
   /** Show only favorites if true */
   public boolean filterByFavs;
-
   /** Show only Clips with the given label if non-whitespace */
   public String labelFilter;
-
   /** Clips that were deleted */
   public List<ClipEntity> undoItems;
+  /** Clip Source */
+  private LiveData<ClipEntity> selectedClipSource;
+  /** Clips Source */
+  private LiveData<List<ClipEntity>> clipsSource;
 
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
     selectedPos = -1;
 
-    selectedClip = null;
+    this.selectedClipSource = null;
+
+    this.selectedClip = new MediatorLiveData<>();
+    this.selectedClip.setValue(null);
 
     pinFavs = Prefs.INST(app).isPinFav();
 
@@ -75,6 +73,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     clipsSource = mRepo.loadClips(filterByFavs, pinFavs, sortType);
     clips.addSource(clipsSource, clips::setValue);
 
+    // TODO how to unregister
     // listen for preference changes
     PreferenceManager
       .getDefaultSharedPreferences(app)
@@ -91,6 +90,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                         String key) {
     final Context context = getApplication();
+    // TODO labelfilter
 
     if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
       filterByFavs = Prefs.INST(context).isFavFilter();
@@ -105,29 +105,31 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     clips.addSource(clipsSource, clips::setValue);
   }
 
-  public LiveData<List<ClipEntity>> loadClips() {
+  public LiveData<List<ClipEntity>> getClips() {
     return clips;
   }
 
-  public List<ClipEntity> getClips() {
+  public List<ClipEntity> getClipsSync() {
     return clips.getValue();
   }
 
-  public boolean setSelectedClip(ClipEntity clip) {
-    boolean found = false;
-    final List<ClipEntity> clips = getClips();
-    int pos = -1;
-    if (clip != null && clips != null) {
-      for (int i = 0; i < clips.size(); i++) {
-        if (clips.get(i).getText().equals(clip.getText())) {
-          found = true;
-          pos = i;
-          break;
-        }
+  public LiveData<ClipEntity> getSelectedClip() {
+    return selectedClip;
+  }
+
+  @Nullable
+  public ClipEntity getSelectedClipSync() {
+    return selectedClip.getValue();
+  }
+
+  public void setSelectedClip(ClipEntity clip) {
+    if (!ClipEntity.isWhitespace(clip)) {
+      Log.logD(TAG, "setting selectedClip: " + clip.toString());
+      if (selectedClipSource != null) {
+        selectedClip.removeSource(selectedClipSource);
       }
-      this.selectedClip = found ? clip : null;
-      this.selectedPos = pos;
+      selectedClipSource = mRepo.loadClip(clip.getId());
+      selectedClip.addSource(selectedClipSource, selectedClip::setValue);
     }
-    return found;
   }
 }

@@ -22,6 +22,7 @@ import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
+import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.viewmodel.ClipEditorViewModel;
 
 /** Activity to edit the text of a {@link ClipEntity} */
@@ -145,16 +146,15 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     }
 
     final boolean enabled = saveManu.isEnabled();
+    final int alpha = enabled ? 255 : 64;
     if (AppUtils.isWhitespace(mVm.text.getValue())) {
       if (enabled) {
-        Log.logD(TAG, "disabling");
         saveManu.setEnabled(false);
-        saveManu.getIcon().setAlpha(64);
+        MenuTintHelper.colorMenuItem(saveManu, null, alpha);
       }
     } else if (!enabled) {
-      Log.logD(TAG, "enabling");
       saveManu.setEnabled(true);
-      saveManu.getIcon().setAlpha(255);
+      MenuTintHelper.colorMenuItem(saveManu, null, alpha);
     }
   }
 }

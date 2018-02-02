@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
@@ -32,7 +33,6 @@ import android.view.SubMenu;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
@@ -46,7 +46,6 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
-import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clips.ClipEditorActvity;
 import com.weebly.opus1269.clipman.ui.clips.ClipViewerActivity;
@@ -115,10 +114,30 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mBinding.setHandlers(mHandlers);
     mBinding.executePendingBindings();
 
-     // observe errors
+    // observe errors
     mVm.getErrorMsg().observe(this, errorMsg -> {
       if (errorMsg != null) {
         AppUtils.showMessage(this, mBinding.fab, errorMsg.msg);
+      }
+    });
+
+    // observe selected clip
+    mVm.getSelectedClip().observe(this, clip -> {
+      if (clip != null) {
+        Log.logD(TAG, "selected clip changed");
+        final List<ClipEntity> clips = mVm.getClipsSync();
+        int pos = -1;
+        if (clips != null) {
+          for (int i = 0; i < clips.size(); i++) {
+            if (clips.get(i).getText().equals(clip.getText())) {
+              pos = i;
+              break;
+            }
+          }
+        }
+        setSelectedClipPos(pos);
+        setFabVisibility(!ClipEntity.isWhitespace(clip));
+        setTitle();
       }
     });
 
@@ -135,7 +154,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     helper.attachToRecyclerView(recyclerView);
 
     // Observe clips
-    mVm.loadClips().observe(this, clips -> {
+    mVm.getClips().observe(this, clips -> {
       if (clips != null) {
         mAdapter.setList(clips);
       }
@@ -220,6 +239,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   protected boolean setQueryString(String queryString) {
     boolean ret = false;
     if (super.setQueryString(queryString)) {
+      // TODO
       //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
       ret = true;
     }
@@ -399,8 +419,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   @Override
   public void clipChanged(ClipEntity clip) {
-    setFabVisibility(!ClipEntity.isWhitespace(clip));
-    setTitle();
+    mVm.setSelectedClip(clip);
   }
 
   @Override
@@ -418,22 +437,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     } else if (keyPush.equals(key)) {
       updateOptionsMenu();
     }
-  }
-
-  public void setSelectedClip(ClipEntity clip) {
-    final List<ClipEntity> clips = mVm.getClips();
-    int pos = -1;
-    if (clip != null && clips != null) {
-      for (int i = 0; i < clips.size(); i++) {
-        if (clips.get(i).getText().equals(clip.getText())) {
-          pos = i;
-          break;
-        }
-      }
-      mVm.selectedClip = clip;
-      startOrUpdateClipViewer();
-    }
-    setSelectedClipPos(pos);
   }
 
   public int getSelectedClipPos() {
@@ -505,16 +508,16 @@ public class MainActivity extends BaseActivity<MainBinding> implements
    * Start the {@link ClipViewerActivity}
    * or update the {@link ClipViewerFragment}
    */
-  void startOrUpdateClipViewer() {
+  void startOrUpdateClipViewer(ClipEntity clip) {
     if (AppUtils.isDualPane(this)) {
       final ClipViewerFragment fragment = getClipViewerFragment();
       if (fragment != null) {
-        fragment.setClip(mVm.selectedClip);
+        fragment.setClip(clip);
         fragment.setHighlight(mQueryString);
       }
     } else {
       final Intent intent = new Intent(this, ClipViewerActivity.class);
-      intent.putExtra(Intents.EXTRA_CLIP, mVm.selectedClip);
+      intent.putExtra(Intents.EXTRA_CLIP, clip);
       intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
       AppUtils.startActivity(this, intent);
     }
@@ -533,24 +536,30 @@ public class MainActivity extends BaseActivity<MainBinding> implements
           intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
           //TODO cant do this
-          mVm.selectedClip = new ClipEntity();
-          mVm.selectedClip.setText(sharedText);
-          MainRepo.INST(App.INST())
-            .addClipAndSend(mVm.selectedClip, false);
-          startOrUpdateClipViewer();
+          //mVm.selectedClip = new ClipEntity();
+          //mVm.selectedClip.setText(sharedText);
+          //MainRepo.INST(App.INST())
+          //  .addClipAndSend(getSelectedClip(), false);
+          //startOrUpdateClipViewer();
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {
       // from clip notification
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
-        // if 1 message open Clipviewer, otherwise show in us
-        mVm.selectedClip =
-          (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
-        intent.removeExtra(Intents.EXTRA_CLIP);
-        startOrUpdateClipViewer();
+        // TODO
+        //// if 1 message open Clipviewer, otherwise show in us
+        //mVm.selectedClip =
+        //  (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+        //intent.removeExtra(Intents.EXTRA_CLIP);
+        //startOrUpdateClipViewer();
       }
     }
+  }
+
+  private @Nullable
+  ClipEntity getSelectedClip() {
+    return mVm == null ? null : mVm.getSelectedClipSync();
   }
 
   /**
