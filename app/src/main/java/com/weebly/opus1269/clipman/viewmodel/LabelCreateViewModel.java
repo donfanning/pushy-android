@@ -8,10 +8,8 @@
 package com.weebly.opus1269.clipman.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
@@ -34,7 +32,7 @@ public class LabelCreateViewModel extends BaseRepoViewModel<MainRepo> {
     if (!AppUtils.isWhitespace(name)) {
       name = name.trim();
       this.name.setValue(name);
-      mRepo.addIfNewAsync(new LabelEntity(name));
+      mRepo.addLabelIfNew(new LabelEntity(name));
     }
   }
 }

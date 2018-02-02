@@ -67,9 +67,9 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     this.clip.setRemote(false);
     this.clip.setDate(Instant.now().toEpochMilli());
     if (addMode) {
-      mRepo.addClipIfNewAsync(this.clip);
+      mRepo.addClipIfNew(this.clip);
     } else {
-      mRepo.updateClipAsync(this.clip);
+      mRepo.updateClip(this.clip);
     }
   }
 

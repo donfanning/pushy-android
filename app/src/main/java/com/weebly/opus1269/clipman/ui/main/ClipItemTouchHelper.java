@@ -65,7 +65,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         final int selectedPos = mActivity.getSelectedClipPos();
         mUndoItem =
           new UndoItem(clipEntity, selectedPos, holder.itemView.isSelected());
-        MainRepo.INST(App.INST()).removeClipAsync(clipEntity);
+        MainRepo.INST(App.INST()).removeClip(clipEntity);
       }
 
       final Snackbar snack = Snackbar
@@ -158,7 +158,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     private void undo() {
       // TODO add back
-      MainRepo.INST(App.INST()).addClipIfNewAsync(mClipEntity);
+      MainRepo.INST(App.INST()).addClipIfNew(mClipEntity);
 
       // TODO need this?
       if (mIsSelected) {

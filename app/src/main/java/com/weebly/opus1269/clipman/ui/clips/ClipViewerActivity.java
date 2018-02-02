@@ -198,7 +198,7 @@ public class ClipViewerActivity extends
     }
 
     // delete from database
-    MainRepo.INST(App.INST()).removeClipAsync(clip);
+    MainRepo.INST(App.INST()).removeClip(clip);
     // save for undo
     mUndoItem = clip;
 
@@ -208,7 +208,7 @@ public class ClipViewerActivity extends
       Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
 
     snack.setAction(R.string.button_undo, v -> {
-      MainRepo.INST(App.INST()).addClipAsync(mUndoItem);
+      MainRepo.INST(App.INST()).addClip(mUndoItem);
       Analytics.INST(v.getContext())
         .imageClick(TAG, getString(R.string.button_undo));
     }).addCallback(new Snackbar.Callback() {
@@ -238,7 +238,7 @@ public class ClipViewerActivity extends
 
     // update database
     clip.setFav(!clip.getFav());
-    MainRepo.INST(App.INST()).updateFavAsync(clip);
+    MainRepo.INST(App.INST()).updateFav(clip);
   }
 
   /** Set the favorite {@link MenuItem} appearence */

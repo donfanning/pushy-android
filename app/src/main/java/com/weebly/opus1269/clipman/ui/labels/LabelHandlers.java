@@ -46,7 +46,7 @@ public class LabelHandlers extends BaseHandlers {
 
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
       Log.logD(TAG, "delete clicked");
-      MainRepo.INST(App.INST()).removeLabelAsync(mLabelEntity);
+      MainRepo.INST(App.INST()).removeLabel(mLabelEntity);
     }
   }
 

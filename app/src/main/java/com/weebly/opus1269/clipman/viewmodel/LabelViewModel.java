@@ -54,7 +54,7 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   public void changeName(String name, String oldName) {
-    mRepo.updateLabelAsync(name, oldName);
+    mRepo.updateLabel(name, oldName);
   }
 
   public void resetName() {

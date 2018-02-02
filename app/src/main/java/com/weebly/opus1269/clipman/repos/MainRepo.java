@@ -101,7 +101,7 @@ public class MainRepo extends BaseRepo {
    * Insert or replace a clip
    * @param clip Clip to insert or replace
    */
-  public void addClipAsync(@NonNull ClipEntity clip) {
+  public void addClip(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO().execute(() -> {
       postIsWorking(true);
       final long row = mDB.clipDao().insert(clip);
@@ -115,8 +115,8 @@ public class MainRepo extends BaseRepo {
    * Insert a clip only if the text does not exist
    * @param clip Clip to insert or replace
    */
-  public void addClipIfNewAsync(@NonNull ClipEntity clip) {
-    addClipIfNewAsync(clip, false);
+  public void addClipIfNew(@NonNull ClipEntity clip) {
+    addClipIfNew(clip, false);
   }
 
   /**
@@ -124,7 +124,7 @@ public class MainRepo extends BaseRepo {
    * @param clip   Clip to insert or replace
    * @param silent if true, no messages
    */
-  public void addClipIfNewAsync(@NonNull ClipEntity clip, boolean silent) {
+  public void addClipIfNew(@NonNull ClipEntity clip, boolean silent) {
     App.getExecutors().diskIO().execute(() -> {
       postIsWorking(true);
       if (mDB.clipDao().get(clip.getText()) == null) {
@@ -159,44 +159,12 @@ public class MainRepo extends BaseRepo {
     MainDB.INST(App.INST()).clipDao().insert(clip);
   }
 
-  /**
-   * Insert a clip only if it does not exist and copy to clipboard
-   * @param clip Clip to insert and copy
-   */
-  public void addClipIfNewAndCopyAsync(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO().execute(() -> {
-      postIsWorking(true);
-      if (mDB.clipDao().get(clip.getText()) == null) {
-        if (!Prefs.INST(mApp).isMonitorClipboard()) {
-          // if not monitoring clipboard, need to handle insert ourselves
-          // otherwise the ClipWatcher will handle it
-          int nRows = mDB.clipDao().delete(clip);
-          Log.logD(TAG, "deleted rows: " + nRows);
-          Log.logD(TAG, "current row: " + clip.getId());
-          long row = mDB.clipDao().insert(clip);
-          Log.logD(TAG, "insert row: " + row);
-          if (row == -1L) {
-            errorMsg.postValue(new ErrorMsg("insert failed"));
-          } else {
-            errorMsg.postValue(null);
-          }
-        }
-        // TODO need to delete old here too.
-        clip.copyToClipboard(mApp);
-      } else {
-        errorMsg.postValue(new ErrorMsg("clip exists"));
-      }
-      postIsWorking(false);
-    });
-  }
-
-
-  public void updateFavAsync(@NonNull ClipEntity clip) {
+  public void updateFav(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
   }
 
-  public void removeClipAsync(@NonNull ClipEntity clip) {
+  public void removeClip(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.clipDao().delete(clip));
   }
@@ -206,7 +174,7 @@ public class MainRepo extends BaseRepo {
    * @param clip      The Clip
    * @param onNewOnly if true, only add if it doesn't exist
    */
-  public void addClipAndSendAsync(ClipEntity clip, boolean onNewOnly) {
+  public void addClipAndSend(ClipEntity clip, boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
       final Context context = mApp;
       postIsWorking(true);
@@ -243,7 +211,7 @@ public class MainRepo extends BaseRepo {
     });
   }
 
-  public void updateClipAsync(@NonNull ClipEntity clipEntity) {
+  public void updateClip(@NonNull ClipEntity clipEntity) {
     App.getExecutors().diskIO().execute(() -> {
       final int nRows = mDB.clipDao().update(clipEntity);
       if (nRows == 0) {
@@ -254,7 +222,7 @@ public class MainRepo extends BaseRepo {
     });
   }
 
-  public void addIfNewAsync(@NonNull LabelEntity label) {
+  public void addLabelIfNew(@NonNull LabelEntity label) {
     App.getExecutors().diskIO().execute(() -> {
       final long id = mDB.labelDao().insertIfNew(label);
       if (id == -1L) {
@@ -263,8 +231,8 @@ public class MainRepo extends BaseRepo {
     });
   }
 
-  public void updateLabelAsync(@NonNull String newName,
-                               @NonNull String oldName) {
+  public void updateLabel(@NonNull String newName,
+                          @NonNull String oldName) {
     App.getExecutors().diskIO().execute(() -> {
       final int nRows = mDB.labelDao().updateName(newName, oldName);
       if (nRows == 0) {
@@ -273,7 +241,7 @@ public class MainRepo extends BaseRepo {
     });
   }
 
-  public void removeLabelAsync(@NonNull LabelEntity label) {
+  public void removeLabel(@NonNull LabelEntity label) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.labelDao().delete(label));
   }

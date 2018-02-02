@@ -536,7 +536,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
           mVm.selectedClip = new ClipEntity();
           mVm.selectedClip.setText(sharedText);
           MainRepo.INST(App.INST())
-            .addClipAndSendAsync(mVm.selectedClip, false);
+            .addClipAndSend(mVm.selectedClip, false);
           startOrUpdateClipViewer();
         }
       }

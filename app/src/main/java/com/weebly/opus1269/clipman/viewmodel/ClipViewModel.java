@@ -49,7 +49,7 @@ public class ClipViewModel extends AndroidViewModel {
       clip.setValue(clipEntity);
 
       // update database
-      mRepo.updateFavAsync(clipEntity);
+      mRepo.updateFav(clipEntity);
     }
   }
 }

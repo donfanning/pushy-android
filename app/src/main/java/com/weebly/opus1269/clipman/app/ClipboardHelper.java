@@ -114,7 +114,7 @@ public class ClipboardHelper {
     int id = R.string.clipboard_no_text;
 
     if (!ClipEntity.isWhitespace(clipEntity)) {
-      MainRepo.INST(App.INST()).addClipIfNewAsync(clipEntity, true);
+      MainRepo.INST(App.INST()).addClipIfNew(clipEntity, true);
 
       // send to registered devices , if possible
       if (!User.INST(context).isLoggedIn()) {
