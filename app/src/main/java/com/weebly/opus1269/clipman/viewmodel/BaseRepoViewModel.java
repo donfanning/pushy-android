@@ -76,12 +76,17 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
     infoMessage.postValue(value);
   }
 
+  public void setInfoMessage(final String value) {
+    infoMessage.setValue(value);
+  }
+
   @NonNull
   public LiveData<Boolean> getIsWorking() {
     return isWorking;
   }
 
   protected void postIsWorking(final boolean value) {
+
     isWorking.postValue(value);
   }
 

@@ -176,7 +176,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
 
   /** Copy to the clipboard */
   @Override
-  public void copyToClipboard(final Context context) {
+  public void copyToClipboard(@NonNull Context context) {
     final Handler handler = new Handler(Looper.getMainLooper());
     handler.post(() -> {
       final ClipboardManager clipboard =

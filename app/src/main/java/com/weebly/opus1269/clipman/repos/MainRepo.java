@@ -104,8 +104,8 @@ public class MainRepo extends BaseRepo {
   public void addClip(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO().execute(() -> {
       postIsWorking(true);
-      final long row = mDB.clipDao().insert(clip);
-      Log.logD(TAG, "add, row: " + row);
+      final long id = mDB.clipDao().insert(clip);
+      Log.logD(TAG, "added id: " + id);
       postInfoMessage("Added clip");
       postIsWorking(false);
     });
@@ -113,7 +113,7 @@ public class MainRepo extends BaseRepo {
 
   /**
    * Insert a clip only if the text does not exist
-   * @param clip Clip to insert or replace
+   * @param clip Clip to insert
    */
   public void addClipIfNew(@NonNull ClipEntity clip) {
     addClipIfNew(clip, false);
@@ -121,7 +121,7 @@ public class MainRepo extends BaseRepo {
 
   /**
    * Insert a clip only if the text does not exist
-   * @param clip   Clip to insert or replace
+   * @param clip   Clip to insert
    * @param silent if true, no messages
    */
   public void addClipIfNew(@NonNull ClipEntity clip, boolean silent) {

@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
@@ -190,25 +189,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     setupHighlight();
 
     mOnClipChanged.clipChanged(clip);
-  }
-
-  /** Copy our Clip to the Clipboard */
-  void copyToClipboard() {
-    final ClipEntity clipEntity = mVm.getClipSync();
-    if (!ClipEntity.isWhitespace(clipEntity)) {
-      final Context context = getContext();
-
-      clipEntity.setRemote(false);
-      mVm.setClip(clipEntity);
-
-      // let listeners know
-      mOnClipChanged.clipChanged(clipEntity);
-
-      // copy and let user know
-      clipEntity.copyToClipboard(context);
-      AppUtils.showMessage(context, getView(), getString(R.string
-        .clipboard_copy));
-    }
   }
 
   /** Highlight all occurrences of the highlight */

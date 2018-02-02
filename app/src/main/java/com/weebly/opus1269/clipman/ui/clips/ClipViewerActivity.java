@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -35,9 +36,6 @@ public class ClipViewerActivity extends
 
   /** Our ViewModel */
   private ClipViewerViewModel mVm = null;
-
-  /** Item from last delete operation */
-  private ClipEntity mUndoItem = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +63,13 @@ public class ClipViewerActivity extends
       if (clipEntity != null) {
         setFavoriteMenuItem();
         setTitle();
+      }
+    });
+
+    // observe info message
+    mVm.getInfoMessage().observe(this, infoMsg -> {
+      if (!TextUtils.isEmpty(infoMsg)) {
+        AppUtils.showMessage(this, mBinding.getRoot(), infoMsg);
       }
     });
 
@@ -111,7 +116,7 @@ public class ClipViewerActivity extends
 
   @Override
   protected void onPause() {
-    mUndoItem = null;
+    mVm.setUndoClip(null);
 
     super.onPause();
   }
@@ -124,7 +129,7 @@ public class ClipViewerActivity extends
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_favorite:
-        toggleFavorite();
+        mVm.toggleFavorite();
         break;
       case R.id.action_labels:
         intent = new Intent(this, LabelsSelectActivity.class);
@@ -137,13 +142,16 @@ public class ClipViewerActivity extends
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_search_web:
-        AppUtils.performWebSearch(this, getClip().getText());
+        final ClipEntity clipEntity = getClip();
+        if (!ClipEntity.isWhitespace(clipEntity)) {
+          AppUtils.performWebSearch(this, clipEntity.getText());
+        }
         break;
       case R.id.action_copy:
-        copyClipItem();
+        mVm.copyClip();
         break;
       case R.id.action_delete:
-        deleteClipItem();
+        deleteClip();
         break;
       default:
         processed = false;
@@ -173,44 +181,30 @@ public class ClipViewerActivity extends
   }
 
   private ClipViewerFragment getClipViewerFragment() {
-    return (ClipViewerFragment) getSupportFragmentManager()
-      .findFragmentById(R.id.clip_viewer_container);
+    return (ClipViewerFragment)
+      getSupportFragmentManager().findFragmentById(R.id.clip_viewer_container);
   }
 
   private @Nullable
   ClipEntity getClip() {
-    return getClipViewerFragment().getClip();
-  }
-
-  /** Copy the {@link ClipEntity} to the clipboard */
-  private void copyClipItem() {
-    ClipViewerFragment clipViewerFragment = getClipViewerFragment();
-    if (clipViewerFragment != null) {
-      clipViewerFragment.copyToClipboard();
-    }
+    return mVm == null ? null : mVm.getClipSync();
   }
 
   /** Delete the {@link ClipEntity} from the db */
-  private void deleteClipItem() {
-    final ClipEntity clip = getClipViewerFragment().getClip();
-    if (clip == null) {
-      return;
-    }
+  private void deleteClip() {
+    // delete it
+    mVm.deleteClip();
 
-    // delete from database
-    MainRepo.INST(App.INST()).removeClip(clip);
-    // save for undo
-    mUndoItem = clip;
-
-    String message = getResources().getString(R.string.clip_deleted);
-
-    final Snackbar snack =
-      Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
+    final Snackbar snack = Snackbar.make(mBinding.fab,
+      getString(R.string.clip_deleted), Snackbar.LENGTH_LONG);
 
     snack.setAction(R.string.button_undo, v -> {
-      MainRepo.INST(App.INST()).addClip(mUndoItem);
-      Analytics.INST(v.getContext())
-        .imageClick(TAG, getString(R.string.button_undo));
+      final ClipEntity undoClip = mVm.getUndoClip();
+      if (undoClip != null) {
+        MainRepo.INST(App.INST()).addClipIfNew(undoClip, true);
+        Analytics.INST(v.getContext())
+          .imageClick(TAG, "undoDeleteClipItem");
+      }
     }).addCallback(new Snackbar.Callback() {
 
       @Override
@@ -218,7 +212,7 @@ public class ClipViewerActivity extends
 
       @Override
       public void onDismissed(Snackbar snackbar, int event) {
-        mUndoItem = null;
+        mVm.setUndoClip(null);
         if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
           finish();
         }
@@ -226,19 +220,6 @@ public class ClipViewerActivity extends
     });
 
     snack.show();
-  }
-
-  /** Toggle the favortie state of the {@link ClipEntity} */
-  private void toggleFavorite() {
-    ClipViewerFragment clipViewerFragment = getClipViewerFragment();
-    ClipEntity clip = clipViewerFragment.getClip();
-    if (clip == null) {
-      return;
-    }
-
-    // update database
-    clip.setFav(!clip.getFav());
-    MainRepo.INST(App.INST()).updateFav(clip);
   }
 
   /** Set the favorite {@link MenuItem} appearence */
