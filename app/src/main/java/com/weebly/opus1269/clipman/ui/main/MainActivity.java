@@ -458,17 +458,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     return mVm;
   }
 
-  // TODO these four go when loadermanager goes
-  Boolean getFavFilter() {return mVm.filterByFavs;}
-
-  String getLabelFilter() {return mVm.labelFilter;}
-
-  String getQueryString() {return mQueryString;}
-
-  ClipLoaderManager getClipLoaderManager() {
-    return null;
-  }
-
   /** Display progress UI */
   private void showProgress() {
     final View contentView;

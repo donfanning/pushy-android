@@ -116,7 +116,6 @@ dependencies {
 
   // third party open source
   implementation 'com.google.code.gson:gson:2.8.2'
-  implementation 'com.androidessence:recyclerviewcursoradapter:1.0.0'
   implementation 'com.firebase:firebase-jobdispatcher:0.8.4'
   implementation 'com.jakewharton.threetenabp:threetenabp:1.0.5'
   implementation 'org.zeroturnaround:zt-zip:1.12'
