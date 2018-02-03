@@ -190,18 +190,27 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   }
 
   @Override
-  public int hashCode() {
-    return text.hashCode();
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ClipEntity clipEntity = (ClipEntity) o;
+    ClipEntity that = (ClipEntity) o;
 
-    return text.equals(clipEntity.text);
+    if (date != that.date) return false;
+    if (fav != that.fav) return false;
+    if (remote != that.remote) return false;
+    if (!text.equals(that.text)) return false;
+    return device.equals(that.device);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = text.hashCode();
+    result = 31 * result + (int) (date ^ (date >>> 32));
+    result = 31 * result + (fav ? 1 : 0);
+    result = 31 * result + (remote ? 1 : 0);
+    result = 31 * result + device.hashCode();
+    return result;
   }
 
   @Override

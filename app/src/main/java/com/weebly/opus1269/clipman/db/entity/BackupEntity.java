@@ -206,6 +206,7 @@ public class BackupEntity implements AdapterItem {
 
     if (date != that.date) return false;
     if (!driveIdString.equals(that.driveIdString)) return false;
+    if (!driveIdInvariant.equals(that.driveIdInvariant)) return false;
     if (!name.equals(that.name)) return false;
     if (!nickname.equals(that.nickname)) return false;
     if (!model.equals(that.model)) return false;

@@ -133,7 +133,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
   public void setSelectedClip(ClipEntity clip) {
     if (!ClipEntity.isWhitespace(clip)) {
-      Log.logD(TAG, "setting selectedClip: " + clip.toString());
+      Log.logD(TAG, "setting selectedClip: " + clip.getId());
       if (selectedClipSource != null) {
         selectedClip.removeSource(selectedClipSource);
       }

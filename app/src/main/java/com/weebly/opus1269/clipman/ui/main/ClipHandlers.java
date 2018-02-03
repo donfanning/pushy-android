@@ -54,7 +54,6 @@ public class ClipHandlers extends BaseHandlers {
    */
   public void onItemClick(ClipViewModel vm) {
     final ClipEntity clipEntity = vm.getClip().getValue();
-    Log.logD(TAG, "item clicked");
     Analytics.INST(mActivity).click(TAG, "clipItemRow");
     mActivity.startOrUpdateClipViewer(clipEntity);
   }
@@ -66,7 +65,6 @@ public class ClipHandlers extends BaseHandlers {
    */
   public void onCopyClick(ClipEntity clipEntity, ImageView view) {
     final Context context = view.getContext();
-    Log.logD(TAG, "copy row clicked");
     Analytics.INST(context).imageClick(TAG, "clipItemCopy");
     clipEntity.setRemote(false);
     clipEntity.copyToClipboard(context);
@@ -99,7 +97,6 @@ public class ClipHandlers extends BaseHandlers {
     final Context context = checkBox.getContext();
     final boolean checked = checkBox.isChecked();
     vm.changeFav(checked);
-    Log.logD(TAG, "fav clicked");
     Analytics.INST(context).checkBoxClick(TAG, "clipItemFav: " + checked);
   }
 }

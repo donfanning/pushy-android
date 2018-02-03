@@ -70,7 +70,7 @@ public class ClipViewerFragViewModel extends BaseRepoViewModel<MainRepo> {
 
   public void setClip(ClipEntity clipEntity) {
     if (!ClipEntity.isWhitespace(clipEntity)) {
-      Log.logD(TAG, "setting clip: " + clipEntity.toString());
+      Log.logD(TAG, "setting clip: " + clipEntity.getId());
       if (clipSource != null) {
         clip.removeSource(clipSource);
       }

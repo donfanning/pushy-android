@@ -27,7 +27,7 @@ public class BackupsViewModel extends BaseRepoViewModel<BackupRepo> {
 
     backupList = new MediatorLiveData<>();
     backupList.setValue(null);
-    LiveData<List<BackupEntity>> backups = mRepo.loadBackups();
+    LiveData<List<BackupEntity>> backups = mRepo.getBackups();
     backupList.addSource(backups, backupList::setValue);
   }
 

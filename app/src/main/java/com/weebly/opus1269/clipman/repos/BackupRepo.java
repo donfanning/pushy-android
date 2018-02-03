@@ -17,7 +17,6 @@ import com.google.android.gms.drive.DriveId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.BackupDB;
 import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 import com.weebly.opus1269.clipman.model.User;
@@ -60,7 +59,7 @@ public class BackupRepo extends BaseRepo {
     return sInstance;
   }
 
-  public LiveData<List<BackupEntity>> loadBackups() {
+  public LiveData<List<BackupEntity>> getBackups() {
     return backupList;
   }
 
@@ -69,12 +68,10 @@ public class BackupRepo extends BaseRepo {
    * @param backups list of backups
    */
   public void addBackups(@NonNull List<BackupEntity> backups) {
-    App.getExecutors().diskIO().execute(() -> {
-      mDB.runInTransaction(() -> {
-        mDB.backupDao().deleteAll();
-        mDB.backupDao().insertAll(backups);
-      });
-    });
+    App.getExecutors().diskIO().execute(() -> mDB.runInTransaction(() -> {
+      mDB.backupDao().deleteAll();
+      mDB.backupDao().insertAll(backups);
+    }));
   }
 
   /**
@@ -82,8 +79,7 @@ public class BackupRepo extends BaseRepo {
    * @param backup backup to add
    */
   public void addBackup(BackupEntity backup) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.backupDao().insertAll(backup));
+    App.getExecutors().diskIO().execute(() -> mDB.backupDao().insert(backup));
   }
 
   /**
@@ -91,19 +87,13 @@ public class BackupRepo extends BaseRepo {
    * @param driveId id of file to remove
    */
   public void removeBackup(@NonNull final DriveId driveId) {
-    App.getExecutors().diskIO().execute(() -> {
-      final String driveIdInvariant = driveId.toInvariantString();
-      int nRows = mDB.backupDao().delete(driveIdInvariant);
-      Log.logD(TAG, "db removeBackup: " + nRows);
-    });
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.backupDao().delete(driveId.toInvariantString()));
   }
 
   /** Remove all backups */
   public void removeAll() {
-    App.getExecutors().diskIO().execute(() -> {
-      int nRows = mDB.backupDao().deleteAll();
-      Log.logD(TAG, "db removeBackup: " + nRows);
-    });
+    App.getExecutors().diskIO().execute(() -> mDB.backupDao().deleteAll());
   }
 
   private void postInfoMessage(List<BackupEntity> backupFiles) {

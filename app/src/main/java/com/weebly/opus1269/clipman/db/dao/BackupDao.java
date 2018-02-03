@@ -24,7 +24,7 @@ public interface BackupDao {
   LiveData<List<BackupEntity>> loadAll();
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(BackupEntity... backupEntities);
+  void insert(BackupEntity backupEntities);
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(List<BackupEntity> backupEntities);

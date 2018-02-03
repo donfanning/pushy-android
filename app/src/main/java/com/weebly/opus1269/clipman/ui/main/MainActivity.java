@@ -123,8 +123,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // observe selected clip
     mVm.getSelectedClip().observe(this, clip -> {
-      if (clip != null) {
-        Log.logD(TAG, "selected clip changed");
+      if (!ClipEntity.isWhitespace(clip)) {
+        Log.logD(TAG, "selected clip changed: " + clip.getId());
         int pos = -1;
         final List<ClipEntity> clips = mVm.getClipsSync();
         if (!AppUtils.isEmpty(clips)) {
@@ -199,15 +199,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     navigationView.setNavigationItemSelectedListener(this);
 
     handleIntent();
-  }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-
-    //final ClipCursorAdapter adapter = mLoaderManager.getAdapter();
-    //outState.putInt(STATE_POS, adapter.getSelectedPos());
-    //outState.putLong(STATE_ITEM_ID, adapter.getSelectedItemID());
   }
 
   @Override
