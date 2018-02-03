@@ -70,11 +70,6 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
   @Override
   public void setList(List<ClipEntity> list) {
     super.setList(list);
-    if (list != null) {
-      mActivity.setSelectedClipPos(0);
-    } else {
-      mActivity.setSelectedClipPos(-1);
-    }
   }
 
   /** Factory to create an instance of our ViewHolder */

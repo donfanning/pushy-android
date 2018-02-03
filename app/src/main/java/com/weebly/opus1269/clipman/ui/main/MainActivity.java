@@ -125,9 +125,9 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mVm.getSelectedClip().observe(this, clip -> {
       if (clip != null) {
         Log.logD(TAG, "selected clip changed");
-        final List<ClipEntity> clips = mVm.getClipsSync();
         int pos = -1;
-        if (clips != null) {
+        final List<ClipEntity> clips = mVm.getClipsSync();
+        if (!AppUtils.isEmpty(clips)) {
           for (int i = 0; i < clips.size(); i++) {
             if (clips.get(i).getText().equals(clip.getText())) {
               pos = i;
@@ -155,8 +155,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // Observe clips
     mVm.getClips().observe(this, clips -> {
-      if (clips != null) {
+      if (!AppUtils.isEmpty(clips)) {
         mAdapter.setList(clips);
+        if (AppUtils.isDualPane(this) && mVm.selectedPos == -1L) {
+          setSelectedClipPos(0);
+          startOrUpdateClipViewer(clips.get(0));
+        }
       }
     });
 
@@ -451,7 +455,9 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     if (position < 0) {
       mVm.selectedPos = -1;
     } else {
-      mAdapter.notifyItemChanged(mVm.selectedPos);
+      if (mVm.selectedPos >= 0) {
+        mAdapter.notifyItemChanged(mVm.selectedPos);
+      }
       mVm.selectedPos = position;
       mAdapter.notifyItemChanged(mVm.selectedPos);
     }

@@ -29,22 +29,31 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   /** Clips list */
   private final MediatorLiveData<List<ClipEntity>> clips;
+
   /** Selected Clip */
   private final MediatorLiveData<ClipEntity> selectedClip;
+
   /** Selected Clips position */
   public int selectedPos;
+
   /** Sort with favorites first if true */
   public boolean pinFavs;
+
   /** Sort by date or text */
   public int sortType;
+
   /** Show only favorites if true */
   public boolean filterByFavs;
+
   /** Show only Clips with the given label if non-whitespace */
   public String labelFilter;
+
   /** Clips that were deleted */
   public List<ClipEntity> undoItems;
+
   /** Clip Source */
   private LiveData<ClipEntity> selectedClipSource;
+
   /** Clips Source */
   private LiveData<List<ClipEntity>> clipsSource;
 
