@@ -47,11 +47,13 @@ import java.util.Map;
 public class MyFcmListenerService extends FirebaseMessagingService {
   private static final String TAG = "MyFcmListenerService";
 
-  private static final String FCM_RECEIVED = "FCM message received: ";
-  private static final String FCM_DELETED =
+  private static final String RECEIVED = "FCM message received: ";
+  private static final String ERR_DELETED =
     "Messages from remote devices were deleted before they could be delivered";
-  private static final String FCM_MESSAGE_ERROR =
+  private static final String ERR_UNKNOWN =
     "Unknown FCM message received: ";
+  private static final String ERR_SAVE =
+    "Failed to save clip from remote device";
 
   @Override
   public void onCreate() {
@@ -108,7 +110,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       return;
     }
 
-    Log.logD(TAG, FCM_RECEIVED + action);
+    Log.logD(TAG, RECEIVED + action);
     Analytics.INST(this).received(action);
 
     switch (action) {
@@ -139,7 +141,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
         Notifications.INST(this).show(action, device.getDisplayName());
         break;
       default:
-        Log.logE(this, TAG, action, FCM_MESSAGE_ERROR, false);
+        Log.logE(this, TAG, action, ERR_UNKNOWN, false);
         break;
     }
 
@@ -152,7 +154,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     super.onDeletedMessages();
     final String msg =
       this.getApplicationContext().getString(R.string.fcm_deleted_message);
-    Log.logE(this, TAG, msg, FCM_DELETED);
+    Log.logE(this, TAG, msg, ERR_DELETED);
   }
 
 
@@ -162,7 +164,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
    * @param data   {@link Map} of key value pairs
    * @param device Source {@link Device}
    */
-  private static void saveClip(Context ctxt, Map<String, String> data,
+  private void saveClip(Context ctxt, Map<String, String> data,
                                DeviceEntity device) {
     final String clipTxt = data.get(Msg.MESSAGE);
     final String favString = data.get(Msg.FAV);
@@ -173,12 +175,13 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     // add to database
     final ClipEntity clip =
       new ClipEntity(clipTxt, date, fav, true, deviceName);
-    MainRepo.INST(App.INST()).addClipKeepTrueFav(clip);
-
-    // add to clipboard
-    clip.copyToClipboard(ctxt);
-
-    // display notification if requested by user
-    Notifications.INST(ctxt).show(clip);
+    long id = MainRepo.INST(App.INST()).addClipKeepTrueFavSync(clip);
+    if (id != -1L) {
+      clip.setId(id);
+      clip.copyToClipboard(ctxt);
+      Notifications.INST(ctxt).show(clip);
+    } else {
+      Log.logE(this, TAG, ERR_SAVE);
+    }
   }
 }

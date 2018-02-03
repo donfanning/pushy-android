@@ -23,37 +23,31 @@ import java.util.List;
 @Dao
 public interface ClipDao {
   @Query("SELECT * FROM clips ORDER BY date DESC")
-  LiveData<List<ClipEntity>> loadAll();
+  LiveData<List<ClipEntity>> getAll();
 
   @Query("SELECT * FROM clips ORDER BY LOWER(text) ASC")
-  LiveData<List<ClipEntity>> loadAllByText();
+  LiveData<List<ClipEntity>> getAllByText();
 
   @Query("SELECT * FROM clips ORDER BY fav DESC, date DESC")
-  LiveData<List<ClipEntity>> loadAllPinFavs();
+  LiveData<List<ClipEntity>> getAllPinFavs();
 
   @Query("SELECT * FROM clips ORDER BY fav DESC, LOWER(text) ASC")
-  LiveData<List<ClipEntity>> loadAllPinFavsByText();
+  LiveData<List<ClipEntity>> getAllPinFavsByText();
 
   @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY date DESC")
-  LiveData<List<ClipEntity>> loadFavs();
+  LiveData<List<ClipEntity>> getFavs();
 
   @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY LOWER(text) ASC")
-  LiveData<List<ClipEntity>> loadFavsByText();
+  LiveData<List<ClipEntity>> getFavsByText();
 
   @Query("SELECT * FROM clips WHERE id = :id")
-  LiveData<ClipEntity> load(long id);
+  LiveData<ClipEntity> get(long id);
 
   @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
-  ClipEntity get(String text);
+  ClipEntity getSync(String text);
 
   @Query("SELECT * FROM clips WHERE text = :text AND fav = '1' LIMIT 1")
-  ClipEntity getIfTrueFav(String text);
-
-  @Query("UPDATE OR IGNORE clips SET text = :newText WHERE text = :oldText")
-  int updateText(String newText, String oldText);
-
-  @Query("UPDATE clips SET fav = :fav WHERE text = :text")
-  long updateFav(String text, Boolean fav);
+  ClipEntity getIfTrueFavSync(String text);
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertAll(List<ClipEntity> clipEntities);
@@ -61,11 +55,14 @@ public interface ClipDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   long insert(ClipEntity clipEntity);
 
+  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  long insertIfNew(ClipEntity clipEntity);
+
   @Update(onConflict = OnConflictStrategy.IGNORE)
   int update(ClipEntity clipEntity);
 
-  @Insert(onConflict = OnConflictStrategy.IGNORE)
-  long insertIfNew(ClipEntity clipEntity);
+  @Query("UPDATE clips SET fav = :fav WHERE text = :text")
+  long updateFav(String text, Boolean fav);
 
   @Query("DELETE FROM clips")
   int deleteAll();

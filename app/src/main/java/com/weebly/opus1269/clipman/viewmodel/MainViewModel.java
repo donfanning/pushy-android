@@ -79,7 +79,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
     clips = new MediatorLiveData<>();
     clips.setValue(null);
-    clipsSource = mRepo.loadClips(filterByFavs, pinFavs, sortType);
+    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
     clips.addSource(clipsSource, clips::setValue);
 
     // TODO how to unregister
@@ -110,7 +110,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     }
     Log.logD(TAG, "source changed");
     clips.removeSource(clipsSource);
-    clipsSource = mRepo.loadClips(filterByFavs, pinFavs, sortType);
+    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
     clips.addSource(clipsSource, clips::setValue);
   }
 
@@ -137,7 +137,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
       if (selectedClipSource != null) {
         selectedClip.removeSource(selectedClipSource);
       }
-      selectedClipSource = mRepo.loadClip(clip.getId());
+      selectedClipSource = mRepo.getClip(clip.getId());
       selectedClip.addSource(selectedClipSource, selectedClip::setValue);
     }
   }

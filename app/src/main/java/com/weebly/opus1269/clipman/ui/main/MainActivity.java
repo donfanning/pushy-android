@@ -33,6 +33,7 @@ import android.view.SubMenu;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.CustomAsyncTask;
@@ -46,6 +47,7 @@ import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clips.ClipEditorActvity;
 import com.weebly.opus1269.clipman.ui.clips.ClipViewerActivity;
@@ -102,8 +104,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     }
 
     // listen for preference changes
-    PreferenceManager
-      .getDefaultSharedPreferences(this)
+    PreferenceManager.getDefaultSharedPreferences(this)
       .registerOnSharedPreferenceChangeListener(this);
 
     // setup ViewModel and data binding
@@ -114,7 +115,15 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mBinding.setHandlers(mHandlers);
     mBinding.executePendingBindings();
 
-    // observe errors
+    // observe info messages
+    mVm.getInfoMessage().observe(this, msg -> {
+      if (TextUtils.equals(msg, "Added clip")) {
+        // TODO
+        AppUtils.showMessage(this, mBinding.fab, msg);
+      }
+    });
+
+    // observe error messages
     mVm.getErrorMsg().observe(this, errorMsg -> {
       if (errorMsg != null) {
         AppUtils.showMessage(this, mBinding.fab, errorMsg.msg);
@@ -163,16 +172,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         }
       }
     });
-
-    // handles the adapter and RecyclerView
-    //mLoaderManager = new ClipLoaderManager(this);
-
-    //// Check whether we're recreating a previously destroyed instance
-    //if (savedInstanceState != null) {
-    //  final int pos = savedInstanceState.getInt(STATE_POS);
-    //  final long id = savedInstanceState.getLong(STATE_ITEM_ID);
-    //  mLoaderManager.getAdapter().restoreSelection(pos, id);
-    //}
 
     setupNavigationView();
 
@@ -516,29 +515,25 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     final String type = intent.getType();
 
     if (Intent.ACTION_SEND.equals(action) && (type != null)) {
-      // Share from other app
+      // Shared from other app
       if (ClipEntity.TEXT_PLAIN.equals(type)) {
-        final String sharedText =
-          intent.getStringExtra(Intent.EXTRA_TEXT);
+        final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          //TODO cant do this
-          //mVm.selectedClip = new ClipEntity();
-          //mVm.selectedClip.setText(sharedText);
-          //MainRepo.INST(App.INST())
-          //  .addClipAndSend(getSelectedClip(), false);
-          //startOrUpdateClipViewer();
+          final ClipEntity clip = new ClipEntity();
+          clip.setText(sharedText);
+          // TODO
+          MainRepo.INST(App.INST()).addClip(clip);
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {
       // from clip notification
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
-        // TODO
-        //// if 1 message open Clipviewer, otherwise show in us
-        //mVm.selectedClip =
-        //  (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
-        //intent.removeExtra(Intents.EXTRA_CLIP);
-        //startOrUpdateClipViewer();
+        // if 1 message open Clipviewer, otherwise show in us
+        final ClipEntity clip =
+          (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+        intent.removeExtra(Intents.EXTRA_CLIP);
+        startOrUpdateClipViewer(clip);
       }
     }
   }
@@ -620,6 +615,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   /** Get copy of currently selected {@link ClipEntity} */
   private ClipEntity getClipClone() {
+    // TODO get rid of
     return getClipViewerFragment().getClip();
   }
 

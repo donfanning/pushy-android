@@ -232,6 +232,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
       final String oldText = this.text;
       this.text = text;
 
+      // TODO Figue out - should not need
       if (!TextUtils.isEmpty(oldText)) {
         // broadcast change to listeners
         final Intent intent = new Intent(Intents.FILTER_CLIP);

@@ -74,7 +74,7 @@ public class ClipViewerFragViewModel extends BaseRepoViewModel<MainRepo> {
       if (clipSource != null) {
         clip.removeSource(clipSource);
       }
-      clipSource = mRepo.loadClip(clipEntity.getId());
+      clipSource = mRepo.getClip(clipEntity.getId());
       clip.addSource(clipSource, clip::setValue);
     }
   }

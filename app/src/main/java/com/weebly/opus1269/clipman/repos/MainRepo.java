@@ -13,7 +13,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
@@ -63,38 +62,33 @@ public class MainRepo extends BaseRepo {
     return sInstance;
   }
 
-  public LiveData<List<ClipEntity>> loadClips(boolean filterByFavs,
-                                              boolean pinFavs, int sortType) {
+  public LiveData<List<ClipEntity>> getClips(boolean filterByFavs,
+                                             boolean pinFavs, int sortType) {
     // itty bitty FSM - Room needs better way
     if (filterByFavs) {
       if (sortType == 1) {
-        return mDB.clipDao().loadFavsByText();
+        return mDB.clipDao().getFavsByText();
       }
-      return mDB.clipDao().loadFavs();
+      return mDB.clipDao().getFavs();
     }
     if (pinFavs) {
       if (sortType == 1) {
-        return mDB.clipDao().loadAllPinFavsByText();
+        return mDB.clipDao().getAllPinFavsByText();
       }
-      return mDB.clipDao().loadAllPinFavs();
+      return mDB.clipDao().getAllPinFavs();
     }
     if (sortType == 1) {
-      return mDB.clipDao().loadAllByText();
+      return mDB.clipDao().getAllByText();
     }
-    return mDB.clipDao().loadAll();
+    return mDB.clipDao().getAll();
   }
 
-  public LiveData<List<LabelEntity>> loadLabels() {
+  public LiveData<List<LabelEntity>> getLabels() {
     return labelsList;
   }
 
-  public LiveData<ClipEntity> loadClip(final long id) {
-    return mDB.clipDao().load(id);
-  }
-
-  @Nullable
-  public ClipEntity getClip(final String text) {
-    return mDB.clipDao().get(text);
+  public LiveData<ClipEntity> getClip(final long id) {
+    return mDB.clipDao().get(id);
   }
 
   /**
@@ -127,7 +121,7 @@ public class MainRepo extends BaseRepo {
   public void addClipIfNew(@NonNull ClipEntity clip, boolean silent) {
     App.getExecutors().diskIO().execute(() -> {
       postIsWorking(true);
-      if (mDB.clipDao().get(clip.getText()) == null) {
+      if (mDB.clipDao().getSync(clip.getText()) == null) {
         long row = mDB.clipDao().insert(clip);
         if (row == -1L) {
           if (!silent) {
@@ -148,15 +142,15 @@ public class MainRepo extends BaseRepo {
   }
 
   /**
-   * Add a clip but preserve the true fav state if it exists
+   * Insert or replace clip but preserve fav state if true
    * @param clip Clip to insert or replace
    */
-  public void addClipKeepTrueFav(@NonNull ClipEntity clip) {
-    ClipEntity existingClip = mDB.clipDao().getIfTrueFav(clip.getText());
+  public long addClipKeepTrueFavSync(@NonNull ClipEntity clip) {
+    ClipEntity existingClip = mDB.clipDao().getIfTrueFavSync(clip.getText());
     if ((existingClip != null) && existingClip.getFav()) {
       clip.setFav(true);
     }
-    MainDB.INST(App.INST()).clipDao().insert(clip);
+    return MainDB.INST(App.INST()).clipDao().insert(clip);
   }
 
   public void updateFav(@NonNull ClipEntity clip) {
@@ -176,14 +170,14 @@ public class MainRepo extends BaseRepo {
    */
   public void addClipAndSend(ClipEntity clip, boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
-      final Context context = mApp;
       postIsWorking(true);
+      final Context context = mApp;
       long id = -1L;
       int nRows = 0;
       if (onNewOnly) {
         id = mDB.clipDao().insertIfNew(clip);
       } else {
-        final ClipEntity existingClip = mDB.clipDao().get(clip.getText());
+        final ClipEntity existingClip = mDB.clipDao().getSync(clip.getText());
         if (existingClip != null) {
           // clip exists, update it
           clip.setId(existingClip.getId());

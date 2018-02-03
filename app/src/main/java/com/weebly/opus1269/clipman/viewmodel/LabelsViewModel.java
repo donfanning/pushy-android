@@ -26,8 +26,8 @@ public class LabelsViewModel extends BaseRepoViewModel<MainRepo> {
     super(app, MainRepo.INST(app));
 
     labels = new MediatorLiveData<>();
-    labels.setValue(mRepo.loadLabels().getValue());
-    labels.addSource(mRepo.loadLabels(), labels::setValue);
+    labels.setValue(mRepo.getLabels().getValue());
+    labels.addSource(mRepo.getLabels(), labels::setValue);
   }
 
   @Override
