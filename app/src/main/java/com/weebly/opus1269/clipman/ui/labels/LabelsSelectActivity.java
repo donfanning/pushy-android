@@ -8,14 +8,10 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.databinding.LabelsSelectBinding;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -27,7 +23,7 @@ public class LabelsSelectActivity extends
   private static final String STATE_CLIP_ITEM = "clipItem";
 
   /** Adapter used to display the list's data */
-  private LabelsSelectAdapter mAdapter = null;
+  private LabelsSelectAdapter mAdapter;
 
   /** Clipitem we are modifiying the list for */
   private ClipEntity mClip;
@@ -47,25 +43,26 @@ public class LabelsSelectActivity extends
     mClip = (ClipEntity) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
 
     // setup ViewModel and data binding
-    LabelsViewModel viewModel = new LabelsViewModel(getApplication());
-    LabelHandlers mHandlers = new LabelHandlers(this);
+    LabelsViewModel vm = new LabelsViewModel(getApplication());
+    LabelHandlers handlers = new LabelHandlers(this);
     mBinding.setLifecycleOwner(this);
-    mBinding.setVm(viewModel);
-    mBinding.setHandlers(mHandlers);
+    mBinding.setVm(vm);
+    mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
 
     // observe errors
-    viewModel.getErrorMsg().observe(this, errorMsg -> {
+    vm.getErrorMsg().observe(this, errorMsg -> {
       //TODO if (errorMsg != null) {
       //  mHandlers.showErrorMessage(errorMsg);
       //}
     });
 
     // setup RecyclerView
-    final RecyclerView recyclerView = findViewById(R.id.labelList);
-    if (recyclerView != null) {
-      setupRecyclerView(recyclerView, viewModel);
-    }
+    mAdapter = new LabelsSelectAdapter(this);
+    mBinding.content.recycler.setAdapter(mAdapter);
+
+    // Observe labels
+    vm.getLabels().observe(this, mAdapter::setList);
   }
 
   @Override
@@ -91,16 +88,4 @@ public class LabelsSelectActivity extends
   }
 
   ClipEntity getClip() {return mClip;}
-
-  /** Connect the {@link LabelsSelectAdapter} to the {@link RecyclerView} */
-  private void setupRecyclerView(@NonNull RecyclerView recyclerView,
-                                 LabelsViewModel viewModel) {
-    mAdapter = new LabelsSelectAdapter(this);
-    // TODO mAdapter = new LabelsSelectAdapter(mHandlers);
-    recyclerView.setAdapter(mAdapter);
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-    // Observe labels
-    viewModel.getLabels().observe(this, labels -> mAdapter.setList(labels));
-  }
 }

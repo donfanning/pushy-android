@@ -7,7 +7,9 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
@@ -36,10 +38,13 @@
       android:id="@+id/labelCreate"
       android:name="com.weebly.opus1269.clipman.ui.labels.LabelCreateFragement"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
+      android:layout_height="wrap_content"
+      tools:layout="@layout/fragment_label_create"
+
+      />
 
     <android.support.v7.widget.RecyclerView
-      android:id="@+id/recyclerView"
+      android:id="@+id/recycler"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:scrollbars="vertical"

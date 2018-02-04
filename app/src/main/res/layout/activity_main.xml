@@ -7,7 +7,9 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:bind="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
@@ -37,28 +39,33 @@
     tools:openDrawer="start">
 
     <android.support.design.widget.CoordinatorLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:fitsSystemWindows="true">
 
       <android.support.design.widget.AppBarLayout
+
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppThemeLight.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
           android:id="@+id/toolbar"
           android:layout_width="match_parent"
           android:layout_height="?attr/actionBarSize"
           android:background="?attr/colorPrimary"
-          app:popupTheme="@style/AppTheme.PopupOverlay" />
+          app:popupTheme="@style/AppThemeLight.PopupOverlay" />
 
       </android.support.design.widget.AppBarLayout>
 
       <include
-        layout="@layout/content_main"
         android:id="@+id/contentMain"
-        bind:isWorking="@{vm.isWorking}"/>
+        layout="@layout/content_main"
+        bind:isWorking="@{vm.isWorking}" />
 
       <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -67,9 +74,9 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:onClick="@{(theView) -> handlers.onFabClick(theView, vm)}"
-        app:visibleGone="@{safeUnbox(AppUtils.isDualPane(context) &amp;&amp; !vm.isWorking)}"
+        app:srcCompat="@drawable/ic_share_black_24dp"
         app:tintPrimary="@{false}"
-        app:srcCompat="@drawable/ic_share_black_24dp" />
+        app:visibleGone="@{AppUtils.isDualPane(context) &amp;&amp; safeUnbox(!vm.isWorking)}" />
 
     </android.support.design.widget.CoordinatorLayout>
 

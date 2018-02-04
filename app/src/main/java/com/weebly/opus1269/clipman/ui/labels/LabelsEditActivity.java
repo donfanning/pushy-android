@@ -43,7 +43,7 @@ public class LabelsEditActivity extends BaseActivity<LabelsEditBinding> {
 
     // setup RecyclerView
     LabelsEditAdapter adapter = new LabelsEditAdapter(this, handlers);
-    mBinding.content.recyclerView.setAdapter(adapter);
+    mBinding.content.recycler.setAdapter(adapter);
 
     // Observe labels
     vm.getLabels().observe(this, adapter::setList);

@@ -11,7 +11,9 @@
 This layout is a two-pane layout for the clip list and viewer
 master/detail flow.
 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:bind="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
@@ -35,9 +37,7 @@ master/detail flow.
     tools:context=".ui.main.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
       android:id="@+id/clip_container_layout"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
@@ -46,9 +46,7 @@ master/detail flow.
       android:orientation="horizontal"
       android:showDividers="middle">
 
-      <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+      <FrameLayout
         android:layout_width="@dimen/clip_item_width"
         android:layout_height="match_parent">
 
@@ -64,7 +62,8 @@ master/detail flow.
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        tools:layout="@layout/fragment_clip_viewer">
 
       </FrameLayout>
 

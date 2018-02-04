@@ -1,12 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
   ~ Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
   ~ Licensed under Apache 2.0
   ~ https://opensource.org/licenses/Apache-2.0
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout
+
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:bind="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
@@ -31,21 +34,14 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.labels.LabelsSelectActivity">
 
-    <android.support.design.widget.AppBarLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:theme="@style/AppTheme.AppBarOverlay">
+    <include layout="@layout/app_bar" />
 
-      <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
+    <include
+      layout="@layout/content_labels_select"
+      android:id="@+id/content"
+      bind:vm="@{vm}"
+      bind:handlers="@{handlers}" />
 
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_labels_select" />
 
   </android.support.design.widget.CoordinatorLayout>
 

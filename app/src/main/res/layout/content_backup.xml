@@ -15,6 +15,10 @@
     <import type="android.text.TextUtils" />
 
     <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.BackupsViewModel" />
+
+    <variable
       name="isWorking"
       type="android.arch.lifecycle.LiveData&lt;Boolean&gt;" />
 
@@ -41,13 +45,18 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
-      app:visibleGone="@{!safeUnbox(isWorking)}"
-      >
+      app:visibleGone="@{!safeUnbox(isWorking)}">
 
-      <include
-        layout="@layout/backup_list"
-        android:id="@+id/backupListLayout"
-        bind:infoMessage="@{infoMessage}" />
+      <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        app:visibleGone="@{TextUtils.isEmpty(infoMessage)}"
+        tools:listitem="@layout/backup_row"
+
+        />
 
       <TextView
         android:layout_width="match_parent"

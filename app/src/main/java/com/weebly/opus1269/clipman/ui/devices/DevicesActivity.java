@@ -38,8 +38,7 @@ public class DevicesActivity extends BaseActivity<DevicesBinding> {
 
     // setup RecyclerView
     mAdapter = new DevicesAdapter(this, handlers);
-    mBinding.contentDevicesLayout.deviceListLayout.deviceRecyclerView
-      .setAdapter(mAdapter);
+    mBinding.content.recycler.setAdapter(mAdapter);
 
     // Observe devices
     vm.loadDevices().observe(this, devices -> mAdapter.setList(devices));

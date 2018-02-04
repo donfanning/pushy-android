@@ -7,25 +7,60 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/content_labels_select"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:descendantFocusability="beforeDescendants"
-  android:focusableInTouchMode="true"
-  android:orientation="vertical"
-  app:layout_behavior="@string/appbar_scrolling_view_behavior"
-  tools:context=".ui.labels.LabelsEditActivity"
-  tools:showIn="@layout/activity_labels_edit">
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <fragment android:name="com.weebly.opus1269.clipman.ui.labels.LabelCreateFragement"
-    android:id="@+id/labelCreate"
+  <data>
+
+    <import type="android.text.TextUtils" />
+
+    <import type="android.view.View" />
+
+    <variable
+      name="vm"
+      type="com.weebly.opus1269.clipman.viewmodel.LabelsViewModel" />
+
+    <variable
+      name="handlers"
+      type="com.weebly.opus1269.clipman.ui.labels.LabelHandlers" />
+  </data>
+
+  <LinearLayout
+
+    android:id="@+id/content_labels_select"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    />
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ui.labels.LabelsEditActivity"
+    tools:showIn="@layout/activity_labels_select">
 
-  <include layout="@layout/label_select_list" />
+    <fragment
 
-</LinearLayout>
+      android:id="@+id/labelCreate"
+      android:name="com.weebly.opus1269.clipman.ui.labels.LabelCreateFragement"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      tools:layout="@layout/fragment_label_create"
+
+      />
+
+    <android.support.v7.widget.RecyclerView
+
+      android:id="@+id/recycler"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:scrollbars="vertical"
+      app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+      tools:listitem="@layout/label_select_row"
+
+      />
+
+  </LinearLayout>
+
+</layout>

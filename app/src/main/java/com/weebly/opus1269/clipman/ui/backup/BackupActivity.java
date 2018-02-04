@@ -45,7 +45,7 @@ public class BackupActivity extends BaseActivity<BackupBinding> {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    BackupsViewModel vm = new BackupsViewModel(getApplication());
+    final BackupsViewModel vm = new BackupsViewModel(getApplication());
     mHandlers = new BackupHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(vm);
@@ -62,8 +62,7 @@ public class BackupActivity extends BaseActivity<BackupBinding> {
     });
 
     mAdapter = new BackupAdapter(this, mHandlers);
-    mBinding.contentBackupLayout.backupListLayout.backupRecyclerView
-      .setAdapter(mAdapter);
+    mBinding.contentLayout.recycler.setAdapter(mAdapter);
 
     // Observe backups
     vm.loadBackups().observe(this, backups -> {
