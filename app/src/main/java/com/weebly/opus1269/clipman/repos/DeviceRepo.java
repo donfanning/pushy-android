@@ -50,7 +50,7 @@ public class DeviceRepo extends BaseRepo implements
     ERR_NO_REMOTE_DEVICES = mApp.getString(R.string.err_no_remote_devices);
 
     deviceList = new MediatorLiveData<>();
-    deviceList.addSource(mDB.deviceDao().loadAll(), devices -> {
+    deviceList.addSource(mDB.deviceDao().getAll(), devices -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         deviceList.postValue(devices);
         if(!AppUtils.isEmpty(devices)) {
@@ -96,13 +96,27 @@ public class DeviceRepo extends BaseRepo implements
     }
   }
 
-  @NonNull public LiveData<List<DeviceEntity>> loadDevices() {
+  @NonNull public LiveData<List<DeviceEntity>> getDevices() {
     if (deviceList.getValue() == null) {
       // if no items in database, List will be null
       deviceList.setValue(new ArrayList<>());
     }
     return deviceList;
   }
+
+  public void add(DeviceEntity device) {
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.deviceDao().insert(device));
+  }
+
+  public void remove(DeviceEntity device) {
+    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().delete(device));
+  }
+
+  public void removeAll() {
+    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().deleteAll());
+  }
+
 
   /** Send ping to query remote devices */
   public void refreshList() {
@@ -113,19 +127,6 @@ public class DeviceRepo extends BaseRepo implements
   public void noRegisteredDevices() {
     postInfoMessage(ERR_NO_REMOTE_DEVICES);
     removeAll();
-  }
-
-  public void add(DeviceEntity device) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.deviceDao().insertAll(device));
-  }
-
-  public void remove(DeviceEntity device) {
-    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().delete(device));
-  }
-
-  public void removeAll() {
-    App.getExecutors().diskIO().execute(() -> mDB.deviceDao().deleteAll());
   }
 
   private void initInfoMessage() {

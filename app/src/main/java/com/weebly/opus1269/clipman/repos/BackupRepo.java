@@ -40,7 +40,7 @@ public class BackupRepo extends BaseRepo {
     mDB = BackupDB.INST(app);
 
     backupList = new MediatorLiveData<>();
-    backupList.addSource(mDB.backupDao().loadAll(), backups -> {
+    backupList.addSource(mDB.backupDao().getAll(), backups -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         postInfoMessage(backups);
         backupList.postValue(backups);

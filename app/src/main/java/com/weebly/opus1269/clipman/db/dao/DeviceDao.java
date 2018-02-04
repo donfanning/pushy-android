@@ -9,27 +9,18 @@ package com.weebly.opus1269.clipman.db.dao;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
 
 import java.util.List;
 
-/** DB access for Devices */
+/** Database access for devices table */
 @Dao
-public interface DeviceDao {
+public interface DeviceDao extends BaseDao<DeviceEntity> {
   @Query("SELECT * FROM devices ORDER BY last_seen DESC")
-  LiveData<List<DeviceEntity>> loadAll();
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(DeviceEntity... deviceEntities);
+  LiveData<List<DeviceEntity>> getAll();
 
   @Query("DELETE FROM devices")
   void deleteAll();
-
-  @Delete
-  void delete(DeviceEntity deviceEntity);
 }

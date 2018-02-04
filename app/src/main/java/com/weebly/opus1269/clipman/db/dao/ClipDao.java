@@ -9,19 +9,15 @@ package com.weebly.opus1269.clipman.db.dao;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 
 import java.util.List;
 
-/** Database access for Clips */
+/** Database access for clips table */
 @Dao
-public interface ClipDao {
+public interface ClipDao extends BaseDao<ClipEntity> {
   @Query("SELECT * FROM clips ORDER BY date DESC")
   LiveData<List<ClipEntity>> getAll();
 
@@ -49,18 +45,6 @@ public interface ClipDao {
   @Query("SELECT * FROM clips WHERE text = :text AND fav = '1' LIMIT 1")
   ClipEntity getIfTrueFavSync(String text);
 
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(List<ClipEntity> clipEntities);
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  long insert(ClipEntity clipEntity);
-
-  @Insert(onConflict = OnConflictStrategy.IGNORE)
-  long insertIfNew(ClipEntity clipEntity);
-
-  @Update(onConflict = OnConflictStrategy.IGNORE)
-  int update(ClipEntity clipEntity);
-
   @Query("UPDATE clips SET fav = :fav WHERE text = :text")
   long updateFav(String text, Boolean fav);
 
@@ -69,7 +53,4 @@ public interface ClipDao {
 
   @Query("DELETE FROM clips WHERE fav = 0")
   int deleteAllNonFavs();
-
-  @Delete
-  int delete(ClipEntity clipEntity);
 }

@@ -9,25 +9,17 @@ package com.weebly.opus1269.clipman.db.dao;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.weebly.opus1269.clipman.db.entity.BackupEntity;
 
 import java.util.List;
 
-/** DB access for Backups */
+/** Database access for backups table */
 @Dao
-public interface BackupDao {
+public interface BackupDao extends BaseDao<BackupEntity> {
   @Query("SELECT * FROM backups ORDER BY isMine DESC, date DESC")
-  LiveData<List<BackupEntity>> loadAll();
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insert(BackupEntity backupEntities);
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  void insertAll(List<BackupEntity> backupEntities);
+  LiveData<List<BackupEntity>> getAll();
 
   @Query("DELETE FROM backups")
   int deleteAll();

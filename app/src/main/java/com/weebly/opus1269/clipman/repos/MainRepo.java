@@ -44,7 +44,7 @@ public class MainRepo extends BaseRepo {
 
     labelsList = new MediatorLiveData<>();
     labelsList.postValue(new ArrayList<>());
-    labelsList.addSource(mDB.labelDao().loadAll(), labels -> {
+    labelsList.addSource(mDB.labelDao().getAll(), labels -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         labelsList.postValue(labels);
       }
@@ -142,28 +142,6 @@ public class MainRepo extends BaseRepo {
   }
 
   /**
-   * Insert or replace clip but preserve fav state if true
-   * @param clip Clip to insert or replace
-   */
-  public long addClipKeepTrueFavSync(@NonNull ClipEntity clip) {
-    ClipEntity existingClip = mDB.clipDao().getIfTrueFavSync(clip.getText());
-    if ((existingClip != null) && existingClip.getFav()) {
-      clip.setFav(true);
-    }
-    return MainDB.INST(App.INST()).clipDao().insert(clip);
-  }
-
-  public void updateFav(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
-  }
-
-  public void removeClip(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.clipDao().delete(clip));
-  }
-
-  /**
    * Insert or update clip and optionally send to remote devices
    * @param clip      The Clip
    * @param onNewOnly if true, only add if it doesn't exist
@@ -203,6 +181,28 @@ public class MainRepo extends BaseRepo {
       }
       postIsWorking(false);
     });
+  }
+
+  /**
+   * Insert or replace clip but preserve fav state if true
+   * @param clip Clip to insert or replace
+   */
+  public long addClipKeepTrueFavSync(@NonNull ClipEntity clip) {
+    ClipEntity existingClip = mDB.clipDao().getIfTrueFavSync(clip.getText());
+    if ((existingClip != null) && existingClip.getFav()) {
+      clip.setFav(true);
+    }
+    return MainDB.INST(App.INST()).clipDao().insert(clip);
+  }
+
+  public void updateFav(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
+  }
+
+  public void removeClip(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.clipDao().delete(clip));
   }
 
   public void updateClip(@NonNull ClipEntity clipEntity) {

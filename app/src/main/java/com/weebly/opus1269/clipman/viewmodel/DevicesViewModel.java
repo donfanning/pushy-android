@@ -29,7 +29,7 @@ public class DevicesViewModel extends BaseRepoViewModel<DeviceRepo> {
     // set by default null, until we get data from the repo.
     devices.setValue(null);
     // observe the changes of the devices from the repo and forward them
-    devices.addSource(mRepo.loadDevices(), devices::setValue);
+    devices.addSource(mRepo.getDevices(), devices::setValue);
 
     // ping devices
     refreshList();
