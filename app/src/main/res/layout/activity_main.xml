@@ -76,7 +76,7 @@
         android:onClick="@{(theView) -> handlers.onFabClick(theView, vm)}"
         app:srcCompat="@drawable/ic_share_black_24dp"
         app:tintPrimary="@{false}"
-        app:visibleGone="@{AppUtils.isDualPane(context) &amp;&amp; safeUnbox(!vm.isWorking)}" />
+        app:visibleGone="@{AppUtils.isDualPane(context) &amp;&amp; !safeUnbox(vm.isWorking)}" />
 
     </android.support.design.widget.CoordinatorLayout>
 

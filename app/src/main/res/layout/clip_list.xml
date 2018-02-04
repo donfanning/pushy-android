@@ -24,7 +24,7 @@
     android:layout_height="match_parent"
     android:scrollbars="vertical"
     app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-    app:visibleGone="@{safeUnbox(!isWorking)}"
+    app:visibleGone="@{!safeUnbox(isWorking)}"
     tools:listitem="@layout/clip_row" />
 
 </layout>

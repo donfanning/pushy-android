@@ -118,11 +118,9 @@ public class MainRepo extends BaseRepo {
    */
   public void addClip(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO().execute(() -> {
-      postIsWorking(true);
       final long id = mDB.clipDao().insert(clip);
       Log.logD(TAG, "added id: " + id);
       postInfoMessage("Added clip");
-      postIsWorking(false);
     });
   }
 
@@ -141,7 +139,6 @@ public class MainRepo extends BaseRepo {
    */
   public void addClipIfNew(@NonNull ClipEntity clip, boolean silent) {
     App.getExecutors().diskIO().execute(() -> {
-      postIsWorking(true);
       if (mDB.clipDao().getSync(clip.getText()) == null) {
         long row = mDB.clipDao().insert(clip);
         if (row == -1L) {
@@ -158,7 +155,6 @@ public class MainRepo extends BaseRepo {
       } else if (!silent) {
         errorMsg.postValue(new ErrorMsg("Clip exists"));
       }
-      postIsWorking(false);
     });
   }
 
@@ -169,7 +165,6 @@ public class MainRepo extends BaseRepo {
    */
   public void addClipAndSend(ClipEntity clip, boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
-      postIsWorking(true);
       final Context context = mApp;
       long id = -1L;
       int nRows = 0;
@@ -189,9 +184,9 @@ public class MainRepo extends BaseRepo {
       if (id != -1L || nRows != 0) {
         // success
         if (id != -1L) {
-          Log.logD(TAG, "addClipAndSendAsync added id: " + id);
+          Log.logD(TAG, "addClipAndSend added id: " + id);
         } else {
-          Log.logD(TAG, "addClipAndSendAsync updated id: " + clip.getId());
+          Log.logD(TAG, "addClipAndSend updated id: " + clip.getId());
         }
 
         Notifications.INST(context).show(clip);
@@ -200,7 +195,6 @@ public class MainRepo extends BaseRepo {
           clip.send(context);
         }
       }
-      postIsWorking(false);
     });
   }
 

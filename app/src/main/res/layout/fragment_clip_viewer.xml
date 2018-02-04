@@ -43,7 +43,7 @@
       android:id="@+id/labelLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:visibleGone="@{safeUnbox(vm.clip.labels.size > 0)}"
+      app:visibleGone="@{vm.clip.labels.size > 0}"
       android:orientation="vertical">
 
       <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -68,7 +68,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/labelLayout"
-      app:visibleGone="@{safeUnbox(vm.clip.remote)}"
+      app:visibleGone="@{vm.clip.remote}"
       android:orientation="vertical">
 
       <TextView

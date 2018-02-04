@@ -31,7 +31,7 @@
       android:id="@+id/clip_text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{safeUnbox(addMode) ? @string/clip_add_text : @string/clip_edit_text}"
+      android:hint="@{addMode ? @string/clip_add_text : @string/clip_edit_text}"
       android:inputType="textMultiLine"
       android:selectAllOnFocus="false"
       android:text="@={text}"

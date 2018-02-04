@@ -188,8 +188,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     final RecyclerView recyclerView = findViewById(R.id.clipList);
     mAdapter = new ClipAdapter(this, mHandlers);
-    //binding.contentBackupLayout.backupListLayout.backupRecyclerView
-    //  .setAdapter(mAdapter);
     recyclerView.setAdapter(mAdapter);
 
     // handle touch events on the RecyclerView
@@ -200,13 +198,16 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // Observe clips
     mVm.getClips().observe(this, clips -> {
-      mAdapter.setList(clips);
+      if (clips != null) {
+        mAdapter.setList(clips);
+      }
       if (!AppUtils.isEmpty(clips)) {
         if (AppUtils.isDualPane(this) && mVm.selectedPos == -1) {
           setSelectedClipPos(0);
           startOrUpdateClipViewer(clips.get(0));
         }
       } else {
+        //TODO
         setSelectedClipPos(-1);
         //startOrUpdateClipViewer(new ClipEntity());
       }

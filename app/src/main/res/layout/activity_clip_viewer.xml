@@ -45,7 +45,7 @@
       android:onClick="@{(theView) -> handlers.onFabClick(theView, vm)}"
       app:srcCompat="@drawable/ic_share_black_24dp"
       app:tintPrimary="@{false}"
-      app:visibleGone="@{safeUnbox(!ClipEntity.isWhitespace(vm.clip))}" />
+      app:visibleGone="@{!ClipEntity.isWhitespace(vm.clip)}" />
 
   </android.support.design.widget.CoordinatorLayout>
 
