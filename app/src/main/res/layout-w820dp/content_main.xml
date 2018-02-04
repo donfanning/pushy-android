@@ -71,7 +71,7 @@ master/detail flow.
     </LinearLayout>
 
     <include
-      layout="@layout/progress_layout_backup"
+      layout="@layout/progress_layout"
       bind:isWorking="@{isWorking}" />
 
   </LinearLayout>

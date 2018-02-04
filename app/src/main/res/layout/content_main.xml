@@ -27,7 +27,7 @@
     tools:showIn="@layout/activity_main">
 
     <include
-      layout="@layout/progress_layout_backup"
+      layout="@layout/progress_layout"
       bind:isWorking="@{isWorking}"
       />
 
