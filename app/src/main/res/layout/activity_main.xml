@@ -14,6 +14,8 @@
 
   <data class="MainBinding">
 
+    <import type="com.weebly.opus1269.clipman.app.AppUtils" />
+
     <import type="android.text.TextUtils" />
 
     <import type="android.view.View" />
@@ -53,7 +55,10 @@
 
       </android.support.design.widget.AppBarLayout>
 
-      <include layout="@layout/content_main" />
+      <include
+        layout="@layout/content_main"
+        android:id="@+id/contentMain"
+        bind:isWorking="@{vm.isWorking}"/>
 
       <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -62,6 +67,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:onClick="@{(theView) -> handlers.onFabClick(theView, vm)}"
+        app:visibleGone="@{safeUnbox(AppUtils.isDualPane(context) &amp;&amp; !vm.isWorking)}"
         app:tintPrimary="@{false}"
         app:srcCompat="@drawable/ic_share_black_24dp" />
 

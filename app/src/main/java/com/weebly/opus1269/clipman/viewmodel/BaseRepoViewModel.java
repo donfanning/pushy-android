@@ -85,8 +85,11 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
     return isWorking;
   }
 
-  protected void postIsWorking(final boolean value) {
+  protected void setIsWorking(final boolean value) {
+    isWorking.setValue(value);
+  }
 
+  protected void postIsWorking(final boolean value) {
     isWorking.postValue(value);
   }
 

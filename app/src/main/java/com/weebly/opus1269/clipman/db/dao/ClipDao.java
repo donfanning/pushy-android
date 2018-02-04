@@ -21,6 +21,9 @@ public interface ClipDao extends BaseDao<ClipEntity> {
   @Query("SELECT * FROM clips ORDER BY date DESC")
   LiveData<List<ClipEntity>> getAll();
 
+  @Query("SELECT * FROM clips ORDER BY date DESC")
+  List<ClipEntity> getAllSync();
+
   @Query("SELECT * FROM clips ORDER BY LOWER(text) ASC")
   LiveData<List<ClipEntity>> getAllByText();
 
@@ -32,6 +35,9 @@ public interface ClipDao extends BaseDao<ClipEntity> {
 
   @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY date DESC")
   LiveData<List<ClipEntity>> getFavs();
+
+  @Query("SELECT * FROM clips WHERE fav = '0' ORDER BY date DESC")
+  List<ClipEntity> getNonFavsSync();
 
   @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY LOWER(text) ASC")
   LiveData<List<ClipEntity>> getFavsByText();

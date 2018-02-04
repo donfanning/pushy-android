@@ -10,18 +10,19 @@ package com.weebly.opus1269.clipman.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** ViewModel for MainActvity */
@@ -46,10 +47,12 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   public boolean filterByFavs;
 
   /** Show only Clips with the given label if non-whitespace */
+  @NonNull
   public String labelFilter;
 
   /** Clips that were deleted */
-  public List<ClipEntity> undoItems;
+  @NonNull
+  public MutableLiveData<List<ClipEntity>> undoClips;
 
   /** Clip Source */
   private LiveData<ClipEntity> selectedClipSource;
@@ -75,7 +78,8 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
     sortType = Prefs.INST(app).getSortType();
 
-    undoItems = new ArrayList<>(0);
+    undoClips = new MutableLiveData<>();
+    undoClips.setValue(null);
 
     clips = new MediatorLiveData<>();
     clips.setValue(null);
@@ -140,5 +144,13 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
       selectedClipSource = mRepo.getClip(clip.getId());
       selectedClip.addSource(selectedClipSource, selectedClip::setValue);
     }
+  }
+
+  public void removeAll(boolean includeFavs) {
+    setIsWorking(true);
+    App.getExecutors().diskIO().execute(() -> {
+      undoClips.postValue(mRepo.removeAllClipsSync(includeFavs));
+      postIsWorking(false);
+    });
   }
 }

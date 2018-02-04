@@ -11,8 +11,6 @@
 
   <data>
 
-    <import type="android.view.View" />
-
     <variable
       name="isWorking"
       type="android.arch.lifecycle.LiveData&lt;Boolean&gt;" />
@@ -40,7 +38,8 @@
       android:fadeScrollbars="true"
       android:gravity="center"
       android:text="@string/progress_working"
-      android:textAppearance="@style/TextAppearance.AppCompat" />
+      android:textAppearance="@style/TextAppearance.AppCompat"
+      tools:text="Working..." />
 
   </LinearLayout>
 

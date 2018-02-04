@@ -83,12 +83,33 @@ public class MainRepo extends BaseRepo {
     return mDB.clipDao().getAll();
   }
 
+  public List<ClipEntity> getClipsSync() {
+    return mDB.clipDao().getAllSync();
+  }
+
+  public List<ClipEntity> getNonFavClipsSync() {
+    return mDB.clipDao().getNonFavsSync();
+  }
+
   public LiveData<List<LabelEntity>> getLabels() {
     return labelsList;
   }
 
   public LiveData<ClipEntity> getClip(final long id) {
     return mDB.clipDao().get(id);
+  }
+
+  /**
+   * Insert or replace a list of clips
+   * @param clips Clips list
+   */
+  public void addClips(@NonNull List<ClipEntity> clips) {
+    setIsWorking(true);
+    App.getExecutors().diskIO().execute(() -> {
+      final long id[] = mDB.clipDao().insertAll(clips);
+      Log.logD(TAG, "added clips: " + id.length);
+      postIsWorking(false);
+    });
   }
 
   /**
@@ -195,16 +216,6 @@ public class MainRepo extends BaseRepo {
     return MainDB.INST(App.INST()).clipDao().insert(clip);
   }
 
-  public void updateFav(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
-  }
-
-  public void removeClip(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.clipDao().delete(clip));
-  }
-
   public void updateClip(@NonNull ClipEntity clipEntity) {
     App.getExecutors().diskIO().execute(() -> {
       final int nRows = mDB.clipDao().update(clipEntity);
@@ -214,6 +225,28 @@ public class MainRepo extends BaseRepo {
         postInfoMessage("Clip Updated");
       }
     });
+  }
+
+  public void updateClipFav(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
+  }
+
+  public void removeClip(@NonNull ClipEntity clip) {
+    App.getExecutors().diskIO()
+      .execute(() -> mDB.clipDao().delete(clip));
+  }
+
+  public List<ClipEntity> removeAllClipsSync(boolean includeFavs) {
+    final List<ClipEntity> ret;
+    if (includeFavs) {
+      ret = mDB.clipDao().getAllSync();
+      mDB.clipDao().deleteAll();
+    } else {
+      ret = mDB.clipDao().getNonFavsSync();
+      mDB.clipDao().deleteAllNonFavs();
+    }
+    return ret;
   }
 
   public void addLabelIfNew(@NonNull LabelEntity label) {

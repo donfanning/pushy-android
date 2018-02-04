@@ -20,11 +20,9 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -36,18 +34,17 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
-import com.weebly.opus1269.clipman.app.CustomAsyncTask;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.MainBinding;
-import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.model.LastError;
+import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.repos.MainRepo;
+import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clips.ClipEditorActvity;
 import com.weebly.opus1269.clipman.ui.clips.ClipViewerActivity;
@@ -56,14 +53,12 @@ import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
 import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.ui.help.HelpActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
-import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** Top level Activity for the app */
@@ -150,6 +145,47 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       }
     });
 
+    // observe undo clips
+    mVm.undoClips.observe(this, clips -> {
+      if (AppUtils.isEmpty(clips)) {
+        return;
+      }
+      final int nRows = clips.size();
+      String message = nRows + getString(R.string.items_deleted);
+
+      switch (nRows) {
+        case 0:
+          message = getString(R.string.item_delete_empty);
+          break;
+        case 1:
+          message = getString(R.string.item_deleted_one);
+          break;
+        default:
+          break;
+      }
+      final Snackbar snack =
+        Snackbar.make(mBinding.fab, message, 10000);
+      if (nRows > 0) {
+        snack.setAction(R.string.button_undo, v -> {
+          final Context ctxt = v.getContext();
+          Analytics.INST(ctxt)
+            .imageClick(TAG, ctxt.getString(R.string.button_undo));
+          MainRepo.INST(App.INST()).addClips(clips);
+        }).addCallback(new Snackbar.Callback() {
+
+          @Override
+          public void onShown(Snackbar snackbar) {
+          }
+
+          @Override
+          public void onDismissed(Snackbar snackbar, int event) {
+            mVm.undoClips.setValue(null);
+          }
+        });
+      }
+      snack.show();
+    });
+
     final RecyclerView recyclerView = findViewById(R.id.clipList);
     mAdapter = new ClipAdapter(this, mHandlers);
     //binding.contentBackupLayout.backupListLayout.backupRecyclerView
@@ -164,12 +200,15 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // Observe clips
     mVm.getClips().observe(this, clips -> {
+      mAdapter.setList(clips);
       if (!AppUtils.isEmpty(clips)) {
-        mAdapter.setList(clips);
-        if (AppUtils.isDualPane(this) && mVm.selectedPos == -1L) {
+        if (AppUtils.isDualPane(this) && mVm.selectedPos == -1) {
           setSelectedClipPos(0);
           startOrUpdateClipViewer(clips.get(0));
         }
+      } else {
+        setSelectedClipPos(-1);
+        //startOrUpdateClipViewer(new ClipEntity());
       }
     });
 
@@ -186,16 +225,13 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     setFabVisibility(false);
 
-    final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-    final Toolbar toolbar = findViewById(R.id.toolbar);
-    final ActionBarDrawerToggle toggle =
-      new ActionBarDrawerToggle(this, drawer, toolbar,
-        R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-    drawer.addDrawerListener(toggle);
+    final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,
+      mBinding.drawerLayout, mBinding.toolbar, R.string.navigation_drawer_open,
+      R.string.navigation_drawer_close);
+    mBinding.drawerLayout.addDrawerListener(toggle);
     toggle.syncState();
 
-    final NavigationView navigationView = findViewById(R.id.nav_view);
-    navigationView.setNavigationItemSelectedListener(this);
+    mBinding.navView.setNavigationItemSelectedListener(this);
 
     handleIntent();
   }
@@ -208,11 +244,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     //mVm.labelFilter = Prefs.INST(this).getLabelFilter();
 
     setTitle();
-
     updateNavView();
-
     updateOptionsMenu();
-
     Notifications.INST(this).removeClips();
   }
 
@@ -265,7 +298,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   protected void onPause() {
     super.onPause();
 
-    mVm.undoItems = new ArrayList<>(0);
+    mVm.undoClips.setValue(null);
   }
 
   @Override
@@ -280,7 +313,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         setQueryString("");
         break;
       case R.id.action_send:
-        sendClipboardContents();
+        ClipboardHelper.sendClipboardContents(this, mBinding.fab);
         break;
       case R.id.action_pin:
         Prefs.INST(this).setPinFav(!mVm.pinFavs);
@@ -291,11 +324,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         updateOptionsMenu();
         break;
       case R.id.action_sort:
-        showSortTypeDialog();
+        final DialogFragment sortDialog = new SortTypeDialogFragment();
+        sortDialog.show(getSupportFragmentManager(), "SortTypeDialogFragment");
         break;
       case R.id.action_labels:
         intent = new Intent(this, LabelsSelectActivity.class);
-        intent.putExtra(Intents.EXTRA_CLIP, this.getClipClone());
+        intent.putExtra(Intents.EXTRA_CLIP, getSelectedClipSync());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_add_clip:
@@ -305,11 +339,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         break;
       case R.id.action_edit_text:
         intent = new Intent(this, ClipEditorActvity.class);
-        intent.putExtra(Intents.EXTRA_CLIP, this.getClipClone());
+        intent.putExtra(Intents.EXTRA_CLIP, getSelectedClipSync());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_delete:
-        showDeleteDialog();
+        final DialogFragment deleteDialog = new DeleteDialogFragment();
+        deleteDialog.show(getSupportFragmentManager(), "DeleteDialogFragment");
         break;
       case R.id.action_settings:
         startActivity(SettingsActivity.class);
@@ -339,8 +374,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         startActivity(SignInActivity.class);
         break;
       case R.id.nav_backup:
-        startActivity(com.weebly.opus1269.clipman.ui.backup.BackupActivity
-          .class);
+        startActivity(BackupActivity.class);
         break;
       case R.id.nav_devices:
         startActivity(DevicesActivity.class);
@@ -388,8 +422,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       Analytics.INST(this).menuClick(TAG, item);
     }
 
-    final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-    drawer.closeDrawer(GravityCompat.START);
+    mBinding.drawerLayout.closeDrawer(GravityCompat.START);
 
     return true;
   }
@@ -399,12 +432,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   public void onLayoutChange(View v, int left, int top, int right, int bottom,
                              int oldLeft, int oldTop, int oldRight,
                              int oldBottom) {
-    final NavigationView navigationView = findViewById(R.id.nav_view);
-
-    if (v.equals(navigationView)) {
+    if (v.equals(mBinding.navView)) {
       final int oldWidth = oldRight - oldLeft;
       final int width = right - left;
-      final View hView = navigationView.getHeaderView(0);
+      final View hView = mBinding.navView.getHeaderView(0);
       if ((hView != null) && (oldWidth != width)) {
         hView.getLayoutParams().height = Math.round((9.0F / 16.0F) * width);
       }
@@ -417,8 +448,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   @Override
-  public void onDeleteDialogPositiveClick(Boolean deleteFavs) {
-    new DeleteAsyncTask(this, deleteFavs).executeMe();
+  public void onDeleteDialogPositiveClick(Boolean includeFavs) {
+    mVm.removeAll(includeFavs);
   }
 
   @Override
@@ -457,45 +488,15 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     return mVm;
   }
 
-  /** Display progress UI */
-  private void showProgress() {
-    final View contentView;
-    if (AppUtils.isDualPane(this)) {
-      contentView = findViewById(R.id.clip_container_layout);
-      final View fabView = findViewById(R.id.fab);
-      fabView.setVisibility(View.GONE);
-    } else {
-      contentView = findViewById(R.id.clipList);
-    }
-    final View progressView = findViewById(R.id.progress_layout);
-
-    contentView.setVisibility(View.GONE);
-    progressView.setVisibility(View.VISIBLE);
-  }
-
-  /** Hide progress UI */
-  private void hideProgress() {
-    final View contentView;
-    if (AppUtils.isDualPane(this)) {
-      contentView = findViewById(R.id.clip_container_layout);
-      final View fabView = findViewById(R.id.fab);
-      fabView.setVisibility(View.VISIBLE);
-    } else {
-      contentView = findViewById(R.id.clipList);
-    }
-    final View progressView = findViewById(R.id.progress_layout);
-
-    contentView.setVisibility(View.VISIBLE);
-    progressView.setVisibility(View.GONE);
-  }
-
   /**
-   * Start the {@link ClipViewerActivity}
-   * or update the {@link ClipViewerFragment}
+   * Start {@link ClipViewerActivity} or update the {@link ClipViewerFragment}
+   * @param clip The Clip to view
    */
   void startOrUpdateClipViewer(ClipEntity clip) {
     if (AppUtils.isDualPane(this)) {
-      final ClipViewerFragment fragment = getClipViewerFragment();
+      final ClipViewerFragment fragment =
+        (ClipViewerFragment) getSupportFragmentManager()
+          .findFragmentById(R.id.clip_viewer_container);
       if (fragment != null) {
         fragment.setClip(clip);
         fragment.setHighlight(mQueryString);
@@ -539,7 +540,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   private @Nullable
-  ClipEntity getSelectedClip() {
+  ClipEntity getSelectedClipSync() {
     return mVm == null ? null : mVm.getSelectedClipSync();
   }
 
@@ -552,42 +553,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     AppUtils.startActivity(this, intent);
   }
 
-  /** Send the clipboard contents to our devices */
-  private void sendClipboardContents() {
-    ClipboardHelper.sendClipboardContents(this, mBinding.fab);
-  }
-
-  /** Show the {@link DeleteDialogFragment} for verifying delete all */
-  private void showDeleteDialog() {
-    final DialogFragment dialog = new DeleteDialogFragment();
-    dialog.show(getSupportFragmentManager(), "DeleteDialogFragment");
-  }
-
-  /** Show the {@link SortTypeDialogFragment} for selecting list sort type */
-  private void showSortTypeDialog() {
-    final DialogFragment dialog = new SortTypeDialogFragment();
-    dialog.show(getSupportFragmentManager(), "SortTypeDialogFragment");
-  }
-
-  /** Initialize the NavigationView */
-  private void setupNavigationView() {
-    final NavigationView navigationView = findViewById(R.id.nav_view);
-    if (navigationView == null) {
-      return;
-    }
-    navigationView.addOnLayoutChangeListener(this);
-
-    // Handle click on header
-    final View hView = navigationView.getHeaderView(0);
-    hView.setOnClickListener(v -> {
-      final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-      if (drawer != null) {
-        drawer.closeDrawer(GravityCompat.START);
-      }
-      startActivity(SignInActivity.class);
-    });
-  }
-
   /** Set title based on currently selected {@link ClipEntity} */
   private void setTitle() {
     String prefix = getString(R.string.title_activity_main);
@@ -595,7 +560,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       prefix = mVm.labelFilter;
     }
     if (AppUtils.isDualPane(this)) {
-      final ClipEntity clip = getClipClone();
+      final ClipEntity clip = getSelectedClipSync();
       if (clip != null && clip.getRemote()) {
         setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
           clip.getDevice()));
@@ -607,30 +572,26 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     }
   }
 
-  /** Get our {@link ClipViewerFragment} */
-  private ClipViewerFragment getClipViewerFragment() {
-    return (ClipViewerFragment) getSupportFragmentManager()
-      .findFragmentById(R.id.clip_viewer_container);
-  }
+  /** Initialize the NavigationView */
+  private void setupNavigationView() {
+    mBinding.navView.addOnLayoutChangeListener(this);
 
-  /** Get copy of currently selected {@link ClipEntity} */
-  private ClipEntity getClipClone() {
-    // TODO get rid of
-    return getClipViewerFragment().getClip();
+    // Handle click on header
+    final View hView = mBinding.navView.getHeaderView(0);
+    hView.setOnClickListener(v -> {
+      mBinding.drawerLayout.closeDrawer(GravityCompat.START);
+      startActivity(SignInActivity.class);
+    });
   }
 
   /** Update the Navigation View */
   private void updateNavView() {
-    final NavigationView navigationView = findViewById(R.id.nav_view);
-    if (navigationView == null) {
-      return;
-    }
-    final View hView = navigationView.getHeaderView(0);
+    final View hView = mBinding.navView.getHeaderView(0);
     if (hView == null) {
       return;
     }
 
-    final Menu menu = navigationView.getMenu();
+    final Menu menu = mBinding.navView.getMenu();
 
     // set BackupHelper menu state
     MenuItem menuItem = menu.findItem(R.id.nav_backup);
@@ -645,15 +606,16 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     menuItem.setEnabled(LastError.exists(this));
 
     // Create Labels sub menu
-    List<Label> labels = LabelTables.INST(this).getAllLabels();
-    menu.setGroupVisible(R.id.nav_group_labels, !AppUtils.isEmpty(labels));
-    SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
-    labelMenu.clear();
-    for (Label label : labels) {
-      final MenuItem labelItem = labelMenu.add(R.id.nav_group_labels,
-        Menu.NONE, Menu.NONE, label.getName());
-      labelItem.setIcon(R.drawable.ic_label);
-    }
+    // TODO
+    //List<Label> labels = LabelTables.INST(this).getAllLabels();
+    //menu.setGroupVisible(R.id.nav_group_labels, !AppUtils.isEmpty(labels));
+    //SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
+    //labelMenu.clear();
+    //for (Label label : labels) {
+    //  final MenuItem labelItem = labelMenu.add(R.id.nav_group_labels,
+    //    Menu.NONE, Menu.NONE, label.getName());
+    //  labelItem.setIcon(R.drawable.ic_label);
+    //}
 
     User.INST(this).setNavigationHeaderView(hView);
   }
@@ -714,93 +676,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       }
       final int favFilterColor = ContextCompat.getColor(this, colorID);
       MenuTintHelper.colorMenuItem(favFilterMenu, favFilterColor, 255);
-    }
-  }
-
-  /** AsyncTask to delete items */
-  private static class DeleteAsyncTask extends
-    CustomAsyncTask<Void, Void, Integer> {
-
-    private final String TAG = this.getClass().getSimpleName();
-    private final boolean mDeleteFavs;
-
-    DeleteAsyncTask(MainActivity activity, boolean deleteFavs) {
-      super(activity);
-      activity.showProgress();
-      mDeleteFavs = deleteFavs;
-    }
-
-    @Override
-    protected Integer doInBackground(Void... params) {
-      Integer ret = 0;
-      // save items for undo
-      if (mActivity != null) {
-        // TODO
-        //((MainActivity) mActivity).mVm.undoItems = ClipTable.INST(mActivity)
-        //  .getAll(mDeleteFavs, ((MainActivity) mActivity).mVm.labelFilter);
-      }
-
-      if (mActivity != null) {
-        // delete items
-        // TODO
-        //ret = ClipTable.INST(mActivity)
-        //  .deleteAll(mDeleteFavs, ((MainActivity) mActivity).mVm.labelFilter);
-      }
-
-      return ret;
-    }
-
-    @Override
-    protected void onPostExecute(@NonNull Integer ret) {
-      if (mActivity != null) {
-        ((MainActivity) mActivity).hideProgress();
-      }
-      final int nRows = ret;
-
-      if (mActivity != null) {
-        String message = nRows + mActivity.getString(R.string.items_deleted);
-
-        switch (nRows) {
-          case 0:
-            message = mActivity.getString(R.string.item_delete_empty);
-            break;
-          case 1:
-            message = mActivity.getString(R.string.item_deleted_one);
-            break;
-          default:
-            break;
-        }
-        final Snackbar snack =
-          Snackbar.make(mActivity.findViewById(R.id.fab), message, 10000);
-        if (nRows > 0) {
-          snack.setAction(R.string.button_undo, v -> {
-            final Context ctxt = v.getContext();
-            Analytics.INST(ctxt)
-              .imageClick(TAG, ctxt.getString(R.string.button_undo));
-            if (mActivity != null) {
-              // TODO
-              //ClipTable.INST(ctxt).insert(((MainActivity) mActivity).mVm
-              // .undoItems);
-            } else {
-              Log.logD(TAG, "No activity to undo delete with");
-            }
-          }).addCallback(new Snackbar.Callback() {
-
-            @Override
-            public void onShown(Snackbar snackbar) {
-            }
-
-            @Override
-            public void onDismissed(Snackbar snackbar, int event) {
-              if (mActivity != null) {
-                ((MainActivity) mActivity).mVm.undoItems =
-                  new ArrayList<>(0);
-              }
-            }
-          });
-        }
-        snack.show();
-      }
     }
   }
 }

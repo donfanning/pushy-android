@@ -117,7 +117,7 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
 
     // update database
     clip.setFav(!clip.getFav());
-    MainRepo.INST(getApplication()).updateFav(clip);
+    MainRepo.INST(getApplication()).updateClipFav(clip);
   }
 
   /** Toggle the favorite state of the {@link ClipEntity} */
