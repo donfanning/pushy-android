@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.clips;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -51,7 +52,7 @@ public class ClipViewerActivity extends
     }
 
     // setup ViewModel and data binding
-    mVm = new ClipViewerViewModel(getApplication());
+    mVm = ViewModelProviders.of(this).get(ClipViewerViewModel.class);
     final ClipViewerHandlers handlers = new ClipViewerHandlers();
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);

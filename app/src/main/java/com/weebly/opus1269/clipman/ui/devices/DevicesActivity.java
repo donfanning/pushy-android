@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.devices;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 
 import com.weebly.opus1269.clipman.R;
@@ -28,7 +29,8 @@ public class DevicesActivity extends BaseActivity<DevicesBinding> {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    final DevicesViewModel vm = new DevicesViewModel(getApplication());
+    final DevicesViewModel vm =
+      ViewModelProviders.of(this).get(DevicesViewModel.class);
     final DeviceHandlers handlers = new DeviceHandlers(getTAG());
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(vm);

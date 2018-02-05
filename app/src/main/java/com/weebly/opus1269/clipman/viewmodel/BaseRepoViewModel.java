@@ -13,6 +13,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.BaseRepo;
 
@@ -36,6 +37,7 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
 
   protected BaseRepoViewModel(@NonNull Application application, T repo) {
     super(application);
+    Log.logD(TAG, "onNew");
 
     mRepo = repo;
 
@@ -52,6 +54,12 @@ public abstract class BaseRepoViewModel<T extends BaseRepo>
     isWorking = new MediatorLiveData<>();
     isWorking.setValue(mRepo.getIsWorking().getValue());
     isWorking.addSource(mRepo.getIsWorking(), isWorking::setValue);
+  }
+
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    Log.logD(TAG, "onCleared");
   }
 
   @NonNull

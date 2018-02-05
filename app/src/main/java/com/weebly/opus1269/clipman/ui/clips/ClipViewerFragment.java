@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.clips;
 
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
@@ -91,7 +91,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     super.onCreateView(inflater, container, savedInstanceState);
 
     // setup ViewModel and data binding
-    mVm = new ClipViewerFragViewModel(App.INST());
+    mVm = ViewModelProviders.of(this).get(ClipViewerFragViewModel.class);
     final ClipViewerHandlers handlers = new ClipViewerHandlers();
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);

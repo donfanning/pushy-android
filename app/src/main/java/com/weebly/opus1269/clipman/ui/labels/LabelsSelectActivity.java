@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
@@ -43,7 +44,7 @@ public class LabelsSelectActivity extends
     mClip = (ClipEntity) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
 
     // setup ViewModel and data binding
-    LabelsViewModel vm = new LabelsViewModel(getApplication());
+    LabelsViewModel vm = ViewModelProviders.of(this).get(LabelsViewModel.class);
     LabelHandlers handlers = new LabelHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(vm);

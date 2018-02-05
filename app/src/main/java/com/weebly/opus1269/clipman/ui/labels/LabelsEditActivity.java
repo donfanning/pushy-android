@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 
 import com.weebly.opus1269.clipman.R;
@@ -27,7 +28,7 @@ public class LabelsEditActivity extends BaseActivity<LabelsEditBinding> {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    LabelsViewModel vm = new LabelsViewModel(getApplication());
+    LabelsViewModel vm = ViewModelProviders.of(this).get(LabelsViewModel.class);
     LabelHandlers handlers = new LabelHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(vm);

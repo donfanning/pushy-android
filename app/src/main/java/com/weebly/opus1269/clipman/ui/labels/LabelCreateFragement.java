@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -14,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.LabelCreateBinding;
 import com.weebly.opus1269.clipman.model.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
@@ -36,7 +36,8 @@ public class LabelCreateFragement extends BaseFragment<LabelCreateBinding> {
     super.onCreateView(inflater, container, savedInstanceState);
 
     // setup ViewModel and data binding
-    final LabelCreateViewModel vm = new LabelCreateViewModel(App.INST());
+    LabelCreateViewModel vm =
+      ViewModelProviders.of(this).get(LabelCreateViewModel.class);
     final LabelCreateHandlers handlers = new LabelCreateHandlers();
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(vm);

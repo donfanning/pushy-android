@@ -65,10 +65,10 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
     selectedPos = -1;
 
-    this.selectedClipSource = null;
+    selectedClipSource = null;
 
-    this.selectedClip = new MediatorLiveData<>();
-    this.selectedClip.setValue(null);
+    selectedClip = new MediatorLiveData<>();
+    selectedClip.setValue(null);
 
     pinFavs = Prefs.INST(app).isPinFav();
 
@@ -86,7 +86,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
     clips.addSource(clipsSource, clips::setValue);
 
-    // TODO how to unregister
     // listen for preference changes
     PreferenceManager
       .getDefaultSharedPreferences(app)
@@ -100,10 +99,19 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   }
 
   @Override
+  protected void onCleared() {
+    super.onCleared();
+    // stop listening for preference changes
+    PreferenceManager
+      .getDefaultSharedPreferences(getApplication())
+      .unregisterOnSharedPreferenceChangeListener(this);
+  }
+
+  @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                         String key) {
     final Context context = getApplication();
-    // TODO labelfilter
+    // TODO do something with labelfilter
 
     if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
       filterByFavs = Prefs.INST(context).isFavFilter();
@@ -111,6 +119,11 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
       pinFavs = Prefs.INST(context).isPinFav();
     } else if (Prefs.INST(context).PREF_SORT_TYPE.equals(key)) {
       sortType = Prefs.INST(context).getSortType();
+    }  else if (Prefs.INST(context).PREF_LABEL_FILTER.equals(key)) {
+      labelFilter = Prefs.INST(context).getLabelFilter();
+    } else {
+      // not ours to handle
+      return;
     }
     Log.logD(TAG, "source changed");
     clips.removeSource(clipsSource);
@@ -135,6 +148,17 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     return selectedClip.getValue();
   }
 
+  public void setSelectedClip(ClipEntity clip) {
+    if (!ClipEntity.isWhitespace(clip)) {
+      Log.logD(TAG, "setting selectedClip: " + clip.getId());
+      if (selectedClipSource != null) {
+        selectedClip.removeSource(selectedClipSource);
+      }
+      selectedClipSource = mRepo.getClip(clip.getId());
+      selectedClip.addSource(selectedClipSource, selectedClip::setValue);
+    }
+  }
+
   /**
    * Add a clip
    * @param clip Clip
@@ -147,17 +171,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
       return true;
     }
     return false;
-  }
-
-  public void setSelectedClip(ClipEntity clip) {
-    if (!ClipEntity.isWhitespace(clip)) {
-      Log.logD(TAG, "setting selectedClip: " + clip.getId());
-      if (selectedClipSource != null) {
-        selectedClip.removeSource(selectedClipSource);
-      }
-      selectedClipSource = mRepo.getClip(clip.getId());
-      selectedClip.addSource(selectedClipSource, selectedClip::setValue);
-    }
   }
 
   public void removeAll(boolean includeFavs) {

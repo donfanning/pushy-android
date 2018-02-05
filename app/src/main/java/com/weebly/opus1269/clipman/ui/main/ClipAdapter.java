@@ -32,8 +32,6 @@ import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 import com.weebly.opus1269.clipman.viewmodel.ClipViewModel;
 
-import java.util.List;
-
 /** Bridge between the Devices RecyclerView and the Devices class */
 class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
   ClipHandlers, ClipViewModel, ClipAdapter.ClipViewHolder> {
@@ -65,11 +63,6 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
         holder.itemView.setSelected(false);
       }
     }
-  }
-
-  @Override
-  public void setList(List<ClipEntity> list) {
-    super.setList(list);
   }
 
   /** Factory to create an instance of our ViewHolder */

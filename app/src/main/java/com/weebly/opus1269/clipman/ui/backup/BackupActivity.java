@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.backup;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -45,7 +46,8 @@ public class BackupActivity extends BaseActivity<BackupBinding> {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    final BackupsViewModel vm = new BackupsViewModel(getApplication());
+    BackupsViewModel vm =
+      ViewModelProviders.of(this).get(BackupsViewModel.class);
     mHandlers = new BackupHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(vm);

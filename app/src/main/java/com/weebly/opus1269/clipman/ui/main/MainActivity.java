@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.main;
 
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -102,7 +103,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       .registerOnSharedPreferenceChangeListener(this);
 
     // setup ViewModel and data binding
-    mVm = new MainViewModel(getApplication());
+    mVm = ViewModelProviders.of(this).get(MainViewModel.class);
     mHandlers = new ClipHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
