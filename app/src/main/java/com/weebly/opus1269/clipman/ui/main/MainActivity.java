@@ -43,7 +43,6 @@ import com.weebly.opus1269.clipman.model.LastError;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
-import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.backup.BackupActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.clips.ClipEditorActvity;
@@ -169,7 +168,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
           final Context ctxt = v.getContext();
           Analytics.INST(ctxt)
             .imageClick(TAG, ctxt.getString(R.string.button_undo));
-          MainRepo.INST(App.INST()).addClips(clips);
+          mVm.undoDelete();
         }).addCallback(new Snackbar.Callback() {
 
           @Override
@@ -518,8 +517,11 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         if (!TextUtils.isEmpty(sharedText)) {
           final ClipEntity clip = new ClipEntity();
           clip.setText(sharedText);
-          // TODO need to startorupdate
-          MainRepo.INST(App.INST()).addClip(clip);
+          App.getExecutors().diskIO().execute(() -> {
+            if(mVm.addClipSync(clip)) {
+              startOrUpdateClipViewer(clip);
+            }
+          });
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {

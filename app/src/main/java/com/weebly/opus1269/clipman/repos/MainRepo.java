@@ -13,6 +13,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -96,7 +97,7 @@ public class MainRepo extends BaseRepo {
    * Insert or replace a list of clips
    * @param clips Clip list
    */
-  public void addClips(@NonNull List<ClipEntity> clips) {
+  public void addClips(@Nullable List<ClipEntity> clips) {
     setIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
       final long id[] = mDB.clipDao().insertAll(clips);

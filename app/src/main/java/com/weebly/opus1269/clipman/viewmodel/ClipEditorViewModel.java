@@ -20,7 +20,7 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
 
-/** ViewModel for a {@link ClipEntity} */
+/** ViewModel for an editable {@link ClipEntity} */
 public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
   /** True if creating new {@link ClipEntity} */
   public final boolean addMode;
@@ -37,8 +37,8 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
                              boolean addMode) {
     super(app, MainRepo.INST(app));
 
-    this.text = new MutableLiveData<>();
-    this.text.setValue(clip.getText());
+    text = new MutableLiveData<>();
+    text.setValue(clip.getText());
 
     this.addMode = addMode;
 
@@ -59,9 +59,7 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
       mRepo.setErrorMsg(
         new ErrorMsg(getApplication().getString(R.string.repo_no_clip_text)));
       return;
-    }
-
-    if (TextUtils.equals(newText, clip.getText())) {
+    } else if (TextUtils.equals(newText, clip.getText())) {
       mRepo.setErrorMsg(
         new ErrorMsg(getApplication().getString(R.string.repo_same_clip_text)));
       return;

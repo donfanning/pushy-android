@@ -135,6 +135,20 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     return selectedClip.getValue();
   }
 
+  /**
+   * Add a clip
+   * @param clip Clip
+   * @return true if added
+   */
+  public boolean addClipSync(ClipEntity clip) {
+    final long id = mRepo.addClipSync(clip);
+    if (id != -1L) {
+      clip.setId(id);
+      return true;
+    }
+    return false;
+  }
+
   public void setSelectedClip(ClipEntity clip) {
     if (!ClipEntity.isWhitespace(clip)) {
       Log.logD(TAG, "setting selectedClip: " + clip.getId());
@@ -152,5 +166,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
       undoClips.postValue(mRepo.removeAllClipsSync(includeFavs));
       postIsWorking(false);
     });
+  }
+
+  public void undoDelete() {
+    mRepo.addClips(undoClips.getValue());
   }
 }

@@ -175,8 +175,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
       return;
     }
 
-    Log.logD(TAG, "clip changed: " + clip.getId());
-
     final String curText = mBinding.clipViewerText.getText().toString();
     if (!Collator.getInstance().equals(clip.getText(), curText)) {
       // force repaint on text change
