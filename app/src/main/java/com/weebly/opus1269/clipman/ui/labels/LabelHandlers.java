@@ -9,9 +9,7 @@ package com.weebly.opus1269.clipman.ui.labels;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 
@@ -28,13 +26,16 @@ import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 /** Handlers for UI events */
 public class LabelHandlers extends BaseHandlers {
   private final BaseActivity mActivity;
+
   private final String TAG;
+
+  /** Label that may be operated on */
   private LabelEntity mLabelEntity;
 
   LabelHandlers(BaseActivity baseActivity) {
     super();
-    this.mActivity = baseActivity;
-    this.TAG = baseActivity.getTAG();
+    mActivity = baseActivity;
+    TAG = baseActivity.getTAG();
   }
 
   @Override
@@ -42,9 +43,8 @@ public class LabelHandlers extends BaseHandlers {
     final Button button = ((AlertDialog) dialog).getButton(which);
     final String btnText = button.getText().toString();
 
-    Analytics.INST(button.getContext()).buttonClick(TAG, button);
-
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
+      Analytics.INST(button.getContext()).buttonClick(TAG, "labelDelete");
       Log.logD(TAG, "delete clicked");
       MainRepo.INST(App.INST()).removeLabel(mLabelEntity);
     }
@@ -63,31 +63,15 @@ public class LabelHandlers extends BaseHandlers {
   }
 
   /**
-   * Listen for FocusChange events on the Label name
+   * Listen for FocusChange events on the Label view
    * @param vm The ViewModel
    * @return The listener
    */
   public View.OnFocusChangeListener OnFocusChangeListener(LabelViewModel vm) {
     return (view, isFocused) -> {
-      if (isFocused) {
-        return;
+      if (!isFocused) {
+        vm.updateLabel();
       }
-      updateName(vm);
     };
-  }
-
-  private void updateName(@NonNull LabelViewModel vm) {
-    String name = vm.getName().getValue();
-    if (!TextUtils.isEmpty(name)) {
-      name = name.trim();
-      if (!TextUtils.equals(name, vm.originalName)) {
-        // update label
-        vm.changeName(name, vm.originalName);
-      } else {
-        vm.resetName();
-      }
-    } else {
-      vm.resetName();
-    }
   }
 }

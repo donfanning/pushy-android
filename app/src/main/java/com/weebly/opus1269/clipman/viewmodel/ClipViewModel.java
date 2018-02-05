@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
@@ -26,15 +27,16 @@ public class ClipViewModel extends AndroidViewModel {
 
   /** Our Clip */
   @NonNull
-  private final MutableLiveData<ClipEntity> clip;
+  private final MediatorLiveData<ClipEntity> clip;
 
   public ClipViewModel(@NonNull Application app, ClipEntity clip) {
     super(app);
 
     mRepo = MainRepo.INST(app);
 
-    this.clip = new MutableLiveData<>();
-    this.clip.setValue(clip);
+    this.clip = new MediatorLiveData<>();
+    this.clip.setValue(null);
+    this.clip.addSource(mRepo.getClip(clip.getId()), this.clip::setValue);
   }
 
   public LiveData<ClipEntity> getClip() {
@@ -49,7 +51,6 @@ public class ClipViewModel extends AndroidViewModel {
     ClipEntity clipEntity = getClipSync();
     if (clipEntity != null) {
       clipEntity.setFav(state);
-      clip.setValue(clipEntity);
       mRepo.updateClipFav(clipEntity);
     }
   }

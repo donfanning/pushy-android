@@ -21,6 +21,9 @@ public interface LabelDao extends BaseDao<LabelEntity> {
   @Query("SELECT * FROM labels ORDER BY LOWER(name) ASC")
   LiveData<List<LabelEntity>> getAll();
 
+  @Query("SELECT * FROM labels WHERE id = :id")
+  LiveData<LabelEntity> get(long id);
+
   @Query("UPDATE OR IGNORE labels SET name = :newName WHERE name = :oldName")
   int updateName(String newName, String oldName);
 

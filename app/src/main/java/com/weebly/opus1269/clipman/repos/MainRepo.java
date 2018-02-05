@@ -93,6 +93,10 @@ public class MainRepo extends BaseRepo {
     return mDB.clipDao().get(id);
   }
 
+  public LiveData<LabelEntity> getLabel(final long id) {
+    return mDB.labelDao().get(id);
+  }
+
   /**
    * Insert or replace a list of clips
    * @param clips Clip list
