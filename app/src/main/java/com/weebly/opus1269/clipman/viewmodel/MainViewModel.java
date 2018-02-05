@@ -29,9 +29,11 @@ import java.util.List;
 public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   /** Clips list */
+  @NonNull
   private final MediatorLiveData<List<ClipEntity>> clips;
 
   /** Selected Clip */
+  @NonNull
   private final MediatorLiveData<ClipEntity> selectedClip;
 
   /** Selected Clips position */
@@ -52,12 +54,14 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
   /** Clips that were deleted */
   @NonNull
-  public MutableLiveData<List<ClipEntity>> undoClips;
+  public final MutableLiveData<List<ClipEntity>> undoClips;
 
   /** Clip Source */
+  @Nullable
   private LiveData<ClipEntity> selectedClipSource;
 
   /** Clips Source */
+  @NonNull
   private LiveData<List<ClipEntity>> clipsSource;
 
   public MainViewModel(@NonNull Application app) {
@@ -125,20 +129,24 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
       // not ours to handle
       return;
     }
+
     Log.logD(TAG, "source changed");
     clips.removeSource(clipsSource);
     clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
     clips.addSource(clipsSource, clips::setValue);
   }
 
+  @NonNull
   public LiveData<List<ClipEntity>> getClips() {
     return clips;
   }
 
+  @Nullable
   public List<ClipEntity> getClipsSync() {
     return clips.getValue();
   }
 
+  @NonNull
   public LiveData<ClipEntity> getSelectedClip() {
     return selectedClip;
   }
@@ -173,7 +181,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     return false;
   }
 
-  public void removeAll(boolean includeFavs) {
+ public void removeAll(boolean includeFavs) {
     setIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
       undoClips.postValue(mRepo.removeAllClipsSync(includeFavs));

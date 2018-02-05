@@ -157,8 +157,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     }
 
     private void undo() {
-      // TODO add back
-      MainRepo.INST(App.INST()).addClipIfNew(mClipEntity);
+      MainRepo.INST(App.INST()).addClipIfNew(mClipEntity, true);
 
       // TODO need this?
       if (mIsSelected) {

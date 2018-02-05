@@ -99,11 +99,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     mBinding.executePendingBindings();
 
     // observe clip
-    mVm.getClip().observe(this, clipEntity -> {
-      if (clipEntity != null) {
-        clipChanged(clipEntity);
-      }
-    });
+    mVm.getClip().observe(this, this::clipChanged);
 
     return mBinding.getRoot();
   }
@@ -152,12 +148,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     }
   }
 
-  /** Get our Clip */
-  public @Nullable
-  ClipEntity getClip() {
-    return mVm.getClipSync();
-  }
-
   public void setClip(ClipEntity clip) {
     mVm.setClip(clip);
   }
@@ -170,17 +160,18 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
    * Our Clip changed
    * @param clip The clip
    */
-  private void clipChanged(@NonNull ClipEntity clip) {
+  private void clipChanged(@Nullable ClipEntity clip) {
     if (ClipEntity.isWhitespace(clip)) {
-      return;
-    }
-
-    final String curText = mBinding.clipViewerText.getText().toString();
-    if (!Collator.getInstance().equals(clip.getText(), curText)) {
-      // force repaint on text change
       mBinding.clipViewerText.setVisibility(View.GONE);
-      mBinding.clipViewerText.setVisibility(View.VISIBLE);
-      setText(clip.getText());
+      setText("");
+    } else {
+      final String curText = mBinding.clipViewerText.getText().toString();
+      if (!Collator.getInstance().equals(clip.getText(), curText)) {
+        // force repaint on text change
+        mBinding.clipViewerText.setVisibility(View.GONE);
+        mBinding.clipViewerText.setVisibility(View.VISIBLE);
+        setText(clip.getText());
+      }
     }
 
     setupLabels();

@@ -18,13 +18,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.ActivityClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
@@ -198,14 +196,9 @@ public class ClipViewerActivity extends
 
     final Snackbar snack = Snackbar.make(mBinding.fab,
       getString(R.string.clip_deleted), Snackbar.LENGTH_LONG);
-
     snack.setAction(R.string.button_undo, v -> {
-      final ClipEntity undoClip = mVm.getUndoClip();
-      if (undoClip != null) {
-        MainRepo.INST(App.INST()).addClipIfNew(undoClip, true);
-        Analytics.INST(v.getContext())
-          .imageClick(TAG, "undoDeleteClipItem");
-      }
+      mVm.undoDelete();
+      Analytics.INST(v.getContext()).imageClick(TAG, "undoDeleteClipItem");
     }).addCallback(new Snackbar.Callback() {
 
       @Override
@@ -219,7 +212,6 @@ public class ClipViewerActivity extends
         }
       }
     });
-
     snack.show();
   }
 

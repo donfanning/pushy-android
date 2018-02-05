@@ -217,7 +217,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
       final ClipViewerFragment fragment =
-        ClipViewerFragment.newInstance(new ClipEntity(), "");
+        ClipViewerFragment.newInstance(mVm.getSelectedClipSync(), "");
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();

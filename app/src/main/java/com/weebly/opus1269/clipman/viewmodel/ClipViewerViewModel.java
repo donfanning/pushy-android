@@ -87,13 +87,18 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   public void setClip(ClipEntity clipEntity) {
+    if (clipSource != null) {
+      clip.removeSource(clipSource);
+    }
     if (!ClipEntity.isWhitespace(clipEntity)) {
       Log.logD(TAG, "setting clip: " + clipEntity.getId());
-      if (clipSource != null) {
-        clip.removeSource(clipSource);
-      }
       clipSource = mRepo.getClip(clipEntity.getId());
       clip.addSource(clipSource, clip::setValue);
+    } else {
+      // no clip
+      Log.logD(TAG, "setting clip: null");
+      clipSource = null;
+      clip.setValue(null);
     }
   }
 
@@ -108,7 +113,7 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
     }
   }
 
-  /** Toggle the favorite state of the {@link ClipEntity} */
+  /** Toggle the favorite state of our clip */
   public void toggleFavorite() {
     final ClipEntity clip = getClipSync();
     if (clip == null) {
@@ -117,19 +122,23 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
 
     // update database
     clip.setFav(!clip.getFav());
-    MainRepo.INST(getApplication()).updateClipFav(clip);
+    mRepo.updateClipFav(clip);
   }
 
-  /** Toggle the favorite state of the {@link ClipEntity} */
+  /** Delete our clip */
   public void deleteClip() {
     final ClipEntity clip = getClipSync();
-    if (clip == null) {
-      return;
+    if (clip != null) {
+      mRepo.removeClip(clip);
+      // save for undo
+      setUndoClip(clip);
     }
+  }
 
-    // delete from database
-    MainRepo.INST(getApplication()).removeClip(clip);
-    // save for undo
-    setUndoClip(clip);
+  /** Undo delete */
+  public void undoDelete() {
+    if (undoClip != null) {
+      mRepo.addClipIfNew(undoClip, true);
+    }
   }
 }
