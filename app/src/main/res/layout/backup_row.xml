@@ -37,7 +37,7 @@
       android:text="@string/this_device"
       android:textAppearance="?attr/textAppearanceListItem"
       android:textIsSelectable="false"
-      app:visibleGone="@{safeUnbox(vm.backupEntity.getMine)}"
+      app:visibleGone="@{safeUnbox(vm.backup.getMine)}"
       />
 
     <LinearLayout
@@ -59,33 +59,30 @@
         android:orientation="vertical">
 
         <ImageButton
-          android:id="@+id/restoreButton"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/activity_vertical_margin"
-          android:onClick="@{() -> handlers.onRestoreClick(context, vm.backupEntity)}"
+          android:onClick="@{() -> handlers.onRestoreClick(context, vm.backup)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_restore"
           app:tintAccent="@{true}"
           app:srcCompat="@drawable/ic_cloud_download" />
 
         <ImageButton
-          android:id="@+id/syncButton"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginBottom="@dimen/activity_vertical_margin"
-          android:onClick="@{() -> handlers.onSyncClick(context, vm.backupEntity)}"
+          android:onClick="@{() -> handlers.onSyncClick(context, vm.backup)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_sync"
           app:tintAccent="@{true}"
           app:srcCompat="@drawable/ic_cloud_sync" />
 
         <ImageButton
-          android:id="@+id/deleteButton"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="end"
-          android:onClick="@{() -> handlers.onDeleteClick(context, vm.backupEntity)}"
+          android:onClick="@{() -> handlers.onDeleteClick(context, vm.backup)}"
           android:background="@android:color/transparent"
           android:contentDescription="@string/backup_delete"
           app:tintAccent="@{true}"
@@ -106,7 +103,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_nickname_fmt(vm.backupEntity.nickname)}"
+          android:text="@{@string/backup_nickname_fmt(vm.backup.nickname)}"
           tools:text="Nickname: " />
 
         <TextView
@@ -115,7 +112,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_model_fmt(vm.backupEntity.model)}"
+          android:text="@{@string/backup_model_fmt(vm.backup.model)}"
           tools:text="Model: " />
 
         <TextView
@@ -124,7 +121,7 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_SN_fmt(vm.backupEntity.SN)}"
+          android:text="@{@string/backup_SN_fmt(vm.backup.SN)}"
           tools:text="SN: " />
 
         <TextView
@@ -133,14 +130,14 @@
           android:maxLines="2"
           android:textAppearance="?attr/textAppearanceListItem"
           android:textIsSelectable="false"
-          android:text="@{@string/backup_OS_fmt(vm.backupEntity.OS)}"
+          android:text="@{@string/backup_OS_fmt(vm.backup.OS)}"
           tools:text="OS: " />
 
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:maxLines="2"
-          android:text="@{@string/backup_date_fmt(AppUtils.getRelativeDisplayTime(context, vm.backupEntity.date))}"
+          android:text="@{@string/backup_date_fmt(AppUtils.getRelativeDisplayTime(context, vm.backup.date))}"
           android:textAppearance="?attr/textAppearanceListItemSmall"
           android:textColor="?android:textColorTertiary"
           android:textIsSelectable="false"

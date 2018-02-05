@@ -192,7 +192,7 @@
   <string name="ar_delete_favs">Include favorites</string>
 
 
-  <!-- Related to the ClipItem database-->
+  <!-- Related to repositories -->
   <string name="default_clip_1"><![CDATA[Welcome to Pushy Clipboard. Tap to view all.
     \n\nIf you want to share with your other devices, you need to install the app or Chrome extension
      on each device and sign in under the same Google account.
@@ -204,6 +204,13 @@
   <string name="default_clip_3">Swipe \u261E to delete.</string>
   <string name="default_clip_4">You can label items to categorize them.</string>
   <string name="default_label_name">Example</string>
+  <string name="repo_clip_added">Clip added</string>
+  <string name="repo_clip_updated">Clip updated</string>
+  <string name="repo_clip_removed">Clip removed</string>
+  <string name="repo_clip_exists">Clip exists</string>
+  <string name="repo_no_clip_text">Text is empty</string>
+  <string name="repo_same_clip_text">Text is unchanged</string>
+  <string name="repo_label_exists">Label exists</string>
 
 
   <!-- Related to ErrorViewerActivity -->

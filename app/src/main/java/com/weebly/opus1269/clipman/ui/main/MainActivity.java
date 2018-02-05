@@ -112,8 +112,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // observe info messages
     mVm.getInfoMessage().observe(this, msg -> {
-      if (TextUtils.equals(msg, "Added clip")) {
-        // TODO
+      if (!TextUtils.isEmpty(msg)) {
         AppUtils.showMessage(this, mBinding.fab, msg);
       }
     });
@@ -485,10 +484,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     }
   }
 
-  public MainViewModel getVm() {
-    return mVm;
-  }
-
   /**
    * Start {@link ClipViewerActivity} or update the {@link ClipViewerFragment}
    * @param clip The Clip to view
@@ -523,7 +518,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         if (!TextUtils.isEmpty(sharedText)) {
           final ClipEntity clip = new ClipEntity();
           clip.setText(sharedText);
-          // TODO
+          // TODO need to startorupdate
           MainRepo.INST(App.INST()).addClip(clip);
         }
       }

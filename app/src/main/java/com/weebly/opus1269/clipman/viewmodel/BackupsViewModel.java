@@ -19,19 +19,18 @@ import java.util.List;
 
 /** ViewModel for BackupEntitys */
 public class BackupsViewModel extends BaseRepoViewModel<BackupRepo> {
-  /** BackFile list */
-  private final MediatorLiveData<List<BackupEntity>> backupList;
+  /** BackupFile list */
+  private final MediatorLiveData<List<BackupEntity>> backups;
 
   public BackupsViewModel(@NonNull Application app) {
     super(app, BackupRepo.INST(app));
 
-    backupList = new MediatorLiveData<>();
-    backupList.setValue(null);
-    LiveData<List<BackupEntity>> backups = mRepo.getBackups();
-    backupList.addSource(backups, backupList::setValue);
+    backups = new MediatorLiveData<>();
+    backups.setValue(null);
+    this.backups.addSource(mRepo.getBackups(), this.backups::setValue);
   }
 
-  public LiveData<List<BackupEntity>> loadBackups() {
-    return backupList;
+  public LiveData<List<BackupEntity>> getBackups() {
+    return backups;
   }
 }

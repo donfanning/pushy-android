@@ -15,12 +15,19 @@ import com.weebly.opus1269.clipman.repos.BackupRepo;
 
 /** ViewModel for a {@link BackupEntity} */
 public class BackupViewModel extends BaseRepoViewModel<BackupRepo> {
-  /** Our File */
-  public final BackupEntity backupEntity;
+  /** Our backup */
+  @NonNull
+  private final BackupEntity backup;
 
-  public BackupViewModel(@NonNull Application app, BackupEntity backupEntity) {
+  public BackupViewModel(@NonNull Application app,
+                         @NonNull BackupEntity backup) {
     super(app, BackupRepo.INST(app));
 
-    this.backupEntity = backupEntity;
+    this.backup = backup;
+  }
+
+  @NonNull
+  public BackupEntity getBackup() {
+    return backup;
   }
 }

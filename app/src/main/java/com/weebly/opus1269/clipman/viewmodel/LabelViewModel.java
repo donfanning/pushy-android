@@ -27,16 +27,16 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
   public final String originalName;
 
   public LabelViewModel(@NonNull Application app,
-                        @NonNull LabelEntity theLabel) {
+                        @NonNull LabelEntity label) {
     super(app, MainRepo.INST(app));
 
-    label = new MutableLiveData<>();
-    label.setValue(theLabel);
+    this.label = new MutableLiveData<>();
+    this.label.setValue(label);
 
     name = new MutableLiveData<>();
-    name.setValue(theLabel.getName());
+    name.setValue(label.getName());
 
-    originalName = theLabel.getName();
+    originalName = label.getName();
   }
 
   @Override

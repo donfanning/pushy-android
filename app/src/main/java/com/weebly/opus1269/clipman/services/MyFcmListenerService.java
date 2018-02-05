@@ -18,7 +18,6 @@
 
 package com.weebly.opus1269.clipman.services;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.SystemClock;
 
@@ -43,7 +42,7 @@ import org.threeten.bp.Instant;
 
 import java.util.Map;
 
-/** A service that listens for messages from firebase */
+/** Service that listens for messages from firebase cloud messaging */
 public class MyFcmListenerService extends FirebaseMessagingService {
   private static final String TAG = "MyFcmListenerService";
 
@@ -117,7 +116,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
       case Msg.ACTION_MESSAGE:
         // normal message, save and copy to clipboard
         DeviceRepo.INST(getApplication()).add(device);
-        saveClip(this, data, device);
+        saveClip(data, device);
         break;
       case Msg.ACTION_PING:
         // We were pinged
@@ -160,26 +159,21 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
   /**
    * Save {@link ClipEntity} to the database and copy to clipboard
-   * @param ctxt   A Context
    * @param data   {@link Map} of key value pairs
    * @param device Source {@link Device}
    */
-  private void saveClip(Context ctxt, Map<String, String> data,
-                               DeviceEntity device) {
+  private void saveClip(Map<String, String> data, DeviceEntity device) {
     final String clipTxt = data.get(Msg.MESSAGE);
-    final String favString = data.get(Msg.FAV);
-    Boolean fav = "1".equals(favString);
-    final String deviceName = device.getDisplayName();
+    final boolean fav = "1".equals(data.get(Msg.FAV));
+    final String dName = device.getDisplayName();
     final long date = Instant.now().toEpochMilli();
+    final ClipEntity clip = new ClipEntity(clipTxt, date, fav, true, dName);
 
-    // add to database
-    final ClipEntity clip =
-      new ClipEntity(clipTxt, date, fav, true, deviceName);
-    long id = MainRepo.INST(App.INST()).addClipKeepTrueFavSync(clip);
+    long id = MainRepo.INST(App.INST()).addClipSync(clip);
     if (id != -1L) {
       clip.setId(id);
-      clip.copyToClipboard(ctxt);
-      Notifications.INST(ctxt).show(clip);
+      clip.copyToClipboard(this);
+      Notifications.INST(this).show(clip);
     } else {
       Log.logE(this, TAG, ERR_SAVE);
     }

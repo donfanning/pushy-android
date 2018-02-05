@@ -65,7 +65,7 @@ public class BackupActivity extends BaseActivity<BackupBinding> {
     mBinding.contentLayout.recycler.setAdapter(mAdapter);
 
     // Observe backups
-    vm.loadBackups().observe(this, backups -> {
+    vm.getBackups().observe(this, backups -> {
       if (backups != null) {
         mAdapter.setList(backups);
       }

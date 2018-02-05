@@ -140,21 +140,19 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     if (mOptionsMenu == null) {
       return;
     }
-    final MenuItem saveManu = mOptionsMenu.findItem(R.id.action_save_changes);
-    if (saveManu == null) {
-      return;
-    }
 
-    final boolean enabled = saveManu.isEnabled();
-    final int alpha = enabled ? 255 : 64;
-    if (AppUtils.isWhitespace(mVm.text.getValue())) {
-      if (enabled) {
-        saveManu.setEnabled(false);
-        MenuTintHelper.colorMenuItem(saveManu, null, alpha);
+    final MenuItem saveMenu = mOptionsMenu.findItem(R.id.action_save_changes);
+    if (saveMenu != null) {
+      final boolean enabled = saveMenu.isEnabled();
+      if (mVm.cantSave()) {
+        if (enabled) {
+          saveMenu.setEnabled(false);
+          MenuTintHelper.colorMenuItem(saveMenu, null, 64);
+        }
+      } else if (!enabled) {
+        saveMenu.setEnabled(true);
+        MenuTintHelper.colorMenuItem(saveMenu, null, 255);
       }
-    } else if (!enabled) {
-      saveManu.setEnabled(true);
-      MenuTintHelper.colorMenuItem(saveManu, null, alpha);
     }
   }
 }

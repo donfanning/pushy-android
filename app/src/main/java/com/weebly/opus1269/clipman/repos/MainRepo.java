@@ -14,6 +14,7 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
@@ -83,14 +84,6 @@ public class MainRepo extends BaseRepo {
     return mDB.clipDao().getAll();
   }
 
-  public List<ClipEntity> getClipsSync() {
-    return mDB.clipDao().getAllSync();
-  }
-
-  public List<ClipEntity> getNonFavClipsSync() {
-    return mDB.clipDao().getNonFavsSync();
-  }
-
   public LiveData<List<LabelEntity>> getLabels() {
     return labelsList;
   }
@@ -101,32 +94,45 @@ public class MainRepo extends BaseRepo {
 
   /**
    * Insert or replace a list of clips
-   * @param clips Clips list
+   * @param clips Clip list
    */
   public void addClips(@NonNull List<ClipEntity> clips) {
     setIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
       final long id[] = mDB.clipDao().insertAll(clips);
-      Log.logD(TAG, "added clips: " + id.length);
+      Log.logD(TAG, "added " + id.length + " clips");
       postIsWorking(false);
     });
   }
 
   /**
-   * Insert or replace a clip
-   * @param clip Clip to insert or replace
+   * Insert or replace clip but preserve fav state if it is true
+   * @param clip Clip
+   */
+  public long addClipSync(@NonNull ClipEntity clip) {
+    final ClipEntity oldClip = mDB.clipDao().getSync(clip.getText());
+    final long id = (oldClip != null) ? oldClip.getId() : clip.getId();
+    final boolean fav = (oldClip != null && oldClip.getFav()) || clip.getFav();
+    clip.setId(id);
+    clip.setFav(fav);
+    return mDB.clipDao().insert(clip);
+  }
+
+  /**
+   * Insert or replace clip but preserve fav state if it is true
+   * @param clip Clip
    */
   public void addClip(@NonNull ClipEntity clip) {
     App.getExecutors().diskIO().execute(() -> {
-      final long id = mDB.clipDao().insert(clip);
-      Log.logD(TAG, "added id: " + id);
-      postInfoMessage("Added clip");
+      final long id = addClipSync(clip);
+      Log.logD(TAG, "added or updated id: " + id);
+      postInfoMessage(mApp.getString(R.string.repo_clip_added));
     });
   }
 
   /**
    * Insert a clip only if the text does not exist
-   * @param clip Clip to insert
+   * @param clip Clip
    */
   public void addClipIfNew(@NonNull ClipEntity clip) {
     addClipIfNew(clip, false);
@@ -134,34 +140,27 @@ public class MainRepo extends BaseRepo {
 
   /**
    * Insert a clip only if the text does not exist
-   * @param clip   Clip to insert
+   * @param clip   Clip
    * @param silent if true, no messages
    */
   public void addClipIfNew(@NonNull ClipEntity clip, boolean silent) {
     App.getExecutors().diskIO().execute(() -> {
-      if (mDB.clipDao().getSync(clip.getText()) == null) {
-        long row = mDB.clipDao().insert(clip);
-        if (row == -1L) {
-          if (!silent) {
-            errorMsg.postValue(new ErrorMsg("Add failed"));
-          }
-        } else {
-          // success
-          if (!silent) {
-            infoMessage.postValue("Clip added");
-            errorMsg.postValue(null);
-          }
+      if (!exists(clip)) {
+        mDB.clipDao().insert(clip);
+        if (!silent) {
+          postInfoMessage(mApp.getString(R.string.repo_clip_added));
+          errorMsg.postValue(null);
         }
       } else if (!silent) {
-        errorMsg.postValue(new ErrorMsg("Clip exists"));
+        postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
       }
     });
   }
 
   /**
    * Insert or update clip and optionally send to remote devices
-   * @param clip      The Clip
-   * @param onNewOnly if true, only add if it doesn't exist
+   * @param clip      Clip
+   * @param onNewOnly if true, only add if text doesn't exist
    */
   public void addClipAndSend(ClipEntity clip, boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
@@ -175,6 +174,9 @@ public class MainRepo extends BaseRepo {
         if (existingClip != null) {
           // clip exists, update it
           clip.setId(existingClip.getId());
+          if (existingClip.getFav()) {
+            clip.setFav(true);
+          }
           nRows = mDB.clipDao().update(clip);
         } else {
           id = mDB.clipDao().insert(clip);
@@ -198,25 +200,13 @@ public class MainRepo extends BaseRepo {
     });
   }
 
-  /**
-   * Insert or replace clip but preserve fav state if true
-   * @param clip Clip to insert or replace
-   */
-  public long addClipKeepTrueFavSync(@NonNull ClipEntity clip) {
-    ClipEntity existingClip = mDB.clipDao().getIfTrueFavSync(clip.getText());
-    if ((existingClip != null) && existingClip.getFav()) {
-      clip.setFav(true);
-    }
-    return MainDB.INST(App.INST()).clipDao().insert(clip);
-  }
-
   public void updateClip(@NonNull ClipEntity clipEntity) {
     App.getExecutors().diskIO().execute(() -> {
       final int nRows = mDB.clipDao().update(clipEntity);
       if (nRows == 0) {
-        postErrorMsg(new ErrorMsg("Clip exists"));
+        postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
       } else {
-        postInfoMessage("Clip Updated");
+        postInfoMessage(mApp.getString(R.string.repo_clip_updated));
       }
     });
   }
@@ -227,8 +217,7 @@ public class MainRepo extends BaseRepo {
   }
 
   public void removeClip(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.clipDao().delete(clip));
+    App.getExecutors().diskIO().execute(() -> mDB.clipDao().delete(clip));
   }
 
   public List<ClipEntity> removeAllClipsSync(boolean includeFavs) {
@@ -247,7 +236,7 @@ public class MainRepo extends BaseRepo {
     App.getExecutors().diskIO().execute(() -> {
       final long id = mDB.labelDao().insertIfNew(label);
       if (id == -1L) {
-        errorMsg.postValue(new ErrorMsg("Label exists"));
+        postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_label_exists)));
       }
     });
   }
@@ -257,13 +246,20 @@ public class MainRepo extends BaseRepo {
     App.getExecutors().diskIO().execute(() -> {
       final int nRows = mDB.labelDao().updateName(newName, oldName);
       if (nRows == 0) {
-        postErrorMsg(new ErrorMsg("Label exists"));
+        postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_label_exists)));
       }
     });
   }
 
   public void removeLabel(@NonNull LabelEntity label) {
-    App.getExecutors().diskIO()
-      .execute(() -> mDB.labelDao().delete(label));
+    App.getExecutors().diskIO().execute(() -> mDB.labelDao().delete(label));
+  }
+
+  /**
+   * Does a clip with the given text exist
+   * @param clip Clip
+   */
+  private boolean exists(@NonNull ClipEntity clip) {
+    return mDB.clipDao().getSync(clip.getText()) != null;
   }
 }

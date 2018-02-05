@@ -41,7 +41,7 @@ public class DevicesActivity extends BaseActivity<DevicesBinding> {
     mBinding.content.recycler.setAdapter(mAdapter);
 
     // Observe devices
-    vm.loadDevices().observe(this, devices -> mAdapter.setList(devices));
+    vm.getDevices().observe(this, devices -> mAdapter.setList(devices));
   }
 
   @Override

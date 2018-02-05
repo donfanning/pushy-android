@@ -26,16 +26,14 @@ public class DevicesViewModel extends BaseRepoViewModel<DeviceRepo> {
     super(app, DeviceRepo.INST(app));
 
     devices = new MediatorLiveData<>();
-    // set by default null, until we get data from the repo.
     devices.setValue(null);
-    // observe the changes of the devices from the repo and forward them
     devices.addSource(mRepo.getDevices(), devices::setValue);
 
     // ping devices
     refreshList();
   }
 
-  public LiveData<List<DeviceEntity>> loadDevices() {
+  public LiveData<List<DeviceEntity>> getDevices() {
     return devices;
   }
 

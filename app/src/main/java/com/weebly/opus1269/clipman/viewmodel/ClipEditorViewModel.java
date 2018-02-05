@@ -12,6 +12,8 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
@@ -52,20 +54,23 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Save clip to database */
   public void saveClip() {
-    if (TextUtils.isEmpty(text.getValue())) {
-      mRepo.setErrorMsg(new ErrorMsg("No text"));
+    final String newText = text.getValue();
+    if (AppUtils.isWhitespace(newText)) {
+      mRepo.setErrorMsg(
+        new ErrorMsg(getApplication().getString(R.string.repo_no_clip_text)));
       return;
     }
 
-    final String newText = text.getValue();
-    if (newText.equals(clip.getText())) {
+    if (TextUtils.equals(newText, clip.getText())) {
+      mRepo.setErrorMsg(
+        new ErrorMsg(getApplication().getString(R.string.repo_same_clip_text)));
       return;
     }
 
     // update clip
-    this.clip.setText(getApplication(), newText);
-    this.clip.setRemote(false);
-    this.clip.setDate(Instant.now().toEpochMilli());
+    clip.setText(getApplication(), newText);
+    clip.setRemote(false);
+    clip.setDate(Instant.now().toEpochMilli());
     if (addMode) {
       mRepo.addClipIfNew(this.clip);
     } else {
@@ -76,5 +81,12 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
   /** Copy clip to clipboard */
   public void copyToClipboard() {
     clip.copyToClipboard(getApplication());
+  }
+
+  /** Is clip in a savable state */
+  public boolean cantSave() {
+    final String newText = text.getValue();
+    return AppUtils.isWhitespace(newText) ||
+      TextUtils.equals(newText, clip.getText());
   }
 }

@@ -25,30 +25,31 @@ public class ClipViewModel extends AndroidViewModel {
   private final MainRepo mRepo;
 
   /** Our Clip */
+  @NonNull
   private final MutableLiveData<ClipEntity> clip;
 
-  public ClipViewModel(@NonNull Application app, ClipEntity theClip) {
+  public ClipViewModel(@NonNull Application app, ClipEntity clip) {
     super(app);
 
     mRepo = MainRepo.INST(app);
 
-    clip = new MutableLiveData<>();
-    clip.setValue(theClip);
+    this.clip = new MutableLiveData<>();
+    this.clip.setValue(clip);
   }
 
   public LiveData<ClipEntity> getClip() {
     return clip;
   }
 
+  private ClipEntity getClipSync() {
+    return clip.getValue();
+  }
+
   public void changeFav(boolean state) {
-    ClipEntity clipEntity = clip.getValue();
+    ClipEntity clipEntity = getClipSync();
     if (clipEntity != null) {
       clipEntity.setFav(state);
-
-      // update clip
       clip.setValue(clipEntity);
-
-      // update database
       mRepo.updateClipFav(clipEntity);
     }
   }
