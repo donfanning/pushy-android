@@ -90,15 +90,15 @@ public class ClipViewerViewModel extends BaseRepoViewModel<MainRepo> {
     if (clipSource != null) {
       clip.removeSource(clipSource);
     }
-    if (!ClipEntity.isWhitespace(clipEntity)) {
-      Log.logD(TAG, "setting clip: " + clipEntity.getId());
-      clipSource = mRepo.getClip(clipEntity.getId());
-      clip.addSource(clipSource, clip::setValue);
-    } else {
+    if (ClipEntity.isWhitespace(clipEntity)) {
       // no clip
       Log.logD(TAG, "setting clip: null");
       clipSource = null;
       clip.setValue(null);
+    } else {
+      Log.logD(TAG, "setting clip: " + clipEntity.getId());
+      clipSource = mRepo.getClip(clipEntity.getId());
+      clip.addSource(clipSource, clip::setValue);
     }
   }
 

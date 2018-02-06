@@ -59,6 +59,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
         holder.itemView.setSelected(false);
       }
     } else {
+      // should never be selected in singlepane
       if (holder.itemView.isSelected()) {
         holder.itemView.setSelected(false);
       }

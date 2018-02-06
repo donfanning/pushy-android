@@ -67,6 +67,8 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     final DiffCallback<T> diffCallback = new BaseDiffCallback();
     mHelper = new ListAdapterHelper<>(new AdapterCallback(this),
       new ListAdapterConfig.Builder<T>().setDiffCallback(diffCallback).build());
+
+    setHasStableIds(true);
   }
 
   @Override
@@ -89,6 +91,15 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     return mHelper.getItemCount();
   }
 
+  @Override
+  public long getItemId(int position) {
+    return mHelper.getItem(position).getId();
+  }
+
+  protected T getItem(int position) {
+    return mHelper.getItem(position);
+  }
+
   /**
    * Set the new list to be displayed.
    * <p>
@@ -98,11 +109,8 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
    * @param list The new list to be displayed.
    */
   public void setList(List<T> list) {
+    Log.logD(TAG, "setting list");
     mHelper.setList(list);
-  }
-
-  protected T getItem(int position) {
-    return mHelper.getItem(position);
   }
 
   /** Class to handle updates to our list */

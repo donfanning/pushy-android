@@ -126,9 +126,11 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // observe selected clip
     mVm.getSelectedClip().observe(this, clip -> {
-      if (!ClipEntity.isWhitespace(clip)) {
+      int pos = -1;
+      if (ClipEntity.isWhitespace(clip)) {
+        Log.logD(TAG, "selected clip changed: null");
+      } else {
         Log.logD(TAG, "selected clip changed: " + clip.getId());
-        int pos = -1;
         final List<ClipEntity> clips = mVm.getClipsSync();
         if (!AppUtils.isEmpty(clips)) {
           for (int i = 0; i < clips.size(); i++) {
@@ -138,10 +140,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
             }
           }
         }
-        setSelectedClipPos(pos);
-        setFabVisibility(!ClipEntity.isWhitespace(clip));
-        setTitle();
       }
+      setSelectedClipPos(pos);
+      setFabVisibility(!ClipEntity.isWhitespace(clip));
+      setTitle();
     });
 
     // observe undo clips
@@ -200,15 +202,14 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       if (clips != null) {
         mAdapter.setList(clips);
       }
-      if (!AppUtils.isEmpty(clips)) {
-        if (AppUtils.isDualPane(this) && mVm.selectedPos == -1) {
+      if (AppUtils.isEmpty(clips)) {
+        setSelectedClipPos(-1);
+      } else {
+        if (AppUtils.isDualPane(this) && mVm.getSelectedClipSync() == null) {
+        //if (AppUtils.isDualPane(this) && mVm.selectedPos == -1) {
           setSelectedClipPos(0);
           startOrUpdateClipViewer(clips.get(0));
         }
-      } else {
-        //TODO
-        setSelectedClipPos(-1);
-        //startOrUpdateClipViewer(new ClipEntity());
       }
     });
 
@@ -217,7 +218,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
       final ClipViewerFragment fragment =
-        ClipViewerFragment.newInstance(mVm.getSelectedClipSync(), "");
+        ClipViewerFragment.newInstance(mVm.getSelectedClipSync(), mQueryString);
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();
@@ -469,18 +470,21 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   public void setSelectedClipPos(int position) {
-    if (mVm.selectedPos == position) {
-      return;
-    }
+    if (mVm.selectedPos != position) {
+      // selected item changed
 
-    if (position < 0) {
-      mVm.selectedPos = -1;
-    } else {
       if (mVm.selectedPos >= 0) {
+        // clear previous selection
         mAdapter.notifyItemChanged(mVm.selectedPos);
       }
-      mVm.selectedPos = position;
-      mAdapter.notifyItemChanged(mVm.selectedPos);
+
+      // set new selection
+      if (position < 0) {
+        mVm.selectedPos = -1;
+      } else {
+        mVm.selectedPos = position;
+        mAdapter.notifyItemChanged(mVm.selectedPos);
+      }
     }
   }
 
@@ -519,7 +523,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
           final ClipEntity clip = new ClipEntity();
           clip.setText(sharedText);
           App.getExecutors().diskIO().execute(() -> {
-            if(mVm.addClipSync(clip)) {
+            if (mVm.addClipSync(clip)) {
               startOrUpdateClipViewer(clip);
             }
           });

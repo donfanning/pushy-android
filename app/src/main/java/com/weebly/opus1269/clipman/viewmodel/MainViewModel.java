@@ -134,6 +134,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     clips.removeSource(clipsSource);
     clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
     clips.addSource(clipsSource, clips::setValue);
+
+    // reset selection
+    setSelectedClip(null);
   }
 
   @NonNull
@@ -157,11 +160,16 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   }
 
   public void setSelectedClip(ClipEntity clip) {
-    if (!ClipEntity.isWhitespace(clip)) {
+    if (selectedClipSource != null) {
+      selectedClip.removeSource(selectedClipSource);
+    }
+    if (ClipEntity.isWhitespace(clip)) {
+      // no clip
+      Log.logD(TAG, "setting selectedClip: null");
+      selectedClipSource = null;
+      selectedClip.setValue(null);
+    } else {
       Log.logD(TAG, "setting selectedClip: " + clip.getId());
-      if (selectedClipSource != null) {
-        selectedClip.removeSource(selectedClipSource);
-      }
       selectedClipSource = mRepo.getClip(clip.getId());
       selectedClip.addSource(selectedClipSource, selectedClip::setValue);
     }
