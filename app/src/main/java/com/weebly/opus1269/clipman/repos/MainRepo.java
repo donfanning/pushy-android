@@ -124,18 +124,6 @@ public class MainRepo extends BaseRepo {
   }
 
   /**
-   * Insert or replace clip but preserve fav state if it is true
-   * @param clip Clip
-   */
-  public void addClip(@NonNull ClipEntity clip) {
-    App.getExecutors().diskIO().execute(() -> {
-      final long id = addClipSync(clip);
-      Log.logD(TAG, "added or updated id: " + id);
-      postInfoMessage(mApp.getString(R.string.repo_clip_added));
-    });
-  }
-
-  /**
    * Insert a clip only if the text does not exist
    * @param clip Clip
    */

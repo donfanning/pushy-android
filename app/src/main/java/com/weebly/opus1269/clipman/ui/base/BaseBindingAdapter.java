@@ -43,7 +43,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   private final int mlayoutId;
 
   /** Our event handlers */
-  protected final V mHandlers;
+  private final V mHandlers;
 
   /** Helper to handle List */
   private final ListAdapterHelper<T> mHelper;
@@ -96,10 +96,6 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     return mHelper.getItem(position).getId();
   }
 
-  protected T getItem(int position) {
-    return mHelper.getItem(position);
-  }
-
   /**
    * Set the new list to be displayed.
    * <p>
@@ -111,6 +107,10 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   public void setList(List<T> list) {
     Log.logD(TAG, "setting list");
     mHelper.setList(list);
+  }
+
+  private T getItem(int position) {
+    return mHelper.getItem(position);
   }
 
   /** Class to handle updates to our list */

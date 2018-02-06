@@ -53,7 +53,7 @@ public class ClipHandlers extends BaseHandlers {
    * @param vm The ViewModel
    */
   public void onItemClick(ClipViewModel vm) {
-    final ClipEntity clipEntity = vm.getClip().getValue();
+    final ClipEntity clipEntity = vm.getClipSync();
     Analytics.INST(mActivity).click(TAG, "clipItemRow");
     mActivity.startOrUpdateClipViewer(clipEntity);
   }

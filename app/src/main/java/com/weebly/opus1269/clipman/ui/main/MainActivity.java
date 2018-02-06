@@ -28,7 +28,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
@@ -58,8 +57,6 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
-
-import java.util.List;
 
 /** Top level Activity for the app */
 public class MainActivity extends BaseActivity<MainBinding> implements
@@ -126,22 +123,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // observe selected clip
     mVm.getSelectedClip().observe(this, clip -> {
-      int pos = -1;
-      if (ClipEntity.isWhitespace(clip)) {
-        Log.logD(TAG, "selected clip changed: null");
-      } else {
-        Log.logD(TAG, "selected clip changed: " + clip.getId());
-        final List<ClipEntity> clips = mVm.getClipsSync();
-        if (!AppUtils.isEmpty(clips)) {
-          for (int i = 0; i < clips.size(); i++) {
-            if (clips.get(i).getText().equals(clip.getText())) {
-              pos = i;
-              break;
-            }
-          }
-        }
-      }
-      setSelectedClipPos(pos);
+      mAdapter.changeSelection(mVm.lastSelectedClip);
       setFabVisibility(!ClipEntity.isWhitespace(clip));
       setTitle();
     });
@@ -153,17 +135,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       }
       final int nRows = clips.size();
       String message = nRows + getString(R.string.items_deleted);
-
-      switch (nRows) {
-        case 0:
-          message = getString(R.string.item_delete_empty);
-          break;
-        case 1:
-          message = getString(R.string.item_deleted_one);
-          break;
-        default:
-          break;
+      if (nRows == 0) {
+        message = getString(R.string.item_delete_empty);
+      } else if (nRows == 1) {
+        message = getString(R.string.item_deleted_one);
       }
+
       final Snackbar snack =
         Snackbar.make(mBinding.fab, message, 10000);
       if (nRows > 0) {
@@ -203,11 +180,9 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         mAdapter.setList(clips);
       }
       if (AppUtils.isEmpty(clips)) {
-        setSelectedClipPos(-1);
+        mVm.setSelectedClip(null);
       } else {
         if (AppUtils.isDualPane(this) && mVm.getSelectedClipSync() == null) {
-        //if (AppUtils.isDualPane(this) && mVm.selectedPos == -1) {
-          setSelectedClipPos(0);
           startOrUpdateClipViewer(clips.get(0));
         }
       }
@@ -465,27 +440,17 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     }
   }
 
-  public int getSelectedClipPos() {
-    return mVm.selectedPos;
+  public MainBinding getBinding() {
+    return mBinding;
   }
 
-  public void setSelectedClipPos(int position) {
-    if (mVm.selectedPos != position) {
-      // selected item changed
+  public MainViewModel getVm() {
+    return mVm;
+  }
 
-      if (mVm.selectedPos >= 0) {
-        // clear previous selection
-        mAdapter.notifyItemChanged(mVm.selectedPos);
-      }
-
-      // set new selection
-      if (position < 0) {
-        mVm.selectedPos = -1;
-      } else {
-        mVm.selectedPos = position;
-        mAdapter.notifyItemChanged(mVm.selectedPos);
-      }
-    }
+  public long getSelectedClipId() {
+    final ClipEntity clip = mVm.getSelectedClipSync();
+    return (clip == null) ? -1L : clip.getId();
   }
 
   /**
@@ -542,8 +507,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     }
   }
 
-  private @Nullable
-  ClipEntity getSelectedClipSync() {
+  @Nullable
+  public ClipEntity getSelectedClipSync() {
     return mVm == null ? null : mVm.getSelectedClipSync();
   }
 

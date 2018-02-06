@@ -28,6 +28,10 @@ import java.util.List;
 /** ViewModel for MainActvity */
 public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   SharedPreferences.OnSharedPreferenceChangeListener {
+  /** Clips that were deleted */
+  @NonNull
+  public final MutableLiveData<List<ClipEntity>> undoClips;
+
   /** Clips list */
   @NonNull
   private final MediatorLiveData<List<ClipEntity>> clips;
@@ -36,14 +40,11 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   @NonNull
   private final MediatorLiveData<ClipEntity> selectedClip;
 
-  /** Selected Clips position */
-  public int selectedPos;
+  /** Last selected Clip */
+  public ClipEntity lastSelectedClip;
 
   /** Sort with favorites first if true */
   public boolean pinFavs;
-
-  /** Sort by date or text */
-  public int sortType;
 
   /** Show only favorites if true */
   public boolean filterByFavs;
@@ -52,9 +53,8 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   @NonNull
   public String labelFilter;
 
-  /** Clips that were deleted */
-  @NonNull
-  public final MutableLiveData<List<ClipEntity>> undoClips;
+  /** Sort by date or text */
+  private int sortType;
 
   /** Clip Source */
   @Nullable
@@ -67,7 +67,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
-    selectedPos = -1;
+    lastSelectedClip = null;
 
     selectedClipSource = null;
 
@@ -97,12 +97,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   }
 
   @Override
-  protected void initRepo() {
-    super.initRepo();
-    mRepo.setErrorMsg(null);
-  }
-
-  @Override
   protected void onCleared() {
     super.onCleared();
     // stop listening for preference changes
@@ -112,18 +106,30 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   }
 
   @Override
+  protected void initRepo() {
+    super.initRepo();
+    mRepo.setErrorMsg(null);
+  }
+
+  @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                         String key) {
     final Context context = getApplication();
     // TODO do something with labelfilter
 
+    //noinspection IfCanBeSwitch
     if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
       filterByFavs = Prefs.INST(context).isFavFilter();
+      final ClipEntity clip = getSelectedClipSync();
+      if (filterByFavs && (clip != null) && !clip.getFav()) {
+        // unselect if we will be filtered out
+        setSelectedClip(null);
+      }
     } else if (Prefs.INST(context).PREF_PIN_FAV.equals(key)) {
       pinFavs = Prefs.INST(context).isPinFav();
     } else if (Prefs.INST(context).PREF_SORT_TYPE.equals(key)) {
       sortType = Prefs.INST(context).getSortType();
-    }  else if (Prefs.INST(context).PREF_LABEL_FILTER.equals(key)) {
+    } else if (Prefs.INST(context).PREF_LABEL_FILTER.equals(key)) {
       labelFilter = Prefs.INST(context).getLabelFilter();
     } else {
       // not ours to handle
@@ -134,9 +140,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     clips.removeSource(clipsSource);
     clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
     clips.addSource(clipsSource, clips::setValue);
-
-    // reset selection
-    setSelectedClip(null);
   }
 
   @NonNull
@@ -144,25 +147,16 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     return clips;
   }
 
-  @Nullable
-  public List<ClipEntity> getClipsSync() {
-    return clips.getValue();
-  }
-
   @NonNull
   public LiveData<ClipEntity> getSelectedClip() {
     return selectedClip;
-  }
-
-  @Nullable
-  public ClipEntity getSelectedClipSync() {
-    return selectedClip.getValue();
   }
 
   public void setSelectedClip(ClipEntity clip) {
     if (selectedClipSource != null) {
       selectedClip.removeSource(selectedClipSource);
     }
+    lastSelectedClip = selectedClip.getValue();
     if (ClipEntity.isWhitespace(clip)) {
       // no clip
       Log.logD(TAG, "setting selectedClip: null");
@@ -171,8 +165,21 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     } else {
       Log.logD(TAG, "setting selectedClip: " + clip.getId());
       selectedClipSource = mRepo.getClip(clip.getId());
-      selectedClip.addSource(selectedClipSource, selectedClip::setValue);
+      selectedClip.addSource(selectedClipSource, this.selectedClip::setValue);
     }
+  }
+
+  @Nullable
+  public ClipEntity getSelectedClipSync() {
+    return selectedClip.getValue();
+  }
+
+  /**
+   * Add a clip
+   * @param clip Clip
+   */
+  public void addClip(ClipEntity clip) {
+    mRepo.addClipIfNew(clip, true);
   }
 
   /**
@@ -189,7 +196,15 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     return false;
   }
 
- public void removeAll(boolean includeFavs) {
+  /**
+   * Remove a clip
+   * @param clip Clip
+   */
+  public void removeClip(ClipEntity clip) {
+    mRepo.removeClip(clip);
+  }
+
+  public void removeAll(boolean includeFavs) {
     setIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
       undoClips.postValue(mRepo.removeAllClipsSync(includeFavs));

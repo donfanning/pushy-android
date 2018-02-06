@@ -11,7 +11,6 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
@@ -43,7 +42,7 @@ public class ClipViewModel extends AndroidViewModel {
     return clip;
   }
 
-  private ClipEntity getClipSync() {
+  public ClipEntity getClipSync() {
     return clip.getValue();
   }
 
