@@ -14,6 +14,7 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -65,24 +66,47 @@ public class MainRepo extends BaseRepo {
   }
 
   public LiveData<List<ClipEntity>> getClips(boolean filterByFavs,
-                                             boolean pinFavs, int sortType) {
+                                             boolean pinFavs, int sortType,
+                                             @Nullable String queryString) {
+    String query = "%";
     // itty bitty FSM - Room needs better way
-    if (filterByFavs) {
-      if (sortType == 1) {
-        return mDB.clipDao().getFavsByText();
+    if (TextUtils.isEmpty(queryString)) {
+      if (filterByFavs) {
+        if (sortType == 1) {
+          return mDB.clipDao().getFavsByText();
+        }
+        return mDB.clipDao().getFavs();
       }
-      return mDB.clipDao().getFavs();
-    }
-    if (pinFavs) {
-      if (sortType == 1) {
-        return mDB.clipDao().getAllPinFavsByText();
+      if (pinFavs) {
+        if (sortType == 1) {
+          return mDB.clipDao().getAllPinFavsByText();
+        }
+        return mDB.clipDao().getAllPinFavs();
       }
-      return mDB.clipDao().getAllPinFavs();
+      if (sortType == 1) {
+        return mDB.clipDao().getAllByText();
+      }
+      return mDB.clipDao().getAll(query);
+    } else {
+      // filter by query text too
+      query = '%' + queryString + '%';
+      if (filterByFavs) {
+        if (sortType == 1) {
+          return mDB.clipDao().getFavsByText(query);
+        }
+        return mDB.clipDao().getFavs(query);
+      }
+      if (pinFavs) {
+        if (sortType == 1) {
+          return mDB.clipDao().getAllPinFavsByText(query);
+        }
+        return mDB.clipDao().getAllPinFavs(query);
+      }
+      if (sortType == 1) {
+        return mDB.clipDao().getAllByText(query);
+      }
+      return mDB.clipDao().getAll(query);
     }
-    if (sortType == 1) {
-      return mDB.clipDao().getAllByText();
-    }
-    return mDB.clipDao().getAll();
   }
 
   public LiveData<List<LabelEntity>> getLabels() {

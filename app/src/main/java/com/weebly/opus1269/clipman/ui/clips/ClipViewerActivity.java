@@ -32,7 +32,6 @@ import com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel;
 public class ClipViewerActivity extends
   BaseActivity<ActivityClipViewerBinding> implements
   ClipViewerFragment.OnClipChanged {
-
   /** Our ViewModel */
   private ClipViewerViewModel mVm = null;
 
@@ -49,7 +48,6 @@ public class ClipViewerActivity extends
       return;
     }
 
-    // setup ViewModel and data binding
     mVm = ViewModelProviders.of(this).get(ClipViewerViewModel.class);
     final ClipViewerHandlers handlers = new ClipViewerHandlers();
     mBinding.setLifecycleOwner(this);
@@ -57,29 +55,16 @@ public class ClipViewerActivity extends
     mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
 
-    // observe clip
-    mVm.getClip().observe(this, clipEntity -> {
-      if (clipEntity != null) {
-        setFavoriteMenuItem();
-        setTitle();
-      }
-    });
-
-    // observe info message
-    mVm.getInfoMessage().observe(this, infoMsg -> {
-      if (!TextUtils.isEmpty(infoMsg)) {
-        AppUtils.showMessage(this, mBinding.getRoot(), infoMsg);
-      }
-    });
+    subscribeToViewModel();
 
     if (savedInstanceState == null) {
       // Create the viewer fragment and add it to the activity
       // using a fragment transaction.
+      final Intent intent = getIntent();
       final ClipEntity clip =
-        (ClipEntity) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
+        (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
 
-      final String highlightText =
-        getIntent().getStringExtra(Intents.EXTRA_TEXT);
+      final String highlightText = intent.getStringExtra(Intents.EXTRA_TEXT);
 
       final ClipViewerFragment fragment =
         ClipViewerFragment.newInstance(clip, highlightText);
@@ -115,6 +100,7 @@ public class ClipViewerActivity extends
 
   @Override
   protected void onPause() {
+    // TODO
     mVm.setUndoClip(null);
 
     super.onPause();
@@ -165,31 +151,40 @@ public class ClipViewerActivity extends
   }
 
   @Override
-  public void clipChanged(ClipEntity clip) {
+  public void clipChanged(@Nullable ClipEntity clip) {
     mVm.setClip(clip);
   }
 
-  /** Set Activity title based on current {@link ClipEntity} contents */
-  private void setTitle() {
-    final ClipEntity clip = getClip();
-    if (clip != null && clip.getRemote()) {
-      setTitle(getString(R.string.title_activity_clip_viewer_remote));
-    } else {
-      setTitle(getString(R.string.title_activity_clip_viewer));
-    }
-  }
-
+  @Nullable
   private ClipViewerFragment getClipViewerFragment() {
     return (ClipViewerFragment)
       getSupportFragmentManager().findFragmentById(R.id.clip_viewer_container);
   }
 
-  private @Nullable
-  ClipEntity getClip() {
+  @Nullable
+  private ClipEntity getClip() {
     return mVm == null ? null : mVm.getClipSync();
   }
 
-  /** Delete the {@link ClipEntity} from the db */
+  private void subscribeToViewModel() {
+    // observe clip
+    mVm.getClip().observe(this, clip -> {
+      if (clip != null) {
+        setFavoriteMenuItem();
+        setTitle();
+      }
+    });
+
+    // observe info message
+    mVm.getInfoMessage().observe(this, infoMsg -> {
+      if (!TextUtils.isEmpty(infoMsg)) {
+        AppUtils.showMessage(this, mBinding.getRoot(), infoMsg);
+        mVm.postInfoMessage(null);
+      }
+    });
+  }
+
+  /** Delete the {@link ClipEntity} from the database */
   private void deleteClip() {
     // delete it
     mVm.deleteClip();
@@ -198,9 +193,8 @@ public class ClipViewerActivity extends
       getString(R.string.clip_deleted), Snackbar.LENGTH_LONG);
     snack.setAction(R.string.button_undo, v -> {
       mVm.undoDelete();
-      Analytics.INST(v.getContext()).imageClick(TAG, "undoDeleteClipItem");
+      Analytics.INST(v.getContext()).imageClick(TAG, "undoDeleteClip");
     }).addCallback(new Snackbar.Callback() {
-
       @Override
       public void onShown(Snackbar snackbar) {}
 
@@ -215,16 +209,26 @@ public class ClipViewerActivity extends
     snack.show();
   }
 
+  /** Set Activity title based on current {@link ClipEntity} contents */
+  private void setTitle() {
+    final ClipEntity clip = getClip();
+    if ((clip != null) && clip.getRemote()) {
+      setTitle(getString(R.string.title_activity_clip_viewer_remote));
+    } else {
+      setTitle(getString(R.string.title_activity_clip_viewer));
+    }
+  }
+
   /** Set the favorite {@link MenuItem} appearence */
   private void setFavoriteMenuItem() {
     if (mOptionsMenu == null) {
       return;
     }
     final MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
-    final ClipEntity clipEntity = getClip();
+    final ClipEntity clip = getClip();
 
-    if (menuItem != null && clipEntity != null) {
-      final boolean isFav = clipEntity.getFav();
+    if ((menuItem != null) && (clip != null)) {
+      final boolean isFav = clip.getFav();
       final int colorID = isFav ? R.color.red_500_translucent : R.color.icons;
       final int icon = isFav ? R.drawable.ic_favorite_black_24dp :
         R.drawable.ic_favorite_border_black_24dp;

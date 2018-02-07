@@ -29,13 +29,13 @@ import java.util.List;
 /** ViewModel for MainActvity */
 public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   SharedPreferences.OnSharedPreferenceChangeListener {
-  /** Clips that were deleted */
-  @NonNull
-  public final MutableLiveData<List<ClipEntity>> undoClips;
-
   /** Clips list */
   @NonNull
   private final MediatorLiveData<List<ClipEntity>> clips;
+
+  /** Clips that were deleted */
+  @NonNull
+  public final MutableLiveData<List<ClipEntity>> undoClips;
 
   /** Selected Clip */
   @NonNull
@@ -53,6 +53,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   /** Show only Clips with the given label if non-whitespace */
   @NonNull
   public String labelFilter;
+
+  /** Text to search on */
+  private String queryString;
 
   /** Sort by date or text */
   private int sortType;
@@ -88,7 +91,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
     clips = new MediatorLiveData<>();
     clips.setValue(null);
-    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
+    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType, queryString);
     clips.addSource(clipsSource, clips::setValue);
 
     // listen for preference changes
@@ -137,10 +140,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
       return;
     }
 
-    Log.logD(TAG, "source changed");
-    clips.removeSource(clipsSource);
-    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType);
-    clips.addSource(clipsSource, clips::setValue);
+    changeClips();
   }
 
   @NonNull
@@ -171,6 +171,11 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   @Nullable
   public ClipEntity getSelectedClipSync() {
     return selectedClip.getValue();
+  }
+
+  public void setQueryString(@Nullable String query) {
+    queryString = query;
+    changeClips();
   }
 
   /**
@@ -216,5 +221,12 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   /** Undo the last delete */
   public void undoDelete() {
     mRepo.addClips(undoClips.getValue());
+  }
+
+  private void changeClips() {
+    Log.logD(TAG, "clips source changed");
+    clips.removeSource(clipsSource);
+    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType, queryString);
+    clips.addSource(clipsSource, clips::setValue);
   }
 }

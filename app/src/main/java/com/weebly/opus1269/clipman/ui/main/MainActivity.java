@@ -68,9 +68,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   /** ViewModel */
   private MainViewModel mVm = null;
 
-  /** Event handlers */
-  private ClipHandlers mHandlers = null;
-
   /** Adapter used to display the list's data */
   private ClipAdapter mAdapter = null;
 
@@ -100,16 +97,17 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // setup ViewModel and data binding
     mVm = ViewModelProviders.of(this).get(MainViewModel.class);
-    mHandlers = new ClipHandlers(this);
+    final ClipHandlers handlers = new ClipHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
-    mBinding.setHandlers(mHandlers);
+    mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
 
     // observe info messages
     mVm.getInfoMessage().observe(this, msg -> {
       if (!TextUtils.isEmpty(msg)) {
         AppUtils.showMessage(this, mBinding.fab, msg);
+        mVm.postInfoMessage(null);
       }
     });
 
@@ -117,6 +115,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mVm.getErrorMsg().observe(this, errorMsg -> {
       if (errorMsg != null) {
         AppUtils.showMessage(this, mBinding.fab, errorMsg.msg);
+        mVm.postErrorMsg(null);
       }
     });
 
@@ -162,7 +161,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     });
 
     final RecyclerView recyclerView = findViewById(R.id.clipList);
-    mAdapter = new ClipAdapter(this, mHandlers);
+    mAdapter = new ClipAdapter(this, handlers);
     recyclerView.setAdapter(mAdapter);
 
     // handle touch events on the RecyclerView
@@ -239,8 +238,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   protected boolean setQueryString(String queryString) {
     boolean ret = false;
     if (super.setQueryString(queryString)) {
-      // TODO
-      //getSupportLoaderManager().restartLoader(0, null, mLoaderManager);
+      mVm.setQueryString(mQueryString);
       ret = true;
     }
     return ret;
@@ -439,14 +437,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   public RecyclerView getRecyclerView() {
     return findViewById(R.id.clipList);
-  }
-
-  public MainBinding getBinding() {
-    return mBinding;
-  }
-
-  public MainViewModel getVm() {
-    return mVm;
   }
 
   @Nullable
