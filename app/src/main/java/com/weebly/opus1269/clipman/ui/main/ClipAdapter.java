@@ -76,44 +76,41 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
 
   @Override
   public void setList(List<ClipEntity> list) {
-    deselect();
-    super.setList(list);
+    if (AppUtils.isDualPane(App.INST())) {
+      // move selection in current list to new list
+      final ClipEntity selClip = mActivity.getSelectedClipSync();
+      final int pos = getSelectedPos(mList, selClip);
+      final int newPos = getSelectedPos(list, selClip);
+
+      if (pos == newPos) {
+        super.setList(list);
+      } else {
+        if (pos != -1) {
+          notifyItemChanged(pos);
+        }
+        super.setList(list);
+        if (newPos != -1) {
+          notifyItemChanged(newPos);
+        }
+      }
+    } else {
+      super.setList(list);
+    }
     mList = list;
-    select();
   }
 
   public void changeSelection(@Nullable ClipEntity lastSelected) {
-    final int pos = getSelectedPos(mList, lastSelected);
-    final int newPos = getSelectedPos(mList, mActivity.getSelectedClipSync());
-
-    if (pos != newPos) {
-      if (pos != -1) {
-        notifyItemChanged(pos);
-      }
-      if (newPos != -1) {
-        notifyItemChanged(newPos);
-      }
-    }
-  }
-
-  private void deselect() {
     if (AppUtils.isDualPane(App.INST())) {
-      final ClipEntity selClip = mActivity.getSelectedClipSync();
-      int pos = getSelectedPos(mList, selClip);
-      if (pos != -1) {
-        Log.logD(TAG, "deselected pos: " + pos);
-        notifyItemChanged(pos);
-      }
-    }
-  }
+      final int pos = getSelectedPos(mList, lastSelected);
+      final int newPos = getSelectedPos(mList, mActivity.getSelectedClipSync());
 
-  private void select() {
-    if (AppUtils.isDualPane(App.INST())) {
-      final ClipEntity selClip = mActivity.getSelectedClipSync();
-      int pos = getSelectedPos(mList, selClip);
-      if (pos != -1) {
-        Log.logD(TAG, "selected pos: " + pos);
-        notifyItemChanged(pos);
+      if (pos != newPos) {
+        if (pos != -1) {
+          notifyItemChanged(pos);
+        }
+        if (newPos != -1) {
+          notifyItemChanged(newPos);
+        }
       }
     }
   }
@@ -122,16 +119,10 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
                              @Nullable ClipEntity selClip) {
     int pos = -1;
     if ((selClip != null) && !AppUtils.isEmpty(clips)) {
-      for (int i = 0; i < clips.size(); i++) {
-        if (clips.get(i).getId() == selClip.getId()) {
-          pos = i;
-          break;
-        }
-      }
+      pos = clips.indexOf(selClip);
     }
     return pos;
   }
-
 
   /** Factory to create an instance of our ViewHolder */
   static class ClipViewHolderFactory implements

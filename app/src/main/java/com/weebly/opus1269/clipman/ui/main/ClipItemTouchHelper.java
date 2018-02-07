@@ -68,7 +68,7 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     final View view = mActivity.getBinding().fab;
     final Snackbar snack = Snackbar
-      .make(view, R.string.deleted_1_item, Snackbar.LENGTH_LONG)
+      .make(view, R.string.deleted_1_item, 10000)
       .setAction(R.string.button_undo, v -> {
         Analytics.INST(v.getContext())
           .imageClick(mActivity.getTAG(), "undoDeleteClip");

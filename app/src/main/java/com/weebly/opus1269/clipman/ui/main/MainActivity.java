@@ -34,7 +34,6 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.MainBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -141,13 +140,11 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         message = getString(R.string.item_deleted_one);
       }
 
-      final Snackbar snack =
-        Snackbar.make(mBinding.fab, message, 10000);
+      final Snackbar snack = Snackbar.make(mBinding.fab, message, 10000);
       if (nRows > 0) {
         snack.setAction(R.string.button_undo, v -> {
           final Context ctxt = v.getContext();
-          Analytics.INST(ctxt)
-            .imageClick(TAG, ctxt.getString(R.string.button_undo));
+          Analytics.INST(ctxt).imageClick(TAG, "undoDeleteClips");
           mVm.undoDelete();
         }).addCallback(new Snackbar.Callback() {
 
@@ -169,9 +166,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     recyclerView.setAdapter(mAdapter);
 
     // handle touch events on the RecyclerView
-    final ItemTouchHelper.Callback callback =
-      new ClipItemTouchHelper(this);
-    ItemTouchHelper helper = new ItemTouchHelper(callback);
+    final ItemTouchHelper helper =
+      new ItemTouchHelper(new ClipItemTouchHelper(this));
     helper.attachToRecyclerView(recyclerView);
 
     // Observe clips
@@ -182,7 +178,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       if (AppUtils.isEmpty(clips)) {
         mVm.setSelectedClip(null);
       } else {
-        if (AppUtils.isDualPane(this) && mVm.getSelectedClipSync() == null) {
+        if (AppUtils.isDualPane(this) &&
+          (mVm.getSelectedClipSync() == null)) {
           startOrUpdateClipViewer(clips.get(0));
         }
       }
@@ -448,8 +445,13 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     return mVm;
   }
 
+  @Nullable
+  public ClipEntity getSelectedClipSync() {
+    return mVm == null ? null : mVm.getSelectedClipSync();
+  }
+
   public long getSelectedClipId() {
-    final ClipEntity clip = mVm.getSelectedClipSync();
+    final ClipEntity clip = getSelectedClipSync();
     return (clip == null) ? -1L : clip.getId();
   }
 
@@ -505,11 +507,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         startOrUpdateClipViewer(clip);
       }
     }
-  }
-
-  @Nullable
-  public ClipEntity getSelectedClipSync() {
-    return mVm == null ? null : mVm.getSelectedClipSync();
   }
 
   /**
