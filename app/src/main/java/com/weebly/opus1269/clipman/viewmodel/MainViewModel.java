@@ -23,6 +23,7 @@ import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
+import java.util.Collections;
 import java.util.List;
 
 /** ViewModel for MainActvity */
@@ -152,18 +153,16 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     return selectedClip;
   }
 
-  public void setSelectedClip(ClipEntity clip) {
+  public void setSelectedClip(@Nullable ClipEntity clip) {
     if (selectedClipSource != null) {
       selectedClip.removeSource(selectedClipSource);
     }
     lastSelectedClip = selectedClip.getValue();
     if (ClipEntity.isWhitespace(clip)) {
       // no clip
-      Log.logD(TAG, "setting selectedClip: null");
       selectedClipSource = null;
       selectedClip.setValue(null);
     } else {
-      Log.logD(TAG, "setting selectedClip: " + clip.getId());
       selectedClipSource = mRepo.getClip(clip.getId());
       selectedClip.addSource(selectedClipSource, this.selectedClip::setValue);
     }
@@ -177,33 +176,35 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
   /**
    * Add a clip
    * @param clip Clip
-   */
-  public void addClip(ClipEntity clip) {
-    mRepo.addClipIfNew(clip, true);
-  }
-
-  /**
-   * Add a clip
-   * @param clip Clip
    * @return true if added
    */
-  public boolean addClipSync(ClipEntity clip) {
-    final long id = mRepo.addClipSync(clip);
-    if (id != -1L) {
-      clip.setId(id);
-      return true;
+  public boolean addClipSync(@Nullable ClipEntity clip) {
+    boolean ret = false;
+    if (clip != null) {
+      final long id = mRepo.addClipSync(clip);
+      if (id != -1L) {
+        clip.setId(id);
+        ret = true;
+      }
     }
-    return false;
+    return ret;
   }
 
   /**
-   * Remove a clip
+   * Remove a clip, save for undo
    * @param clip Clip
    */
-  public void removeClip(ClipEntity clip) {
-    mRepo.removeClip(clip);
+  public void removeClip(@Nullable ClipEntity clip) {
+    if (clip != null) {
+      mRepo.removeClip(clip);
+      undoClips.postValue(Collections.singletonList(clip));
+    }
   }
 
+  /**
+   * Remove all clips, save for undo
+   * @param includeFavs if true, remove favorites too
+   */
   public void removeAll(boolean includeFavs) {
     setIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
@@ -212,6 +213,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     });
   }
 
+  /** Undo the last delete */
   public void undoDelete() {
     mRepo.addClips(undoClips.getValue());
   }

@@ -8,28 +8,22 @@
 package com.weebly.opus1269.clipman.ui.main;
 
 import android.graphics.Canvas;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
-import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.model.Analytics;
+import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
 /** Handle swipe to dismiss on the RecyclerView */
 class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
-  /** Activity we are in */
-  private final MainActivity mActivity;
+  /** ViewModel of our activity */
+  private final MainViewModel mMainViewModel;
 
-  /** Item to allow delete undo */
-  private UndoClip mUndoClip;
-
-  ClipItemTouchHelper(MainActivity activity) {
+  ClipItemTouchHelper(MainViewModel mainViewModel) {
     super(0, ItemTouchHelper.RIGHT);
 
-    mActivity = activity;
-    mUndoClip = null;
+    mMainViewModel = mainViewModel;
   }
 
   private static void drawBackground(RecyclerView.ViewHolder viewHolder,
@@ -58,26 +52,10 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
       return;
     }
 
-    // delete item and save for undo
-    ClipAdapter.ClipViewHolder holder = (ClipAdapter.ClipViewHolder) viewHolder;
-    final ClipEntity clipEntity = holder.binding.getVm().getClipSync();
-    if (clipEntity != null) {
-      mUndoClip = new UndoClip(clipEntity, holder.itemView.isSelected());
-      mActivity.getVm().removeClip(clipEntity);
-    }
-
-    final View view = mActivity.getBinding().fab;
-    final Snackbar snack = Snackbar
-      .make(view, R.string.deleted_1_item, 10000)
-      .setAction(R.string.button_undo, v -> {
-        Analytics.INST(v.getContext())
-          .imageClick(mActivity.getTAG(), "undoDeleteClip");
-        if (mUndoClip != null) {
-          mUndoClip.undo();
-          mUndoClip = null;
-        }
-      });
-    snack.show();
+    // delete item
+    final ClipEntity clipEntity =
+      ((ClipAdapter.ClipViewHolder) viewHolder).binding.getVm().getClipSync();
+    mMainViewModel.removeClip(clipEntity);
   }
 
   /**
@@ -138,21 +116,5 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     getDefaultUIUtil().onDrawOver(c, recyclerView, foregroundView, dX, dY,
       actionState, isCurrentlyActive);
-  }
-
-  /** Represents a deleted item that can be undone */
-  private class UndoClip {
-    //TODO can replace with Clipentity if  we dont restore selection
-    private final ClipEntity mClipEntity;
-    private final boolean mIsSelected;
-
-    private UndoClip(ClipEntity clipEntity, boolean isSelected) {
-      mClipEntity = clipEntity;
-      mIsSelected = isSelected;
-    }
-
-    private void undo() {
-      mActivity.getVm().addClip(mClipEntity);
-    }
   }
 }

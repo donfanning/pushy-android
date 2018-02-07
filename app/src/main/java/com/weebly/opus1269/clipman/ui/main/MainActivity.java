@@ -122,7 +122,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // observe selected clip
     mVm.getSelectedClip().observe(this, clip -> {
-      mAdapter.changeSelection(mVm.lastSelectedClip);
+      mAdapter.changeSelection(mVm.lastSelectedClip, mVm.getSelectedClipSync());
       setFabVisibility(!ClipEntity.isWhitespace(clip));
       setTitle();
     });
@@ -167,7 +167,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // handle touch events on the RecyclerView
     final ItemTouchHelper helper =
-      new ItemTouchHelper(new ClipItemTouchHelper(this));
+      new ItemTouchHelper(new ClipItemTouchHelper(mVm));
     helper.attachToRecyclerView(recyclerView);
 
     // Observe clips
@@ -435,6 +435,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     } else if (keyPush.equals(key)) {
       updateOptionsMenu();
     }
+  }
+
+  public RecyclerView getRecyclerView() {
+    return findViewById(R.id.clipList);
   }
 
   public MainBinding getBinding() {

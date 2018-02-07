@@ -25,7 +25,6 @@ import android.support.annotation.Nullable;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipRowBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
@@ -64,7 +63,9 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
           holder.itemView.setSelected(true);
         }
       } else {
-        holder.itemView.setSelected(false);
+        if (holder.itemView.isSelected()) {
+          holder.itemView.setSelected(false);
+        }
       }
     } else {
       // should never be selected in singlepane
@@ -85,13 +86,9 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
       if (pos == newPos) {
         super.setList(list);
       } else {
-        if (pos != -1) {
-          notifyItemChanged(pos);
-        }
+        setSelected(selClip, false);
         super.setList(list);
-        if (newPos != -1) {
-          notifyItemChanged(newPos);
-        }
+        setSelected(selClip, true);
       }
     } else {
       super.setList(list);
@@ -99,21 +96,51 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
     mList = list;
   }
 
-  public void changeSelection(@Nullable ClipEntity lastSelected) {
-    if (AppUtils.isDualPane(App.INST())) {
-      final int pos = getSelectedPos(mList, lastSelected);
-      final int newPos = getSelectedPos(mList, mActivity.getSelectedClipSync());
-
-      if (pos != newPos) {
-        if (pos != -1) {
-          notifyItemChanged(pos);
-        }
-        if (newPos != -1) {
-          notifyItemChanged(newPos);
-        }
-      }
+  public void changeSelection(@Nullable ClipEntity lastSel,
+                              @Nullable ClipEntity curSel) {
+    if (AppUtils.isDualPane(App.INST()) && idChanged(lastSel, curSel)) {
+      setSelected(lastSel, false);
+      setSelected(curSel, true);
     }
   }
+
+  @Nullable
+  private ClipViewHolder getHolder(@Nullable ClipEntity clip) {
+    ClipViewHolder ret = null;
+    if (clip != null) {
+      ret = (ClipViewHolder) mActivity.getRecyclerView()
+        .findViewHolderForItemId(clip.getId());
+    }
+    return ret;
+  }
+
+  private boolean idChanged(@Nullable ClipEntity clip1,
+                            @Nullable ClipEntity clip2) {
+    return !(clip1 != null && clip2 != null && clip1.getId() == clip2.getId());
+  }
+
+  private void setSelected(@Nullable ClipEntity clip, boolean isSelected) {
+    final ClipViewHolder holder = getHolder(clip);
+    if (holder != null && holder.itemView.isSelected() != isSelected) {
+      holder.itemView.setSelected(isSelected);
+    }
+  }
+  //public void changeSelection(@Nullable ClipEntity lastSelected) {
+  //  if (AppUtils.isDualPane(App.INST())) {
+  //    final int pos = getSelectedPos(mList, lastSelected);
+  //    final int newPos = getSelectedPos(mList, mActivity
+  // .getSelectedClipSync());
+  //
+  //    if (pos != newPos) {
+  //      if (pos != -1) {
+  //        notifyItemChanged(pos);
+  //      }
+  //      if (newPos != -1) {
+  //        notifyItemChanged(newPos);
+  //      }
+  //    }
+  //  }
+  //}
 
   private int getSelectedPos(@Nullable List<ClipEntity> clips,
                              @Nullable ClipEntity selClip) {
