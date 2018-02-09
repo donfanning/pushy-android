@@ -33,7 +33,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.User;
 
@@ -101,9 +101,9 @@ public class DriveHelper {
    * @return list of backups
    */
   @NonNull
-  List<BackupEntity> getBackups() throws ExecutionException,
+  List<Backup> getBackups() throws ExecutionException,
     InterruptedException, TimeoutException, DriveException {
-    final List<BackupEntity> backups = new ArrayList<>();
+    final List<Backup> backups = new ArrayList<>();
 
     final DriveClient driveClient = getDriveClient();
     final DriveResourceClient resourceClient = getDriveResourceClient();
@@ -128,7 +128,7 @@ public class DriveHelper {
       Tasks.await(getBackups, WAIT_TIME_SECS, TimeUnit.SECONDS);
     Log.logD(TAG, "got list of backups");
     for (Metadata metadata : metadataBuffer) {
-      final BackupEntity backup = new BackupEntity(mAppCtxt, metadata);
+      final Backup backup = new Backup(mAppCtxt, metadata);
       backups.add(backup);
     }
     metadataBuffer.release();
@@ -143,10 +143,10 @@ public class DriveHelper {
    * @return new backup
    */
   @NonNull
-  BackupEntity createBackup(final String filename, final byte[] data)
+  Backup createBackup(final String filename, final byte[] data)
     throws ExecutionException, InterruptedException, TimeoutException,
     DriveException {
-    BackupEntity backup;
+    Backup backup;
     final DriveResourceClient resourceClient = getDriveResourceClient();
 
     final Task<DriveFolder> appFolderTask = resourceClient.getAppFolder();
@@ -171,7 +171,7 @@ public class DriveHelper {
         MetadataChangeSet.Builder builder = new MetadataChangeSet.Builder()
           .setTitle(filename)
           .setMimeType(MIME_TYPE);
-        BackupEntity.setCustomProperties(mAppCtxt, builder);
+        Backup.setCustomProperties(mAppCtxt, builder);
 
         final MetadataChangeSet changeSet = builder.build();
 
@@ -188,7 +188,7 @@ public class DriveHelper {
 
     final Metadata metadata =
       Tasks.await(createBackup, WAIT_TIME_SECS, TimeUnit.SECONDS);
-    backup = new BackupEntity(mAppCtxt, metadata);
+    backup = new Backup(mAppCtxt, metadata);
     Log.logD(TAG, "created backup");
 
     return backup;

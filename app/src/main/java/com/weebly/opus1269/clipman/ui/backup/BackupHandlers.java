@@ -18,7 +18,7 @@ import android.widget.Button;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -32,7 +32,7 @@ public class BackupHandlers extends BaseHandlers {
   private final BackupActivity mActivity;
 
   /** Backup that may be operated on */
-  private BackupEntity mBackup;
+  private Backup mBackup;
 
   BackupHandlers(BackupActivity backupActivity) {
     this.mActivity = backupActivity;
@@ -87,7 +87,7 @@ public class BackupHandlers extends BaseHandlers {
    * @param context The View
    * @param backup  The file
    */
-  public void onRestoreClick(Context context, BackupEntity backup) {
+  public void onRestoreClick(Context context, Backup backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "restoreBackup");
     mBackup = backup;
     showConfirmationDialog(context, R.string.backup_dialog_title,
@@ -99,7 +99,7 @@ public class BackupHandlers extends BaseHandlers {
    * @param context The View
    * @param backup  The file
    */
-  public void onSyncClick(Context context, BackupEntity backup) {
+  public void onSyncClick(Context context, Backup backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "syncBackup");
     mBackup = backup;
     showConfirmationDialog(context, R.string.backup_dialog_title,
@@ -111,7 +111,7 @@ public class BackupHandlers extends BaseHandlers {
    * @param context The View
    * @param backup  The file
    */
-  public void onDeleteClick(Context context, BackupEntity backup) {
+  public void onDeleteClick(Context context, Backup backup) {
     Analytics.INST(context).imageClick(mActivity.getTAG(), "deleteBackup");
     mBackup = backup;
     showConfirmationDialog(context, R.string.backup_dialog_title,

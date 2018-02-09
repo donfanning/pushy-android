@@ -24,15 +24,15 @@ import android.support.annotation.NonNull;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.BackupRowBinding;
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
 import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.viewmodel.BackupViewModel;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
-/** Bridge between the BackupEntity RecyclerView and the Backups class */
-class BackupAdapter extends BaseBindingAdapter<BackupEntity, BackupRowBinding,
+/** Bridge between the Backup RecyclerView and the Backups class */
+class BackupAdapter extends BaseBindingAdapter<Backup, BackupRowBinding,
   BackupHandlers, BackupViewModel, BackupAdapter.BackupViewHolder> {
 
   BackupAdapter(LifecycleOwner owner, BackupHandlers handlers) {
@@ -53,10 +53,10 @@ class BackupAdapter extends BaseBindingAdapter<BackupEntity, BackupRowBinding,
   
   /** Factory to create an instance of our ViewModel */
   static class BackupViewModelFactory implements
-    VMAdapterFactory<BackupViewModel, BackupEntity> {
+    VMAdapterFactory<BackupViewModel, Backup> {
 
     @Override
-    public BackupViewModel create(BackupEntity item) {
+    public BackupViewModel create(Backup item) {
       return new BackupViewModel(App.INST(), item);
     }
   }

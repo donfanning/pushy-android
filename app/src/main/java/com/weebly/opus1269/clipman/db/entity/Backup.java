@@ -34,9 +34,9 @@ import com.weebly.opus1269.clipman.model.MyDevice;
 
 import java.util.Map;
 
-/** A backup file */
+/** A Goole Drive backup of our data */
 @Entity(tableName = "backups", indices = {@Index(value = "drive_id_invariant", unique = true)})
-public class BackupEntity implements AdapterItem {
+public class Backup implements AdapterItem {
   @PrimaryKey(autoGenerate = true)
   private long id;
 
@@ -54,9 +54,9 @@ public class BackupEntity implements AdapterItem {
   private String OS;
   private long date;
 
-  public BackupEntity() {}
+  public Backup() {}
 
-  public BackupEntity(Context context, final Metadata metadata) {
+  public Backup(Context context, final Metadata metadata) {
     driveIdString = metadata.getDriveId().encodeToString();
     driveIdInvariant = metadata.getDriveId().toInvariantString();
     name = metadata.getTitle();
@@ -202,7 +202,7 @@ public class BackupEntity implements AdapterItem {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    BackupEntity that = (BackupEntity) o;
+    Backup that = (Backup) o;
 
     if (date != that.date) return false;
     if (!driveIdString.equals(that.driveIdString)) return false;
@@ -228,7 +228,7 @@ public class BackupEntity implements AdapterItem {
 
   @Override
   public String toString() {
-    return "BackupEntity{" +
+    return "Backup{" +
       "id=" + id +
       ", isMine=" + isMine +
       ", driveIdString='" + driveIdString + '\'' +

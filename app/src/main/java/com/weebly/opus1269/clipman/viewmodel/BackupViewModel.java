@@ -10,24 +10,24 @@ package com.weebly.opus1269.clipman.viewmodel;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
 
-/** ViewModel for a {@link BackupEntity} */
+/** ViewModel for a {@link Backup} */
 public class BackupViewModel extends BaseRepoViewModel<BackupRepo> {
   /** Our backup */
   @NonNull
-  private final BackupEntity backup;
+  private final Backup backup;
 
   public BackupViewModel(@NonNull Application app,
-                         @NonNull BackupEntity backup) {
+                         @NonNull Backup backup) {
     super(app, BackupRepo.INST(app));
 
     this.backup = backup;
   }
 
   @NonNull
-  public BackupEntity getBackup() {
+  public Backup getBackup() {
     return backup;
   }
 }

@@ -12,7 +12,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 /** ViewModel for BackupEntitys */
 public class BackupsViewModel extends BaseRepoViewModel<BackupRepo> {
   /** BackupFile list */
-  private final MediatorLiveData<List<BackupEntity>> backups;
+  private final MediatorLiveData<List<Backup>> backups;
 
   public BackupsViewModel(@NonNull Application app) {
     super(app, BackupRepo.INST(app));
@@ -30,7 +30,7 @@ public class BackupsViewModel extends BaseRepoViewModel<BackupRepo> {
     this.backups.addSource(mRepo.getBackups(), this.backups::setValue);
   }
 
-  public LiveData<List<BackupEntity>> getBackups() {
+  public LiveData<List<Backup>> getBackups() {
     return backups;
   }
 }

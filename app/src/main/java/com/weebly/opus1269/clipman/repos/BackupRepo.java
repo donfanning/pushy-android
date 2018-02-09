@@ -18,12 +18,12 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.BackupDB;
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.model.User;
 
 import java.util.List;
 
-/** Singleton - Repository for {@link BackupEntity} objects */
+/** Singleton - Repository for {@link Backup} objects */
 public class BackupRepo extends BaseRepo {
   @SuppressLint("StaticFieldLeak")
   private static BackupRepo sInstance;
@@ -32,7 +32,7 @@ public class BackupRepo extends BaseRepo {
   private final BackupDB mDB;
 
   /** BackFile list */
-  private final MediatorLiveData<List<BackupEntity>> backupList;
+  private final MediatorLiveData<List<Backup>> backupList;
 
   private BackupRepo(final Application app) {
     super(app);
@@ -59,7 +59,7 @@ public class BackupRepo extends BaseRepo {
     return sInstance;
   }
 
-  public LiveData<List<BackupEntity>> getBackups() {
+  public LiveData<List<Backup>> getBackups() {
     return backupList;
   }
 
@@ -67,7 +67,7 @@ public class BackupRepo extends BaseRepo {
    * Set the list of backups from Drive
    * @param backups list of backups
    */
-  public void addBackups(@NonNull List<BackupEntity> backups) {
+  public void addBackups(@NonNull List<Backup> backups) {
     App.getExecutors().diskIO().execute(() -> mDB.runInTransaction(() -> {
       mDB.backupDao().deleteAll();
       mDB.backupDao().insertAll(backups);
@@ -78,7 +78,7 @@ public class BackupRepo extends BaseRepo {
    * Add a backup to the list
    * @param backup backup to add
    */
-  public void addBackup(BackupEntity backup) {
+  public void addBackup(Backup backup) {
     App.getExecutors().diskIO().execute(() -> mDB.backupDao().insert(backup));
   }
 
@@ -96,9 +96,9 @@ public class BackupRepo extends BaseRepo {
     App.getExecutors().diskIO().execute(() -> mDB.backupDao().deleteAll());
   }
 
-  private void postInfoMessage(List<BackupEntity> backupFiles) {
+  private void postInfoMessage(List<Backup> backups) {
     final String msg;
-    if (AppUtils.isEmpty(backupFiles)) {
+    if (AppUtils.isEmpty(backups)) {
       msg = mApp.getString(R.string.err_no_backups);
     } else if (!User.INST(mApp).isLoggedIn()) {
       msg = mApp.getString(R.string.err_not_signed_in);

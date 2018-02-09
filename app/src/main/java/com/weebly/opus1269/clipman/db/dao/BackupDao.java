@@ -11,15 +11,15 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Query;
 
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 
 import java.util.List;
 
 /** Database access for backups table */
 @Dao
-public interface BackupDao extends BaseDao<BackupEntity> {
+public interface BackupDao extends BaseDao<Backup> {
   @Query("SELECT * FROM backups ORDER BY isMine DESC, date DESC")
-  LiveData<List<BackupEntity>> getAll();
+  LiveData<List<Backup>> getAll();
 
   @Query("DELETE FROM backups")
   int deleteAll();

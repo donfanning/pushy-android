@@ -20,7 +20,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.LabelTables;
-import com.weebly.opus1269.clipman.db.entity.BackupEntity;
+import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -70,7 +70,7 @@ public class BackupHelper {
     App.getExecutors().networkIO().execute(() -> {
       try {
         BackupRepo.INST(App.INST()).postIsWorking(true);
-        List<BackupEntity> backups = DriveHelper.INST(mContext).getBackups();
+        List<Backup> backups = DriveHelper.INST(mContext).getBackups();
         BackupRepo.INST(App.INST()).addBackups(backups);
       } catch (Exception ex) {
         BackupRepo.INST(App.INST()).removeAll();
@@ -89,7 +89,7 @@ public class BackupHelper {
         BackupRepo.INST(App.INST()).postIsWorking(true);
         final String zipName = getZipFilename();
         final byte[] zipData = createZipContentsFromDB();
-        final BackupEntity backup =
+        final Backup backup =
           DriveHelper.INST(mContext).createBackup(zipName, zipData);
         BackupRepo.INST(App.INST()).addBackup(backup);
         final String lastBackup = Prefs.INST(mContext).getLastBackup();
@@ -113,7 +113,7 @@ public class BackupHelper {
    * Restore the contents of a backup to the database
    * @param backup File to restore
    */
-  public void restoreBackupAsync(final BackupEntity backup) {
+  public void restoreBackupAsync(final Backup backup) {
     App.getExecutors().networkIO().execute(() -> {
       try {
         BackupRepo.INST(App.INST()).postIsWorking(true);
@@ -134,7 +134,7 @@ public class BackupHelper {
    * Synchronize the contents of a backup and the database
    * @param backup File to sync with
    */
-  public void syncContentsAsync(final BackupEntity backup) {
+  public void syncContentsAsync(final Backup backup) {
     App.getExecutors().networkIO().execute(() -> {
       try {
         BackupRepo.INST(App.INST()).postIsWorking(true);
@@ -157,7 +157,7 @@ public class BackupHelper {
    * Delete a backup
    * @param backup File to delete
    */
-  public void deleteBackupAsync(@NonNull BackupEntity backup) {
+  public void deleteBackupAsync(@NonNull Backup backup) {
     App.getExecutors().networkIO().execute(() -> {
       try {
         final DriveId driveId = backup.getDriveId();
