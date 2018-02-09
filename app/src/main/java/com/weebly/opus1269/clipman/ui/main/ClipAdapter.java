@@ -37,7 +37,7 @@ import java.util.List;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
 class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
-  ClipHandlers, ClipViewModel, ClipAdapter.ClipViewHolder> {
+  MainHandlers, ClipViewModel, ClipAdapter.ClipViewHolder> {
   /** Our Activity */
   @NonNull
   private final MainActivity mActivity;
@@ -46,7 +46,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
   @Nullable
   private List<ClipEntity> mList;
 
-  ClipAdapter(@NonNull MainActivity activity, ClipHandlers handlers) {
+  ClipAdapter(@NonNull MainActivity activity, MainHandlers handlers) {
     super(new ClipViewHolderFactory(), new ClipViewModelFactory(),
       R.layout.clip_row, activity, handlers);
     mActivity = activity;
@@ -174,7 +174,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
 
   /** Our ViewHolder */
   static class ClipViewHolder extends
-    BaseViewHolder<ClipRowBinding, ClipViewModel, ClipHandlers> {
+    BaseViewHolder<ClipRowBinding, ClipViewModel, MainHandlers> {
 
     ClipViewHolder(ClipRowBinding binding) {
       super(binding);
@@ -182,7 +182,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipEntity, ClipRowBinding,
 
     /** Bind the Clip */
     public void bind(LifecycleOwner owner, ClipViewModel vm,
-                     ClipHandlers handlers) {
+                     MainHandlers handlers) {
       super.bind(owner, vm, handlers);
     }
   }

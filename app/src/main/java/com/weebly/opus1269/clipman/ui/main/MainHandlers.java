@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -20,82 +19,86 @@ import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseHandlers;
 import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.viewmodel.ClipViewModel;
-import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
 /** Handlers for UI events */
-public class ClipHandlers extends BaseHandlers {
-  private final MainActivity mActivity;
+public class MainHandlers extends BaseHandlers {
+  private final BaseActivity mActivity;
   private final String TAG;
 
-  ClipHandlers(MainActivity activity) {
+  public MainHandlers(BaseActivity activity) {
     super();
-    this.mActivity = activity;
+    mActivity = activity;
     this.TAG = activity.getTAG();
   }
 
   /**
    * Click on fab button
-   * @param fab The View
-   * @param vm  The ViewModel
+   * @param view The View
+   * @param clip  A Clip
    */
-  public void onFabClick(View fab, MainViewModel vm) {
-    if (vm != null && vm.getSelectedClipSync() != null) {
-      vm.getSelectedClipSync().doShare(vm.getApplication(), fab);
-      Analytics.INST(vm.getApplication()).imageClick(TAG, "clipItemShare");
+  public void onFabClick(View view, ClipEntity clip) {
+    final Context context = view.getContext();
+    if (!ClipEntity.isWhitespace(clip)) {
+      clip.doShare(context, view);
+      Analytics.INST(context).imageClick(TAG, "clipItemShare");
+    } else {
+      AppUtils.showMessage(context, view,
+        context.getString(R.string.repo_no_clip_text));
     }
   }
 
   /**
    * Click on Clip item
-   * @param vm The ViewModel
+   * @param view The View
+   * @param clip The Clip
    */
-  public void onItemClick(ClipViewModel vm) {
-    final ClipEntity clipEntity = vm.getClipSync();
-    Analytics.INST(mActivity).click(TAG, "clipItemRow");
-    mActivity.startOrUpdateClipViewer(clipEntity);
+  public void onItemClick(View view, ClipEntity clip) {
+    Analytics.INST(view.getContext()).click(TAG, "clipItemRow");
+    ((MainActivity)mActivity).selectClip(clip);
   }
 
   /**
    * Click on copy button
-   * @param clipEntity The Clip
-   * @param view       The View
+   * @param view The View
+   * @param clip The Clip
    */
-  public void onCopyClick(ClipEntity clipEntity, ImageView view) {
+  public void onCopyClick(View view, ClipEntity clip) {
     final Context context = view.getContext();
     Analytics.INST(context).imageClick(TAG, "clipItemCopy");
-    clipEntity.setRemote(false);
-    clipEntity.copyToClipboard(context);
+    clip.setRemote(false);
+    clip.copyToClipboard(context);
     if (!Prefs.INST(context).isMonitorClipboard()) {
-      AppUtils.showMessage(mActivity, mActivity.getFab(),
+      AppUtils.showMessage(context, mActivity.getFab(),
         context.getString(R.string.clipboard_copy));
     }
   }
 
   /**
    * Click on labels button
-   * @param clipEntity The Clip
-   * @param view       The View
+   * @param view The View
+   * @param clip The Clip
    */
-  public void onLabelsClick(ClipEntity clipEntity, ImageView view) {
+  public void onLabelsClick(View view, ClipEntity clip) {
     final Context context = view.getContext();
     Log.logD(TAG, "select labels clicked");
     Analytics.INST(context).imageClick(TAG, "clipItemLabels");
-    final Intent intent = new Intent(mActivity, LabelsSelectActivity.class);
-    intent.putExtra(Intents.EXTRA_CLIP, clipEntity);
-    AppUtils.startActivity(mActivity, intent);
+    final Intent intent = new Intent(context, LabelsSelectActivity.class);
+    intent.putExtra(Intents.EXTRA_CLIP, clip);
+    AppUtils.startActivity(context, intent);
   }
 
   /**
    * Click on fav checkbox
-   * @param vm       The ViewModel
    * @param checkBox The CheckBox
+   * @param vm       The ViewModel
    */
-  public void onFavClick(ClipViewModel vm, CheckBox checkBox) {
+  public void onFavClick(View checkBox, ClipViewModel vm) {
     final Context context = checkBox.getContext();
-    final boolean checked = checkBox.isChecked();
+    final boolean checked = ((CheckBox)checkBox).isChecked();
     vm.changeFav(checked);
     Analytics.INST(context).checkBoxClick(TAG, "clipItemFav: " + checked);
   }

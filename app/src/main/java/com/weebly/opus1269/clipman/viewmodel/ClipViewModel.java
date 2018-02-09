@@ -47,10 +47,10 @@ public class ClipViewModel extends AndroidViewModel {
   }
 
   public void changeFav(boolean state) {
-    ClipEntity clipEntity = getClipSync();
-    if (clipEntity != null) {
-      clipEntity.setFav(state);
-      mRepo.updateClipFav(clipEntity);
+    ClipEntity clip = getClipSync();
+    if (clip != null) {
+      clip.setFav(state);
+      mRepo.updateClipFav(clip);
     }
   }
 }

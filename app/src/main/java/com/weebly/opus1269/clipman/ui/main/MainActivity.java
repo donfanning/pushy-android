@@ -31,9 +31,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.MainBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -52,7 +52,6 @@ import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.ui.help.HelpActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
-import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
@@ -61,10 +60,8 @@ import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 public class MainActivity extends BaseActivity<MainBinding> implements
   NavigationView.OnNavigationItemSelectedListener,
   View.OnLayoutChangeListener,
-  ClipViewerFragment.OnClipChanged,
   DeleteDialogFragment.DeleteDialogListener,
   SharedPreferences.OnSharedPreferenceChangeListener {
-
   /** ViewModel */
   private MainViewModel mVm = null;
 
@@ -97,7 +94,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // setup ViewModel and data binding
     mVm = ViewModelProviders.of(this).get(MainViewModel.class);
-    final ClipHandlers handlers = new ClipHandlers(this);
+    final MainHandlers handlers = new MainHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
     mBinding.setHandlers(handlers);
@@ -121,13 +118,13 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // observe selected clip
     mVm.getSelectedClip().observe(this, clip -> {
-      mAdapter.changeSelection(mVm.lastSelectedClip, mVm.getSelectedClipSync());
-      setFabVisibility(!ClipEntity.isWhitespace(clip));
+      mAdapter.changeSelection(mVm.getLastSelectedClip(),
+        mVm.getSelectedClipSync());
       setTitle();
     });
 
     // observe undo clips
-    mVm.undoClips.observe(this, clips -> {
+    mVm.getUndoClips().observe(this, clips -> {
       if (AppUtils.isEmpty(clips)) {
         return;
       }
@@ -153,7 +150,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
           @Override
           public void onDismissed(Snackbar snackbar, int event) {
-            mVm.undoClips.setValue(null);
+            mVm.setUndoClips(null);
           }
         });
       }
@@ -179,7 +176,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       } else {
         if (AppUtils.isDualPane(this) &&
           (mVm.getSelectedClipSync() == null)) {
-          startOrUpdateClipViewer(clips.get(0));
+          selectClip(clips.get(0));
         }
       }
     });
@@ -188,14 +185,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
-      final ClipViewerFragment fragment =
-        ClipViewerFragment.newInstance(mVm.getSelectedClipSync(), mQueryString);
+      final ClipViewerFragment fragment = new ClipViewerFragment();
+        //ClipViewerFragment.newInstance(mVm.getSelectedClipSync(), mQueryString);
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();
     }
-
-    setFabVisibility(false);
 
     final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,
       mBinding.drawerLayout, mBinding.toolbar, R.string.navigation_drawer_open,
@@ -205,15 +200,14 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     mBinding.navView.setNavigationItemSelectedListener(this);
 
-    handleIntent();
+    if (savedInstanceState == null) {
+      handleIntent();
+    }
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-
-    // TODO in case filter changed
-    //mVm.labelFilter = Prefs.INST(this).getLabelFilter();
 
     setTitle();
     updateNavView();
@@ -238,7 +232,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   protected boolean setQueryString(String queryString) {
     boolean ret = false;
     if (super.setQueryString(queryString)) {
-      mVm.setQueryString(mQueryString);
+      mVm.setClipTextFilter(mQueryString);
       ret = true;
     }
     return ret;
@@ -255,7 +249,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   @Override
   public void onBackPressed() {
-    if (!TextUtils.isEmpty(mVm.labelFilter)) {
+    if (!TextUtils.isEmpty(Prefs.INST(this).getLabelFilter())) {
       // if filtered, create unfiltered MainActivity on Back
       Prefs.INST(this).setLabelFilter("");
       startActivity(MainActivity.class);
@@ -269,7 +263,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   protected void onPause() {
     super.onPause();
 
-    mVm.undoClips.setValue(null);
+    // TODO mVm.setUndoClips(null);
   }
 
   @Override
@@ -287,33 +281,23 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         ClipboardHelper.sendClipboardContents(this, mBinding.fab);
         break;
       case R.id.action_pin:
-        Prefs.INST(this).setPinFav(!mVm.pinFavs);
+        Prefs.INST(this).setPinFav(!Prefs.INST(this).isPinFav());
         updateOptionsMenu();
         break;
       case R.id.action_fav_filter:
-        Prefs.INST(this).setFavFilter(!mVm.filterByFavs);
+        Prefs.INST(this).setFavFilter(!Prefs.INST(this).isFavFilter());
         updateOptionsMenu();
         break;
       case R.id.action_sort:
         final DialogFragment sortDialog = new SortTypeDialogFragment();
         sortDialog.show(getSupportFragmentManager(), "SortTypeDialogFragment");
         break;
-      case R.id.action_labels:
-        intent = new Intent(this, LabelsSelectActivity.class);
-        intent.putExtra(Intents.EXTRA_CLIP, getSelectedClipSync());
-        AppUtils.startActivity(this, intent);
-        break;
       case R.id.action_add_clip:
         intent = new Intent(this, ClipEditorActvity.class);
-        intent.putExtra(Intents.EXTRA_TEXT, mVm.labelFilter);
+        intent.putExtra(Intents.EXTRA_TEXT, Prefs.INST(this).getLabelFilter());
         AppUtils.startActivity(this, intent);
         break;
-      case R.id.action_edit_text:
-        intent = new Intent(this, ClipEditorActvity.class);
-        intent.putExtra(Intents.EXTRA_CLIP, getSelectedClipSync());
-        AppUtils.startActivity(this, intent);
-        break;
-      case R.id.action_delete:
+      case R.id.action_delete_all:
         final DialogFragment deleteDialog = new DeleteDialogFragment();
         deleteDialog.show(getSupportFragmentManager(), "DeleteDialogFragment");
         break;
@@ -357,7 +341,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         startActivity(LabelsEditActivity.class);
         break;
       case R.id.nav_clips:
-        if (!AppUtils.isWhitespace(mVm.labelFilter)) {
+        if (!AppUtils.isWhitespace(Prefs.INST(this).getLabelFilter())) {
           Prefs.INST(this).setLabelFilter("");
           startActivity(MainActivity.class);
           finish();
@@ -366,7 +350,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       case Menu.NONE:
         // all Labels items
         final String label = item.getTitle().toString();
-        if (!label.equals(mVm.labelFilter)) {
+        if (!label.equals(Prefs.INST(this).getLabelFilter())) {
           Prefs.INST(this).setLabelFilter(label);
           startActivity(MainActivity.class);
           finish();
@@ -414,11 +398,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   @Override
-  public void clipChanged(ClipEntity clip) {
-    mVm.setSelectedClip(clip);
-  }
-
-  @Override
   public void onDeleteDialogPositiveClick(Boolean includeFavs) {
     mVm.removeAll(includeFavs);
   }
@@ -453,21 +432,22 @@ public class MainActivity extends BaseActivity<MainBinding> implements
    * Start {@link ClipViewerActivity} or update the {@link ClipViewerFragment}
    * @param clip The Clip to view
    */
-  void startOrUpdateClipViewer(ClipEntity clip) {
-    if (AppUtils.isDualPane(this)) {
-      final ClipViewerFragment fragment =
-        (ClipViewerFragment) getSupportFragmentManager()
-          .findFragmentById(R.id.clip_viewer_container);
-      if (fragment != null) {
-        fragment.setClip(clip);
-        fragment.setHighlight(mQueryString);
-      }
-    } else {
-      final Intent intent = new Intent(this, ClipViewerActivity.class);
-      intent.putExtra(Intents.EXTRA_CLIP, clip);
-      intent.putExtra(Intents.EXTRA_TEXT, mQueryString);
-      AppUtils.startActivity(this, intent);
+  public void selectClip(ClipEntity clip) {
+    mVm.setSelectedClip(clip);
+    if (!AppUtils.isDualPane(this)) {
+      startActivity(ClipViewerActivity.class);
     }
+    //if (AppUtils.isDualPane(this)) {
+    //  final ClipViewerFragment fragment =
+    //    (ClipViewerFragment) getSupportFragmentManager()
+    //      .findFragmentById(R.id.clip_viewer_container);
+    //  if (fragment != null) {
+    //    fragment.setClip(clip);
+    //    fragment.setHighlight(mQueryString);
+    //  }
+    //} else {
+    //  startActivity(ClipViewerActivity.class);
+    //}
   }
 
   /** Process intents we know about */
@@ -476,6 +456,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     final String action = intent.getAction();
     final String type = intent.getType();
 
+    Log.logD(TAG, "handleIntent: " + action);
+
     if (Intent.ACTION_SEND.equals(action) && (type != null)) {
       // Shared from other app
       if (ClipEntity.TEXT_PLAIN.equals(type)) {
@@ -483,11 +465,15 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         if (!TextUtils.isEmpty(sharedText)) {
           final ClipEntity clip = new ClipEntity();
           clip.setText(sharedText);
-          App.getExecutors().diskIO().execute(() -> {
-            if (mVm.addClipSync(clip)) {
-              startOrUpdateClipViewer(clip);
-            }
-          });
+          mVm.addClip(clip);
+          // TODO setselected properly
+          //mVm.addClipAndSelect(clip);
+          intent.removeExtra(Intents.EXTRA_TEXT);
+          //App.getExecutors().diskIO().execute(() -> {
+          //  if (mVm.addClipSync(clip)) {
+          //    //selectClip(clip);
+          //  }
+          //});
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {
@@ -498,7 +484,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         final ClipEntity clip =
           (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
         intent.removeExtra(Intents.EXTRA_CLIP);
-        startOrUpdateClipViewer(clip);
+        selectClip(clip);
       }
     }
   }
@@ -514,13 +500,14 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   /** Set title based on currently selected {@link ClipEntity} */
   private void setTitle() {
+    final String labelFilter = Prefs.INST(this).getLabelFilter();
     String prefix = getString(R.string.title_activity_main);
-    if (!AppUtils.isWhitespace(mVm.labelFilter)) {
-      prefix = mVm.labelFilter;
+    if (!AppUtils.isWhitespace(labelFilter)) {
+      prefix = labelFilter;
     }
     if (AppUtils.isDualPane(this)) {
       final ClipEntity clip = getSelectedClipSync();
-      if (clip != null && clip.getRemote()) {
+      if ((clip != null) && clip.getRemote()) {
         setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
           clip.getDevice()));
       } else {
@@ -583,14 +570,14 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   private void updateOptionsMenu() {
     if (mOptionsMenu != null) {
 
-      if (!AppUtils.isDualPane(this)) {
-        // hide labels and edit_text menu if not dual pane
+      if (AppUtils.isDualPane(this)) {
+        // hide common menus if dual pane
         MenuItem menuItem;
-        menuItem = mOptionsMenu.findItem(R.id.action_labels);
+        menuItem = mOptionsMenu.findItem(R.id.action_settings);
         if (menuItem != null) {
           menuItem.setVisible(false);
         }
-        menuItem = mOptionsMenu.findItem(R.id.action_edit_text);
+        menuItem = mOptionsMenu.findItem(R.id.action_help);
         if (menuItem != null) {
           menuItem.setVisible(false);
         }
@@ -610,7 +597,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       // pin fav state
       final MenuItem pinMenu =
         mOptionsMenu.findItem(R.id.action_pin);
-      if (mVm.pinFavs) {
+      if (Prefs.INST(this).isPinFav()) {
         pinMenu.setIcon(R.drawable.ic_pin);
         pinMenu.setTitle(R.string.action_no_pin);
       } else {
@@ -624,7 +611,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       final MenuItem favFilterMenu =
         mOptionsMenu.findItem(R.id.action_fav_filter);
       int colorID;
-      if (mVm.filterByFavs) {
+      if (Prefs.INST(this).isFavFilter()) {
         favFilterMenu.setIcon(R.drawable.ic_favorite_black_24dp);
         favFilterMenu.setTitle(R.string.action_show_all);
         colorID = R.color.red_500_translucent;

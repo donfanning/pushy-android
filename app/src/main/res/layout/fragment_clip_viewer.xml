@@ -19,11 +19,11 @@
 
     <variable
       name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.ClipViewerFragViewModel" />
+      type="com.weebly.opus1269.clipman.viewmodel.MainViewModel" />
 
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.clips.ClipViewerHandlers" />
+      type="com.weebly.opus1269.clipman.ui.main.MainHandlers" />
   </data>
 
   <RelativeLayout
@@ -43,7 +43,7 @@
       android:id="@+id/labelLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:visibleGone="@{vm.clip.labels.size > 0}"
+      app:visibleGone="@{vm.selectedClip.labels.size > 0}"
       android:orientation="vertical">
 
       <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> handlers.onLabelsClick(vm)}"
+        android:onClick="@{(theView) -> handlers.onLabelsClick(theView, vm.selectedClip)}"
         android:orientation="horizontal">
 
       </LinearLayout>
@@ -68,14 +68,14 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/labelLayout"
-      app:visibleGone="@{vm.clip.remote}"
+      app:visibleGone="@{vm.selectedClip.remote}"
       android:orientation="vertical">
 
       <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="2"
-        android:text="@{@string/remote_device_fmt(vm.clip.device)}"
+        android:text="@{@string/remote_device_fmt(vm.selectedClip.device)}"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="?android:textColorTertiary"
         tools:text="Device: A device" />

@@ -108,7 +108,7 @@ dependencies {
   // Google API
   implementation "com.google.api-client:google-api-client:${rootProject.ext.gapiVersion}"
   implementation "com.google.api-client:google-api-client-android:${rootProject.ext.gapiVersion}"
-  implementation "com.google.apis:google-api-services-people:v1-rev158-${rootProject.ext.gapiVersion}"
+  implementation "com.google.apis:google-api-services-people:v1-rev223-${rootProject.ext.gapiVersion}"
   androidTestImplementation("com.android.support.test.espresso:espresso-core:2.2.2",
       {
         exclude group: "com.android.support", module: "support-annotations"

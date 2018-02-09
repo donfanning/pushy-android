@@ -12,6 +12,7 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -65,6 +66,9 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends
   /** Option menu resource id */
   protected int mOptionsMenuID = -1;
 
+  /** Option search resource id */
+  protected int mSearchID = -1;
+
   /** Our Option menu */
   protected Menu mOptionsMenu = null;
 
@@ -72,6 +76,7 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends
   protected boolean mHomeUpEnabled = true;
 
   /** Current search string */
+  @NonNull
   protected String mQueryString = "";
 
   @Override
@@ -146,8 +151,15 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends
 
       tintMenuItems();
 
-      if (mOptionsMenu.findItem(R.id.action_search) != null) {
-        setupSearch();
+      final MenuItem searchItem;
+      if (mSearchID == -1) {
+        searchItem = mOptionsMenu.findItem(R.id.action_search);
+      } else {
+        searchItem = mOptionsMenu.findItem(mSearchID);
+      }
+      if (searchItem != null) {
+        mSearchID = (mSearchID == -1) ? R.id.action_search : mSearchID;
+        setupSearch(searchItem);
       }
     }
     return super.onCreateOptionsMenu(menu);
@@ -159,7 +171,8 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends
    */
   protected void restoreInstanceState(Bundle savedInstanceState) {
     if (savedInstanceState != null) {
-      mQueryString = savedInstanceState.getString(STATE_QUERY_STRING);
+      final String s = savedInstanceState.getString(STATE_QUERY_STRING);
+      mQueryString = (s == null) ? "" : s;
     }
   }
 
@@ -185,21 +198,6 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends
   /** Get the Fab view */
   public FloatingActionButton getFab() {
     return findViewById(R.id.fab);
-  }
-
-  /**
-   * Show or hide Fab view
-   * @param show true to show
-   */
-  protected void setFabVisibility(boolean show) {
-    final FloatingActionButton fab = findViewById(R.id.fab);
-    if (fab != null) {
-      if (show) {
-        fab.show();
-      } else {
-        fab.hide();
-      }
-    }
   }
 
   @Override
@@ -236,52 +234,50 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends
   /**
    * Initialize the {@link android.support.v7.view.menu.ActionMenuItemView}
    * for search
+   * @param searchItem The MenuItem
    */
-  private void setupSearch() {
-    final MenuItem searchItem = mOptionsMenu.findItem(R.id.action_search);
-    if (searchItem != null) {
-      final SearchManager searchManager =
-        (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-      if (searchManager == null) {
-        return;
-      }
+  private void setupSearch(@NonNull MenuItem searchItem) {
+    final SearchManager searchManager =
+      (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    if (searchManager == null) {
+      return;
+    }
 
-      final SearchView searchView = (SearchView) searchItem.getActionView();
-      searchView.setSearchableInfo(
-        searchManager.getSearchableInfo(getComponentName()));
-      searchView.setOnQueryTextListener(this);
-      final String localQueryString = mQueryString;
+    final SearchView searchView = (SearchView) searchItem.getActionView();
+    searchView.setSearchableInfo(
+      searchManager.getSearchableInfo(getComponentName()));
+    searchView.setOnQueryTextListener(this);
+    final String localQueryString = mQueryString;
 
-      // SearchView OnClose listener does not work
-      // http://stackoverflow.com/a/12975254/4468645
-      searchItem.setOnActionExpandListener(
-        new MenuItem.OnActionExpandListener() {
-          @Override
-          public boolean onMenuItemActionExpand(MenuItem menuItem) {
-            // Return true to allow the action view to expand
-            return true;
-          }
+    // SearchView OnClose listener does not work
+    // http://stackoverflow.com/a/12975254/4468645
+    searchItem.setOnActionExpandListener(
+      new MenuItem.OnActionExpandListener() {
+        @Override
+        public boolean onMenuItemActionExpand(MenuItem menuItem) {
+          // Return true to allow the action view to expand
+          return true;
+        }
 
-          @Override
-          public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-            // Return true to allow the action view to collapse
-            // When the action view is collapsed, reset the query
-            setQueryString("");
-            // refresh menu, SearchAction does something funky to it
-            // after a rotate
-            mOptionsMenu.clear();
-            onCreateOptionsMenu(mOptionsMenu);
-            return true;
-          }
-        });
+        @Override
+        public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+          // Return true to allow the action view to collapse
+          // When the action view is collapsed, reset the query
+          setQueryString("");
+          // refresh menu, SearchAction does something funky to it
+          // after a rotate
+          mOptionsMenu.clear();
+          onCreateOptionsMenu(mOptionsMenu);
+          return true;
+        }
+      });
 
-      if (!TextUtils.isEmpty(mQueryString)) {
-        // http://stackoverflow.com/a/32397014/4468645
-        // moved expandActionView out of run.
-        // did not always work.
-        searchItem.expandActionView();
-        searchView.post(() -> searchView.setQuery(localQueryString, true));
-      }
+    if (!TextUtils.isEmpty(mQueryString)) {
+      // http://stackoverflow.com/a/32397014/4468645
+      // moved expandActionView out of run.
+      // did not always work.
+      searchItem.expandActionView();
+      searchView.post(() -> searchView.setQuery(localQueryString, true));
     }
   }
 }

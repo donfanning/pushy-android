@@ -19,11 +19,11 @@
 
     <variable
       name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.ClipViewerViewModel" />
+      type="com.weebly.opus1269.clipman.viewmodel.MainViewModel" />
 
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.clips.ClipViewerHandlers" />
+      type="com.weebly.opus1269.clipman.ui.main.MainHandlers" />
   </data>
 
   <android.support.design.widget.CoordinatorLayout
@@ -42,10 +42,10 @@
       android:layout_height="wrap_content"
       android:layout_gravity="bottom|end"
       android:layout_margin="@dimen/fab_margin"
-      android:onClick="@{(theView) -> handlers.onFabClick(theView, vm)}"
+      android:onClick="@{(theView) -> handlers.onFabClick(theView, vm.selectedClip)}"
       app:srcCompat="@drawable/ic_share_black_24dp"
       app:tintPrimary="@{false}"
-      app:visibleGone="@{!ClipEntity.isWhitespace(vm.clip)}" />
+      app:visibleGone="@{!ClipEntity.isWhitespace(vm.selectedClip)}" />
 
   </android.support.design.widget.CoordinatorLayout>
 

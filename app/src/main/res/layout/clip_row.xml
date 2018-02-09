@@ -21,7 +21,7 @@
 
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.main.ClipHandlers" />
+      type="com.weebly.opus1269.clipman.ui.main.MainHandlers" />
   </data>
 
   <LinearLayout
@@ -31,7 +31,7 @@
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical"
-    android:onClick="@{() -> handlers.onItemClick(vm)}"
+    android:onClick="@{(theView) -> handlers.onItemClick(theView, vm.clip)}"
     >
 
     <View style="@style/Divider" />
@@ -79,7 +79,7 @@
           android:button="@android:color/transparent"
           android:checked="@{vm.clip.fav}"
           android:contentDescription="@string/content_favorite"
-          android:onClick="@{() -> handlers.onFavClick(vm, favCheckBox)}"
+          android:onClick="@{(theView) -> handlers.onFavClick(theView, vm)}"
           android:paddingBottom="@dimen/row_image_vertical_margin"
           android:paddingEnd="@dimen/row_image_horizontal_margin"
           android:paddingLeft="@dimen/row_image_horizontal_margin"
@@ -117,7 +117,7 @@
           android:background="@android:color/transparent"
           android:contentDescription="@string/content_copy"
           android:gravity="center_vertical"
-          android:onClick="@{() -> handlers.onCopyClick(vm.clip, copyButton)}"
+          android:onClick="@{(theView) -> handlers.onCopyClick(theView, vm.clip)}"
           android:paddingBottom="@dimen/row_image_vertical_margin"
           android:paddingEnd="@dimen/row_image_horizontal_margin"
           android:paddingLeft="@dimen/row_image_horizontal_margin"
@@ -161,7 +161,7 @@
           android:background="@android:color/transparent"
           android:contentDescription="@string/content_copy"
           android:gravity="center_vertical"
-          android:onClick="@{() -> handlers.onLabelsClick(vm.clip, labelButton)}"
+          android:onClick="@{(theView) -> handlers.onLabelsClick(theView, vm.clip)}"
           android:paddingBottom="@dimen/row_image_vertical_margin"
           android:paddingEnd="@dimen/row_image_horizontal_margin"
           android:paddingLeft="@dimen/row_image_horizontal_margin"

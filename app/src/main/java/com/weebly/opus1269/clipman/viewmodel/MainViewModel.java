@@ -11,136 +11,58 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.preference.PreferenceManager;
 
+import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.MainRepo;
+
+import org.threeten.bp.Instant;
 
 import java.util.Collections;
 import java.util.List;
 
 /** ViewModel for MainActvity */
-public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
-  SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   /** Clips list */
   @NonNull
   private final MediatorLiveData<List<ClipEntity>> clips;
 
   /** Clips that were deleted */
   @NonNull
-  public final MutableLiveData<List<ClipEntity>> undoClips;
-
-  /** Selected Clip */
-  @NonNull
-  private final MediatorLiveData<ClipEntity> selectedClip;
+  private final MutableLiveData<List<ClipEntity>> undoClips;
 
   /** Last selected Clip */
-  public ClipEntity lastSelectedClip;
-
-  /** Sort with favorites first if true */
-  public boolean pinFavs;
-
-  /** Show only favorites if true */
-  public boolean filterByFavs;
-
-  /** Show only Clips with the given label if non-whitespace */
-  @NonNull
-  public String labelFilter;
-
-  /** Text to search on */
-  private String queryString;
-
-  /** Sort by date or text */
-  private int sortType;
-
-  /** Clip Source */
   @Nullable
-  private LiveData<ClipEntity> selectedClipSource;
-
-  /** Clips Source */
-  @NonNull
-  private LiveData<List<ClipEntity>> clipsSource;
+  private ClipEntity lastSelectedClip;
 
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
     lastSelectedClip = null;
 
-    selectedClipSource = null;
-
-    selectedClip = new MediatorLiveData<>();
-    selectedClip.setValue(null);
-
-    pinFavs = Prefs.INST(app).isPinFav();
-
-    filterByFavs = Prefs.INST(app).isFavFilter();
-
-    labelFilter = Prefs.INST(app).getLabelFilter();
-
-    sortType = Prefs.INST(app).getSortType();
-
     undoClips = new MutableLiveData<>();
     undoClips.setValue(null);
 
     clips = new MediatorLiveData<>();
     clips.setValue(null);
-    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType, queryString);
-    clips.addSource(clipsSource, clips::setValue);
-
-    // listen for preference changes
-    PreferenceManager
-      .getDefaultSharedPreferences(app)
-      .registerOnSharedPreferenceChangeListener(this);
-  }
-
-  @Override
-  protected void onCleared() {
-    super.onCleared();
-    // stop listening for preference changes
-    PreferenceManager
-      .getDefaultSharedPreferences(getApplication())
-      .unregisterOnSharedPreferenceChangeListener(this);
+    clips.addSource(mRepo.getClips(), clips::setValue);
   }
 
   @Override
   protected void initRepo() {
     super.initRepo();
+    mRepo.setInfoMessage(null);
     mRepo.setErrorMsg(null);
   }
 
   @Override
-  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                                        String key) {
-    final Context context = getApplication();
-    // TODO do something with labelfilter
-
-    //noinspection IfCanBeSwitch
-    if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
-      filterByFavs = Prefs.INST(context).isFavFilter();
-      final ClipEntity clip = getSelectedClipSync();
-      if (filterByFavs && (clip != null) && !clip.getFav()) {
-        // unselect if we will be filtered out
-        setSelectedClip(null);
-      }
-    } else if (Prefs.INST(context).PREF_PIN_FAV.equals(key)) {
-      pinFavs = Prefs.INST(context).isPinFav();
-    } else if (Prefs.INST(context).PREF_SORT_TYPE.equals(key)) {
-      sortType = Prefs.INST(context).getSortType();
-    } else if (Prefs.INST(context).PREF_LABEL_FILTER.equals(key)) {
-      labelFilter = Prefs.INST(context).getLabelFilter();
-    } else {
-      // not ours to handle
-      return;
-    }
-
-    changeClips();
+  protected void onCleared() {
+    super.onCleared();
+    setClipTextFilter("");
   }
 
   @NonNull
@@ -150,49 +72,59 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
   @NonNull
   public LiveData<ClipEntity> getSelectedClip() {
-    return selectedClip;
+    return mRepo.getSelectedClip();
   }
 
   public void setSelectedClip(@Nullable ClipEntity clip) {
-    if (selectedClipSource != null) {
-      selectedClip.removeSource(selectedClipSource);
-    }
-    lastSelectedClip = selectedClip.getValue();
-    if (ClipEntity.isWhitespace(clip)) {
-      // no clip
-      selectedClipSource = null;
-      selectedClip.setValue(null);
-    } else {
-      selectedClipSource = mRepo.getClip(clip.getId());
-      selectedClip.addSource(selectedClipSource, this.selectedClip::setValue);
-    }
+    setLastSelectedClip(getSelectedClipSync());
+    mRepo.setSelectedClip(clip);
   }
 
   @Nullable
   public ClipEntity getSelectedClipSync() {
-    return selectedClip.getValue();
+    return mRepo.getSelectedClipSync();
   }
 
-  public void setQueryString(@Nullable String query) {
-    queryString = query;
-    changeClips();
+  @NonNull
+  public LiveData<List<ClipEntity>> getUndoClips() {
+    return undoClips;
+  }
+
+  public void setUndoClips(@Nullable List<ClipEntity> clips) {
+    undoClips.setValue(clips);
+  }
+
+  @Nullable
+  public ClipEntity getLastSelectedClip() {
+    return lastSelectedClip;
+  }
+
+  private void setLastSelectedClip(@Nullable ClipEntity lastSelectedClip) {
+    this.lastSelectedClip = lastSelectedClip;
+  }
+
+  @NonNull
+  public LiveData<String> getClipTextFilter() {
+    return mRepo.getClipTextFilter();
+  }
+
+  @NonNull
+  public String getClipTextFilterSync() {
+    return mRepo.getClipTextFilterSync();
+  }
+
+  public void setClipTextFilter(@NonNull String query) {
+    mRepo.setClipTextFilter(query);
   }
 
   /**
    * Add a clip
    * @param clip Clip
-   * @return true if added
    */
-  public boolean addClipSync(@Nullable ClipEntity clip) {
-    boolean ret = false;
+  public void addClip(@Nullable ClipEntity clip) {
     if (clip != null) {
-      final long id = mRepo.addClipSync(clip);
-      if (id != -1L) {
-        clip.setId(id);
-        ret = true;
-      }
+      mRepo.addClip(clip);
     }
-    return ret;
   }
 
   /**
@@ -203,6 +135,15 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
     if (clip != null) {
       mRepo.removeClip(clip);
       undoClips.postValue(Collections.singletonList(clip));
+    }
+  }
+
+  /** Delete selected clip */
+  public void removeSelectedClip() {
+    final ClipEntity clip = getSelectedClipSync();
+    if (clip != null) {
+      removeClip(clip);
+      setSelectedClip(null);
     }
   }
 
@@ -220,13 +161,40 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> implements
 
   /** Undo the last delete */
   public void undoDelete() {
-    mRepo.addClips(undoClips.getValue());
+    final List<ClipEntity> clips = undoClips.getValue();
+    if (clips != null) {
+      mRepo.addClips(clips);
+    }
   }
 
-  private void changeClips() {
-    Log.logD(TAG, "clips source changed");
-    clips.removeSource(clipsSource);
-    clipsSource = mRepo.getClips(filterByFavs, pinFavs, sortType, queryString);
-    clips.addSource(clipsSource, clips::setValue);
+  /** Undo the last delete and select it */
+  public void undoDeleteAndSelect() {
+    App.getExecutors().diskIO().execute(() -> {
+      final List<ClipEntity> clips = undoClips.getValue();
+      if (!AppUtils.isEmpty(clips)) {
+        mRepo.addClipSync(clips.get(0));
+        setSelectedClip(clips.get(0));
+      }
+    });
+  }
+
+  /** Copy selected clip to the Clipboard */
+  public void copySelectedClip() {
+    final ClipEntity clip = getSelectedClipSync();
+    if (!ClipEntity.isWhitespace(clip)) {
+      clip.setRemote(false);
+      clip.setDate(Instant.now().toEpochMilli());
+      clip.copyToClipboard(getApplication());
+      setInfoMessage(getApplication().getString(R.string.clipboard_copy));
+    }
+  }
+
+  /** Toggle the favorite state of selected clip */
+  public void toggleSelectedFavorite() {
+    final ClipEntity clip = getSelectedClipSync();
+    if (clip != null) {
+      clip.setFav(!clip.getFav());
+      mRepo.updateClipFav(clip);
+    }
   }
 }

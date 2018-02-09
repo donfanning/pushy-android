@@ -10,6 +10,7 @@ package com.weebly.opus1269.clipman.ui.clips;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,53 +21,44 @@ import android.text.method.ArrowKeyMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
-import com.weebly.opus1269.clipman.viewmodel.ClipViewerFragViewModel;
+import com.weebly.opus1269.clipman.ui.help.HelpActivity;
+import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
+import com.weebly.opus1269.clipman.ui.labels.LabelsSelectActivity;
+import com.weebly.opus1269.clipman.ui.main.MainHandlers;
+import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
+import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
-import java.io.Serializable;
 import java.text.Collator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** A fragment to view a {@link ClipEntity} */
 public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
-  /** The Activity that has implemented our interface */
-  private OnClipChanged mOnClipChanged = null;
+  /** Our Option menu */
+  private Menu mOptionsMenu = null;
 
   /** Our ViewModel */
-  private ClipViewerFragViewModel mVm = null;
+  private MainViewModel mVm = null;
 
   public ClipViewerFragment() {
     // Required empty public constructor
-  }
-
-  /**
-   * Factory method to create new fragment
-   * @param item      ClipEntity to view
-   * @param highlight text to highlight
-   * @return new ClipViewerFragment
-   */
-  public static ClipViewerFragment newInstance(Serializable item,
-                                               String highlight) {
-    final ClipViewerFragment fragment = new ClipViewerFragment();
-
-    final Bundle args = new Bundle();
-    args.putSerializable(Intents.EXTRA_CLIP, item);
-    args.putString(Intents.EXTRA_TEXT, highlight);
-
-    fragment.setArguments(args);
-
-    return fragment;
   }
 
   @Override
@@ -90,33 +82,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
     super.onCreateView(inflater, container, savedInstanceState);
 
-    // setup ViewModel and data binding
-    mVm = ViewModelProviders.of(this).get(ClipViewerFragViewModel.class);
-    final ClipViewerHandlers handlers = new ClipViewerHandlers();
-    mBinding.setLifecycleOwner(this);
-    mBinding.setVm(mVm);
-    mBinding.setHandlers(handlers);
-    mBinding.executePendingBindings();
-
-    // observe clip
-    mVm.getClip().observe(this, this::clipChanged);
-
     return mBinding.getRoot();
-  }
-
-  @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-
-    final Activity activity = getActivity();
-    // This makes sure that the container activity has implemented
-    // the callback interface. If not, it throws an exception
-    try {
-      mOnClipChanged = (OnClipChanged) activity;
-    } catch (final ClassCastException ignore) {
-      throw new ClassCastException(activity.getLocalClassName() +
-        " must implement OnClipChanged");
-    }
   }
 
   @Override
@@ -130,30 +96,107 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
 
-    final Bundle args = getArguments();
-    if (args != null) {
-      if (args.containsKey(Intents.EXTRA_CLIP)) {
-        final ClipEntity clip =
-          (ClipEntity) args.getSerializable(Intents.EXTRA_CLIP);
-        if (mVm != null) {
-          mVm.setClip(clip);
-        }
-      }
-
-      if (args.containsKey(Intents.EXTRA_TEXT)) {
-        if (mVm != null) {
-          mVm.setHighlight(args.getString(Intents.EXTRA_TEXT));
-        }
-      }
+    final BaseActivity baseActivity = (BaseActivity)getActivity();
+    if ((baseActivity == null) || (mBinding == null)) {
+      return;
     }
+
+    // setup ViewModel and data binding
+    mVm = ViewModelProviders.of(baseActivity).get(MainViewModel.class);
+    final MainHandlers handlers = new MainHandlers(baseActivity);
+    mBinding.setLifecycleOwner(this);
+    mBinding.setVm(mVm);
+    mBinding.setHandlers(handlers);
+    mBinding.executePendingBindings();
+
+    subscribeToViewModel();
+
+    // TODO
+    clipChanged(mVm.getSelectedClipSync());
   }
 
-  public void setClip(ClipEntity clip) {
-    mVm.setClip(clip);
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    mOptionsMenu = menu;
+    inflater.inflate(R.menu.menu_clipviewer_fragment, menu);
+    tintMenuItems();
+    updateOptionsMenu();
+    super.onCreateOptionsMenu(menu, inflater);
   }
 
-  public void setHighlight(String s) {
-    mVm.setHighlight(s);
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    final Activity activity = getActivity();
+    if (activity == null) {
+      return false;
+    }
+
+    boolean processed = true;
+
+    Intent intent;
+    final int id = item.getItemId();
+    switch (id) {
+      case R.id.action_favorite:
+        mVm.toggleSelectedFavorite();
+        break;
+      case R.id.action_labels:
+        intent = new Intent(activity, LabelsSelectActivity.class);
+        intent.putExtra(Intents.EXTRA_CLIP, getClip());
+        AppUtils.startActivity(activity, intent);
+        break;
+      case R.id.action_edit_text:
+        intent = new Intent(activity, ClipEditorActvity.class);
+        intent.putExtra(Intents.EXTRA_CLIP, getClip());
+        AppUtils.startActivity(activity, intent);
+        break;
+      case R.id.action_search_web:
+        final ClipEntity clipEntity = getClip();
+        if (!ClipEntity.isWhitespace(clipEntity)) {
+          AppUtils.performWebSearch(activity, clipEntity.getText());
+        }
+        break;
+      case R.id.action_copy:
+        mVm.copySelectedClip();
+        break;
+      case R.id.action_delete:
+        mVm.removeSelectedClip();
+        break;
+      case R.id.action_settings:
+        intent = new Intent(activity, SettingsActivity.class);
+        AppUtils.startActivity(activity, intent);
+        break;
+      case R.id.action_help:
+        intent = new Intent(activity, HelpActivity.class);
+        AppUtils.startActivity(activity, intent);
+        break;
+      default:
+        processed = false;
+        break;
+    }
+
+    if (processed) {
+      Analytics.INST(activity).menuClick(TAG, item);
+    }
+
+    return processed || super.onOptionsItemSelected(item);
+  }
+
+  @Nullable
+  private ClipEntity getClip() {
+    return mVm == null ? null : mVm.getSelectedClipSync();
+  }
+
+  public void setHighlightText(@NonNull String s) {
+    highlightTextChanged(s);
+  }
+
+  /** Observe changes to ViewModel */
+  private void subscribeToViewModel() {
+    // observe clip
+    mVm.getSelectedClip().observe(this, this::clipChanged);
+
+    // observe clip text filter
+    mVm.getClipTextFilter().observe(this, this::highlightTextChanged);
   }
 
   /**
@@ -174,15 +217,16 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
       }
     }
 
+    updateOptionsMenu();
     setupLabels();
-    setupHighlight();
-
-    mOnClipChanged.clipChanged(clip);
+    highlightTextChanged(mVm.getClipTextFilterSync());
   }
 
-  /** Highlight all occurrences of the highlight */
-  private void setupHighlight() {
-    final String highlightText = mVm.getHighlight();
+  /**
+   * Highlight all occurrences of the given text
+   * @param highlightText Text to highlight
+   */
+  private void highlightTextChanged(@NonNull String highlightText) {
     final Context context = mBinding.clipViewerText.getContext();
     final String text = mBinding.clipViewerText.getText().toString();
     if (TextUtils.isEmpty(highlightText)) {
@@ -281,8 +325,34 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     textView.setTextIsSelectable(true);
   }
 
-  /** Activities implement this to get notified of clip changes */
-  public interface OnClipChanged {
-    void clipChanged(ClipEntity clip);
+  /** Color the icons white for all API versions */
+  private void tintMenuItems() {
+    final Activity activity = getActivity();
+    if (activity != null && mOptionsMenu != null) {
+      final int color = ContextCompat.getColor(activity, R.color.icons);
+      MenuTintHelper.on(mOptionsMenu)
+        .setMenuItemIconColor(color)
+        .apply(activity);
+    }
+  }
+
+  /** Set Option Menu items based on current state */
+  private void updateOptionsMenu() {
+    final Context context = getContext();
+    if (context == null || mOptionsMenu == null) {
+      return;
+    }
+
+    final MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
+    final ClipEntity clip = getClip();
+    if ((menuItem != null) && (clip != null)) {
+      final boolean isFav = clip.getFav();
+      final int colorID = isFav ? R.color.red_500_translucent : R.color.icons;
+      final int icon = isFav ? R.drawable.ic_favorite_black_24dp :
+        R.drawable.ic_favorite_border_black_24dp;
+      menuItem.setIcon(icon);
+      final int color = ContextCompat.getColor(getContext(), colorID);
+      MenuTintHelper.colorMenuItem(menuItem, color, 255);
+    }
   }
 }
