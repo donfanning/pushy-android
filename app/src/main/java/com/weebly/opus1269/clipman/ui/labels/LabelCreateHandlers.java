@@ -64,7 +64,7 @@ public class LabelCreateHandlers extends BaseHandlers {
   }
 
   /**
-   * Create a new Label
+   * Create a new LabelOld
    * @param vm A ViewModel
    */
   private void create(@NonNull LabelCreateViewModel vm) {
@@ -74,7 +74,7 @@ public class LabelCreateHandlers extends BaseHandlers {
       vm.create();
       vm.name.setValue("");
     } else {
-      vm.setErrorMsg(new ErrorMsg("Label is empty"));
+      vm.setErrorMsg(new ErrorMsg("LabelOld is empty"));
     }
   }
 }

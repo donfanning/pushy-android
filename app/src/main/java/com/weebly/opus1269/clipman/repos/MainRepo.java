@@ -45,7 +45,7 @@ public class MainRepo extends BaseRepo implements
   @NonNull
   private final MediatorLiveData<List<ClipEntity>> clips;
 
-  /** Label list */
+  /** LabelOld list */
   @NonNull
   private final MediatorLiveData<List<LabelEntity>> labels;
 

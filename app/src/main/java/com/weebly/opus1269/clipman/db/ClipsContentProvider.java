@@ -118,7 +118,7 @@ public class ClipsContentProvider extends ContentProvider {
         newSelection += "and _ID = " + uri.getLastPathSegment();
         break;
       case CLIP_LABEL_MAP_JOIN:
-        // special case for filtering by Label
+        // special case for filtering by LabelOld
         final String table = ClipsContract.Clip.TABLE_NAME + " INNER JOIN " +
           ClipsContract.LabelMap.TABLE_NAME + " ON " +
           ClipsContract.Clip.TABLE_NAME + '.' +

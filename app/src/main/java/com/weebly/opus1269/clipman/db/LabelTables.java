@@ -17,12 +17,12 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/** Singleton to manage the Clips.db Label and LabelMap tables */
+/** Singleton to manage the Clips.db LabelOld and LabelMap tables */
 public class LabelTables {
   // OK, because mContext is the global Application context
   @SuppressLint("StaticFieldLeak")
@@ -50,7 +50,7 @@ public class LabelTables {
 
 
   /**
-   * Is a {@link Label} with the given name in the database
+   * Is a {@link LabelOld} with the given name in the database
    * @param labelName the name
    * @return true if label exists
    */
@@ -77,7 +77,7 @@ public class LabelTables {
   }
 
   /**
-   * Get the PK for the given {@link Label} name
+   * Get the PK for the given {@link LabelOld} name
    * @return PK for name, -1L if not found
    */
   private long getLabelId(@NonNull String labelName) {
@@ -109,12 +109,12 @@ public class LabelTables {
   }
 
   /**
-   * Get the {@link Label} objects for the given {@link ClipItem}
+   * Get the {@link LabelOld} objects for the given {@link ClipItem}
    * @param clipItem the clip
    * @return List of labels
    */
-  public List<Label> getLabels(@NonNull ClipItem clipItem) {
-    List<Label> ret = new ArrayList<>(0);
+  public List<LabelOld> getLabels(@NonNull ClipItem clipItem) {
+    List<LabelOld> ret = new ArrayList<>(0);
     if (ClipItem.isWhitespace(clipItem)) {
       return ret;
     }
@@ -136,7 +136,7 @@ public class LabelTables {
         int idx = cursor.getColumnIndex(ClipsContract.LabelMap.COL_LABEL_NAME);
         final String name = cursor.getString(idx);
         long labelId = getLabelId(name);
-        ret.add(new Label(name, labelId));
+        ret.add(new LabelOld(name, labelId));
       }
     } finally {
       cursor.close();
@@ -146,11 +146,11 @@ public class LabelTables {
   }
 
   /**
-   * Get all the {@link Label} objects
+   * Get all the {@link LabelOld} objects
    * @return List of Labels
    */
-  public List<Label> getAllLabels() {
-    final ArrayList<Label> list = new ArrayList<>(0);
+  public List<LabelOld> getAllLabels() {
+    final ArrayList<LabelOld> list = new ArrayList<>(0);
     final ContentResolver resolver = mContext.getContentResolver();
 
     final String[] projection = {" * "};
@@ -168,7 +168,7 @@ public class LabelTables {
         final String name = cursor.getString(idx);
         idx = cursor.getColumnIndex(ClipsContract.Label._ID);
         final long id = cursor.getLong(idx);
-        list.add(new Label(name, id));
+        list.add(new LabelOld(name, id));
       }
     } finally {
       cursor.close();
@@ -177,7 +177,7 @@ public class LabelTables {
     return list;
   }
 
-  /** Delete all the {@link Label} objects from the db */
+  /** Delete all the {@link LabelOld} objects from the db */
   public void deleteAllLabels() {
     final ContentResolver resolver = mContext.getContentResolver();
 
@@ -185,7 +185,7 @@ public class LabelTables {
   }
 
   /**
-   * Update the name of a {@link Label}
+   * Update the name of a {@link LabelOld}
    * @param newName new name
    * @param oldName current name
    */
@@ -193,7 +193,7 @@ public class LabelTables {
                           @NonNull String oldName) {
     final ContentResolver resolver = mContext.getContentResolver();
 
-    // update Label
+    // update LabelOld
     final String[] selectionArgs = {oldName};
     final String selection = ClipsContract.Label.COL_NAME + " = ? ";
     ContentValues cv = new ContentValues();
@@ -203,11 +203,11 @@ public class LabelTables {
   }
 
   /**
-   * Add a {@link Label}
-   * @param label Label to add
+   * Add a {@link LabelOld}
+   * @param label LabelOld to add
    * @return true if added
    */
-  public boolean addLabel(@NonNull Label label) {
+  public boolean addLabel(@NonNull LabelOld label) {
     final String name = label.getName();
     if (AppUtils.isWhitespace(name)) {
       return false;
@@ -226,15 +226,15 @@ public class LabelTables {
   }
 
   /**
-   * Add the {@link Label} objects
+   * Add the {@link LabelOld} objects
    * @param labels labels to add
    */
-  public void insertLabels(@NonNull List<Label> labels) {
+  public void insertLabels(@NonNull List<LabelOld> labels) {
     final ContentResolver resolver = mContext.getContentResolver();
 
     final ContentValues[] cvs = new ContentValues[labels.size()];
     int count = 0;
-    for (Label label : labels) {
+    for (LabelOld label : labels) {
       cvs[count] = label.getContentValues();
       count++;
     }
@@ -243,7 +243,7 @@ public class LabelTables {
   }
 
   /**
-   * Add the {@link Label} map for a group of {@link ClipItem} objects to the
+   * Add the {@link LabelOld} map for a group of {@link ClipItem} objects to the
    * database
    * @param clipItems The clips to add labels for
    */
@@ -254,7 +254,7 @@ public class LabelTables {
 
     final ContentResolver resolver = mContext.getContentResolver();
 
-    // get total number of ClipItem/Label entries
+    // get total number of ClipItem/LabelOld entries
     int size = 0;
     for (ClipItem clipItem : clipItems) {
       size += clipItem.getLabels().size();
@@ -263,7 +263,7 @@ public class LabelTables {
     final ContentValues[] mapCVs = new ContentValues[size];
     int count = 0;
     for (ClipItem clipItem : clipItems) {
-      for (Label label : clipItem.getLabels()) {
+      for (LabelOld label : clipItem.getLabels()) {
         ContentValues cv = new ContentValues();
         cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId(mContext));
         cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
@@ -276,11 +276,11 @@ public class LabelTables {
   }
 
   /**
-   * Add a {@link ClipItem} and {@link Label} to the LabelMap table
+   * Add a {@link ClipItem} and {@link LabelOld} to the LabelMap table
    * @param clipItem the clip
    * @param label    the label
    */
-  public void insert(ClipItem clipItem, Label label) {
+  public void insert(ClipItem clipItem, LabelOld label) {
     if (AppUtils.isWhitespace(clipItem.getText()) ||
       AppUtils.isWhitespace(label.getName())) {
       return;
@@ -293,7 +293,7 @@ public class LabelTables {
       return;
     }
 
-    // insert Label
+    // insert LabelOld
     label.save(mContext);
 
     // insert into LabelMap table
@@ -305,11 +305,11 @@ public class LabelTables {
   }
 
   /**
-   * Delete a {@link ClipItem} and {@link Label} from the LabelMap table
+   * Delete a {@link ClipItem} and {@link LabelOld} from the LabelMap table
    * @param clipItem the clip
    * @param label    the label
    */
-  public void delete(ClipItem clipItem, Label label) {
+  public void delete(ClipItem clipItem, LabelOld label) {
     if (ClipItem.isWhitespace(clipItem) ||
       AppUtils.isWhitespace(label.getName())) {
       return;
@@ -328,11 +328,11 @@ public class LabelTables {
   }
 
   /**
-   * Delete a {@link Label}
+   * Delete a {@link LabelOld}
    * @param label the label
    * @return true if deleted
    */
-  public boolean deleteLabel(@NonNull Label label) {
+  public boolean deleteLabel(@NonNull LabelOld label) {
     final String name = label.getName();
     if (AppUtils.isWhitespace(name)) {
       return false;
@@ -350,13 +350,13 @@ public class LabelTables {
   }
 
   /**
-   * Does the ClipItem and Label exist in the LabelMap table
+   * Does the ClipItem and LabelOld exist in the LabelMap table
    * @param resolver to db
-   * @param label    Label to check
+   * @param label    LabelOld to check
    * @return if true, already in db
    */
   private boolean exists(ContentResolver resolver, ClipItem clipItem,
-                         Label label) {
+                         LabelOld label) {
     final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
     final long id = clipItem.getId(mContext);
     final String selection =

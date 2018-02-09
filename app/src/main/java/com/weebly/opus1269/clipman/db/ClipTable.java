@@ -21,7 +21,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.Prefs;
 
 import org.threeten.bp.LocalDate;
@@ -169,7 +169,7 @@ public class ClipTable {
   }
 
   /**
-   * Get all non-favorite and optionally favorite rows for a given {@link Label}
+   * Get all non-favorite and optionally favorite rows for a given {@link LabelOld}
    * @param includeFavs flag to indicate if favorites should be retrieved too
    * @param labelFilter label to filter on
    * @return The {@link ClipItem} objects
@@ -198,7 +198,7 @@ public class ClipTable {
     if (!AppUtils.isWhitespace(labelFilter)) {
       // special Uri to JOIN
       uri = ClipsContract.Clip.CONTENT_URI_JOIN;
-      // filter by Label name
+      // filter by LabelOld name
       selection += " AND (" + ClipsContract.LabelMap.COL_LABEL_NAME +
         " = '" + labelFilter + "' )";
     }
@@ -318,7 +318,7 @@ public class ClipTable {
 
   /**
    * Delete all non-favorite and optionally favorite rows
-   * for a given {@link Label}
+   * for a given {@link LabelOld}
    * @param deleteFavs  flag to indicate if favorites should be deleted
    * @param labelFilter label to filter on
    * @return Number of rows deleted
@@ -356,7 +356,7 @@ public class ClipTable {
       selection = CLIP_ID + " IN ( " + innerSelect + innerWhere + " )";
 
     } else {
-      // no Label filter
+      // no LabelOld filter
       if (deleteFavs) {
         // select all
         selection = null;

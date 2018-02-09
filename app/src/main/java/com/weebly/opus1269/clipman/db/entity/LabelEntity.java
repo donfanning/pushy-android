@@ -23,13 +23,12 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.weebly.opus1269.clipman.model.AdapterItem;
-import com.weebly.opus1269.clipman.model.LabelNew;
 
 import java.io.Serializable;
 
-/** A Label for categorizing clips */
+/** A LabelOld for categorizing clips */
 @Entity(tableName = "labels", indices = {@Index(value = "name", unique = true)})
-public class LabelEntity implements LabelNew, AdapterItem, Serializable {
+public class LabelEntity implements AdapterItem, Serializable {
   @PrimaryKey(autoGenerate = true)
   private long id;
 
@@ -71,7 +70,6 @@ public class LabelEntity implements LabelNew, AdapterItem, Serializable {
     this.id = id;
   }
 
-  @Override
   public String getName() {
     return name;
   }

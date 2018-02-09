@@ -35,7 +35,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.LabelEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.databinding.LabelSelectRowBinding;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
@@ -80,7 +80,7 @@ class LabelsSelectAdapter extends
     tintIcons(holder);
 
     // Get the data model from the holder
-    final Label label = holder.label;
+    final LabelOld label = holder.label;
 
     // set checked state
     final boolean checked = mActivity.getClip().hasLabel(label);
@@ -108,11 +108,11 @@ class LabelsSelectAdapter extends
   public int getItemCount() {return AppUtils.size(mList);}
 
   ///**
-  // * Add or remove a {@link Label} to our {@link ClipItem}
+  // * Add or remove a {@link LabelOld} to our {@link ClipItem}
   // * @param checked if true, add
   // * @param label   label to add or remove
   // */
-  //private void addOrRemoveLabel(boolean checked, Label label) {
+  //private void addOrRemoveLabel(boolean checked, LabelOld label) {
   //  final ClipItem clipItem = mActivity.getClip();
   //  if (checked) {
   //    clipItem.addLabel(mContext, label);
@@ -142,7 +142,7 @@ class LabelsSelectAdapter extends
     final ImageView labelImage;
     final TextView labelText;
     final CheckBox checkBox;
-    Label label;
+    LabelOld label;
 
     LabelViewHolder(@NonNull LabelSelectRowBinding binding) {
       super(binding.getRoot());

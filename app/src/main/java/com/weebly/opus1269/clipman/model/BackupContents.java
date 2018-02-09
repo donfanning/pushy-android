@@ -25,7 +25,7 @@ import java.util.List;
 
 /** Class for the contents of a backup */
 public class BackupContents {
-  private List<Label> labels;
+  private List<LabelOld> labels;
   private List<ClipItem> clipItems;
 
   public BackupContents() {
@@ -33,7 +33,7 @@ public class BackupContents {
     this.clipItems = new ArrayList<>(0);
   }
 
-  private BackupContents(@NonNull List<Label> labels,
+  private BackupContents(@NonNull List<LabelOld> labels,
                          @NonNull List<ClipItem> clipItems) {
     this.labels = labels;
     this.clipItems = clipItems;
@@ -47,7 +47,7 @@ public class BackupContents {
   @NonNull
   public static BackupContents getDB(Context context) {
     List<ClipItem> clipItems = ClipTable.INST(context).getAll();
-    List<Label> labels = LabelTables.INST(context).getAllLabels();
+    List<LabelOld> labels = LabelTables.INST(context).getAllLabels();
     return new BackupContents(labels, clipItems);
   }
 
@@ -79,13 +79,13 @@ public class BackupContents {
   }
 
   /**
-   * Get the largest {@link Label} PK in the list
+   * Get the largest {@link LabelOld} PK in the list
    * @param labels label list
    * @return largest id, 0 if empty
    */
-  private static long getLargestId(@NonNull List<Label> labels) {
+  private static long getLargestId(@NonNull List<LabelOld> labels) {
     long ret = 0;
-    for (Label label : labels) {
+    for (LabelOld label : labels) {
       long id = label.getId();
       ret = (id > ret) ? id : ret;
     }
@@ -93,23 +93,23 @@ public class BackupContents {
   }
 
   /**
-   * Update the id for the {@link Label} in all the {@link ClipItem} objects
+   * Update the id for the {@link LabelOld} in all the {@link ClipItem} objects
    * @param clipItems clipItems list
    * @param label     label to chage
    */
   private static void updateLabelId(@NonNull List<ClipItem> clipItems,
-                                    @NonNull Label label) {
+                                    @NonNull LabelOld label) {
     for (ClipItem clipItem : clipItems) {
       clipItem.updateLabelIdNoSave(label);
     }
   }
 
   @NonNull
-  public List<Label> getLabels() {
+  public List<LabelOld> getLabels() {
     return labels;
   }
 
-  public void setLabels(@NonNull List<Label> labels) {
+  public void setLabels(@NonNull List<LabelOld> labels) {
     this.labels = labels;
   }
 
@@ -142,11 +142,11 @@ public class BackupContents {
   public void merge(@NonNull Context context,
                     @NonNull final BackupContents contents) {
     // Merged items
-    final List<Label> outLabels = this.labels;
+    final List<LabelOld> outLabels = this.labels;
     final List<ClipItem> outClipItems = this.clipItems;
 
     // Items to be merged
-    final List<Label> inLabels = contents.getLabels();
+    final List<LabelOld> inLabels = contents.getLabels();
     final List<ClipItem> inClipItems = contents.getClipItems();
 
     // Largest label PK being used by us
@@ -154,18 +154,18 @@ public class BackupContents {
     newLabelId++;
 
     // merge labels
-    for (Label inLabel : inLabels) {
+    for (LabelOld inLabel : inLabels) {
       final int pos = outLabels.indexOf(inLabel);
       if (pos == -1) {
         // new label - add one with unique id to outgoing and
         // update incoming clip references to it
-        final Label addLabel = new Label(inLabel.getName(), newLabelId);
+        final LabelOld addLabel = new LabelOld(inLabel.getName(), newLabelId);
         outLabels.add(addLabel);
         newLabelId++;
         updateLabelId(inClipItems, addLabel);
       } else {
         // shared label - update incoming clip references if id's don't match
-        final Label sharedLabel = outLabels.get(pos);
+        final LabelOld sharedLabel = outLabels.get(pos);
         if (inLabel.getId() != sharedLabel.getId()) {
           updateLabelId(inClipItems, sharedLabel);
         }

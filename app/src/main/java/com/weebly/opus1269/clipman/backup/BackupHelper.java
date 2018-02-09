@@ -24,7 +24,7 @@ import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
@@ -254,7 +254,7 @@ public class BackupHelper {
    */
   private void replaceDB(@NonNull BackupContents contents) throws SQLException {
     // replace database contents
-    final List<Label> labels = contents.getLabels();
+    final List<LabelOld> labels = contents.getLabels();
     final List<ClipItem> clipItems = contents.getClipItems();
     App.getDbHelper().replaceDB(labels, clipItems);
 

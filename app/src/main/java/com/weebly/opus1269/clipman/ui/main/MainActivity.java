@@ -553,11 +553,11 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     // Create Labels sub menu
     // TODO
-    //List<Label> labels = LabelTables.INST(this).getAllLabels();
+    //List<LabelOld> labels = LabelTables.INST(this).getAllLabels();
     //menu.setGroupVisible(R.id.nav_group_labels, !AppUtils.isEmpty(labels));
     //SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
     //labelMenu.clear();
-    //for (Label label : labels) {
+    //for (LabelOld label : labels) {
     //  final MenuItem labelItem = labelMenu.add(R.id.nav_group_labels,
     //    Menu.NONE, Menu.NONE, label.getName());
     //  labelItem.setIcon(R.drawable.ic_label);

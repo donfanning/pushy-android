@@ -35,7 +35,7 @@ import com.weebly.opus1269.clipman.databinding.ClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
 import com.weebly.opus1269.clipman.ui.help.HelpActivity;
@@ -252,11 +252,11 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     }
   }
 
-  /** Add the Views containing our {@link Label} items */
+  /** Add the Views containing our {@link LabelOld} items */
   private void setupLabels() {
     // TODO
     //mClip.loadLabels(getContext());
-    //final List<Label> labels = mClip.getLabels();
+    //final List<LabelOld> labels = mClip.getLabels();
     //
     //final LinearLayout labelLayout = findViewById(R.id.labelLayout);
     //assert labelLayout != null;
@@ -281,7 +281,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     //final int rightMargin = AppUtils.dp2px(labelLayout.getContext(), 8);
     //llp.setMargins(0, 0, rightMargin, 0);
     //
-    //for (Label label : labels) {
+    //for (LabelOld label : labels) {
     //  final ContextThemeWrapper wrapper =
     //    new ContextThemeWrapper(getContext(), R.style.LabelItemView);
     //  final TextView textView = new TextView(wrapper, null, 0);

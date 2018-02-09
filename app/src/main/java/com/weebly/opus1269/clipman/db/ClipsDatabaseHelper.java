@@ -16,7 +16,7 @@ import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.model.ClipItem;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 
 import org.threeten.bp.Instant;
 
@@ -90,11 +90,11 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     if ((oldVersion == 1) && (newVersion == 2)) {
-      // Add the Label and LabelMap tables
+      // Add the LabelOld and LabelMap tables
       db.execSQL(SQL_CREATE_LABEL);
       db.execSQL(SQL_CREATE_LABEL_MAP);
 
-      // show how the new Label feature works
+      // show how the new LabelOld feature works
       createExampleLabel(db, Instant.now().toEpochMilli());
     }
   }
@@ -110,7 +110,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
    * @param clipItems new clips
    * @throws SQLException - if database update failed
    */
-  public void replaceDB(@NonNull List<Label> labels,
+  public void replaceDB(@NonNull List<LabelOld> labels,
                         @NonNull List<ClipItem> clipItems) throws SQLException {
     final SQLiteDatabase db = getWritableDatabase();
 
@@ -166,7 +166,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   }
 
   /**
-   * Create a {@link Label} and attach to a new {@link ClipItem}
+   * Create a {@link LabelOld} and attach to a new {@link ClipItem}
    * @param db   Clips.db
    * @param time creation time
    */
@@ -179,8 +179,8 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     final long clipId = db.replace(ClipsContract.Clip.TABLE_NAME, null,
       clipItem.getContentValues());
 
-    // add new Label - has to come after ClipItem here
-    final Label label = new Label("Example");
+    // add new LabelOld - has to come after ClipItem here
+    final LabelOld label = new LabelOld("Example");
     db.replace(ClipsContract.Label.TABLE_NAME, null, label.getContentValues());
 
     // Add to map table

@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -87,7 +87,7 @@ public class ClipboardHelper {
     }
 
     // get any Labels
-    final List<Label> labels = parseLabels(desc);
+    final List<LabelOld> labels = parseLabels(desc);
 
     ClipEntity clipEntity = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
@@ -195,8 +195,8 @@ public class ClipboardHelper {
    * @param desc The item's {@link ClipDescription}
    * @return The List of labels
    */
-  private static List<Label> parseLabels(ClipDescription desc) {
-    ArrayList<Label> list = new ArrayList<>(0);
+  private static List<LabelOld> parseLabels(ClipDescription desc) {
+    ArrayList<LabelOld> list = new ArrayList<>(0);
 
     final String label = ClipboardHelper.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(LABELS_LABEL)) {
@@ -205,7 +205,7 @@ public class ClipboardHelper {
       final int idxStop = label.indexOf('\n', idxStart);
       final String labelString = label.substring(idxStart + 1, idxStop);
       final Gson gson = new Gson();
-      final Type type = new TypeToken<ArrayList<Label>>() {
+      final Type type = new TypeToken<ArrayList<LabelOld>>() {
       }.getType();
       list = gson.fromJson(labelString, type);
     }

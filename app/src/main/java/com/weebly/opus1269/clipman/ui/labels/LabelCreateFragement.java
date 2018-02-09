@@ -16,11 +16,11 @@ import android.view.ViewGroup;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.databinding.LabelCreateBinding;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
 import com.weebly.opus1269.clipman.viewmodel.LabelCreateViewModel;
 
-/** Fragment to Create a new {@link Label} */
+/** Fragment to Create a new {@link LabelOld} */
 public class LabelCreateFragement extends BaseFragment<LabelCreateBinding> {
 
   public LabelCreateFragement() {

@@ -17,7 +17,7 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** ViewModel for creating a {@link LabelEntity} */
 public class LabelCreateViewModel extends BaseRepoViewModel<MainRepo> {
-  /** Name of Label */
+  /** Name of LabelOld */
   public final MutableLiveData<String> name;
 
   public LabelCreateViewModel(@NonNull Application app) {

@@ -56,7 +56,7 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
       //final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
       //if (!TextUtils.isEmpty(labelName)) {
       //   added from a list filtered by labelName
-      //  mClip.addLabel(this, new Label(labelName));
+      //  mClip.addLabel(this, new LabelOld(labelName));
       //}
     }
 

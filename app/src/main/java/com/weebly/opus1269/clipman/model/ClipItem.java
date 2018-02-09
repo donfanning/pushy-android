@@ -55,7 +55,7 @@ public class ClipItem implements Serializable {
   private Boolean fav;
   private Boolean remote;
   private String device;
-  private List<Label> labels;
+  private List<LabelOld> labels;
 
   /** PK's of the labels - only used for backup/restore */
   private List<Long> labelsId;
@@ -111,7 +111,7 @@ public class ClipItem implements Serializable {
   }
 
   public ClipItem(Context context, ClipItem clipItem,
-                  List<Label> labels, List<Long> labelsId) {
+                  List<LabelOld> labels, List<Long> labelsId) {
     init(context);
     this.text = clipItem.getText();
     this.date = clipItem.getDate();
@@ -171,7 +171,7 @@ public class ClipItem implements Serializable {
     }
 
     // get any Labels
-    final List<Label> labels = parseLabels(desc);
+    final List<LabelOld> labels = parseLabels(desc);
 
     ClipItem clipItem = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
@@ -296,8 +296,8 @@ public class ClipItem implements Serializable {
    * @param desc The item's {@link ClipDescription}
    * @return The List of labels
    */
-  private static List<Label> parseLabels(ClipDescription desc) {
-    ArrayList<Label> list = new ArrayList<>(0);
+  private static List<LabelOld> parseLabels(ClipDescription desc) {
+    ArrayList<LabelOld> list = new ArrayList<>(0);
 
     final String label = ClipItem.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(LABELS_LABEL)) {
@@ -306,7 +306,7 @@ public class ClipItem implements Serializable {
       final int idxStop = label.indexOf('\n', idxStart);
       final String labelString = label.substring(idxStart + 1, idxStop);
       final Gson gson = new Gson();
-      final Type type = new TypeToken<ArrayList<Label>>() {
+      final Type type = new TypeToken<ArrayList<LabelOld>>() {
       }.getType();
       list = gson.fromJson(labelString, type);
     }
@@ -369,11 +369,11 @@ public class ClipItem implements Serializable {
 
   public void setDevice(String device) {this.device = device;}
 
-  public List<Label> getLabels() {
+  public List<LabelOld> getLabels() {
     return labels;
   }
 
-  private void setLabels(List<Label> labels) {
+  private void setLabels(List<LabelOld> labels) {
     this.labels = labels;
   }
 
@@ -386,7 +386,7 @@ public class ClipItem implements Serializable {
    * @param label a label
    * @return true if we have label
    */
-  public boolean hasLabel(Label label) {
+  public boolean hasLabel(LabelOld label) {
     return this.labels.contains(label);
   }
 
@@ -394,7 +394,7 @@ public class ClipItem implements Serializable {
    * Update the label id with the id of the given label - don't save
    * @param theLabel label with new id
    */
-  public void updateLabelIdNoSave(@NonNull Label theLabel) {
+  public void updateLabelIdNoSave(@NonNull LabelOld theLabel) {
     long newId = theLabel.getId();
 
     int pos = this.labels.indexOf(theLabel);
@@ -412,8 +412,8 @@ public class ClipItem implements Serializable {
    * Add the given labels if they don't exit - don't save
    * @param labels label list to add from
    */
-  public void addLabelsNoSave(@NonNull List<Label> labels) {
-    for (Label label : labels) {
+  public void addLabelsNoSave(@NonNull List<LabelOld> labels) {
+    for (LabelOld label : labels) {
       if (!hasLabel(label)) {
         this.labels.add(label);
         this.labelsId.add(label.getId());
@@ -421,14 +421,14 @@ public class ClipItem implements Serializable {
     }
   }
 
-  public void addLabel(Context context, Label label) {
+  public void addLabel(Context context, LabelOld label) {
     if (!hasLabel(label)) {
       this.labels.add(label);
       LabelTables.INST(context).insert(this, label);
     }
   }
 
-  public void removeLabel(Context context, Label label) {
+  public void removeLabel(Context context, LabelOld label) {
     if (hasLabel(label)) {
       this.labels.remove(label);
       LabelTables.INST(context).delete(this, label);
@@ -561,15 +561,15 @@ public class ClipItem implements Serializable {
     return ClipTable.INST(context).delete(this);
   }
 
-  /** Get our {@link Label} names from the database */
+  /** Get our {@link LabelOld} names from the database */
   public void loadLabels(Context context) {
     this.labels.clear();
     this.labelsId.clear();
 
-    final List<Label> labels = LabelTables.INST(context).getLabels(this);
+    final List<LabelOld> labels = LabelTables.INST(context).getLabels(this);
 
     this.labels = labels;
-    for (Label label : labels) {
+    for (LabelOld label : labels) {
       this.labelsId.add(label.getId());
     }
   }

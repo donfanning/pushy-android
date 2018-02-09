@@ -18,7 +18,7 @@ import com.weebly.opus1269.clipman.db.LabelTables;
 import java.io.Serializable;
 
 /** A descriptive label for an item */
-public class Label implements Serializable {
+public class LabelOld implements Serializable {
 
   /** The name of the label */
   @NonNull
@@ -28,22 +28,22 @@ public class Label implements Serializable {
   final private long _id;
 
   @SuppressWarnings("unused")
-  public Label() {
+  public LabelOld() {
     name = "";
     _id = -1L;
   }
 
-  public Label(@NonNull String name, long id) {
+  public LabelOld(@NonNull String name, long id) {
     this.name = name;
     _id = id;
   }
 
-  public Label(@NonNull String name) {
+  public LabelOld(@NonNull String name) {
     this.name = name;
     _id = -1L;
   }
 
-  public Label(Cursor cursor) {
+  public LabelOld(Cursor cursor) {
     int idx = cursor.getColumnIndex(ClipsContract.Label.COL_NAME);
     name = cursor.getString(idx);
     idx = cursor.getColumnIndex(ClipsContract.Label._ID);
@@ -60,7 +60,7 @@ public class Label implements Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    Label label = (Label) o;
+    LabelOld label = (LabelOld) o;
 
     return name.equals(label.name);
   }
@@ -97,8 +97,8 @@ public class Label implements Serializable {
   }
 
   /**
-   * Get the Label as a {@link ContentValues object}
-   * @return Label as {@link ContentValues object}
+   * Get the LabelOld as a {@link ContentValues object}
+   * @return LabelOld as {@link ContentValues object}
    */
   public ContentValues getContentValues() {
     final ContentValues cv = new ContentValues();

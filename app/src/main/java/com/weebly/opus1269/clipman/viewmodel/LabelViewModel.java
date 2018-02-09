@@ -20,13 +20,13 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** ViewModel for a {@link LabelEntity} */
 public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
-  /** Our Label */
+  /** Our LabelOld */
   private final MediatorLiveData<LabelEntity> label;
 
-  /** Our Label name */
+  /** Our LabelOld name */
   private final MutableLiveData<String> name;
 
-  /** Original name of our Label */
+  /** Original name of our LabelOld */
   private String originalName;
 
   public LabelViewModel(@NonNull Application app,

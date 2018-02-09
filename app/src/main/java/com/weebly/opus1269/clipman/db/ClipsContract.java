@@ -69,7 +69,7 @@ public class ClipsContract {
     }
   }
 
-  /** Inner class that defines the Label table */
+  /** Inner class that defines the LabelOld table */
   public static class Label implements BaseColumns {
     public static final String TABLE_NAME = "label";
     public static final Uri CONTENT_URI = Uri.parse(AUTHORITY_URI + "/label");

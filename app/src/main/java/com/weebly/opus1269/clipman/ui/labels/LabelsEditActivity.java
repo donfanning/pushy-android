@@ -13,11 +13,11 @@ import android.os.Bundle;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.LabelsEditBinding;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
-/** Activity for editing the List of {@link Label} items */
+/** Activity for editing the List of {@link LabelOld} items */
 public class LabelsEditActivity extends BaseActivity<LabelsEditBinding> {
 
   @Override

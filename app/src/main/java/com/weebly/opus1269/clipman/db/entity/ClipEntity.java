@@ -32,7 +32,7 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 import com.weebly.opus1269.clipman.model.Clip;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.Label;
+import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -63,7 +63,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   private String device;
 
   @Ignore
-  private List<Label> labels = new ArrayList<>(0);
+  private List<LabelOld> labels = new ArrayList<>(0);
 
   /** PK's of the labels - only used for backup/restore */
   @Ignore
@@ -151,11 +151,11 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     this.device = device;
   }
 
-  public List<Label> getLabels() {
+  public List<LabelOld> getLabels() {
     return labels;
   }
 
-  private void setLabels(List<Label> labels) {
+  private void setLabels(List<LabelOld> labels) {
     this.labels = labels;
   }
 
@@ -254,18 +254,18 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
    * @param label a label
    * @return true if we have label
    */
-  public boolean hasLabel(Label label) {
+  public boolean hasLabel(LabelOld label) {
     return this.labels.contains(label);
   }
 
-  //public void addLabel(Context context, Label label) {
+  //public void addLabel(Context context, LabelOld label) {
   //  if (!hasLabel(label)) {
   //    this.labels.add(label);
   //    LabelTables.INST(context).insert(this, label);
   //  }
   //}
   //
-  //public void removeLabel(Context context, Label label) {
+  //public void removeLabel(Context context, LabelOld label) {
   //  if (hasLabel(label)) {
   //    this.labels.remove(label);
   //    LabelTables.INST(context).delete(this, label);
@@ -301,7 +301,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
    * Update the label id with the id of the given label - don't save
    * @param theLabel label with new id
    */
-  public void updateLabelIdNoSave(@NonNull Label theLabel) {
+  public void updateLabelIdNoSave(@NonNull LabelOld theLabel) {
     long newId = theLabel.getId();
 
     int pos = this.labels.indexOf(theLabel);
@@ -319,8 +319,8 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
    * Add the given labels if they don't exit - don't save
    * @param labels label list to add from
    */
-  public void addLabelsNoSave(@NonNull List<Label> labels) {
-    for (Label label : labels) {
+  public void addLabelsNoSave(@NonNull List<LabelOld> labels) {
+    for (LabelOld label : labels) {
       if (!hasLabel(label)) {
         this.labels.add(label);
         this.labelsId.add(label.getId());
@@ -385,15 +385,15 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   //  //return ClipTable.INST(context).delete(this);
   //}
 
-  ///** Get our {@link Label} names from the database */
+  ///** Get our {@link LabelOld} names from the database */
   //public void loadLabels(Context context) {
   //  this.labels.clear();
   //  this.labelsId.clear();
   //
-  //  final List<Label> labels = LabelTables.INST(context).getLabels(this);
+  //  final List<LabelOld> labels = LabelTables.INST(context).getLabels(this);
   //
   //  this.labels = labels;
-  //  for (Label label : labels) {
+  //  for (LabelOld label : labels) {
   //    this.labelsId.add(label.getId());
   //  }
   //}
