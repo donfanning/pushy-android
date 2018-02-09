@@ -27,9 +27,8 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
@@ -96,7 +95,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final String SN = data.get(Msg.DEVICE_SN);
     final String OS = data.get(Msg.DEVICE_OS);
     final String nickname = data.get(Msg.DEVICE_NICKNAME);
-    final DeviceEntity device = new DeviceEntity(model, SN, OS, nickname);
+    final Device device = new Device(model, SN, OS, nickname);
 
     // decode message text
     final String msg = data.get(Msg.MESSAGE);
@@ -162,7 +161,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
    * @param data   {@link Map} of key value pairs
    * @param device Source {@link Device}
    */
-  private void saveClip(Map<String, String> data, DeviceEntity device) {
+  private void saveClip(Map<String, String> data, Device device) {
     final String clipTxt = data.get(Msg.MESSAGE);
     final boolean fav = "1".equals(data.get(Msg.FAV));
     final String dName = device.getDisplayName();

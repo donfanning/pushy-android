@@ -20,7 +20,7 @@ import android.support.annotation.NonNull;
 import com.weebly.opus1269.clipman.db.dao.BackupDao;
 import com.weebly.opus1269.clipman.db.entity.Backup;
 
-/** Device database */
+/** Backup database */
 @Database(entities = {Backup.class}, version = 1, exportSchema = false)
 public abstract class BackupDB extends RoomDatabase {
   private static BackupDB sInstance;

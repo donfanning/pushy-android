@@ -23,7 +23,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.DeviceRowBinding;
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
 import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
@@ -31,7 +31,7 @@ import com.weebly.opus1269.clipman.viewmodel.DeviceViewModel;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the Devices RecyclerView and the Devices class */
-class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
+class DevicesAdapter extends BaseBindingAdapter<Device, DeviceRowBinding,
   DeviceHandlers, DeviceViewModel, DevicesAdapter.DeviceViewHolder> {
 
   DevicesAdapter(LifecycleOwner owner, DeviceHandlers handlers) {
@@ -52,10 +52,10 @@ class DevicesAdapter extends BaseBindingAdapter<DeviceEntity, DeviceRowBinding,
 
   /** Factory to create an instance of our ViewModel */
   static class DeviceViewModelFactory implements
-    VMAdapterFactory<DeviceViewModel, DeviceEntity> {
+    VMAdapterFactory<DeviceViewModel, Device> {
 
     @Override
-    public DeviceViewModel create(DeviceEntity item) {
+    public DeviceViewModel create(Device item) {
       return new DeviceViewModel(App.INST(), item);
     }
   }

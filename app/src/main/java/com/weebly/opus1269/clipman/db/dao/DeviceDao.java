@@ -11,15 +11,15 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Query;
 
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.db.entity.Device;
 
 import java.util.List;
 
 /** Database access for devices table */
 @Dao
-public interface DeviceDao extends BaseDao<DeviceEntity> {
+public interface DeviceDao extends BaseDao<Device> {
   @Query("SELECT * FROM devices ORDER BY last_seen DESC")
-  LiveData<List<DeviceEntity>> getAll();
+  LiveData<List<Device>> getAll();
 
   @Query("DELETE FROM devices")
   void deleteAll();

@@ -12,7 +12,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.repos.DeviceRepo;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 /** ViewModel for a collection of Devices */
 public class DevicesViewModel extends BaseRepoViewModel<DeviceRepo> {
   /** Device list */
-  private final MediatorLiveData<List<DeviceEntity>> devices;
+  private final MediatorLiveData<List<Device>> devices;
 
   public DevicesViewModel(@NonNull Application app) {
     super(app, DeviceRepo.INST(app));
@@ -33,7 +33,7 @@ public class DevicesViewModel extends BaseRepoViewModel<DeviceRepo> {
     refreshList();
   }
 
-  public LiveData<List<DeviceEntity>> getDevices() {
+  public LiveData<List<Device>> getDevices() {
     return devices;
   }
 

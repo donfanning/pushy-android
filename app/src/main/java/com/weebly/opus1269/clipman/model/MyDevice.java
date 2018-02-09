@@ -89,18 +89,18 @@ public class MyDevice {
     return getModel() + " - " + getSN() + " - " + getOS();
   }
 
-  /** Notify listeners that our {@link Device} was removed */
+  /** Notify listeners that our Device was removed */
   public void notifyRemoved() {
     DeviceRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_MY_DEVICE_REMOVED, "", "");
   }
 
-  /** Notify listeners that our {@link Device} was registered */
+  /** Notify listeners that our Device was registered */
   public void notifyRegistered() {
     sendBroadcast(Intents.TYPE_MY_DEVICE_REGISTERED, "", "");
   }
 
-  /** Notify listeners that our {@link Device} was unregistered */
+  /** Notify listeners that our Device was unregistered */
   public void notifyUnregistered() {
     DeviceRepo.INST(App.INST()).removeAll();
     sendBroadcast(Intents.TYPE_MY_DEVICE_UNREGISTERED, "", "");

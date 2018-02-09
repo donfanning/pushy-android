@@ -10,18 +10,17 @@ package com.weebly.opus1269.clipman.viewmodel;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
-import com.weebly.opus1269.clipman.model.Device;
+import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.repos.DeviceRepo;
 
 /** ViewModel for a {@link Device} */
 public class DeviceViewModel extends BaseRepoViewModel<DeviceRepo> {
   /** Our Device */
   @NonNull
-  private final DeviceEntity device;
+  private final Device device;
 
   public DeviceViewModel(@NonNull Application app,
-                         @NonNull DeviceEntity device) {
+                         @NonNull Device device) {
     super(app, DeviceRepo.INST(app));
 
     this.device = device;

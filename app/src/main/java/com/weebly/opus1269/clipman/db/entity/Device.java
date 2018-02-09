@@ -25,14 +25,13 @@ import android.arch.persistence.room.PrimaryKey;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.model.AdapterItem;
-import com.weebly.opus1269.clipman.model.Device;
 
 import org.threeten.bp.Instant;
 
 /** A (hopefully) unique hardware device */
 @Entity(tableName = "devices",
   indices = {@Index(value = {"model", "SN", "OS"}, unique = true)})
-public class DeviceEntity implements Device, AdapterItem {
+public class Device implements AdapterItem {
   @PrimaryKey(autoGenerate = true)
   private long id;
 
@@ -45,10 +44,10 @@ public class DeviceEntity implements Device, AdapterItem {
   @ColumnInfo(name = "last_seen")
   private long lastSeen;
 
-  public DeviceEntity() {
+  public Device() {
   }
 
-  public DeviceEntity(String model, String sn, String os, String nickname) {
+  public Device(String model, String sn, String os, String nickname) {
     this.model = model;
     this.SN = sn;
     this.OS = os;
@@ -62,7 +61,7 @@ public class DeviceEntity implements Device, AdapterItem {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    DeviceEntity that = (DeviceEntity) o;
+    Device that = (Device) o;
 
     if (id != that.id) return false;
     if (lastSeen != that.lastSeen) return false;
@@ -85,7 +84,7 @@ public class DeviceEntity implements Device, AdapterItem {
 
   @Override
   public String toString() {
-    return "DeviceEntity{" +
+    return "Device{" +
       "id=" + id +
       ", model='" + model + '\'' +
       ", SN='" + SN + '\'' +

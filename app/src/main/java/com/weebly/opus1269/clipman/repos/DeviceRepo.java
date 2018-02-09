@@ -19,9 +19,8 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.DeviceDB;
-import com.weebly.opus1269.clipman.db.entity.DeviceEntity;
+import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.model.Prefs;
-import com.weebly.opus1269.clipman.model.Device;
 import com.weebly.opus1269.clipman.msg.MessagingClient;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class DeviceRepo extends BaseRepo implements
   private final DeviceDB mDB;
 
   /** Device List */
-  private final MediatorLiveData<List<DeviceEntity>> deviceList;
+  private final MediatorLiveData<List<Device>> deviceList;
 
   private DeviceRepo(final Application app) {
     super(app);
@@ -96,7 +95,7 @@ public class DeviceRepo extends BaseRepo implements
     }
   }
 
-  @NonNull public LiveData<List<DeviceEntity>> getDevices() {
+  @NonNull public LiveData<List<Device>> getDevices() {
     if (deviceList.getValue() == null) {
       // if no items in database, List will be null
       deviceList.setValue(new ArrayList<>());
@@ -104,12 +103,12 @@ public class DeviceRepo extends BaseRepo implements
     return deviceList;
   }
 
-  public void add(DeviceEntity device) {
+  public void add(Device device) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.deviceDao().insert(device));
   }
 
-  public void remove(DeviceEntity device) {
+  public void remove(Device device) {
     App.getExecutors().diskIO().execute(() -> mDB.deviceDao().delete(device));
   }
 
