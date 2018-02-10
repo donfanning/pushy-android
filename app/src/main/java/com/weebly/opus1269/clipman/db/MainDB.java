@@ -20,14 +20,16 @@ import android.support.annotation.NonNull;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppExecutors;
 import com.weebly.opus1269.clipman.db.dao.ClipDao;
+import com.weebly.opus1269.clipman.db.dao.ClipLabelJoinDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
 import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipLabelJoin;
 import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.List;
 
 /** Main database */
-@Database(entities = {Clip.class, Label.class},
+@Database(entities = {Clip.class, Label.class, ClipLabelJoin.class},
   version = 1, exportSchema = false)
 public abstract class MainDB extends RoomDatabase {
   private static MainDB sInstance;
@@ -37,6 +39,8 @@ public abstract class MainDB extends RoomDatabase {
   public abstract ClipDao clipDao();
 
   public abstract LabelDao labelDao();
+
+  public abstract ClipLabelJoinDao clipLabelJoinDao();
 
   private final MutableLiveData<Boolean> mIsDBCreated = new MutableLiveData<>();
 
@@ -69,10 +73,11 @@ public abstract class MainDB extends RoomDatabase {
             // Generate the data for pre-population
             MainDB database = MainDB.INST(app);
             // TODO convert Clips.db database here
+            Clip labeldClip = MainDBInitializer.getLabeledClip();
+            Label label = MainDBInitializer.getLabel();
             List<Clip> clips = MainDBInitializer.getClips();
-            List<Label> labels = MainDBInitializer.getLabels();
 
-            insertData(database, clips, labels);
+            insertData(database, clips, labeldClip, label);
              //notify that the database was created and it's ready to be used
             database.setDatabaseCreated();
           });
@@ -100,10 +105,13 @@ public abstract class MainDB extends RoomDatabase {
 
   private static void insertData(final MainDB database,
                                  final List<Clip> clips,
-                                 final List<Label> labels) {
+                                 final Clip labeledClip,
+                                 final Label label) {
     database.runInTransaction(() -> {
       database.clipDao().insertAll(clips);
-      database.labelDao().insertAll(labels);
+      final long clipId = database.clipDao().insert(labeledClip);
+      final long labelId = database.labelDao().insert(label);
+      database.clipLabelJoinDao().insert(new ClipLabelJoin(clipId, labelId));
     });
   }
 }

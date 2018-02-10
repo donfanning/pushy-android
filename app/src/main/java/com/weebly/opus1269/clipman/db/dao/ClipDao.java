@@ -24,6 +24,9 @@ public interface ClipDao extends BaseDao<Clip> {
   @Query("SELECT * FROM clips WHERE text LIKE :query ORDER BY date DESC")
   LiveData<List<Clip>> getAll(String query);
 
+  @Query("SELECT * FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId ORDER BY date DESC")
+  LiveData<List<Clip>> getAll(final long labelId);
+
   @Query("SELECT * FROM clips ORDER BY date DESC")
   List<Clip> getAllSync();
 

@@ -21,7 +21,9 @@ package com.weebly.opus1269.clipman.db.entity;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 
 import java.io.Serializable;
@@ -38,6 +40,15 @@ public class Label implements AdapterItem, Serializable {
     this.name = name;
   }
 
+  /**
+   * Is a {@link Label} name all whitespace
+   * @param label Label
+   * @return true if null of whitespace
+   */
+  public static boolean isWhitespace(@Nullable Label label) {
+    return label == null || AppUtils.isWhitespace(label.getName());
+  }
+
   @Override
   public int hashCode() {
     return name.hashCode();
@@ -50,7 +61,7 @@ public class Label implements AdapterItem, Serializable {
 
     Label label = (Label) o;
 
-    return name.equals(label.name) && (id == label.id);
+    return name.equals(label.name);
   }
 
   @Override

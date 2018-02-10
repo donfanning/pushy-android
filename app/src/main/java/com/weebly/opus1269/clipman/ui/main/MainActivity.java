@@ -28,6 +28,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 
 import com.weebly.opus1269.clipman.R;
@@ -36,6 +37,7 @@ import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.MainBinding;
 import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.LastError;
@@ -55,6 +57,8 @@ import com.weebly.opus1269.clipman.ui.labels.LabelsEditActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.ui.signin.SignInActivity;
 import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
+
+import java.util.List;
 
 /** Top level Activity for the app */
 public class MainActivity extends BaseActivity<MainBinding> implements
@@ -84,7 +88,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt > 1) {
         // we will show them, reset LabelFilter
-        Prefs.INST(this).setLabelFilter("");
+        mVm.setFilterLabelName("");
       }
     }
 
@@ -99,6 +103,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mBinding.setVm(mVm);
     mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
+
+    // observe labels
+    mVm.getLabels().observe(this, labels -> {
+      setTitle();
+      updateNavView(labels);
+    });
 
     // observe info messages
     mVm.getInfoMessage().observe(this, msg -> {
@@ -120,6 +130,11 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mVm.getSelectedClip().observe(this, clip -> {
       mAdapter.changeSelection(mVm.getLastSelectedClip(),
         mVm.getSelectedClipSync());
+      setTitle();
+    });
+
+    // observe label filter
+    mVm.getFilterLabelName().observe(this, name -> {
       setTitle();
     });
 
@@ -210,7 +225,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     super.onResume();
 
     setTitle();
-    updateNavView();
     updateOptionsMenu();
     Notifications.INST(this).removeClips();
   }
@@ -341,20 +355,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         startActivity(LabelsEditActivity.class);
         break;
       case R.id.nav_clips:
-        if (!AppUtils.isWhitespace(Prefs.INST(this).getLabelFilter())) {
-          Prefs.INST(this).setLabelFilter("");
-          startActivity(MainActivity.class);
-          finish();
-        }
+        mVm.setFilterLabelName("");
         break;
       case Menu.NONE:
         // all Labels items
-        final String label = item.getTitle().toString();
-        if (!label.equals(Prefs.INST(this).getLabelFilter())) {
-          Prefs.INST(this).setLabelFilter(label);
-          startActivity(MainActivity.class);
-          finish();
-        }
+        final String labelName = item.getTitle().toString();
+        mVm.setFilterLabelName(labelName);
         break;
       case R.id.nav_error:
         startActivity(ErrorViewerActivity.class);
@@ -408,7 +414,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     final String keyPush = getString(R.string.key_pref_push_msg);
 
     if (LastError.PREF_LAST_ERROR.equals(key)) {
-      updateNavView();
+      updateNavView(null);
     } else if (keyPush.equals(key)) {
       updateOptionsMenu();
     }
@@ -429,25 +435,14 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   /**
-   * Start {@link ClipViewerActivity} or update the {@link ClipViewerFragment}
+   * Set and view the selected clip
    * @param clip The Clip to view
    */
-  public void selectClip(Clip clip) {
+  public void selectClip(@Nullable Clip clip) {
     mVm.setSelectedClip(clip);
     if (!AppUtils.isDualPane(this)) {
       startActivity(ClipViewerActivity.class);
     }
-    //if (AppUtils.isDualPane(this)) {
-    //  final ClipViewerFragment fragment =
-    //    (ClipViewerFragment) getSupportFragmentManager()
-    //      .findFragmentById(R.id.clip_viewer_container);
-    //  if (fragment != null) {
-    //    fragment.setClip(clip);
-    //    fragment.setHighlight(mQueryString);
-    //  }
-    //} else {
-    //  startActivity(ClipViewerActivity.class);
-    //}
   }
 
   /** Process intents we know about */
@@ -498,12 +493,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     AppUtils.startActivity(this, intent);
   }
 
-  /** Set title based on currently selected {@link Clip} */
+  /** Set title based on selected {@link Clip} and filter label */
   private void setTitle() {
-    final String labelFilter = Prefs.INST(this).getLabelFilter();
+    final String filterLabelName = mVm.getFilterLabelNameSync();
     String prefix = getString(R.string.title_activity_main);
-    if (!AppUtils.isWhitespace(labelFilter)) {
-      prefix = labelFilter;
+    if (!AppUtils.isWhitespace(filterLabelName)) {
+      prefix = filterLabelName;
     }
     if (AppUtils.isDualPane(this)) {
       final Clip clip = getSelectedClipSync();
@@ -531,39 +526,54 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   /** Update the Navigation View */
-  private void updateNavView() {
-    final View hView = mBinding.navView.getHeaderView(0);
-    if (hView == null) {
+  private void updateNavView(@Nullable List<Label> labels) {
+    final Menu menu = mBinding.navView.getMenu();
+    if (menu == null) {
       return;
     }
 
-    final Menu menu = mBinding.navView.getMenu();
-
     // set BackupHelper menu state
     MenuItem menuItem = menu.findItem(R.id.nav_backup);
-    menuItem.setEnabled(User.INST(this).isLoggedIn());
+    if (menuItem != null) {
+      menuItem.setEnabled(User.INST(this).isLoggedIn());
+    }
 
     // set Devices menu state
     menuItem = menu.findItem(R.id.nav_devices);
-    menuItem.setEnabled(User.INST(this).isLoggedIn());
+    if (menuItem != null) {
+      menuItem.setEnabled(User.INST(this).isLoggedIn());
+    }
 
     // set Error Viewer menu state
     menuItem = menu.findItem(R.id.nav_error);
-    menuItem.setEnabled(LastError.exists(this));
+    if (menuItem != null) {
+      menuItem.setEnabled(LastError.exists(this));
+    }
 
-    // Create Labels sub menu
-    // TODO
-    //List<LabelOld> labels = LabelTables.INST(this).getAllLabels();
-    //menu.setGroupVisible(R.id.nav_group_labels, !AppUtils.isEmpty(labels));
-    //SubMenu labelMenu = menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
-    //labelMenu.clear();
-    //for (LabelOld label : labels) {
-    //  final MenuItem labelItem = labelMenu.add(R.id.nav_group_labels,
-    //    Menu.NONE, Menu.NONE, label.getName());
-    //  labelItem.setIcon(R.drawable.ic_label);
-    //}
+    // save name to Label mappping
+    mVm.setLabelsMap(labels);
+    final SubMenu labelMenu =
+      menu.findItem(R.id.nav_labels_sub_menu).getSubMenu();
+    if (labelMenu != null) {
+      // Create Labels sub menu
+      if (!AppUtils.isEmpty(labels)) {
+        menu.setGroupVisible(R.id.nav_group_labels, true);
+        labelMenu.clear();
+        for (Label label : labels) {
+          final MenuItem labelItem = labelMenu.add(R.id.nav_group_labels,
+            Menu.NONE, Menu.NONE, label.getName());
+          labelItem.setIcon(R.drawable.ic_label);
+        }
+      } else {
+        menu.setGroupVisible(R.id.nav_group_labels, false);
+        labelMenu.clear();
+      }
+    }
 
-    User.INST(this).setNavigationHeaderView(hView);
+    final View hView = mBinding.navView.getHeaderView(0);
+    if (hView != null) {
+      User.INST(this).setNavigationHeaderView(hView);
+    }
   }
 
   /** Set Option Menu items based on current state */

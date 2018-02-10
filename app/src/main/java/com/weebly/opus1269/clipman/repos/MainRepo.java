@@ -53,6 +53,14 @@ public class MainRepo extends BaseRepo implements
   @NonNull
   private final MediatorLiveData<Clip> selectedClip;
 
+  /** Show only Clips with the given label if non-whitespace */
+  @NonNull
+  private final MutableLiveData<Label> filterLabel;
+
+  /** Text to filter clips on */
+  @NonNull
+  private final MutableLiveData<String> clipTextFilter;
+
   /** Clips Source */
   @NonNull
   private LiveData<List<Clip>> clipsSource;
@@ -70,13 +78,9 @@ public class MainRepo extends BaseRepo implements
   /** Sort by date or text */
   private int sortType;
 
-  /** Show only Clips with the given label if non-whitespace */
-  @NonNull
-  private String labelFilter;
-
-  /** Text to filter clips on */
-  @NonNull
-  private final MutableLiveData<String> clipTextFilter;
+  /** filter Label Source */
+  @Nullable
+  private LiveData<Label> filterLabelSource;
 
   private MainRepo(final Application app) {
     super(app);
@@ -85,17 +89,13 @@ public class MainRepo extends BaseRepo implements
 
     pinFavs = Prefs.INST(app).isPinFav();
     filterByFavs = Prefs.INST(app).isFavFilter();
-    labelFilter = Prefs.INST(app).getLabelFilter();
     sortType = Prefs.INST(app).getSortType();
 
     clipTextFilter = new MutableLiveData<>();
     clipTextFilter.postValue("");
 
-    clips = new MediatorLiveData<>();
-    clips.postValue(null);
-    clipsSource =
-      getClips(filterByFavs, pinFavs, sortType, getClipTextFilterSync());
-    clips.addSource(clipsSource, clips::postValue);
+    filterLabel = new MutableLiveData<>();
+    filterLabel.postValue(null);
 
     selectedClip = new MediatorLiveData<>();
     selectedClip.postValue(null);
@@ -108,6 +108,11 @@ public class MainRepo extends BaseRepo implements
         this.labels.postValue(labels);
       }
     });
+
+    clips = new MediatorLiveData<>();
+    clips.postValue(null);
+    clipsSource = loadClips(getFilterLabelSync());
+    clips.addSource(clipsSource, clips::postValue);
 
     // listen for preference changes
     PreferenceManager
@@ -130,7 +135,6 @@ public class MainRepo extends BaseRepo implements
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                         String key) {
     final Context context = mApp;
-    // TODO do something with labelfilter
 
     //noinspection IfCanBeSwitch
     if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
@@ -144,8 +148,6 @@ public class MainRepo extends BaseRepo implements
       pinFavs = Prefs.INST(context).isPinFav();
     } else if (Prefs.INST(context).PREF_SORT_TYPE.equals(key)) {
       sortType = Prefs.INST(context).getSortType();
-    } else if (Prefs.INST(context).PREF_LABEL_FILTER.equals(key)) {
-      labelFilter = Prefs.INST(context).getLabelFilter();
     } else {
       // not ours to handle
       return;
@@ -195,19 +197,51 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
+  public LiveData<Label> getFilterLabel() {
+    return filterLabel;
+  }
+
+  public void setFilterLabel(@Nullable Label label) {
+    filterLabel.setValue(label);
+    changeClips();
+    //if (filterLabelSource != null) {
+    //  filterLabel.removeSource(filterLabelSource);
+    //}
+    //if (label == null) {
+    //  // no label filter
+    //  filterLabelSource = null;
+    //  filterLabel.setValue(null);
+    //  changeClips();
+    //} else {
+    //  filterLabelSource = getLabel(label.getId());
+    //  filterLabel.addSource(filterLabelSource, filterLabel -> {
+    //    this.filterLabel.setValue(filterLabel);
+    //    changeClips();
+    //  });
+    //}
+  }
+
+  @Nullable
+  public Label getFilterLabelSync() {
+    return filterLabel.getValue();
+  }
+
+  @NonNull
   public LiveData<String> getClipTextFilter() {
     return clipTextFilter;
+  }
+
+  public void setClipTextFilter(@NonNull String s) {
+    if (!s.equals(clipTextFilter.getValue())) {
+      clipTextFilter.setValue(s);
+      changeClips();
+    }
   }
 
   @NonNull
   public String getClipTextFilterSync() {
     final String s = clipTextFilter.getValue();
     return (s == null) ? "" : s;
-  }
-
-  public void setClipTextFilter(@NonNull String s) {
-    clipTextFilter.setValue(s);
-    changeClips();
   }
 
   /**
@@ -377,10 +411,13 @@ public class MainRepo extends BaseRepo implements
     return mDB.clipDao().getSync(clip.getText()) != null;
   }
 
-  private LiveData<List<Clip>> getClips(boolean filterByFavs,
-                                        boolean pinFavs, int sortType,
-                                        @NonNull String textFilter) {
-    String textQuery = "%";
+  private LiveData<List<Clip>> loadClips(@Nullable Label filterLabel) {
+    long id = -1L;
+    if (filterLabel != null) {
+      id = filterLabel.getId();
+    }
+    final boolean hasId = (id != -1L);
+    final String textFilter = getClipTextFilterSync();
     // itty bitty FSM - Room needs better way
     if (TextUtils.isEmpty(textFilter)) {
       if (filterByFavs) {
@@ -398,10 +435,10 @@ public class MainRepo extends BaseRepo implements
       if (sortType == 1) {
         return mDB.clipDao().getAllByText();
       }
-      return mDB.clipDao().getAll(textQuery);
+      return hasId ? mDB.clipDao().getAll(id) : mDB.clipDao().getAll();
     } else {
       // filter by query text too
-      textQuery = '%' + textFilter + '%';
+      final String textQuery = '%' + textFilter + '%';
       if (filterByFavs) {
         if (sortType == 1) {
           return mDB.clipDao().getFavsByText(textQuery);
@@ -424,8 +461,7 @@ public class MainRepo extends BaseRepo implements
   private void changeClips() {
     Log.logD(TAG, "clips source changed");
     clips.removeSource(clipsSource);
-    clipsSource =
-      getClips(filterByFavs, pinFavs, sortType, getClipTextFilterSync());
+    clipsSource = loadClips(getFilterLabelSync());
     clips.addSource(clipsSource, clips::setValue);
   }
 }

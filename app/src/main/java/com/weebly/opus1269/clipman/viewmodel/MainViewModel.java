@@ -18,18 +18,28 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** ViewModel for MainActvity */
 public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   /** Clips list */
   @NonNull
   private final MediatorLiveData<List<Clip>> clips;
+
+  /** Labels list */
+  @NonNull
+  private final MediatorLiveData<List<Label>> labels;
+
+  @NonNull
+  private final MutableLiveData<String> filterLabelName;
 
   /** Clips that were deleted */
   @NonNull
@@ -39,6 +49,10 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   @Nullable
   private Clip lastSelectedClip;
 
+  /** Map Label name to Label */
+  @NonNull
+  private final Map<String, Label> labelsMap;
+
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
@@ -47,9 +61,24 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     undoClips = new MutableLiveData<>();
     undoClips.setValue(null);
 
+    filterLabelName = new MutableLiveData<>();
+    filterLabelName.setValue("");
+
     clips = new MediatorLiveData<>();
     clips.setValue(null);
     clips.addSource(mRepo.getClips(), clips::setValue);
+
+    labels = new MediatorLiveData<>();
+    labels.setValue(null);
+    labels.addSource(mRepo.getLabels(), labels::setValue);
+
+    labelsMap = new HashMap<>(0);
+  }
+
+  @Override
+  protected void onCleared() {
+    super.onCleared();
+    setClipTextFilter("");
   }
 
   @Override
@@ -59,15 +88,14 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setErrorMsg(null);
   }
 
-  @Override
-  protected void onCleared() {
-    super.onCleared();
-    setClipTextFilter("");
-  }
-
   @NonNull
   public LiveData<List<Clip>> getClips() {
     return clips;
+  }
+
+  @NonNull
+  public LiveData<List<Label>> getLabels() {
+    return labels;
   }
 
   @NonNull
@@ -115,6 +143,31 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   public void setClipTextFilter(@NonNull String query) {
     mRepo.setClipTextFilter(query);
+  }
+
+  public LiveData<String> getFilterLabelName() {
+    return filterLabelName;
+  }
+
+  @NonNull
+  public String getFilterLabelNameSync() {
+    final String s = filterLabelName.getValue();
+    return (s == null) ? "" : s;
+  }
+
+  public void setFilterLabelName(@NonNull String filterLabelName) {
+    final Label label = labelsMap.get(filterLabelName);
+    mRepo.setFilterLabel(label);
+    this.filterLabelName.setValue(filterLabelName);
+  }
+
+  public void setLabelsMap(@Nullable List<Label> labels) {
+    labelsMap.clear();
+    if (!AppUtils.isEmpty(labels)) {
+      for (final Label label : labels) {
+        labelsMap.put(label.getName(), label);
+      }
+    }
   }
 
   /**

@@ -26,24 +26,28 @@ public class MainDBInitializer {
   private static final Boolean[] FAV = new Boolean[]{true, false, true};
 
   public static List<Clip> getClips() {
-    List<Clip> clipEntities = new ArrayList<>(TEXT.length);
+    List<Clip> clips = new ArrayList<>(TEXT.length);
     for (int i = 0; i < TEXT.length; i++) {
       final Clip clip = new Clip();
       clip.setText(TEXT[i]);
       clip.setFav(FAV[i]);
       // so dates aren't all the same
-      clip.setDate(clip.getDate() + i);
-      clipEntities.add(clip);
+      clip.setDate(clip.getDate() + i + 1);
+      clips.add(clip);
     }
-    return clipEntities;
+    return clips;
   }
 
-  public static List<Label> getLabels() {
-    List<Label> labelEntities = new ArrayList<>(1);
-    final Label label =
-      new Label(App.INST().getString(R.string.default_label_name));
-    labelEntities.add(label);
-    return labelEntities;
+  public static Clip getLabeledClip() {
+      final Clip clip = new Clip();
+      clip.setText(App.INST().getString(R.string.default_clip_4));
+      clip.setFav(true);
+      clip.setDate(clip.getDate());
+    return clip;
+  }
+
+  public static Label getLabel() {
+    return new Label(App.INST().getString(R.string.default_label_name));
   }
 
 }
