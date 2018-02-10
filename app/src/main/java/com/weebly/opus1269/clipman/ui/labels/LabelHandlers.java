@@ -29,7 +29,7 @@ public class LabelHandlers extends BaseHandlers {
 
   private final String TAG;
 
-  /** LabelOld that may be operated on */
+  /** Label that may be operated on */
   private Label mLabel;
 
   LabelHandlers(BaseActivity baseActivity) {
@@ -53,7 +53,7 @@ public class LabelHandlers extends BaseHandlers {
   /**
    * Click on delete button
    * @param context     A context
-   * @param label The LabelOld
+   * @param label The Label
    */
   public void onDeleteClick(Context context, Label label) {
     Analytics.INST(context).imageClick(TAG, "deleteLabel");
@@ -63,7 +63,7 @@ public class LabelHandlers extends BaseHandlers {
   }
 
   /**
-   * Listen for FocusChange events on the LabelOld view
+   * Listen for FocusChange events on the Label view
    * @param vm The ViewModel
    * @return The listener
    */

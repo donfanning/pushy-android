@@ -20,13 +20,13 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** ViewModel for a {@link Label} */
 public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
-  /** Our LabelOld */
+  /** Our Label */
   private final MediatorLiveData<Label> label;
 
-  /** Our LabelOld name */
+  /** Our Label name */
   private final MutableLiveData<String> name;
 
-  /** Original name of our LabelOld */
+  /** Original name of our Label */
   private String originalName;
 
   public LabelViewModel(@NonNull Application app,
@@ -44,7 +44,7 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
       this.label.setValue(label);
       final String name = label == null ? "" : label.getName();
         this.name.setValue(name);
-        originalName = name;
+        this.originalName = name;
     });
   }
 

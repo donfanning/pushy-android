@@ -26,7 +26,7 @@ import com.weebly.opus1269.clipman.model.AdapterItem;
 
 import java.io.Serializable;
 
-/** A LabelOld for categorizing clips */
+/** A Label for categorizing clips */
 @Entity(tableName = "labels", indices = {@Index(value = "name", unique = true)})
 public class Label implements AdapterItem, Serializable {
   @PrimaryKey(autoGenerate = true)

@@ -64,7 +64,7 @@ public class LabelCreateHandlers extends BaseHandlers {
   }
 
   /**
-   * Create a new LabelOld
+   * Create a new Label
    * @param vm A ViewModel
    */
   private void create(@NonNull LabelCreateViewModel vm) {

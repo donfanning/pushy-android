@@ -33,9 +33,9 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipViewerBinding;
 import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.base.BaseFragment;
 import com.weebly.opus1269.clipman.ui.help.HelpActivity;
@@ -252,7 +252,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     }
   }
 
-  /** Add the Views containing our {@link LabelOld} items */
+  /** Add the Views containing our {@link Label} items */
   private void setupLabels() {
     // TODO
     //mClip.loadLabels(getContext());
