@@ -16,7 +16,7 @@ import android.widget.Button;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -30,7 +30,7 @@ public class LabelHandlers extends BaseHandlers {
   private final String TAG;
 
   /** LabelOld that may be operated on */
-  private LabelEntity mLabelEntity;
+  private Label mLabel;
 
   LabelHandlers(BaseActivity baseActivity) {
     super();
@@ -46,18 +46,18 @@ public class LabelHandlers extends BaseHandlers {
     if (mActivity.getString(R.string.button_delete).equals(btnText)) {
       Analytics.INST(button.getContext()).buttonClick(TAG, "labelDelete");
       Log.logD(TAG, "delete clicked");
-      MainRepo.INST(App.INST()).removeLabel(mLabelEntity);
+      MainRepo.INST(App.INST()).removeLabel(mLabel);
     }
   }
 
   /**
    * Click on delete button
    * @param context     A context
-   * @param labelEntity The LabelOld
+   * @param label The LabelOld
    */
-  public void onDeleteClick(Context context, LabelEntity labelEntity) {
+  public void onDeleteClick(Context context, Label label) {
     Analytics.INST(context).imageClick(TAG, "deleteLabel");
-    mLabelEntity = labelEntity;
+    mLabel = label;
     showConfirmationDialog(context, R.string.label_delete_dialog_title,
       R.string.label_delete_dialog_message, R.string.button_delete);
   }

@@ -28,13 +28,13 @@ import java.io.Serializable;
 
 /** A LabelOld for categorizing clips */
 @Entity(tableName = "labels", indices = {@Index(value = "name", unique = true)})
-public class LabelEntity implements AdapterItem, Serializable {
+public class Label implements AdapterItem, Serializable {
   @PrimaryKey(autoGenerate = true)
   private long id;
 
   private String name;
 
-  public LabelEntity(String name) {
+  public Label(String name) {
     this.name = name;
   }
 
@@ -48,14 +48,14 @@ public class LabelEntity implements AdapterItem, Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    LabelEntity label = (LabelEntity) o;
+    Label label = (Label) o;
 
     return name.equals(label.name) && (id == label.id);
   }
 
   @Override
   public String toString() {
-    return "LabelEntity{" +
+    return "Label{" +
       "id=" + id +
       ", name='" + name + '\'' +
       '}';

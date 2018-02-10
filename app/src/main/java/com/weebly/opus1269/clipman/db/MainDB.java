@@ -22,12 +22,13 @@ import com.weebly.opus1269.clipman.app.AppExecutors;
 import com.weebly.opus1269.clipman.db.dao.ClipDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.List;
 
 /** Main database */
-@Database(entities = {ClipEntity.class, LabelEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {ClipEntity.class, Label.class},
+  version = 1, exportSchema = false)
 public abstract class MainDB extends RoomDatabase {
   private static MainDB sInstance;
 
@@ -69,7 +70,7 @@ public abstract class MainDB extends RoomDatabase {
             MainDB database = MainDB.INST(app);
             // TODO convert Clips.db database here
             List<ClipEntity> clips = MainDBInitializer.getClips();
-            List<LabelEntity> labels = MainDBInitializer.getLabels();
+            List<Label> labels = MainDBInitializer.getLabels();
 
             insertData(database, clips, labels);
              //notify that the database was created and it's ready to be used
@@ -97,7 +98,9 @@ public abstract class MainDB extends RoomDatabase {
     mIsDBCreated.postValue(true);
   }
 
-  private static void insertData(final MainDB database, final List<ClipEntity> clips, final List<LabelEntity> labels) {
+  private static void insertData(final MainDB database,
+                                 final List<ClipEntity> clips,
+                                 final List<Label> labels) {
     database.runInTransaction(() -> {
       database.clipDao().insertAll(clips);
       database.labelDao().insertAll(labels);

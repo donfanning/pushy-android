@@ -32,7 +32,7 @@ import android.widget.TextView;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.databinding.LabelSelectRowBinding;
 import com.weebly.opus1269.clipman.model.LabelOld;
@@ -52,7 +52,7 @@ class LabelsSelectAdapter extends
   private final String TAG;
 
   /** Our list */
-  private List<LabelEntity> mList;
+  private List<Label> mList;
 
   LabelsSelectAdapter(LabelsSelectActivity activity) {
     super();
@@ -121,7 +121,7 @@ class LabelsSelectAdapter extends
   //  }
   //}
 
-  public void setList(@Nullable List<LabelEntity> list) {
+  public void setList(@Nullable List<Label> list) {
     // small list, just update it all
     mList = list;
     notifyDataSetChanged();

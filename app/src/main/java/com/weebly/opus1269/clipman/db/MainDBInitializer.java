@@ -10,7 +10,7 @@ package com.weebly.opus1269.clipman.db;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +38,11 @@ public class MainDBInitializer {
     return clipEntities;
   }
 
-  public static List<LabelEntity> getLabels() {
-    List<LabelEntity> labelEntities = new ArrayList<>(1);
-    final LabelEntity labelEntity =
-      new LabelEntity(App.INST().getString(R.string.default_label_name));
-    labelEntities.add(labelEntity);
+  public static List<Label> getLabels() {
+    List<Label> labelEntities = new ArrayList<>(1);
+    final Label label =
+      new Label(App.INST().getString(R.string.default_label_name));
+    labelEntities.add(label);
     return labelEntities;
   }
 

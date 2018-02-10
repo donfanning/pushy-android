@@ -15,13 +15,13 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
-/** ViewModel for a {@link LabelEntity} */
+/** ViewModel for a {@link Label} */
 public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our LabelOld */
-  private final MediatorLiveData<LabelEntity> label;
+  private final MediatorLiveData<Label> label;
 
   /** Our LabelOld name */
   private final MutableLiveData<String> name;
@@ -30,7 +30,7 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
   private String originalName;
 
   public LabelViewModel(@NonNull Application app,
-                        @NonNull LabelEntity aLabel) {
+                        @NonNull Label aLabel) {
     super(app, MainRepo.INST(app));
 
     name = new MutableLiveData<>();
@@ -54,7 +54,7 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setErrorMsg(null);
   }
 
-  public LiveData<LabelEntity> getLabel() {
+  public LiveData<Label> getLabel() {
     return label;
   }
 

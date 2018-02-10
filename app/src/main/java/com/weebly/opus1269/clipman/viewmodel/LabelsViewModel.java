@@ -12,7 +12,7 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 /** ViewModel for Labels */
 public class LabelsViewModel extends BaseRepoViewModel<MainRepo> {
   /** Labels list */
-  private final MediatorLiveData<List<LabelEntity>> labels;
+  private final MediatorLiveData<List<Label>> labels;
 
   public LabelsViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
@@ -36,7 +36,7 @@ public class LabelsViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setErrorMsg(null);
   }
 
-  public MutableLiveData<List<LabelEntity>> getLabels() {
+  public MutableLiveData<List<Label>> getLabels() {
     return labels;
   }
 }

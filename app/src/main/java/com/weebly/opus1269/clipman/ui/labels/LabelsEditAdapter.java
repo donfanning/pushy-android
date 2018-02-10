@@ -23,7 +23,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.databinding.LabelEditRowBinding;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
 import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
@@ -31,7 +31,7 @@ import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the RecyclerView and the database */
-class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
+class LabelsEditAdapter extends BaseBindingAdapter<Label,
   LabelEditRowBinding, LabelHandlers, LabelViewModel,
   LabelsEditAdapter.LabelViewHolder> {
 
@@ -64,10 +64,10 @@ class LabelsEditAdapter extends BaseBindingAdapter<LabelEntity,
 
   /** Factory to create an instance of our ViewModel */
   static class LabelViewModelFactory implements
-    VMAdapterFactory<LabelViewModel, LabelEntity> {
+    VMAdapterFactory<LabelViewModel, Label> {
 
     @Override
-    public LabelViewModel create(LabelEntity item) {
+    public LabelViewModel create(Label item) {
       return new LabelViewModel(App.INST(), item);
     }
   }

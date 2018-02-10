@@ -12,10 +12,10 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
-/** ViewModel for creating a {@link LabelEntity} */
+/** ViewModel for creating a {@link Label} */
 public class LabelCreateViewModel extends BaseRepoViewModel<MainRepo> {
   /** Name of LabelOld */
   public final MutableLiveData<String> name;
@@ -32,7 +32,7 @@ public class LabelCreateViewModel extends BaseRepoViewModel<MainRepo> {
     if (!AppUtils.isWhitespace(name)) {
       name = name.trim();
       this.name.setValue(name);
-      mRepo.addLabelIfNew(new LabelEntity(name));
+      mRepo.addLabelIfNew(new Label(name));
     }
   }
 }

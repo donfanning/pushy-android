@@ -24,7 +24,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.ClipEntity;
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -32,7 +32,7 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Singleton - Repository for {@link LabelEntity} objects */
+/** Singleton - Repository for {@link Label} objects */
 public class MainRepo extends BaseRepo implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   @SuppressLint("StaticFieldLeak")
@@ -47,7 +47,7 @@ public class MainRepo extends BaseRepo implements
 
   /** LabelOld list */
   @NonNull
-  private final MediatorLiveData<List<LabelEntity>> labels;
+  private final MediatorLiveData<List<Label>> labels;
 
   /** Selected clip */
   @NonNull
@@ -158,7 +158,7 @@ public class MainRepo extends BaseRepo implements
     return clips;
   }
 
-  public LiveData<List<LabelEntity>> getLabels() {
+  public LiveData<List<Label>> getLabels() {
     return labels;
   }
 
@@ -190,7 +190,7 @@ public class MainRepo extends BaseRepo implements
     return mDB.clipDao().get(id);
   }
 
-  public LiveData<LabelEntity> getLabel(final long id) {
+  public LiveData<Label> getLabel(final long id) {
     return mDB.labelDao().get(id);
   }
 
@@ -346,7 +346,7 @@ public class MainRepo extends BaseRepo implements
     return ret;
   }
 
-  public void addLabelIfNew(@NonNull LabelEntity label) {
+  public void addLabelIfNew(@NonNull Label label) {
     App.getExecutors().diskIO().execute(() -> {
       final long id = mDB.labelDao().insertIfNew(label);
       if (id == -1L) {
@@ -365,7 +365,7 @@ public class MainRepo extends BaseRepo implements
     });
   }
 
-  public void removeLabel(@NonNull LabelEntity label) {
+  public void removeLabel(@NonNull Label label) {
     App.getExecutors().diskIO().execute(() -> mDB.labelDao().delete(label));
   }
 

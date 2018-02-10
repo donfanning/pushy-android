@@ -11,18 +11,18 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Query;
 
-import com.weebly.opus1269.clipman.db.entity.LabelEntity;
+import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.List;
 
 /** Database access for labels table */
 @Dao
-public interface LabelDao extends BaseDao<LabelEntity> {
+public interface LabelDao extends BaseDao<Label> {
   @Query("SELECT * FROM labels ORDER BY LOWER(name) ASC")
-  LiveData<List<LabelEntity>> getAll();
+  LiveData<List<Label>> getAll();
 
   @Query("SELECT * FROM labels WHERE id = :id")
-  LiveData<LabelEntity> get(long id);
+  LiveData<Label> get(long id);
 
   @Query("UPDATE OR IGNORE labels SET name = :newName WHERE name = :oldName")
   int updateName(String newName, String oldName);
