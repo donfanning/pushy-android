@@ -15,7 +15,7 @@ import android.widget.CheckBox;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -40,9 +40,9 @@ public class MainHandlers extends BaseHandlers {
    * @param view The View
    * @param clip  A Clip
    */
-  public void onFabClick(View view, ClipEntity clip) {
+  public void onFabClick(View view, Clip clip) {
     final Context context = view.getContext();
-    if (!ClipEntity.isWhitespace(clip)) {
+    if (!Clip.isWhitespace(clip)) {
       clip.doShare(context, view);
       Analytics.INST(context).imageClick(TAG, "clipItemShare");
     } else {
@@ -56,7 +56,7 @@ public class MainHandlers extends BaseHandlers {
    * @param view The View
    * @param clip The Clip
    */
-  public void onItemClick(View view, ClipEntity clip) {
+  public void onItemClick(View view, Clip clip) {
     Analytics.INST(view.getContext()).click(TAG, "clipItemRow");
     ((MainActivity)mActivity).selectClip(clip);
   }
@@ -66,7 +66,7 @@ public class MainHandlers extends BaseHandlers {
    * @param view The View
    * @param clip The Clip
    */
-  public void onCopyClick(View view, ClipEntity clip) {
+  public void onCopyClick(View view, Clip clip) {
     final Context context = view.getContext();
     Analytics.INST(context).imageClick(TAG, "clipItemCopy");
     clip.setRemote(false);
@@ -82,7 +82,7 @@ public class MainHandlers extends BaseHandlers {
    * @param view The View
    * @param clip The Clip
    */
-  public void onLabelsClick(View view, ClipEntity clip) {
+  public void onLabelsClick(View view, Clip clip) {
     final Context context = view.getContext();
     Log.logD(TAG, "select labels clicked");
     Analytics.INST(context).imageClick(TAG, "clipItemLabels");

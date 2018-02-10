@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.databinding.LabelsSelectBinding;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
@@ -27,7 +27,7 @@ public class LabelsSelectActivity extends
   private LabelsSelectAdapter mAdapter;
 
   /** Clipitem we are modifiying the list for */
-  private ClipEntity mClip;
+  private Clip mClip;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class LabelsSelectActivity extends
       actionBar.setHomeAsUpIndicator(R.drawable.ic_clear);
     }
 
-    mClip = (ClipEntity) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
+    mClip = (Clip) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
 
     // setup ViewModel and data binding
     LabelsViewModel vm = ViewModelProviders.of(this).get(LabelsViewModel.class);
@@ -88,5 +88,5 @@ public class LabelsSelectActivity extends
     return false;
   }
 
-  ClipEntity getClip() {return mClip;}
+  Clip getClip() {return mClip;}
 }

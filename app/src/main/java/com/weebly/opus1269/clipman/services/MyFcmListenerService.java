@@ -26,7 +26,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.MyDevice;
@@ -157,7 +157,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
 
 
   /**
-   * Save {@link ClipEntity} to the database and copy to clipboard
+   * Save {@link Clip} to the database and copy to clipboard
    * @param data   {@link Map} of key value pairs
    * @param device Source {@link Device}
    */
@@ -166,7 +166,7 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     final boolean fav = "1".equals(data.get(Msg.FAV));
     final String dName = device.getDisplayName();
     final long date = Instant.now().toEpochMilli();
-    final ClipEntity clip = new ClipEntity(clipTxt, date, fav, true, dName);
+    final Clip clip = new Clip(clipTxt, date, fav, true, dName);
 
     long id = MainRepo.INST(App.INST()).addClipSync(clip);
     if (id != -1L) {

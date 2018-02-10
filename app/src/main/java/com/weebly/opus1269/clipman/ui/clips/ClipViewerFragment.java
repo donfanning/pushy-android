@@ -32,7 +32,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipViewerBinding;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.LabelOld;
@@ -49,7 +49,7 @@ import java.text.Collator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** A fragment to view a {@link ClipEntity} */
+/** A fragment to view a {@link Clip} */
 public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   /** Our Option menu */
   private Menu mOptionsMenu = null;
@@ -150,9 +150,9 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
         AppUtils.startActivity(activity, intent);
         break;
       case R.id.action_search_web:
-        final ClipEntity clipEntity = getClip();
-        if (!ClipEntity.isWhitespace(clipEntity)) {
-          AppUtils.performWebSearch(activity, clipEntity.getText());
+        final Clip clip = getClip();
+        if (!Clip.isWhitespace(clip)) {
+          AppUtils.performWebSearch(activity, clip.getText());
         }
         break;
       case R.id.action_copy:
@@ -182,7 +182,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   }
 
   @Nullable
-  private ClipEntity getClip() {
+  private Clip getClip() {
     return mVm == null ? null : mVm.getSelectedClipSync();
   }
 
@@ -203,8 +203,8 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
    * Our Clip changed
    * @param clip The clip
    */
-  private void clipChanged(@Nullable ClipEntity clip) {
-    if (ClipEntity.isWhitespace(clip)) {
+  private void clipChanged(@Nullable Clip clip) {
+    if (Clip.isWhitespace(clip)) {
       mBinding.clipViewerText.setVisibility(View.GONE);
       setText("");
     } else {
@@ -344,7 +344,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     }
 
     final MenuItem menuItem = mOptionsMenu.findItem(R.id.action_favorite);
-    final ClipEntity clip = getClip();
+    final Clip clip = getClip();
     if ((menuItem != null) && (clip != null)) {
       final boolean isFav = clip.getFav();
       final int colorID = isFav ? R.color.red_500_translucent : R.color.icons;

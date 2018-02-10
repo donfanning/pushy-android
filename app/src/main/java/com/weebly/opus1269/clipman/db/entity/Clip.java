@@ -30,7 +30,6 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
-import com.weebly.opus1269.clipman.model.Clip;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
@@ -46,9 +45,9 @@ import java.util.List;
 
 /** This class represents the data for a single clipboard entry */
 @Entity(tableName = "clips", indices = {@Index(value = "text", unique = true)})
-public class ClipEntity implements Clip, AdapterItem, Serializable {
+public class Clip implements AdapterItem, Serializable {
   public static final String TEXT_PLAIN = "text/plain";
-  private static final String TAG = "ClipEntity";
+  private static final String TAG = "Clip";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
   private static final String LABELS_LABEL = "ClipItem Labels";
@@ -69,7 +68,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   @Ignore
   private List<Long> labelsId = new ArrayList<>(0);
 
-  public ClipEntity() {
+  public Clip() {
     text = "";
     date = Instant.now().toEpochMilli();
     fav = false;
@@ -78,8 +77,8 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   }
 
   @Ignore
-  public ClipEntity(String text, long date, boolean fav, boolean remote,
-                    String device) {
+  public Clip(String text, long date, boolean fav, boolean remote,
+              String device) {
     this.text = text;
     this.date = date;
     this.fav = fav;
@@ -105,14 +104,12 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     this.id = id;
   }
 
-  @Override
   public String getText() {return text;}
 
   public void setText(String text) {
     this.text = text;
   }
 
-  @Override
   public long getDate() {
     return date;
   }
@@ -121,7 +118,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     this.date = date;
   }
 
-  @Override
   public boolean getFav() {
     return fav;
   }
@@ -130,7 +126,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     this.fav = fav;
   }
 
-  @Override
   public boolean getRemote() {
     return remote;
   }
@@ -142,7 +137,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     }
   }
 
-  @Override
   public String getDevice() {
     return device;
   }
@@ -167,7 +161,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
    * Send to our devices
    * @param cntxt A Context
    */
-  @Override
   public void send(Context cntxt) {
     if (User.INST(cntxt).isLoggedIn() && Prefs.INST(cntxt).isPushClipboard()) {
       MessagingClient.INST(cntxt).send(this);
@@ -175,7 +168,6 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
   }
 
   /** Copy to the clipboard */
-  @Override
   public void copyToClipboard(@NonNull Context context) {
     final Handler handler = new Handler(Looper.getMainLooper());
     handler.post(() -> {
@@ -194,7 +186,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ClipEntity that = (ClipEntity) o;
+    Clip that = (Clip) o;
 
     if (date != that.date) return false;
     if (fav != that.fav) return false;
@@ -215,7 +207,7 @@ public class ClipEntity implements Clip, AdapterItem, Serializable {
 
   @Override
   public String toString() {
-    return "ClipEntity{" +
+    return "Clip{" +
       "id=" + id +
       ", text='" + text + '\'' +
       ", date=" + date +

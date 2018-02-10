@@ -21,13 +21,13 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppExecutors;
 import com.weebly.opus1269.clipman.db.dao.ClipDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.List;
 
 /** Main database */
-@Database(entities = {ClipEntity.class, Label.class},
+@Database(entities = {Clip.class, Label.class},
   version = 1, exportSchema = false)
 public abstract class MainDB extends RoomDatabase {
   private static MainDB sInstance;
@@ -69,7 +69,7 @@ public abstract class MainDB extends RoomDatabase {
             // Generate the data for pre-population
             MainDB database = MainDB.INST(app);
             // TODO convert Clips.db database here
-            List<ClipEntity> clips = MainDBInitializer.getClips();
+            List<Clip> clips = MainDBInitializer.getClips();
             List<Label> labels = MainDBInitializer.getLabels();
 
             insertData(database, clips, labels);
@@ -99,7 +99,7 @@ public abstract class MainDB extends RoomDatabase {
   }
 
   private static void insertData(final MainDB database,
-                                 final List<ClipEntity> clips,
+                                 final List<Clip> clips,
                                  final List<Label> labels) {
     database.runInTransaction(() -> {
       database.clipDao().insertAll(clips);

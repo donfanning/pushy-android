@@ -18,13 +18,13 @@ import android.view.Menu;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.ActivityClipViewerBinding;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.main.MainHandlers;
 import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
-/** This Activity manages the display of a {@link ClipEntity} */
+/** This Activity manages the display of a {@link Clip} */
 public class ClipViewerActivity extends
   BaseActivity<ActivityClipViewerBinding> {
   /** Our ViewModel */
@@ -98,7 +98,7 @@ public class ClipViewerActivity extends
   }
 
   @Nullable
-  private ClipEntity getClip() {
+  private Clip getClip() {
     return mVm == null ? null : mVm.getSelectedClipSync();
   }
 
@@ -157,9 +157,9 @@ public class ClipViewerActivity extends
     });
   }
 
-  /** Set Activity title based on current {@link ClipEntity} contents */
+  /** Set Activity title based on current {@link Clip} contents */
   private void setTitle() {
-    final ClipEntity clip = getClip();
+    final Clip clip = getClip();
     if ((clip != null) && clip.getRemote()) {
       setTitle(getString(R.string.title_activity_clip_viewer_remote));
     } else {

@@ -35,7 +35,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.MainBinding;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.LastError;
@@ -419,12 +419,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   @Nullable
-  public ClipEntity getSelectedClipSync() {
+  public Clip getSelectedClipSync() {
     return mVm == null ? null : mVm.getSelectedClipSync();
   }
 
   public long getSelectedClipId() {
-    final ClipEntity clip = getSelectedClipSync();
+    final Clip clip = getSelectedClipSync();
     return (clip == null) ? -1L : clip.getId();
   }
 
@@ -432,7 +432,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
    * Start {@link ClipViewerActivity} or update the {@link ClipViewerFragment}
    * @param clip The Clip to view
    */
-  public void selectClip(ClipEntity clip) {
+  public void selectClip(Clip clip) {
     mVm.setSelectedClip(clip);
     if (!AppUtils.isDualPane(this)) {
       startActivity(ClipViewerActivity.class);
@@ -460,10 +460,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     if (Intent.ACTION_SEND.equals(action) && (type != null)) {
       // Shared from other app
-      if (ClipEntity.TEXT_PLAIN.equals(type)) {
+      if (Clip.TEXT_PLAIN.equals(type)) {
         final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          final ClipEntity clip = new ClipEntity();
+          final Clip clip = new Clip();
           clip.setText(sharedText);
           mVm.addClip(clip);
           // TODO setselected properly
@@ -481,8 +481,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
-        final ClipEntity clip =
-          (ClipEntity) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+        final Clip clip =
+          (Clip) intent.getSerializableExtra(Intents.EXTRA_CLIP);
         intent.removeExtra(Intents.EXTRA_CLIP);
         selectClip(clip);
       }
@@ -498,7 +498,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     AppUtils.startActivity(this, intent);
   }
 
-  /** Set title based on currently selected {@link ClipEntity} */
+  /** Set title based on currently selected {@link Clip} */
   private void setTitle() {
     final String labelFilter = Prefs.INST(this).getLabelFilter();
     String prefix = getString(R.string.title_activity_main);
@@ -506,7 +506,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       prefix = labelFilter;
     }
     if (AppUtils.isDualPane(this)) {
-      final ClipEntity clip = getSelectedClipSync();
+      final Clip clip = getSelectedClipSync();
       if ((clip != null) && clip.getRemote()) {
         setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
           clip.getDevice()));

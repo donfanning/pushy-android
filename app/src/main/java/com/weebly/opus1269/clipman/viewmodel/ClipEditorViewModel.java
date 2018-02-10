@@ -14,26 +14,26 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import org.threeten.bp.Instant;
 
-/** ViewModel for an editable {@link ClipEntity} */
+/** ViewModel for an editable {@link Clip} */
 public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
-  /** True if creating new {@link ClipEntity} */
+  /** True if creating new {@link Clip} */
   public final boolean addMode;
 
   /** Our Clip */
   @NonNull
-  public final ClipEntity clip;
+  public final Clip clip;
 
   /** Our editable Clip text */
   @NonNull
   public final MutableLiveData<String> text;
 
-  public ClipEditorViewModel(@NonNull Application app, @NonNull ClipEntity clip,
+  public ClipEditorViewModel(@NonNull Application app, @NonNull Clip clip,
                              boolean addMode) {
     super(app, MainRepo.INST(app));
 

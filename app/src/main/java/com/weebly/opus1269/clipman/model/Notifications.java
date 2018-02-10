@@ -30,7 +30,8 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
 import com.weebly.opus1269.clipman.ui.devices.DevicesActivity;
@@ -38,9 +39,7 @@ import com.weebly.opus1269.clipman.ui.errorviewer.ErrorViewerActivity;
 import com.weebly.opus1269.clipman.ui.main.MainActivity;
 import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 
-/**
- * Singleton to manage our {@link android.app.Notification} objects
- */
+/** Singleton to manage our {@link android.app.Notification} objects */
 public class Notifications {
   // notification ids
   private static final int ID_COPY = 10;
@@ -142,11 +141,11 @@ public class Notifications {
 
   /**
    * Display notification on a clipboard change
-   * @param clip the {@link ClipEntity} to display notification for
+   * @param clip the {@link Clip} to display notification for
    */
-  public void show(ClipEntity clip) {
+  public void show(Clip clip) {
     final String labelFilter = Prefs.INST(mContext).getLabelFilter();
-    if (ClipEntity.isWhitespace(clip) ||
+    if (Clip.isWhitespace(clip) ||
       (App.isMainActivityVisible() && TextUtils.isEmpty(labelFilter)) ||
       (clip.getRemote() && !Prefs.INST(mContext).isNotifyRemote()) ||
       (!clip.getRemote() && !Prefs.INST(mContext).isNotifyLocal())) {
@@ -307,7 +306,7 @@ public class Notifications {
     getManager().notify(id, builder.build());
   }
 
-  /** Remove {@link ClipItem} notifications */
+  /** Remove {@link Clip} notifications */
   public void removeClips() {
     getManager().cancel(ID_COPY);
     resetCount();
@@ -447,14 +446,14 @@ public class Notifications {
 
     /**
      * Get a pending intent for this receiver
-     * @param ctxt     A Context
-     * @param action   An action we know about
-     * @param noteId   The id of the source notification
-     * @param clip The {@link Clip}
+     * @param ctxt   A Context
+     * @param action An action we know about
+     * @param noteId The id of the source notification
+     * @param clip   The {@link Clip}
      * @return a {@link PendingIntent}
      */
     public static PendingIntent getPIntent(Context ctxt, String action,
-                                           int noteId, ClipEntity clip) {
+                                           int noteId, Clip clip) {
       final Intent intent = new Intent(ctxt, NotificationReceiver.class);
       intent.setAction(action);
       intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);
@@ -486,7 +485,7 @@ public class Notifications {
 
     /**
      * Remove the given notification
-     * @param ctxt         A Context
+     * @param ctxt           A Context
      * @param notificationId notification id to remove
      */
     private void cancelNotification(Context ctxt, int notificationId) {

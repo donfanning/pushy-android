@@ -19,7 +19,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.ClipsContentProvider;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -137,12 +137,12 @@ public class ClipboardWatcherService extends Service implements
     if (mClipboard == null) {
       return;
     }
-    final ClipEntity clip = ClipboardHelper.getFromClipboard(this, mClipboard);
+    final Clip clip = ClipboardHelper.getFromClipboard(this, mClipboard);
     final long now = System.currentTimeMillis();
     final long deltaTime = now - mLastTime;
     mLastTime = now;
 
-    if (ClipEntity.isWhitespace(clip) || clip.getRemote()) {
+    if (Clip.isWhitespace(clip) || clip.getRemote()) {
       // ignore empty or remote clips - remotes were saved by FCM listener
       mLastText = "";
       return;
@@ -166,7 +166,7 @@ public class ClipboardWatcherService extends Service implements
    * @param clip  item
    * @param onNewOnly if true, only save if the text doesn't exist
    */
-  private void saveAndSend(ClipEntity clip, boolean onNewOnly) {
+  private void saveAndSend(Clip clip, boolean onNewOnly) {
     MainRepo.INST(App.INST()).addClipAndSend(clip, onNewOnly);
   }
 }

@@ -12,7 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
 /** Handle swipe to dismiss on the RecyclerView */
@@ -53,9 +53,9 @@ class ClipItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     }
 
     // delete item
-    final ClipEntity clipEntity =
+    final Clip clip =
       ((ClipAdapter.ClipViewHolder) viewHolder).binding.getVm().getClipSync();
-    mMainViewModel.removeClip(clipEntity);
+    mMainViewModel.removeClip(clip);
   }
 
   /**

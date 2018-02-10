@@ -19,7 +19,7 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.entity.ClipEntity;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -45,8 +45,8 @@ public class ClipboardHelper {
    * @return A new clip from the clipboard contents
    */
   @Nullable
-  public static ClipEntity getFromClipboard(Context context,
-                                            ClipboardManager clipboard) {
+  public static Clip getFromClipboard(Context context,
+                                      ClipboardManager clipboard) {
     if (clipboard == null) {
       return null;
     }
@@ -89,17 +89,17 @@ public class ClipboardHelper {
     // get any Labels
     final List<LabelOld> labels = parseLabels(desc);
 
-    ClipEntity clipEntity = null;
+    Clip clip = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
-      clipEntity = new ClipEntity();
-      clipEntity.setText(context, String.valueOf(clipText));
-      clipEntity.setFav(fav);
-      clipEntity.setRemote(remote);
-      clipEntity.setDevice(sourceDevice);
-      // TODO clipEntity.setLabels(labels);
+      clip = new Clip();
+      clip.setText(context, String.valueOf(clipText));
+      clip.setFav(fav);
+      clip.setRemote(remote);
+      clip.setDevice(sourceDevice);
+      // TODO clip.setLabels(labels);
     }
 
-    return clipEntity;
+    return clip;
   }
 
   /**
@@ -110,11 +110,11 @@ public class ClipboardHelper {
                                            @Nullable View view) {
     ClipboardManager clipboardManager =
       (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-    final ClipEntity clipEntity = getFromClipboard(context, clipboardManager);
+    final Clip clip = getFromClipboard(context, clipboardManager);
     int id = R.string.clipboard_no_text;
 
-    if (!ClipEntity.isWhitespace(clipEntity)) {
-      MainRepo.INST(App.INST()).addClipIfNew(clipEntity, true);
+    if (!Clip.isWhitespace(clip)) {
+      MainRepo.INST(App.INST()).addClipIfNew(clip, true);
 
       // send to registered devices , if possible
       if (!User.INST(context).isLoggedIn()) {
@@ -127,7 +127,7 @@ public class ClipboardHelper {
         id = R.string.clipboard_sent;
       }
 
-      clipEntity.send(context);
+      clip.send(context);
     }
 
     // display status message
