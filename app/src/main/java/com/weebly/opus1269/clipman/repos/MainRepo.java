@@ -32,7 +32,7 @@ import com.weebly.opus1269.clipman.model.Prefs;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Singleton - Repository for {@link Label} objects */
+/** Singleton - Repository for the {@link MainDB} */
 public class MainRepo extends BaseRepo implements
   SharedPreferences.OnSharedPreferenceChangeListener {
   @SuppressLint("StaticFieldLeak")
@@ -77,10 +77,6 @@ public class MainRepo extends BaseRepo implements
 
   /** Sort by date or text */
   private int sortType;
-
-  /** filter Label Source */
-  @Nullable
-  private LiveData<Label> filterLabelSource;
 
   private MainRepo(final Application app) {
     super(app);

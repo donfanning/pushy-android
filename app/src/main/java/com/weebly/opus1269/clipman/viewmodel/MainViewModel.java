@@ -38,9 +38,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   @NonNull
   private final MediatorLiveData<List<Label>> labels;
 
-  @NonNull
-  private final MutableLiveData<String> filterLabelName;
-
   /** Clips that were deleted */
   @NonNull
   private final MutableLiveData<List<Clip>> undoClips;
@@ -60,9 +57,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
     undoClips = new MutableLiveData<>();
     undoClips.setValue(null);
-
-    filterLabelName = new MutableLiveData<>();
-    filterLabelName.setValue("");
 
     clips = new MediatorLiveData<>();
     clips.setValue(null);
@@ -145,29 +139,30 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setClipTextFilter(query);
   }
 
-  public LiveData<String> getFilterLabelName() {
-    return filterLabelName;
+  public LiveData<Label> getFilterLabel() {
+    return mRepo.getFilterLabel();
   }
 
   @NonNull
   public String getFilterLabelNameSync() {
-    final String s = filterLabelName.getValue();
-    return (s == null) ? "" : s;
+    final Label label = mRepo.getFilterLabelSync();
+    return (label == null) ? "" : label.getName();
   }
 
   public void setFilterLabelName(@NonNull String filterLabelName) {
     final Label label = labelsMap.get(filterLabelName);
     mRepo.setFilterLabel(label);
-    this.filterLabelName.setValue(filterLabelName);
   }
 
-  public void setLabelsMap(@Nullable List<Label> labels) {
-    labelsMap.clear();
-    if (!AppUtils.isEmpty(labels)) {
-      for (final Label label : labels) {
-        labelsMap.put(label.getName(), label);
+  public boolean isVisible(@NonNull Clip clip) {
+    boolean ret = false;
+    final List<Clip> clips = this.clips.getValue();
+    if (!AppUtils.isEmpty(clips)) {
+      if (clips.contains(clip)) {
+        ret = true;
       }
     }
+    return ret;
   }
 
   /**
@@ -248,6 +243,15 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     if (clip != null) {
       clip.setFav(!clip.getFav());
       mRepo.updateClipFav(clip);
+    }
+  }
+
+  public void setLabelsMap(@Nullable List<Label> labels) {
+    labelsMap.clear();
+    if (!AppUtils.isEmpty(labels)) {
+      for (final Label label : labels) {
+        labelsMap.put(label.getName(), label);
+      }
     }
   }
 }

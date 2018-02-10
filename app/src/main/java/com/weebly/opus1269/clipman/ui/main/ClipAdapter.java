@@ -96,12 +96,15 @@ class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
     mList = list;
   }
 
-  public void changeSelection(@Nullable Clip lastSel,
-                              @Nullable Clip curSel) {
+  public boolean changeSelection(@Nullable Clip lastSel,
+                                 @Nullable Clip curSel) {
+    boolean ret = false;
     if (AppUtils.isDualPane(App.INST()) && idChanged(lastSel, curSel)) {
       setSelected(lastSel, false);
       setSelected(curSel, true);
+      ret = true;
     }
+    return ret;
   }
 
   @Nullable

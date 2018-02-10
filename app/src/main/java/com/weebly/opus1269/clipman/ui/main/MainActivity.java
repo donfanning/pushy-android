@@ -63,7 +63,6 @@ import java.util.List;
 /** Top level Activity for the app */
 public class MainActivity extends BaseActivity<MainBinding> implements
   NavigationView.OnNavigationItemSelectedListener,
-  View.OnLayoutChangeListener,
   DeleteDialogFragment.DeleteDialogListener,
   SharedPreferences.OnSharedPreferenceChangeListener {
   /** ViewModel */
@@ -82,16 +81,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     super.onCreate(savedInstanceState);
 
-    final Intent intent = getIntent();
-    // peak at intent to see if we need to show a clip notification
-    if (intent.hasExtra(Intents.EXTRA_CLIP_ITEM)) {
-      final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
-      if (msgCt > 1) {
-        // we will show them, reset LabelFilter
-        mVm.setFilterLabelName("");
-      }
-    }
-
     // listen for preference changes
     PreferenceManager.getDefaultSharedPreferences(this)
       .registerOnSharedPreferenceChangeListener(this);
@@ -104,74 +93,9 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
 
-    // observe labels
-    mVm.getLabels().observe(this, labels -> {
-      setTitle();
-      updateNavView(labels);
-    });
+    setupNavigationView();
 
-    // observe info messages
-    mVm.getInfoMessage().observe(this, msg -> {
-      if (!TextUtils.isEmpty(msg)) {
-        AppUtils.showMessage(this, mBinding.fab, msg);
-        mVm.postInfoMessage(null);
-      }
-    });
-
-    // observe error messages
-    mVm.getErrorMsg().observe(this, errorMsg -> {
-      if (errorMsg != null) {
-        AppUtils.showMessage(this, mBinding.fab, errorMsg.msg);
-        mVm.postErrorMsg(null);
-      }
-    });
-
-    // observe selected clip
-    mVm.getSelectedClip().observe(this, clip -> {
-      mAdapter.changeSelection(mVm.getLastSelectedClip(),
-        mVm.getSelectedClipSync());
-      setTitle();
-    });
-
-    // observe label filter
-    mVm.getFilterLabelName().observe(this, name -> {
-      setTitle();
-    });
-
-    // observe undo clips
-    mVm.getUndoClips().observe(this, clips -> {
-      if (AppUtils.isEmpty(clips)) {
-        return;
-      }
-      final int nRows = clips.size();
-      String message = nRows + getString(R.string.items_deleted);
-      if (nRows == 0) {
-        message = getString(R.string.item_delete_empty);
-      } else if (nRows == 1) {
-        message = getString(R.string.item_deleted_one);
-      }
-
-      final Snackbar snack = Snackbar.make(mBinding.fab, message, 10000);
-      if (nRows > 0) {
-        snack.setAction(R.string.button_undo, v -> {
-          final Context ctxt = v.getContext();
-          Analytics.INST(ctxt).imageClick(TAG, "undoDeleteClips");
-          mVm.undoDelete();
-        }).addCallback(new Snackbar.Callback() {
-
-          @Override
-          public void onShown(Snackbar snackbar) {
-          }
-
-          @Override
-          public void onDismissed(Snackbar snackbar, int event) {
-            mVm.setUndoClips(null);
-          }
-        });
-      }
-      snack.show();
-    });
-
+    // setup RecyclerView
     final RecyclerView recyclerView = findViewById(R.id.clipList);
     mAdapter = new ClipAdapter(this, handlers);
     recyclerView.setAdapter(mAdapter);
@@ -181,27 +105,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       new ItemTouchHelper(new ClipItemTouchHelper(mVm));
     helper.attachToRecyclerView(recyclerView);
 
-    // Observe clips
-    mVm.getClips().observe(this, clips -> {
-      if (clips != null) {
-        mAdapter.setList(clips);
-      }
-      if (AppUtils.isEmpty(clips)) {
-        mVm.setSelectedClip(null);
-      } else {
-        if (AppUtils.isDualPane(this) &&
-          (mVm.getSelectedClipSync() == null)) {
-          selectClip(clips.get(0));
-        }
-      }
-    });
-
-    setupNavigationView();
+    subscribeToViewModel();
 
     if (AppUtils.isDualPane(this)) {
       // create the clip viewer for the two pane option
       final ClipViewerFragment fragment = new ClipViewerFragment();
-        //ClipViewerFragment.newInstance(mVm.getSelectedClipSync(), mQueryString);
+      //ClipViewerFragment.newInstance(mVm.getSelectedClipSync(), mQueryString);
       getSupportFragmentManager().beginTransaction()
         .replace(R.id.clip_viewer_container, fragment)
         .commit();
@@ -261,24 +170,24 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       .unregisterOnSharedPreferenceChangeListener(this);
   }
 
-  @Override
-  public void onBackPressed() {
-    if (!TextUtils.isEmpty(Prefs.INST(this).getLabelFilter())) {
-      // if filtered, create unfiltered MainActivity on Back
-      Prefs.INST(this).setLabelFilter("");
-      startActivity(MainActivity.class);
-      finish();
-    } else {
-      super.onBackPressed();
-    }
-  }
+  //@Override
+  //public void onBackPressed() {
+  //  if (!TextUtils.isEmpty(Prefs.INST(this).getLabelFilter())) {
+  //    // if filtered, create unfiltered MainActivity on Back
+  //    Prefs.INST(this).setLabelFilter("");
+  //    startActivity(MainActivity.class);
+  //    finish();
+  //  } else {
+  //    super.onBackPressed();
+  //  }
+  //}
 
-  @Override
-  protected void onPause() {
-    super.onPause();
-
-    // TODO mVm.setUndoClips(null);
-  }
+  //@Override
+  //protected void onPause() {
+  //  super.onPause();
+  //
+  //  // TODO mVm.setUndoClips(null);
+  //}
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
@@ -388,21 +297,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     return true;
   }
 
-  /** Set NavigationView header aspect ratio to 16:9 */
-  @Override
-  public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                             int oldLeft, int oldTop, int oldRight,
-                             int oldBottom) {
-    if (v.equals(mBinding.navView)) {
-      final int oldWidth = oldRight - oldLeft;
-      final int width = right - left;
-      final View hView = mBinding.navView.getHeaderView(0);
-      if ((hView != null) && (oldWidth != width)) {
-        hView.getLayoutParams().height = Math.round((9.0F / 16.0F) * width);
-      }
-    }
-  }
-
   @Override
   public void onDeleteDialogPositiveClick(Boolean includeFavs) {
     mVm.removeAll(includeFavs);
@@ -432,6 +326,93 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   public long getSelectedClipId() {
     final Clip clip = getSelectedClipSync();
     return (clip == null) ? -1L : clip.getId();
+  }
+
+  /** Observe changes to ViewModel */
+  private void subscribeToViewModel() {
+    // Observe clips
+    mVm.getClips().observe(this, clips -> {
+      if (clips != null) {
+        mAdapter.setList(clips);
+      }
+      if (AppUtils.isEmpty(clips)) {
+        mVm.setSelectedClip(null);
+      } else if (AppUtils.isDualPane(this)) {
+        final Clip clip = mVm.getSelectedClipSync();
+        if (Clip.isWhitespace(clip) || !mVm.isVisible(clip)) {
+          mVm.setSelectedClip(clips.get(0));
+        }
+      }
+      setTitle();
+    });
+
+    // observe labels
+    mVm.getLabels().observe(this, labels -> {
+      setTitle();
+      updateNavView(labels);
+    });
+
+    // observe selected clip
+    mVm.getSelectedClip().observe(this, clip -> {
+      if (mAdapter.changeSelection(
+        mVm.getLastSelectedClip(), mVm.getSelectedClipSync())) {
+        setTitle();
+      }
+    });
+
+    // observe label filter
+    mVm.getFilterLabel().observe(this, label -> setTitle());
+
+    // observe undo clips
+    mVm.getUndoClips().observe(this, clips -> {
+      if (AppUtils.isEmpty(clips)) {
+        return;
+      }
+      final int nRows = clips.size();
+      String message = nRows + getString(R.string.items_deleted);
+      if (nRows == 0) {
+        message = getString(R.string.item_delete_empty);
+      } else if (nRows == 1) {
+        message = getString(R.string.item_deleted_one);
+      }
+
+      final Snackbar snack = Snackbar.make(mBinding.fab, message, 10000);
+      if (nRows > 0) {
+        snack.setAction(R.string.button_undo, v -> {
+          final Context ctxt = v.getContext();
+          Analytics.INST(ctxt).imageClick(TAG, "undoDeleteClips");
+          mVm.undoDelete();
+        }).addCallback(new Snackbar.Callback() {
+
+          @Override
+          public void onShown(Snackbar snackbar) {
+          }
+
+          @Override
+          public void onDismissed(Snackbar snackbar, int event) {
+            mVm.setUndoClips(null);
+          }
+        });
+      }
+      snack.show();
+    });
+
+    // observe info messages
+    mVm.getInfoMessage().observe(this, msg -> {
+      if (!TextUtils.isEmpty(msg)) {
+        AppUtils.showMessage(this, mBinding.fab, msg);
+        mVm.postInfoMessage(null);
+      }
+    });
+
+    // observe error messages
+    mVm.getErrorMsg().observe(this, errorMsg -> {
+      if (errorMsg != null) {
+        AppUtils.showMessage(this, mBinding.fab, errorMsg.msg);
+        mVm.postErrorMsg(null);
+      }
+    });
+
   }
 
   /**
@@ -473,14 +454,15 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {
       // from clip notification
+      mVm.setFilterLabelName("");
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
         final Clip clip =
           (Clip) intent.getSerializableExtra(Intents.EXTRA_CLIP);
-        intent.removeExtra(Intents.EXTRA_CLIP);
         selectClip(clip);
       }
+      intent.removeExtra(Intents.EXTRA_CLIP);
     }
   }
 
@@ -515,7 +497,17 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   /** Initialize the NavigationView */
   private void setupNavigationView() {
-    mBinding.navView.addOnLayoutChangeListener(this);
+    mBinding.navView.addOnLayoutChangeListener(
+      (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+        if (v.equals(mBinding.navView)) {
+          final int oldWidth = oldRight - oldLeft;
+          final int width = right - left;
+          final View hView = mBinding.navView.getHeaderView(0);
+          if ((hView != null) && (oldWidth != width)) {
+            hView.getLayoutParams().height = Math.round((9.0F / 16.0F) * width);
+          }
+        }
+      });
 
     // Handle click on header
     final View hView = mBinding.navView.getHeaderView(0);
