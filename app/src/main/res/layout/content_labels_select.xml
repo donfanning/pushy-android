@@ -25,7 +25,7 @@
 
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.labels.LabelHandlers" />
+      type="com.weebly.opus1269.clipman.ui.labels.LabelSelectHandlers" />
   </data>
 
   <LinearLayout
@@ -37,7 +37,7 @@
     android:focusableInTouchMode="true"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".ui.labels.LabelsEditActivity"
+    tools:context=".ui.labels.LabelsSelectActivity"
     tools:showIn="@layout/activity_labels_select">
 
     <fragment

@@ -14,8 +14,8 @@ import android.arch.persistence.room.Index;
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 @Entity(tableName = "clips_labels_join",
-  indices = {@Index(value = "labelId", unique = true)},
-  primaryKeys = { "clipId", "labelId" },
+  indices = {@Index(value = "labelId")},
+  primaryKeys = {"clipId", "labelId"},
   foreignKeys = {
     @ForeignKey(entity = Clip.class,
       parentColumns = "id",
@@ -30,6 +30,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
   })
 public class ClipLabelJoin {
   public final long clipId;
+
   public final long labelId;
 
   public ClipLabelJoin(final long clipId, final long labelId) {

@@ -25,7 +25,7 @@
 
     <variable
       name="handlers"
-      type="com.weebly.opus1269.clipman.ui.labels.LabelHandlers" />
+      type="com.weebly.opus1269.clipman.ui.labels.LabelSelectHandlers" />
   </data>
 
   <android.support.design.widget.CoordinatorLayout

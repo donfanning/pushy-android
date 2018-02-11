@@ -12,7 +12,9 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
@@ -25,13 +27,17 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   @NonNull
   private final MutableLiveData<Clip> clip;
 
-  /** Our Clip's labels */
-  @NonNull
-  private MediatorLiveData<List<Label>> clipLabels;
-
   /** Full Labels list */
   @NonNull
   private final MediatorLiveData<List<Label>> labels;
+
+  /** Our Clip's labels */
+  @NonNull
+  private final MediatorLiveData<List<Label>> clipLabels;
+
+  /** Clip labels source */
+  @Nullable
+  private LiveData<List<Label>> clipLabelsSource;
 
   public LabelsSelectViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
@@ -41,16 +47,11 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
 
     clipLabels = new MediatorLiveData<>();
     clipLabels.setValue(null);
+    clipLabelsSource = null;
 
     labels = new MediatorLiveData<>();
     labels.setValue(mRepo.getLabels().getValue());
     labels.addSource(mRepo.getLabels(), labels::setValue);
-  }
-
-  @Override
-  protected void initRepo() {
-    super.initRepo();
-    mRepo.setErrorMsg(null);
   }
 
   @NonNull
@@ -58,9 +59,14 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
     return labels;
   }
 
-  @NonNull
-  public LiveData<Clip> getClip() {
-    return clip;
+  public void setClip(@NonNull Clip clip) {
+    this.clip.setValue(clip);
+    // update Labels source too
+    if (clipLabelsSource != null) {
+      clipLabels.removeSource(clipLabelsSource);
+    }
+    clipLabelsSource = mRepo.getLabelsForClip(clip);
+    clipLabels.addSource(clipLabelsSource, clipLabels::setValue);
   }
 
   @NonNull
@@ -68,8 +74,38 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
     return clipLabels;
   }
 
-  public void setClip(@NonNull Clip clip) {
-    this.clip.setValue(clip);
-    clipLabels.addSource(mRepo.getLabelsForClip(clip), clipLabels::setValue);
+  /**
+   * Is the Label with the given name a member of our Clip
+   * @param labelName Label name
+   * @return true if member of Clip
+   */
+  public boolean hasLabel(@Nullable String labelName) {
+    boolean ret = false;
+    final List<Label> labels = getClipLabels().getValue();
+    if (!AppUtils.isEmpty(labels)) {
+      for (Label label : labels) {
+        if (label.getName().equals(labelName)) {
+          ret = true;
+          break;
+        }
+      }
+    }
+    return ret;
+  }
+
+  /**
+   * Add or remove a Label from our Clip
+   * @param label Label
+   * @param add   if true add, otherwise remove
+   */
+  public void addOrRemoveLabel(@NonNull Label label, boolean add) {
+    final Clip clip = this.clip.getValue();
+    if (clip != null) {
+      if (add) {
+        mRepo.addLabelForClip(clip, label);
+      } else {
+        mRepo.removeLabelForClip(clip, label);
+      }
+    }
   }
 }

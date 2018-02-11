@@ -9,24 +9,17 @@ package com.weebly.opus1269.clipman.ui.labels;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.databinding.LabelsSelectBinding;
-import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsSelectViewModel;
-import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
-import java.util.List;
-
-public class LabelsSelectActivity extends
-  BaseActivity<LabelsSelectBinding> {
+/** Handle Label selections for a Clip */
+public class LabelsSelectActivity extends BaseActivity<LabelsSelectBinding> {
   /** ViewModel */
   private LabelsSelectViewModel mVm = null;
 
@@ -47,7 +40,7 @@ public class LabelsSelectActivity extends
 
     // setup ViewModel and data binding
     mVm = ViewModelProviders.of(this).get(LabelsSelectViewModel.class);
-    LabelHandlers handlers = new LabelHandlers(this);
+    LabelSelectHandlers handlers = new LabelSelectHandlers(this);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
     mBinding.setHandlers(handlers);
@@ -73,40 +66,22 @@ public class LabelsSelectActivity extends
     return false;
   }
 
-  public boolean hasLabel(@NonNull String labelName) {
-    boolean ret = false;
-    final List<Label> labels = mVm.getClipLabels().getValue();
-    if (!AppUtils.isEmpty(labels)) {
-      for (Label label : labels) {
-        if (label.getName().equals(labelName)) {
-          ret = true;
-          break;
-        }
-      }
-    }
-    return ret;
+  public LabelsSelectViewModel getVm() {
+    return mVm;
   }
 
   /** Observe changes to ViewModel */
   private void subscribeToViewModel() {
-    // observe errors
-    mVm.getErrorMsg().observe(this, errorMsg -> {
-      //TODO if (errorMsg != null) {
-      //  mHandlers.showErrorMessage(errorMsg);
-      //}
-    });
-
     // Observe labels
     mVm.getLabels().observe(this, labels -> {
       if (labels != null) {
-        Log.logD(TAG, "labels changed");
         mAdapter.setList(labels);
       }
     });
+
     // Observe clip labels
     mVm.getClipLabels().observe(this, clipLabels -> {
       if (clipLabels != null) {
-        Log.logD(TAG, "clipLabels changed");
         mAdapter.notifyDataSetChanged();
       }
     });

@@ -43,8 +43,8 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
     label.addSource(mRepo.getLabel(aLabel.getId()), label -> {
       this.label.setValue(label);
       final String name = label == null ? "" : label.getName();
-        this.name.setValue(name);
-        this.originalName = name;
+      this.name.setValue(name);
+      this.originalName = name;
     });
   }
 
@@ -60,6 +60,10 @@ public class LabelViewModel extends BaseRepoViewModel<MainRepo> {
 
   public MutableLiveData<String> getName() {
     return name;
+  }
+
+  public String getNameSync() {
+    return name.getValue();
   }
 
   public String getOriginalName() {

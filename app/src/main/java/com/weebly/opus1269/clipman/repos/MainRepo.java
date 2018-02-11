@@ -24,6 +24,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipLabelJoin;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Notifications;
@@ -231,7 +232,6 @@ public class MainRepo extends BaseRepo implements
     return mDB.clipLabelJoinDao().getLabelsForClip(clip.getId());
   }
 
-
   @NonNull
   public LiveData<Label> getFilterLabel() {
     return filterLabel;
@@ -424,6 +424,16 @@ public class MainRepo extends BaseRepo implements
     App.getExecutors().diskIO().execute(() -> mDB.labelDao().delete(label));
   }
 
+  public void addLabelForClip(@NonNull Clip clip, @NonNull Label label) {
+    App.getExecutors().diskIO().execute(() -> mDB.clipLabelJoinDao()
+      .insert(new ClipLabelJoin(clip.getId(), label.getId())));
+  }
+
+  public void removeLabelForClip(@NonNull Clip clip, @NonNull Label label) {
+    App.getExecutors().diskIO().execute(() -> mDB.clipLabelJoinDao()
+      .delete(new ClipLabelJoin(clip.getId(), label.getId())));
+  }
+
   /**
    * Does a clip with the given text exist
    * @param clip Clip
@@ -433,12 +443,10 @@ public class MainRepo extends BaseRepo implements
   }
 
   private LiveData<List<Clip>> loadClips(@Nullable Label filterLabel) {
-    long id = -1L;
-    if (filterLabel != null) {
-      id = filterLabel.getId();
-    }
-    final boolean hasId = (id != -1L);
+    long filterLabelId = (filterLabel == null) ? -1L : filterLabel.getId();
+    final boolean hasLabelFilterId = (filterLabelId != -1L);
     final String textFilter = getClipTextFilterSync();
+
     // itty bitty FSM - Room needs better way
     if (TextUtils.isEmpty(textFilter)) {
       if (filterByFavs) {
@@ -456,7 +464,9 @@ public class MainRepo extends BaseRepo implements
       if (sortType == 1) {
         return mDB.clipDao().getAllByText();
       }
-      return hasId ? mDB.clipDao().getAll(id) : mDB.clipDao().getAll();
+      return hasLabelFilterId ?
+        mDB.clipLabelJoinDao().getClipsForLabel(filterLabelId) :
+        mDB.clipDao().getAll();
     } else {
       // filter by query text too
       final String textQuery = '%' + textFilter + '%';

@@ -1,19 +1,8 @@
 /*
- *
- * Copyright 2016 Michael A Updike
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (c) 2016-2017, Michael A. Updike All rights reserved.
+ * Licensed under Apache 2.0
+ * https://opensource.org/licenses/Apache-2.0
+ * https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
  */
 
 package com.weebly.opus1269.clipman.ui.labels;
@@ -32,11 +21,13 @@ import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the RecyclerView and the database */
 class LabelsSelectAdapter extends BaseBindingAdapter<Label,
-  LabelSelectRowBinding, LabelHandlers, LabelViewModel,
+  LabelSelectRowBinding, LabelSelectHandlers, LabelViewModel,
   LabelsSelectAdapter.LabelViewHolder> {
+  /** Our Actvity */
   private final LabelsSelectActivity mActivity;
 
-  LabelsSelectAdapter(LabelsSelectActivity activity, LabelHandlers handlers) {
+  LabelsSelectAdapter(LabelsSelectActivity activity,
+                      LabelSelectHandlers handlers) {
     super(new LabelViewHolderFactory(), new LabelViewModelFactory(),
       R.layout.label_select_row, activity, handlers);
     mActivity = activity;
@@ -46,10 +37,14 @@ class LabelsSelectAdapter extends BaseBindingAdapter<Label,
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
     super.onBindViewHolder(holder, position);
 
-    if(mActivity.hasLabel(holder.binding.labelText.getText().toString())) {
-      holder.binding.checkBox.setChecked(true);
+    if (mActivity.getVm().hasLabel(holder.binding.getVm().getNameSync())) {
+      if (!holder.binding.checkBox.isChecked()) {
+        holder.binding.checkBox.setChecked(true);
+      }
     } else {
-      holder.binding.checkBox.setChecked(false);
+      if (holder.binding.checkBox.isChecked()) {
+        holder.binding.checkBox.setChecked(false);
+      }
     }
   }
 
@@ -75,7 +70,7 @@ class LabelsSelectAdapter extends BaseBindingAdapter<Label,
 
   /** Our ViewHolder */
   static class LabelViewHolder extends
-    BaseViewHolder<LabelSelectRowBinding, LabelViewModel, LabelHandlers> {
+    BaseViewHolder<LabelSelectRowBinding, LabelViewModel, LabelSelectHandlers> {
 
     LabelViewHolder(LabelSelectRowBinding binding) {
       super(binding);
@@ -83,7 +78,7 @@ class LabelsSelectAdapter extends BaseBindingAdapter<Label,
 
     /** Bind the data */
     public void bind(LifecycleOwner owner, LabelViewModel vm,
-                     LabelHandlers handlers) {
+                     LabelSelectHandlers handlers) {
       super.bind(owner, vm, handlers);
     }
   }
