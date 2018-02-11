@@ -74,7 +74,7 @@ public class LabelCreateHandlers extends BaseHandlers {
       vm.create();
       vm.name.setValue("");
     } else {
-      vm.setErrorMsg(new ErrorMsg("LabelOld is empty"));
+      vm.setErrorMsg(new ErrorMsg("Label is empty"));
     }
   }
 }

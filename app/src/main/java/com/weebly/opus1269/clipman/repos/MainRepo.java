@@ -227,6 +227,11 @@ public class MainRepo extends BaseRepo implements
     return mDB.labelDao().get(id);
   }
 
+  public LiveData<List<Label>> getLabelsForClip(@NonNull Clip clip) {
+    return mDB.clipLabelJoinDao().getLabelsForClip(clip.getId());
+  }
+
+
   @NonNull
   public LiveData<Label> getFilterLabel() {
     return filterLabel;

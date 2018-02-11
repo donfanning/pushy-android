@@ -19,6 +19,12 @@ import com.weebly.opus1269.clipman.viewmodel.LabelsViewModel;
 
 /** Activity for editing the List of {@link Label} items */
 public class LabelsEditActivity extends BaseActivity<LabelsEditBinding> {
+  /** ViewModel */
+  private LabelsViewModel mVm = null;
+
+  /** Adapter used to display the list's data */
+  private LabelsEditAdapter mAdapter;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -28,25 +34,30 @@ public class LabelsEditActivity extends BaseActivity<LabelsEditBinding> {
     super.onCreate(savedInstanceState);
 
     // setup ViewModel and data binding
-    LabelsViewModel vm = ViewModelProviders.of(this).get(LabelsViewModel.class);
-    LabelHandlers handlers = new LabelHandlers(this);
+    mVm = ViewModelProviders.of(this).get(LabelsViewModel.class);
+    final LabelHandlers handlers = new LabelHandlers(this);
     mBinding.setLifecycleOwner(this);
-    mBinding.setVm(vm);
+    mBinding.setVm(mVm);
     mBinding.setHandlers(handlers);
     mBinding.executePendingBindings();
 
+    // setup RecyclerView
+    mAdapter = new LabelsEditAdapter(this, handlers);
+    mBinding.content.recycler.setAdapter(mAdapter);
+
+    subscribeToViewModel();
+  }
+
+  /** Observe changes to ViewModel */
+  private void subscribeToViewModel() {
     // observe error
-    vm.getErrorMsg().observe(this, errorMsg -> {
+    mVm.getErrorMsg().observe(this, errorMsg -> {
       if (errorMsg != null) {
         AppUtils.showMessage(this, mBinding.getRoot(), errorMsg.msg);
       }
     });
 
-    // setup RecyclerView
-    LabelsEditAdapter adapter = new LabelsEditAdapter(this, handlers);
-    mBinding.content.recycler.setAdapter(adapter);
-
     // Observe labels
-    vm.getLabels().observe(this, adapter::setList);
+    mVm.getLabels().observe(this, mAdapter::setList);
   }
 }

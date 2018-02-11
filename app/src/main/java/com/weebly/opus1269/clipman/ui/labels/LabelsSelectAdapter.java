@@ -18,145 +18,73 @@
 
 package com.weebly.opus1269.clipman.ui.labels;
 
-import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.arch.lifecycle.LifecycleOwner;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.Label;
-import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.databinding.LabelSelectRowBinding;
-import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
+import com.weebly.opus1269.clipman.db.entity.Label;
+import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
+import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
+import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
-
-import java.util.Collections;
-import java.util.List;
+import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the RecyclerView and the database */
-class LabelsSelectAdapter extends
-  RecyclerView.Adapter<LabelsSelectAdapter.LabelViewHolder> {
-  /** Our activity */
+class LabelsSelectAdapter extends BaseBindingAdapter<Label,
+  LabelSelectRowBinding, LabelHandlers, LabelViewModel,
+  LabelsSelectAdapter.LabelViewHolder> {
   private final LabelsSelectActivity mActivity;
 
-  /** Activity TAG */
-  private final String TAG;
-
-  /** Our list */
-  private List<Label> mList;
-
-  LabelsSelectAdapter(LabelsSelectActivity activity) {
-    super();
-
+  LabelsSelectAdapter(LabelsSelectActivity activity, LabelHandlers handlers) {
+    super(new LabelViewHolderFactory(), new LabelViewModelFactory(),
+      R.layout.label_select_row, activity, handlers);
     mActivity = activity;
-    TAG = activity.getTAG();
-  }
-
-  @Override
-  public LabelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    LabelSelectRowBinding binding = DataBindingUtil
-      .inflate(LayoutInflater.from(parent.getContext()), R.layout.label_select_row,
-        parent, false);
-
-    return new LabelViewHolder(binding);
   }
 
   @Override
   public void onBindViewHolder(final LabelViewHolder holder, int position) {
-    final LabelViewModel vm =
-      new LabelViewModel(App.INST(), mList.get(position));
-    //TODO holder.bind(vm, mHandlers);
-    holder.bind(vm);
-    // color the icons
-    tintIcons(holder);
+    super.onBindViewHolder(holder, position);
 
-    // Get the data model from the holder
-    final Label label = holder.label;
-
-    // set checked state
-    final boolean checked = mActivity.getClip().hasLabel(label);
-    holder.checkBox.setChecked(checked);
-
-    holder.labelText.setText(label.getName());
-
-    holder.labelRow.setOnClickListener(v -> {
-        Analytics.INST(v.getContext()).click(TAG, "selectLabel");
-        holder.checkBox.toggle();
-        //TODO addOrRemoveLabel(holder.checkBox.isChecked(), label);
-      }
-    );
-
-    holder.checkBox.setOnClickListener(v -> {
-        final boolean checked1 = holder.checkBox.isChecked();
-        //TODO addOrRemoveLabel(checked1, label);
-        Analytics.INST(v.getContext())
-          .checkBoxClick(TAG, "selectLabel: " + checked1);
-      }
-    );
+    if(mActivity.hasLabel(holder.binding.labelText.getText().toString())) {
+      holder.binding.checkBox.setChecked(true);
+    } else {
+      holder.binding.checkBox.setChecked(false);
+    }
   }
 
-  @Override
-  public int getItemCount() {return AppUtils.size(mList);}
+  /** Factory to create an instance of our ViewHolder */
+  static class LabelViewHolderFactory implements
+    VHAdapterFactory<LabelViewHolder, LabelSelectRowBinding> {
 
-  ///**
-  // * Add or remove a {@link LabelOld} to our {@link ClipItem}
-  // * @param checked if true, add
-  // * @param label   label to add or remove
-  // */
-  //private void addOrRemoveLabel(boolean checked, LabelOld label) {
-  //  final ClipItem clipItem = mActivity.getClip();
-  //  if (checked) {
-  //    clipItem.addLabel(mContext, label);
-  //  } else {
-  //    clipItem.removeLabel(mContext, label);
-  //  }
-  //}
-
-  public void setList(@Nullable List<Label> list) {
-    // small list, just update it all
-    mList = list;
-    notifyDataSetChanged();
+    @Override
+    public LabelViewHolder create(LabelSelectRowBinding binding) {
+      return new LabelViewHolder(binding);
+    }
   }
 
-  /**
-   * Color the Vector Drawables based on theme
-   * @param holder LabelViewHolder
-   */
-  private void tintIcons(LabelViewHolder holder) {
-    final List<ImageView> list = Collections.singletonList(holder.labelImage);
-    DrawableHelper.tintAccentColor(holder.labelImage.getContext(), list);
+  /** Factory to create an instance of our ViewModel */
+  static class LabelViewModelFactory implements
+    VMAdapterFactory<LabelViewModel, Label> {
+
+    @Override
+    public LabelViewModel create(Label item) {
+      return new LabelViewModel(App.INST(), item);
+    }
   }
 
-  static class LabelViewHolder extends RecyclerView.ViewHolder {
-    private final LabelSelectRowBinding binding;
-    final RelativeLayout labelRow;
-    final ImageView labelImage;
-    final TextView labelText;
-    final CheckBox checkBox;
-    Label label;
+  /** Our ViewHolder */
+  static class LabelViewHolder extends
+    BaseViewHolder<LabelSelectRowBinding, LabelViewModel, LabelHandlers> {
 
-    LabelViewHolder(@NonNull LabelSelectRowBinding binding) {
-      super(binding.getRoot());
-      this.binding = binding;
-      labelRow = binding.labelRow;
-      labelImage = binding.labelImage;
-      labelText = binding.labelText;
-      checkBox = binding.checkBox;
+    LabelViewHolder(LabelSelectRowBinding binding) {
+      super(binding);
     }
 
-    /** Bind the File */
-    void bind(LabelViewModel vm) {
-      binding.setVm(vm);
-      //TODO binding.setHandlers(handlers);
-      binding.executePendingBindings();
+    /** Bind the data */
+    public void bind(LifecycleOwner owner, LabelViewModel vm,
+                     LabelHandlers handlers) {
+      super.bind(owner, vm, handlers);
     }
   }
 }
