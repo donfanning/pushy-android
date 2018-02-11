@@ -10,16 +10,16 @@ package com.weebly.opus1269.clipman.ui.labels;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.entity.Clip;
-import com.weebly.opus1269.clipman.databinding.LabelsSelectBinding;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsSelectViewModel;
 
 /** Handle Label selections for a Clip */
-public class LabelsSelectActivity extends BaseActivity<LabelsSelectBinding> {
+public class LabelsSelectActivity extends BaseActivity {
   /** ViewModel */
   private LabelsSelectViewModel mVm = null;
 
@@ -29,7 +29,6 @@ public class LabelsSelectActivity extends BaseActivity<LabelsSelectBinding> {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     mLayoutID = R.layout.activity_labels_select;
-    mIsBound = true;
 
     super.onCreate(savedInstanceState);
 
@@ -38,13 +37,8 @@ public class LabelsSelectActivity extends BaseActivity<LabelsSelectBinding> {
       actionBar.setHomeAsUpIndicator(R.drawable.ic_clear);
     }
 
-    // setup ViewModel and data binding
+    // setup ViewModel
     mVm = ViewModelProviders.of(this).get(LabelsSelectViewModel.class);
-    LabelSelectHandlers handlers = new LabelSelectHandlers(this);
-    mBinding.setLifecycleOwner(this);
-    mBinding.setVm(mVm);
-    mBinding.setHandlers(handlers);
-    mBinding.executePendingBindings();
 
     if (savedInstanceState == null) {
       Clip clip = (Clip) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
@@ -52,8 +46,11 @@ public class LabelsSelectActivity extends BaseActivity<LabelsSelectBinding> {
     }
 
     // setup RecyclerView
-    mAdapter = new LabelsSelectAdapter(this, handlers);
-    mBinding.content.recycler.setAdapter(mAdapter);
+    mAdapter = new LabelsSelectAdapter(this);
+    RecyclerView recyclerView = findViewById(R.id.recycler);
+    if (recyclerView != null) {
+      recyclerView.setAdapter(mAdapter);
+    }
 
     subscribeToViewModel();
   }

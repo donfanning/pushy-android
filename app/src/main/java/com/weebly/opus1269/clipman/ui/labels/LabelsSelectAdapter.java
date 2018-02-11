@@ -26,10 +26,9 @@ class LabelsSelectAdapter extends BaseBindingAdapter<Label,
   /** Our Actvity */
   private final LabelsSelectActivity mActivity;
 
-  LabelsSelectAdapter(LabelsSelectActivity activity,
-                      LabelSelectHandlers handlers) {
+  LabelsSelectAdapter(LabelsSelectActivity activity) {
     super(new LabelViewHolderFactory(), new LabelViewModelFactory(),
-      R.layout.label_select_row, activity, handlers);
+      R.layout.label_select_row, activity, new LabelSelectHandlers(activity));
     mActivity = activity;
   }
 

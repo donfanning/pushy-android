@@ -7,42 +7,17 @@
   ~ https://github.com/Pushy-Clipboard/pushy-android/blob/master/LICENSE.md
   -->
 
-<layout
+<android.support.design.widget.CoordinatorLayout
 
   xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:bind="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:fitsSystemWindows="true"
+  tools:context=".ui.labels.LabelsSelectActivity">
 
-  <data class="LabelsSelectBinding">
+  <include layout="@layout/app_bar" />
 
-    <import type="android.text.TextUtils" />
+  <include layout="@layout/content_labels_select" />
 
-    <import type="android.view.View" />
-
-    <variable
-      name="vm"
-      type="com.weebly.opus1269.clipman.viewmodel.LabelsSelectViewModel" />
-
-    <variable
-      name="handlers"
-      type="com.weebly.opus1269.clipman.ui.labels.LabelSelectHandlers" />
-  </data>
-
-  <android.support.design.widget.CoordinatorLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.labels.LabelsSelectActivity">
-
-    <include layout="@layout/app_bar" />
-
-    <include
-      layout="@layout/content_labels_select"
-      android:id="@+id/content"
-      bind:vm="@{vm}"
-      bind:handlers="@{handlers}" />
-
-
-  </android.support.design.widget.CoordinatorLayout>
-
-</layout>
+</android.support.design.widget.CoordinatorLayout>
