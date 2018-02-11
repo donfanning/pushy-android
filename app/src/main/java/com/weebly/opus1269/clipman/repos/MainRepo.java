@@ -30,7 +30,6 @@ import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton - Repository for the {@link MainDB} */
@@ -67,7 +66,7 @@ public class MainRepo extends BaseRepo implements
   private final MutableLiveData<String> clipTextFilter;
 
   /** Clips Source */
-  @NonNull
+  @Nullable
   private LiveData<List<Clip>> clipsSource;
 
   /** Selected clip Source */
@@ -100,7 +99,6 @@ public class MainRepo extends BaseRepo implements
     clipTextFilter.postValue("");
 
     filterLabel = new MutableLiveData<>();
-    filterLabel.postValue(null);
     filterLabel.observeForever(label -> changeClipsSource());
 
     selClip = new MediatorLiveData<>();
@@ -112,7 +110,7 @@ public class MainRepo extends BaseRepo implements
     selLabelsSource = null;
 
     labels = new MediatorLiveData<>();
-    labels.postValue(new ArrayList<>());
+    labels.postValue(null);
     labels.addSource(mDB.labelDao().getAll(), labels -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         this.labels.postValue(labels);
@@ -125,12 +123,13 @@ public class MainRepo extends BaseRepo implements
 
     clips = new MediatorLiveData<>();
     clips.postValue(null);
-    clipsSource = getClipsSource(filterLabel.getValue());
-    clips.addSource(clipsSource, clips -> {
-      if (mDB.getDatabaseCreated().getValue() != null) {
-        this.clips.postValue(clips);
-      }
-    });
+    clipsSource = null;
+    //clipsSource = getClipsSource(filterLabel.getValue());
+    //clips.addSource(clipsSource, clips -> {
+    //  if (mDB.getDatabaseCreated().getValue() != null) {
+    //    this.clips.postValue(clips);
+    //  }
+    //});
 
     // listen for preference changes
     PreferenceManager
@@ -255,17 +254,17 @@ public class MainRepo extends BaseRepo implements
     return clipTextFilter;
   }
 
-  @NonNull
-  public String getClipTextFilterSync() {
-    final String s = clipTextFilter.getValue();
-    return (s == null) ? "" : s;
-  }
-
   public void setClipTextFilter(@NonNull String s) {
     if (!s.equals(clipTextFilter.getValue())) {
       clipTextFilter.setValue(s);
       changeClipsSource();
     }
+  }
+
+  @NonNull
+  public String getClipTextFilterSync() {
+    final String s = clipTextFilter.getValue();
+    return (s == null) ? "" : s;
   }
 
   /**
@@ -446,59 +445,83 @@ public class MainRepo extends BaseRepo implements
   }
 
   /**
-   * Get the List of Clips based on various filter/sort options
+   * Get the List of Clips based on the various filter/sort options
    * @param filterLabel Label to filter on
    * @return List of Clips
    */
   private LiveData<List<Clip>> getClipsSource(@Nullable Label filterLabel) {
-    long filterLabelId = (filterLabel == null) ? -1L : filterLabel.getId();
-    final boolean hasLabelFilterId = (filterLabelId != -1L);
+    long id = (filterLabel == null) ? -1L : filterLabel.getId();
+    final boolean haslabelId = (id != -1L);
     final String textFilter = getClipTextFilterSync();
 
     // itty bitty FSM - Room needs better way
     if (TextUtils.isEmpty(textFilter)) {
       if (filterByFavs) {
         if (sortType == 1) {
-          return mDB.clipDao().getFavsByText();
+          return haslabelId ?
+            mDB.clipLabelJoinDao().getClipsForLabelFavsByText(id) :
+            mDB.clipDao().getFavsByText();
         }
-        return mDB.clipDao().getFavs();
+        return haslabelId ?
+          mDB.clipLabelJoinDao().getClipsForLabelFavs(id) :
+          mDB.clipDao().getFavs();
       }
       if (pinFavs) {
         if (sortType == 1) {
-          return mDB.clipDao().getAllPinFavsByText();
+          return haslabelId ?
+            mDB.clipLabelJoinDao().getClipsForLabelPinFavsByText(id) :
+            mDB.clipDao().getAllPinFavsByText();
         }
-        return mDB.clipDao().getAllPinFavs();
+        return haslabelId ?
+          mDB.clipLabelJoinDao().getClipsForLabelPinFavs(id) :
+          mDB.clipDao().getAllPinFavs();
       }
       if (sortType == 1) {
-        return mDB.clipDao().getAllByText();
+        return haslabelId ?
+          mDB.clipLabelJoinDao().getClipsForLabelByText(id) :
+          mDB.clipDao().getAllByText();
       }
-      return hasLabelFilterId ?
-        mDB.clipLabelJoinDao().getClipsForLabel(filterLabelId) :
+      return haslabelId ?
+        mDB.clipLabelJoinDao().getClipsForLabel(id) :
         mDB.clipDao().getAll();
     } else {
       // filter by query text too
-      final String textQuery = '%' + textFilter + '%';
+      final String query = '%' + textFilter + '%';
       if (filterByFavs) {
         if (sortType == 1) {
-          return mDB.clipDao().getFavsByText(textQuery);
+          return haslabelId ?
+            mDB.clipLabelJoinDao().getClipsForLabelFavsByText(id, query) :
+            mDB.clipDao().getFavsByText(query);
         }
-        return mDB.clipDao().getFavs(textQuery);
+        return haslabelId ?
+          mDB.clipLabelJoinDao().getClipsForLabelFavs(id, query) :
+          mDB.clipDao().getFavs(query);
       }
       if (pinFavs) {
         if (sortType == 1) {
-          return mDB.clipDao().getAllPinFavsByText(textQuery);
+          return haslabelId ?
+            mDB.clipLabelJoinDao().getClipsForLabelPinFavsByText(id, query) :
+            mDB.clipDao().getAllPinFavsByText(query);
         }
-        return mDB.clipDao().getAllPinFavs(textQuery);
+        return haslabelId ?
+          mDB.clipLabelJoinDao().getClipsForLabelPinFavs(id, query) :
+          mDB.clipDao().getAllPinFavs(query);
       }
       if (sortType == 1) {
-        return mDB.clipDao().getAllByText(textQuery);
+        return haslabelId ?
+          mDB.clipLabelJoinDao().getClipsForLabelByText(id, query) :
+          mDB.clipDao().getAllByText(query);
       }
-      return mDB.clipDao().getAll(textQuery);
+      return haslabelId ?
+        mDB.clipLabelJoinDao().getClipsForLabel(id, query) :
+        mDB.clipDao().getAll(query);
     }
   }
 
   private void changeClipsSource() {
-    clips.removeSource(clipsSource);
+    if (clipsSource != null) {
+      clips.removeSource(clipsSource);
+    }
     clipsSource = getClipsSource(filterLabel.getValue());
     clips.addSource(clipsSource, clips::setValue);
   }

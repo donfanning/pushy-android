@@ -23,6 +23,39 @@ public interface ClipLabelJoinDao extends BaseDao<ClipLabelJoin> {
   @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId ORDER BY date DESC")
   LiveData<List<Clip>> getClipsForLabel(final long labelId);
 
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND text LIKE :query ORDER BY date DESC")
+  LiveData<List<Clip>> getClipsForLabel(final long labelId, final String query);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId ORDER BY LOWER(text) ASC")
+  LiveData<List<Clip>> getClipsForLabelByText(final long labelId);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND text LIKE :query ORDER BY LOWER(text) ASC")
+  LiveData<List<Clip>> getClipsForLabelByText(final long labelId, final String query);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId ORDER BY fav DESC, date DESC")
+  LiveData<List<Clip>> getClipsForLabelPinFavs(final long labelId);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND text LIKE :query ORDER BY fav DESC, date DESC")
+  LiveData<List<Clip>> getClipsForLabelPinFavs(final long labelId, final String query);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId ORDER BY fav DESC, LOWER(text) ASC")
+  LiveData<List<Clip>> getClipsForLabelPinFavsByText(final long labelId);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND text LIKE :query ORDER BY fav DESC, LOWER(text) ASC")
+  LiveData<List<Clip>> getClipsForLabelPinFavsByText(final long labelId, final String query);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND fav = '1' ORDER BY date DESC")
+  LiveData<List<Clip>> getClipsForLabelFavs(final long labelId);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND fav = '1' AND text LIKE :query ORDER BY date DESC")
+  LiveData<List<Clip>> getClipsForLabelFavs(final long labelId, final String query);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND fav = '1' ORDER BY LOWER(text) ASC")
+  LiveData<List<Clip>> getClipsForLabelFavsByText(final long labelId);
+
+  @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId AND fav = '1' AND text LIKE :query ORDER BY LOWER(text) ASC")
+  LiveData<List<Clip>> getClipsForLabelFavsByText(final long labelId, final String query);
+
   @Query("SELECT id, name FROM labels INNER JOIN clips_labels_join ON labels.id=clips_labels_join.labelId WHERE clips_labels_join.clipId=:clipId")
   LiveData<List<Label>> getLabelsForClip(final long clipId);
 }
