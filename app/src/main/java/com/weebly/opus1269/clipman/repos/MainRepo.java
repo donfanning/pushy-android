@@ -51,7 +51,11 @@ public class MainRepo extends BaseRepo implements
 
   /** Selected clip */
   @NonNull
-  private final MediatorLiveData<Clip> selectedClip;
+  private final MediatorLiveData<Clip> selClip;
+
+  /** Selected clip's labels */
+  @NonNull
+  private final MediatorLiveData<List<Label>> selLabels;
 
   /** Show only Clips with the given label if non-whitespace */
   @NonNull
@@ -67,7 +71,11 @@ public class MainRepo extends BaseRepo implements
 
   /** Selected clip Source */
   @Nullable
-  private LiveData<Clip> selectedClipSource;
+  private LiveData<Clip> selClipSource;
+
+  /** Selected clips Lables Source */
+  @Nullable
+  private LiveData<List<Label>> selLabelsSource;
 
   /** Sort with favorites first if true */
   private boolean pinFavs;
@@ -93,9 +101,13 @@ public class MainRepo extends BaseRepo implements
     filterLabel = new MutableLiveData<>();
     filterLabel.postValue(null);
 
-    selectedClip = new MediatorLiveData<>();
-    selectedClip.postValue(null);
-    selectedClipSource = null;
+    selClip = new MediatorLiveData<>();
+    selClip.postValue(null);
+    selClipSource = null;
+
+    selLabels = new MediatorLiveData<>();
+    selLabels.postValue(null);
+    selLabelsSource = null;
 
     labels = new MediatorLiveData<>();
     labels.postValue(new ArrayList<>());
@@ -135,10 +147,10 @@ public class MainRepo extends BaseRepo implements
     //noinspection IfCanBeSwitch
     if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
       filterByFavs = Prefs.INST(context).isFavFilter();
-      final Clip clip = getSelectedClipSync();
+      final Clip clip = getSelClipSync();
       if (filterByFavs && (clip != null) && !clip.getFav()) {
         // unselect if we will be filtered out
-        setSelectedClip(null);
+        setSelClip(null);
       }
     } else if (Prefs.INST(context).PREF_PIN_FAV.equals(key)) {
       pinFavs = Prefs.INST(context).isPinFav();
@@ -161,27 +173,50 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
-  public LiveData<Clip> getSelectedClip() {
-    return selectedClip;
+  public LiveData<Clip> getSelClip() {
+    return selClip;
   }
 
-  public void setSelectedClip(@Nullable Clip clip) {
-    if (selectedClipSource != null) {
-      selectedClip.removeSource(selectedClipSource);
+  public void setSelClip(@Nullable Clip clip) {
+    if (selClipSource != null) {
+      selClip.removeSource(selClipSource);
     }
     if (Clip.isWhitespace(clip)) {
       // no clip
-      selectedClipSource = null;
-      selectedClip.setValue(null);
+      selClipSource = null;
+      selClip.setValue(null);
+      setSelLabels(null);
     } else {
-      selectedClipSource = getClip(clip.getId());
-      selectedClip.addSource(selectedClipSource, this.selectedClip::setValue);
+      selClipSource = getClip(clip.getId());
+      selClip.addSource(selClipSource, selClip -> {
+        setSelLabels(selClip);
+        this.selClip.setValue(selClip);
+      });
     }
   }
 
   @Nullable
-  public Clip getSelectedClipSync() {
-    return selectedClip.getValue();
+  public Clip getSelClipSync() {
+    return selClip.getValue();
+  }
+
+  @NonNull
+  public LiveData<List<Label>> getSelLabels() {
+    return selLabels;
+  }
+
+  private void setSelLabels(@Nullable Clip clip) {
+    if (selLabelsSource != null) {
+      selLabels.removeSource(selLabelsSource);
+    }
+    if (Clip.isWhitespace(clip)) {
+      // no clip
+      selLabelsSource = null;
+      selLabels.setValue(null);
+    } else {
+      selLabelsSource = mDB.clipLabelJoinDao().getLabelsForClip(clip.getId());
+      selLabels.addSource(selLabelsSource, this.selLabels::setValue);
+    }
   }
 
   public LiveData<Clip> getClip(final long id) {
@@ -200,21 +235,6 @@ public class MainRepo extends BaseRepo implements
   public void setFilterLabel(@Nullable Label label) {
     filterLabel.setValue(label);
     changeClips();
-    //if (filterLabelSource != null) {
-    //  filterLabel.removeSource(filterLabelSource);
-    //}
-    //if (label == null) {
-    //  // no label filter
-    //  filterLabelSource = null;
-    //  filterLabel.setValue(null);
-    //  changeClips();
-    //} else {
-    //  filterLabelSource = getLabel(label.getId());
-    //  filterLabel.addSource(filterLabelSource, filterLabel -> {
-    //    this.filterLabel.setValue(filterLabel);
-    //    changeClips();
-    //  });
-    //}
   }
 
   @Nullable

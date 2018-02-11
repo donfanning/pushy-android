@@ -20,12 +20,14 @@ import android.text.TextUtils;
 import android.text.method.ArrowKeyMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.util.Linkify;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.weebly.opus1269.clipman.R;
@@ -46,6 +48,7 @@ import com.weebly.opus1269.clipman.ui.settings.SettingsActivity;
 import com.weebly.opus1269.clipman.viewmodel.MainViewModel;
 
 import java.text.Collator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,7 +115,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     subscribeToViewModel();
 
     // TODO
-    clipChanged(mVm.getSelectedClipSync());
+    clipChanged(mVm.getSelClipSync());
   }
 
   @Override
@@ -137,7 +140,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     final int id = item.getItemId();
     switch (id) {
       case R.id.action_favorite:
-        mVm.toggleSelectedFavorite();
+        mVm.toggleSelFavorite();
         break;
       case R.id.action_labels:
         intent = new Intent(activity, LabelsSelectActivity.class);
@@ -156,10 +159,10 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
         }
         break;
       case R.id.action_copy:
-        mVm.copySelectedClip();
+        mVm.copySelClip();
         break;
       case R.id.action_delete:
-        mVm.removeSelectedClip();
+        mVm.removeSelClip();
         break;
       case R.id.action_settings:
         intent = new Intent(activity, SettingsActivity.class);
@@ -183,7 +186,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
 
   @Nullable
   private Clip getClip() {
-    return mVm == null ? null : mVm.getSelectedClipSync();
+    return mVm == null ? null : mVm.getSelClipSync();
   }
 
   public void setHighlightText(@NonNull String s) {
@@ -193,7 +196,10 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   /** Observe changes to ViewModel */
   private void subscribeToViewModel() {
     // observe clip
-    mVm.getSelectedClip().observe(this, this::clipChanged);
+    mVm.getSelClip().observe(this, this::clipChanged);
+
+    // observe labels
+    mVm.getSelLabels().observe(this, this::labelsChanged);
 
     // observe clip text filter
     mVm.getClipTextFilter().observe(this, this::highlightTextChanged);
@@ -218,7 +224,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     }
 
     updateOptionsMenu();
-    setupLabels();
     highlightTextChanged(mVm.getClipTextFilterSync());
   }
 
@@ -253,42 +258,30 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   }
 
   /** Add the Views containing our {@link Label} items */
-  private void setupLabels() {
-    // TODO
-    //mClip.loadLabels(getContext());
-    //final List<LabelOld> labels = mClip.getLabels();
-    //
-    //final LinearLayout labelLayout = findViewById(R.id.labelLayout);
-    //assert labelLayout != null;
-    //if (!AppUtils.isEmpty(labels)) {
-    //  labelLayout.setVisibility(View.VISIBLE);
-    //} else {
-    //  labelLayout.setVisibility(View.GONE);
-    //  return;
-    //}
-    //
-    //final LinearLayout labelList = findViewById(R.id.labelList);
-    //assert labelList != null;
-    //if (labelList.getChildCount() > 0) {
-    //  labelList.removeAllViews();
-    //}
-    //
-    //// to set margins
-    //final LinearLayout.LayoutParams llp =
-    //  new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-    //    LinearLayout.LayoutParams.WRAP_CONTENT);
-    //// llp.setMargins(left, top, right, bottom);
-    //final int rightMargin = AppUtils.dp2px(labelLayout.getContext(), 8);
-    //llp.setMargins(0, 0, rightMargin, 0);
-    //
-    //for (LabelOld label : labels) {
-    //  final ContextThemeWrapper wrapper =
-    //    new ContextThemeWrapper(getContext(), R.style.LabelItemView);
-    //  final TextView textView = new TextView(wrapper, null, 0);
-    //  textView.setText(label.getName());
-    //  textView.setLayoutParams(llp);
-    //  labelList.addView(textView);
-    //}
+  private void labelsChanged(@Nullable List<Label> labels) {
+    final LinearLayout labelList = mBinding.labelList;
+    if (labelList.getChildCount() > 0) {
+      labelList.removeAllViews();
+    }
+
+    // set margins
+    final LinearLayout.LayoutParams llp =
+      new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT);
+    final int rightMargin = AppUtils.dp2px(labelList.getContext(), 8);
+    llp.setMargins(0, 0, rightMargin, 0);
+
+    if (!AppUtils.isEmpty(labels)) {
+      // add view for each Label
+      for (Label label : labels) {
+        final ContextThemeWrapper wrapper =
+          new ContextThemeWrapper(getContext(), R.style.LabelItemView);
+        final TextView textView = new TextView(wrapper, null, 0);
+        textView.setText(label.getName());
+        textView.setLayoutParams(llp);
+        labelList.addView(textView);
+      }
+    }
   }
 
   /**

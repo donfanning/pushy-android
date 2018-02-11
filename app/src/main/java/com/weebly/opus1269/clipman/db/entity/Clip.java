@@ -31,7 +31,6 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 import com.weebly.opus1269.clipman.model.Intents;
-import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -62,7 +61,7 @@ public class Clip implements AdapterItem, Serializable {
   private String device;
 
   @Ignore
-  private List<LabelOld> labels = new ArrayList<>(0);
+  private List<Label> labels = new ArrayList<>(0);
 
   /** PK's of the labels - only used for backup/restore */
   @Ignore
@@ -145,18 +144,18 @@ public class Clip implements AdapterItem, Serializable {
     this.device = device;
   }
 
-  public List<LabelOld> getLabels() {
-    return labels;
-  }
-
-  private void setLabels(List<LabelOld> labels) {
-    this.labels = labels;
-  }
-
-  public List<Long> getLabelsId() {
-    return labelsId;
-  }
-
+  //public List<Label> getLabels() {
+  //  return labels;
+  //}
+  //
+  //public void setLabels(List<Label> labels) {
+  //  this.labels = labels;
+  //}
+  //
+  //public List<Long> getLabelsId() {
+  //  return labelsId;
+  //}
+  //
   /**
    * Send to our devices
    * @param cntxt A Context
@@ -246,7 +245,7 @@ public class Clip implements AdapterItem, Serializable {
    * @param label a label
    * @return true if we have label
    */
-  public boolean hasLabel(LabelOld label) {
+  public boolean hasLabel(Label label) {
     return this.labels.contains(label);
   }
 
@@ -289,36 +288,36 @@ public class Clip implements AdapterItem, Serializable {
   //  return cv;
   //}
 
-  /**
-   * Update the label id with the id of the given label - don't save
-   * @param theLabel label with new id
-   */
-  public void updateLabelIdNoSave(@NonNull LabelOld theLabel) {
-    long newId = theLabel.getId();
+  ///**
+  // * Update the label id with the id of the given label - don't save
+  // * @param theLabel label with new id
+  // */
+  //public void updateLabelIdNoSave(@NonNull Label theLabel) {
+  //  long newId = theLabel.getId();
+  //
+  //  int pos = this.labels.indexOf(theLabel);
+  //  if (pos != -1) {
+  //    final long oldId = this.labels.get(pos).getId();
+  //    this.labels.set(pos, theLabel);
+  //    final int idPos = this.labelsId.indexOf(oldId);
+  //    if (idPos != -1) {
+  //      this.labelsId.set(idPos, newId);
+  //    }
+  //  }
+  //}
 
-    int pos = this.labels.indexOf(theLabel);
-    if (pos != -1) {
-      final long oldId = this.labels.get(pos).getId();
-      this.labels.set(pos, theLabel);
-      final int idPos = this.labelsId.indexOf(oldId);
-      if (idPos != -1) {
-        this.labelsId.set(idPos, newId);
-      }
-    }
-  }
-
-  /**
-   * Add the given labels if they don't exit - don't save
-   * @param labels label list to add from
-   */
-  public void addLabelsNoSave(@NonNull List<LabelOld> labels) {
-    for (LabelOld label : labels) {
-      if (!hasLabel(label)) {
-        this.labels.add(label);
-        this.labelsId.add(label.getId());
-      }
-    }
-  }
+  ///**
+  // * Add the given labels if they don't exit - don't save
+  // * @param labels label list to add from
+  // */
+  //public void addLabelsNoSave(@NonNull List<Label> labels) {
+  //  for (Label label : labels) {
+  //    if (!hasLabel(label)) {
+  //      this.labels.add(label);
+  //      this.labelsId.add(label.getId());
+  //    }
+  //  }
+  //}
 
   /**
    * Create a label with our state so we can restore it

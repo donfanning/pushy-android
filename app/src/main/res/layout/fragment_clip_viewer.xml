@@ -43,15 +43,16 @@
       android:id="@+id/labelLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:visibleGone="@{vm.selectedClip.labels.size > 0}"
+      app:visibleGone="@{vm.selLabels.size > 0}"
       android:orientation="vertical">
 
-      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      <LinearLayout
+        android:id="@+id/labelList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{(theView) -> handlers.onLabelsClick(theView, vm.selectedClip)}"
+        android:onClick="@{(theView) -> handlers.onLabelsClick(theView, vm.selClip)}"
         android:orientation="horizontal">
 
       </LinearLayout>
@@ -68,14 +69,14 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/labelLayout"
-      app:visibleGone="@{vm.selectedClip.remote}"
+      app:visibleGone="@{vm.selClip.remote}"
       android:orientation="vertical">
 
       <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="2"
-        android:text="@{@string/remote_device_fmt(vm.selectedClip.device)}"
+        android:text="@{@string/remote_device_fmt(vm.selClip.device)}"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textColor="?android:textColorTertiary"
         tools:text="Device: A device" />

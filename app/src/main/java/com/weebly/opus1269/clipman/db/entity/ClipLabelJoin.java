@@ -9,16 +9,24 @@ package com.weebly.opus1269.clipman.db.entity;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Index;
+
+import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 @Entity(tableName = "clips_labels_join",
+  indices = {@Index(value = "labelId", unique = true)},
   primaryKeys = { "clipId", "labelId" },
   foreignKeys = {
     @ForeignKey(entity = Clip.class,
       parentColumns = "id",
-      childColumns = "clipId"),
+      childColumns = "clipId",
+      onDelete = CASCADE,
+      onUpdate = CASCADE),
     @ForeignKey(entity = Label.class,
       parentColumns = "id",
-      childColumns = "labelId")
+      childColumns = "labelId",
+      onDelete = CASCADE,
+      onUpdate = CASCADE),
   })
 public class ClipLabelJoin {
   public final long clipId;

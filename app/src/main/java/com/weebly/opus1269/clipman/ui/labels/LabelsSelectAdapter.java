@@ -35,7 +35,6 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.databinding.LabelSelectRowBinding;
-import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.ui.helpers.DrawableHelper;
 import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 
@@ -80,7 +79,7 @@ class LabelsSelectAdapter extends
     tintIcons(holder);
 
     // Get the data model from the holder
-    final LabelOld label = holder.label;
+    final Label label = holder.label;
 
     // set checked state
     final boolean checked = mActivity.getClip().hasLabel(label);
@@ -142,7 +141,7 @@ class LabelsSelectAdapter extends
     final ImageView labelImage;
     final TextView labelText;
     final CheckBox checkBox;
-    LabelOld label;
+    Label label;
 
     LabelViewHolder(@NonNull LabelSelectRowBinding binding) {
       super(binding.getRoot());

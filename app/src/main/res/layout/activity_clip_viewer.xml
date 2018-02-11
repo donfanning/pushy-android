@@ -42,10 +42,10 @@
       android:layout_height="wrap_content"
       android:layout_gravity="bottom|end"
       android:layout_margin="@dimen/fab_margin"
-      android:onClick="@{(theView) -> handlers.onFabClick(theView, vm.selectedClip)}"
+      android:onClick="@{(theView) -> handlers.onFabClick(theView, vm.selClip)}"
       app:srcCompat="@drawable/ic_share_black_24dp"
       app:tintPrimary="@{false}"
-      app:visibleGone="@{!Clip.isWhitespace(vm.selectedClip)}" />
+      app:visibleGone="@{!Clip.isWhitespace(vm.selClip)}" />
 
   </android.support.design.widget.CoordinatorLayout>
 

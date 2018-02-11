@@ -170,25 +170,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       .unregisterOnSharedPreferenceChangeListener(this);
   }
 
-  //@Override
-  //public void onBackPressed() {
-  //  if (!TextUtils.isEmpty(Prefs.INST(this).getLabelFilter())) {
-  //    // if filtered, create unfiltered MainActivity on Back
-  //    Prefs.INST(this).setLabelFilter("");
-  //    startActivity(MainActivity.class);
-  //    finish();
-  //  } else {
-  //    super.onBackPressed();
-  //  }
-  //}
-
-  //@Override
-  //protected void onPause() {
-  //  super.onPause();
-  //
-  //  // TODO mVm.setUndoClips(null);
-  //}
-
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     boolean processed = true;
@@ -320,7 +301,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   @Nullable
   public Clip getSelectedClipSync() {
-    return mVm == null ? null : mVm.getSelectedClipSync();
+    return mVm == null ? null : mVm.getSelClipSync();
   }
 
   public long getSelectedClipId() {
@@ -336,11 +317,11 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         mAdapter.setList(clips);
       }
       if (AppUtils.isEmpty(clips)) {
-        mVm.setSelectedClip(null);
+        mVm.setSelClip(null);
       } else if (AppUtils.isDualPane(this)) {
-        final Clip clip = mVm.getSelectedClipSync();
+        final Clip clip = mVm.getSelClipSync();
         if (Clip.isWhitespace(clip) || !mVm.isVisible(clip)) {
-          mVm.setSelectedClip(clips.get(0));
+          mVm.setSelClip(clips.get(0));
         }
       }
       setTitle();
@@ -353,9 +334,9 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     });
 
     // observe selected clip
-    mVm.getSelectedClip().observe(this, clip -> {
+    mVm.getSelClip().observe(this, clip -> {
       if (mAdapter.changeSelection(
-        mVm.getLastSelectedClip(), mVm.getSelectedClipSync())) {
+        mVm.getLastSelClip(), mVm.getSelClipSync())) {
         setTitle();
       }
     });
@@ -420,7 +401,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
    * @param clip The Clip to view
    */
   public void selectClip(@Nullable Clip clip) {
-    mVm.setSelectedClip(clip);
+    mVm.setSelClip(clip);
     if (!AppUtils.isDualPane(this)) {
       startActivity(ClipViewerActivity.class);
     }

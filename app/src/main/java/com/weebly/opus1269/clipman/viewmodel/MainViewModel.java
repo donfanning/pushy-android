@@ -44,7 +44,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Last selected Clip */
   @Nullable
-  private Clip lastSelectedClip;
+  private Clip lastSelClip;
 
   /** Map Label name to Label */
   @NonNull
@@ -53,7 +53,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
-    lastSelectedClip = null;
+    lastSelClip = null;
 
     undoClips = new MutableLiveData<>();
     undoClips.setValue(null);
@@ -93,18 +93,23 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @NonNull
-  public LiveData<Clip> getSelectedClip() {
-    return mRepo.getSelectedClip();
+  public LiveData<Clip> getSelClip() {
+    return mRepo.getSelClip();
   }
 
-  public void setSelectedClip(@Nullable Clip clip) {
-    setLastSelectedClip(getSelectedClipSync());
-    mRepo.setSelectedClip(clip);
+  public void setSelClip(@Nullable Clip clip) {
+    setLastSelClip(getSelClipSync());
+    mRepo.setSelClip(clip);
   }
 
   @Nullable
-  public Clip getSelectedClipSync() {
-    return mRepo.getSelectedClipSync();
+  public Clip getSelClipSync() {
+    return mRepo.getSelClipSync();
+  }
+
+  @NonNull
+  public LiveData<List<Label>> getSelLabels() {
+    return mRepo.getSelLabels();
   }
 
   @NonNull
@@ -117,12 +122,12 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @Nullable
-  public Clip getLastSelectedClip() {
-    return lastSelectedClip;
+  public Clip getLastSelClip() {
+    return lastSelClip;
   }
 
-  private void setLastSelectedClip(@Nullable Clip lastSelectedClip) {
-    this.lastSelectedClip = lastSelectedClip;
+  private void setLastSelClip(@Nullable Clip lastSelClip) {
+    this.lastSelClip = lastSelClip;
   }
 
   @NonNull
@@ -187,11 +192,11 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   /** Delete selected clip */
-  public void removeSelectedClip() {
-    final Clip clip = getSelectedClipSync();
+  public void removeSelClip() {
+    final Clip clip = getSelClipSync();
     if (clip != null) {
       removeClip(clip);
-      setSelectedClip(null);
+      setSelClip(null);
     }
   }
 
@@ -221,14 +226,14 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
       final List<Clip> clips = undoClips.getValue();
       if (!AppUtils.isEmpty(clips)) {
         mRepo.addClipSync(clips.get(0));
-        setSelectedClip(clips.get(0));
+        setSelClip(clips.get(0));
       }
     });
   }
 
   /** Copy selected clip to the Clipboard */
-  public void copySelectedClip() {
-    final Clip clip = getSelectedClipSync();
+  public void copySelClip() {
+    final Clip clip = getSelClipSync();
     if (!Clip.isWhitespace(clip)) {
       clip.setRemote(false);
       clip.setDate(Instant.now().toEpochMilli());
@@ -238,8 +243,8 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   /** Toggle the favorite state of selected clip */
-  public void toggleSelectedFavorite() {
-    final Clip clip = getSelectedClipSync();
+  public void toggleSelFavorite() {
+    final Clip clip = getSelClipSync();
     if (clip != null) {
       clip.setFav(!clip.getFav());
       mRepo.updateClipFav(clip);

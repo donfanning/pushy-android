@@ -99,13 +99,13 @@ public class ClipViewerActivity extends
 
   @Nullable
   private Clip getClip() {
-    return mVm == null ? null : mVm.getSelectedClipSync();
+    return mVm == null ? null : mVm.getSelClipSync();
   }
 
   /** Observe changes to ViewModel */
   private void subscribeToViewModel() {
     // observe clip
-    mVm.getSelectedClip().observe(this, clip -> {
+    mVm.getSelClip().observe(this, clip -> {
       if (clip != null) {
         setTitle();
       }
