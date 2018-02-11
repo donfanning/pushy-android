@@ -58,7 +58,7 @@ public class MainRepo extends BaseRepo implements
   @NonNull
   private final MediatorLiveData<List<Label>> selLabels;
 
-  /** Show only Clips with the given label if non-whitespace */
+  /** Show only Clips with the given label */
   @NonNull
   private final MutableLiveData<Label> filterLabel;
 
@@ -101,6 +101,7 @@ public class MainRepo extends BaseRepo implements
 
     filterLabel = new MutableLiveData<>();
     filterLabel.postValue(null);
+    filterLabel.observeForever(label -> changeClipsSource());
 
     selClip = new MediatorLiveData<>();
     selClip.postValue(null);
@@ -115,13 +116,21 @@ public class MainRepo extends BaseRepo implements
     labels.addSource(mDB.labelDao().getAll(), labels -> {
       if (mDB.getDatabaseCreated().getValue() != null) {
         this.labels.postValue(labels);
+        if ((labels != null) && !labels.contains(filterLabel.getValue())) {
+          // reset filterlabel if the Label is deleted
+          filterLabel.postValue(null);
+        }
       }
     });
 
     clips = new MediatorLiveData<>();
     clips.postValue(null);
-    clipsSource = loadClips(getFilterLabelSync());
-    clips.addSource(clipsSource, clips::postValue);
+    clipsSource = getClipsSource(filterLabel.getValue());
+    clips.addSource(clipsSource, clips -> {
+      if (mDB.getDatabaseCreated().getValue() != null) {
+        this.clips.postValue(clips);
+      }
+    });
 
     // listen for preference changes
     PreferenceManager
@@ -148,7 +157,7 @@ public class MainRepo extends BaseRepo implements
     //noinspection IfCanBeSwitch
     if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
       filterByFavs = Prefs.INST(context).isFavFilter();
-      final Clip clip = getSelClipSync();
+      final Clip clip = getSelClip().getValue();
       if (filterByFavs && (clip != null) && !clip.getFav()) {
         // unselect if we will be filtered out
         setSelClip(null);
@@ -162,13 +171,15 @@ public class MainRepo extends BaseRepo implements
       return;
     }
 
-    changeClips();
+    changeClipsSource();
   }
 
+  @NonNull
   public LiveData<List<Clip>> getClips() {
     return clips;
   }
 
+  @NonNull
   public LiveData<List<Label>> getLabels() {
     return labels;
   }
@@ -196,11 +207,6 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
-  @Nullable
-  public Clip getSelClipSync() {
-    return selClip.getValue();
-  }
-
   @NonNull
   public LiveData<List<Label>> getSelLabels() {
     return selLabels;
@@ -220,14 +226,17 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
+  @NonNull
   public LiveData<Clip> getClip(final long id) {
     return mDB.clipDao().get(id);
   }
 
+  @NonNull
   public LiveData<Label> getLabel(final long id) {
     return mDB.labelDao().get(id);
   }
 
+  @NonNull
   public LiveData<List<Label>> getLabelsForClip(@NonNull Clip clip) {
     return mDB.clipLabelJoinDao().getLabelsForClip(clip.getId());
   }
@@ -239,12 +248,6 @@ public class MainRepo extends BaseRepo implements
 
   public void setFilterLabel(@Nullable Label label) {
     filterLabel.setValue(label);
-    changeClips();
-  }
-
-  @Nullable
-  public Label getFilterLabelSync() {
-    return filterLabel.getValue();
   }
 
   @NonNull
@@ -252,17 +255,17 @@ public class MainRepo extends BaseRepo implements
     return clipTextFilter;
   }
 
-  public void setClipTextFilter(@NonNull String s) {
-    if (!s.equals(clipTextFilter.getValue())) {
-      clipTextFilter.setValue(s);
-      changeClips();
-    }
-  }
-
   @NonNull
   public String getClipTextFilterSync() {
     final String s = clipTextFilter.getValue();
     return (s == null) ? "" : s;
+  }
+
+  public void setClipTextFilter(@NonNull String s) {
+    if (!s.equals(clipTextFilter.getValue())) {
+      clipTextFilter.setValue(s);
+      changeClipsSource();
+    }
   }
 
   /**
@@ -442,7 +445,12 @@ public class MainRepo extends BaseRepo implements
     return mDB.clipDao().getSync(clip.getText()) != null;
   }
 
-  private LiveData<List<Clip>> loadClips(@Nullable Label filterLabel) {
+  /**
+   * Get the List of Clips based on various filter/sort options
+   * @param filterLabel Label to filter on
+   * @return List of Clips
+   */
+  private LiveData<List<Clip>> getClipsSource(@Nullable Label filterLabel) {
     long filterLabelId = (filterLabel == null) ? -1L : filterLabel.getId();
     final boolean hasLabelFilterId = (filterLabelId != -1L);
     final String textFilter = getClipTextFilterSync();
@@ -489,10 +497,9 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
-  private void changeClips() {
-    Log.logD(TAG, "clips source changed");
+  private void changeClipsSource() {
     clips.removeSource(clipsSource);
-    clipsSource = loadClips(getFilterLabelSync());
+    clipsSource = getClipsSource(filterLabel.getValue());
     clips.addSource(clipsSource, clips::setValue);
   }
 }

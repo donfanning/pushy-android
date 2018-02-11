@@ -104,7 +104,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   @Nullable
   public Clip getSelClipSync() {
-    return mRepo.getSelClipSync();
+    return mRepo.getSelClip().getValue();
   }
 
   @NonNull
@@ -150,7 +150,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   @NonNull
   public String getFilterLabelNameSync() {
-    final Label label = mRepo.getFilterLabelSync();
+    final Label label = mRepo.getFilterLabel().getValue();
     return (label == null) ? "" : label.getName();
   }
 
