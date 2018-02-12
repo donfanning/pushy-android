@@ -133,7 +133,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   protected void onResume() {
     super.onResume();
 
-    setTitle();
     updateOptionsMenu();
     Notifications.INST(this).removeClips();
   }
@@ -315,29 +314,25 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     mVm.getClips().observe(this, clips -> {
       if (clips != null) {
         mAdapter.setList(clips);
-      }
-      if (AppUtils.isEmpty(clips)) {
-        mVm.setSelClip(null);
-      } else if (AppUtils.isDualPane(this)) {
-        final Clip clip = mVm.getSelClipSync();
-        if (Clip.isWhitespace(clip) || !mVm.isVisible(clip)) {
-          mVm.setSelClip(clips.get(0));
+        if (AppUtils.isEmpty(clips)) {
+          mVm.setSelClip(null);
+        } else if (AppUtils.isDualPane(this)) {
+          final Clip clip = mVm.getSelClipSync();
+          if (Clip.isWhitespace(clip) || !mVm.isVisible(clip)) {
+            mVm.setSelClip(clips.get(0));
+          }
         }
       }
-      setTitle();
     });
 
     // observe labels
-    mVm.getLabels().observe(this, labels -> {
-      setTitle();
-      updateNavView(labels);
-    });
+    mVm.getLabels().observe(this, this::updateNavView);
 
     // observe selected clip
     mVm.getSelClip().observe(this, clip -> {
-      if (mAdapter.changeSelection(
-        mVm.getLastSelClip(), mVm.getSelClipSync())) {
+      if (mAdapter.select(mVm.getSelClipSync(), mVm.getLastSelClip())) {
         setTitle();
+        mVm.setLastSelClip(clip);
       }
     });
 
@@ -393,7 +388,6 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         mVm.postErrorMsg(null);
       }
     });
-
   }
 
   /**
@@ -458,6 +452,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   /** Set title based on selected {@link Clip} and filter label */
   private void setTitle() {
+    Log.logD(TAG, "setTitle");
     final String filterLabelName = mVm.getFilterLabelNameSync();
     String prefix = getString(R.string.title_activity_main);
     if (!AppUtils.isWhitespace(filterLabelName)) {

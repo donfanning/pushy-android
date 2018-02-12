@@ -96,23 +96,12 @@ class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
     mList = list;
   }
 
-  public boolean changeSelection(@Nullable Clip lastSel,
-                                 @Nullable Clip curSel) {
+  public boolean select(@Nullable Clip newSel, @Nullable Clip oldSel) {
     boolean ret = false;
-    if (AppUtils.isDualPane(App.INST()) && idChanged(lastSel, curSel)) {
-      setSelected(lastSel, false);
-      setSelected(curSel, true);
+    if (AppUtils.isDualPane(App.INST()) && idChanged(newSel, oldSel)) {
+      setSelected(oldSel, false);
+      setSelected(newSel, true);
       ret = true;
-    }
-    return ret;
-  }
-
-  @Nullable
-  private ClipViewHolder getHolder(@Nullable Clip clip) {
-    ClipViewHolder ret = null;
-    if (clip != null) {
-      ret = (ClipViewHolder) mActivity.getRecyclerView()
-        .findViewHolderForItemId(clip.getId());
     }
     return ret;
   }
@@ -128,22 +117,6 @@ class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
       holder.itemView.setSelected(isSelected);
     }
   }
-  //public void changeSelection(@Nullable Clip lastSelected) {
-  //  if (AppUtils.isDualPane(App.INST())) {
-  //    final int pos = getSelectedPos(mList, lastSelected);
-  //    final int newPos = getSelectedPos(mList, mActivity
-  // .getSelectedClipSync());
-  //
-  //    if (pos != newPos) {
-  //      if (pos != -1) {
-  //        notifyItemChanged(pos);
-  //      }
-  //      if (newPos != -1) {
-  //        notifyItemChanged(newPos);
-  //      }
-  //    }
-  //  }
-  //}
 
   private int getSelectedPos(@Nullable List<Clip> clips,
                              @Nullable Clip selClip) {
@@ -152,6 +125,16 @@ class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
       pos = clips.indexOf(selClip);
     }
     return pos;
+  }
+
+  @Nullable
+  private ClipViewHolder getHolder(@Nullable Clip clip) {
+    ClipViewHolder ret = null;
+    if (clip != null) {
+      ret = (ClipViewHolder) mActivity.getRecyclerView()
+        .findViewHolderForItemId(clip.getId());
+    }
+    return ret;
   }
 
   /** Factory to create an instance of our ViewHolder */

@@ -124,12 +124,6 @@ public class MainRepo extends BaseRepo implements
     clips = new MediatorLiveData<>();
     clips.postValue(null);
     clipsSource = null;
-    //clipsSource = getClipsSource(filterLabel.getValue());
-    //clips.addSource(clipsSource, clips -> {
-    //  if (mDB.getDatabaseCreated().getValue() != null) {
-    //    this.clips.postValue(clips);
-    //  }
-    //});
 
     // listen for preference changes
     PreferenceManager

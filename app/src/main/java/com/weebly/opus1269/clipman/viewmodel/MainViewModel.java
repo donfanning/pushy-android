@@ -98,7 +98,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   public void setSelClip(@Nullable Clip clip) {
-    setLastSelClip(getSelClipSync());
     mRepo.setSelClip(clip);
   }
 
@@ -126,7 +125,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     return lastSelClip;
   }
 
-  private void setLastSelClip(@Nullable Clip lastSelClip) {
+  public void setLastSelClip(@Nullable Clip lastSelClip) {
     this.lastSelClip = lastSelClip;
   }
 
