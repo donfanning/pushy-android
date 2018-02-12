@@ -279,7 +279,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   @Override
   public void onDeleteDialogPositiveClick(Boolean includeFavs) {
-    mVm.removeAll(includeFavs);
+    mVm.removeAllClips(includeFavs);
   }
 
   @Override
@@ -357,7 +357,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         snack.setAction(R.string.button_undo, v -> {
           final Context ctxt = v.getContext();
           Analytics.INST(ctxt).imageClick(TAG, "undoDeleteClips");
-          mVm.undoDelete();
+          mVm.undoDeleteClips();
         }).addCallback(new Snackbar.Callback() {
 
           @Override

@@ -42,13 +42,13 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   @NonNull
   private final MutableLiveData<List<Clip>> undoClips;
 
-  /** Last selected Clip */
-  @Nullable
-  private Clip lastSelClip;
-
   /** Map Label name to Label */
   @NonNull
   private final Map<String, Label> labelsMap;
+
+  /** Last selected Clip */
+  @Nullable
+  private Clip lastSelClip;
 
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
@@ -134,13 +134,13 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     return mRepo.getClipTextFilter();
   }
 
+  public void setClipTextFilter(@NonNull String query) {
+    mRepo.setClipTextFilter(query);
+  }
+
   @NonNull
   public String getClipTextFilterSync() {
     return mRepo.getClipTextFilterSync();
-  }
-
-  public void setClipTextFilter(@NonNull String query) {
-    mRepo.setClipTextFilter(query);
   }
 
   public LiveData<Label> getFilterLabel() {
@@ -185,12 +185,16 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
    */
   public void removeClip(@Nullable Clip clip) {
     if (clip != null) {
-      mRepo.removeClip(clip);
-      undoClips.postValue(Collections.singletonList(clip));
+      Runnable transaction = () -> {
+        mRepo.removeClipSync(clip);
+        undoClips.postValue(Collections.singletonList(clip));
+      };
+
+      App.getExecutors().diskIO().execute(transaction);
     }
   }
 
-  /** Delete selected clip */
+  /** Remove selected clip save for undo */
   public void removeSelClip() {
     final Clip clip = getSelClipSync();
     if (clip != null) {
@@ -203,7 +207,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
    * Remove all clips, save for undo
    * @param includeFavs if true, remove favorites too
    */
-  public void removeAll(boolean includeFavs) {
+  public void removeAllClips(boolean includeFavs) {
     setIsWorking(true);
     App.getExecutors().diskIO().execute(() -> {
       undoClips.postValue(mRepo.removeAllClipsSync(includeFavs));
@@ -212,19 +216,19 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   /** Undo the last delete */
-  public void undoDelete() {
+  public void undoDeleteClips() {
     final List<Clip> clips = undoClips.getValue();
-    if (clips != null) {
-      mRepo.addClips(clips);
+    if (!AppUtils.isEmpty(clips)) {
+      mRepo.addClipsAndLabels(clips);
     }
   }
 
   /** Undo the last delete and select it */
   public void undoDeleteAndSelect() {
     App.getExecutors().diskIO().execute(() -> {
+      undoDeleteClips();
       final List<Clip> clips = undoClips.getValue();
       if (!AppUtils.isEmpty(clips)) {
-        mRepo.addClipSync(clips.get(0));
         setSelClip(clips.get(0));
       }
     });

@@ -262,19 +262,6 @@ public class MainRepo extends BaseRepo implements
   }
 
   /**
-   * Insert or replace a list of clips
-   * @param clips Clip list
-   */
-  public void addClips(@NonNull List<Clip> clips) {
-    setIsWorking(true);
-    App.getExecutors().diskIO().execute(() -> {
-      final long id[] = mDB.clipDao().insertAll(clips);
-      Log.logD(TAG, "added " + id.length + " clips");
-      postIsWorking(false);
-    });
-  }
-
-  /**
    * Insert or replace clip but preserve fav state if it is true
    * @param clip Clip
    */
@@ -381,20 +368,24 @@ public class MainRepo extends BaseRepo implements
       .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
   }
 
-  public void removeClip(@NonNull Clip clip) {
-    App.getExecutors().diskIO().execute(() -> mDB.clipDao().delete(clip));
+  public void removeClipSync(@NonNull Clip clip) {
+    final List<Label> labels = getLabelsForClipSync(clip);
+    clip.setLabels(labels);
+    mDB.clipDao().delete(clip);
   }
 
   public List<Clip> removeAllClipsSync(boolean includeFavs) {
-    final List<Clip> ret;
+    final List<Clip> clips;
     if (includeFavs) {
-      ret = mDB.clipDao().getAllSync();
+      clips = mDB.clipDao().getAllSync();
+      setLabelsForClipsSync(clips);
       mDB.clipDao().deleteAll();
     } else {
-      ret = mDB.clipDao().getNonFavsSync();
+      clips = mDB.clipDao().getNonFavsSync();
+      setLabelsForClipsSync(clips);
       mDB.clipDao().deleteAllNonFavs();
     }
-    return ret;
+    return clips;
   }
 
   public void addLabelIfNew(@NonNull Label label) {
@@ -428,6 +419,21 @@ public class MainRepo extends BaseRepo implements
   public void removeLabelForClip(@NonNull Clip clip, @NonNull Label label) {
     App.getExecutors().diskIO().execute(() -> mDB.clipLabelJoinDao()
       .delete(new ClipLabelJoin(clip.getId(), label.getId())));
+  }
+
+  public void addClipsAndLabels(@NonNull List<Clip> clips) {
+    final Runnable transaction = () -> mDB.runInTransaction(() -> {
+      for (Clip clip : clips) {
+        mDB.clipDao().insert(clip);
+        final List<Label> labels = clip.getLabels();
+        for (Label label : labels) {
+          ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
+          mDB.clipLabelJoinDao().insert(join);
+        }
+      }
+    });
+
+    App.getExecutors().diskIO().execute(transaction);
   }
 
   /**
@@ -509,6 +515,18 @@ public class MainRepo extends BaseRepo implements
       return haslabelId ?
         mDB.clipLabelJoinDao().getClipsForLabel(id, query) :
         mDB.clipDao().getAll(query);
+    }
+  }
+
+  @NonNull
+  private List<Label> getLabelsForClipSync(@NonNull Clip clip) {
+    return mDB.clipLabelJoinDao().getLabelsForClipSync(clip.getId());
+  }
+
+  private void setLabelsForClipsSync(@NonNull List<Clip> clips) {
+    for (final Clip clip : clips) {
+      final List<Label> labels = getLabelsForClipSync(clip);
+      clip.setLabels(labels);
     }
   }
 

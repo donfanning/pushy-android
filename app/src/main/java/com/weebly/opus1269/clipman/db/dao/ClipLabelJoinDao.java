@@ -58,4 +58,7 @@ public interface ClipLabelJoinDao extends BaseDao<ClipLabelJoin> {
 
   @Query("SELECT id, name FROM labels INNER JOIN clips_labels_join ON labels.id=clips_labels_join.labelId WHERE clips_labels_join.clipId=:clipId")
   LiveData<List<Label>> getLabelsForClip(final long clipId);
+
+  @Query("SELECT id, name FROM labels INNER JOIN clips_labels_join ON labels.id=clips_labels_join.labelId WHERE clips_labels_join.clipId=:clipId")
+  List<Label> getLabelsForClipSync(final long clipId);
 }

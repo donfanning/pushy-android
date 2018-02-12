@@ -60,12 +60,12 @@ public class Clip implements AdapterItem, Serializable {
   private boolean remote;
   private String device;
 
-  @Ignore
+  @Ignore @NonNull
   private List<Label> labels = new ArrayList<>(0);
 
   /** PK's of the labels - only used for backup/restore */
   @Ignore
-  private List<Long> labelsId = new ArrayList<>(0);
+  private List<Long> labelsId = null;
 
   public Clip() {
     text = "";
@@ -144,13 +144,15 @@ public class Clip implements AdapterItem, Serializable {
     this.device = device;
   }
 
-  //public List<Label> getLabels() {
-  //  return labels;
-  //}
-  //
-  //public void setLabels(List<Label> labels) {
-  //  this.labels = labels;
-  //}
+  @NonNull
+  public List<Label> getLabels() {
+    return labels;
+  }
+
+  public void setLabels(@Nullable List<Label> labels) {
+    this.labels = (labels == null) ? new ArrayList<>(0) : labels;
+  }
+
   //
   //public List<Long> getLabelsId() {
   //  return labelsId;
@@ -180,6 +182,7 @@ public class Clip implements AdapterItem, Serializable {
     });
   }
 
+  @SuppressWarnings("SimplifiableIfStatement")
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -240,14 +243,14 @@ public class Clip implements AdapterItem, Serializable {
     }
   }
 
-  /**
-   * Do we have the given label
-   * @param label a label
-   * @return true if we have label
-   */
-  public boolean hasLabel(Label label) {
-    return this.labels.contains(label);
-  }
+  ///**
+  // * Do we have the given label
+  // * @param label a label
+  // * @return true if we have label
+  // */
+  //public boolean hasLabel(Label label) {
+  //  return this.labels.contains(label);
+  //}
 
   //public void addLabel(Context context, LabelOld label) {
   //  if (!hasLabel(label)) {
