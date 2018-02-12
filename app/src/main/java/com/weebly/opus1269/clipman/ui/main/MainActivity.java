@@ -197,7 +197,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         break;
       case R.id.action_add_clip:
         intent = new Intent(this, ClipEditorActvity.class);
-        intent.putExtra(Intents.EXTRA_TEXT, Prefs.INST(this).getLabelFilter());
+        intent.putExtra(Intents.EXTRA_TEXT, mVm.getFilterLabel().getValue());
         AppUtils.startActivity(this, intent);
         break;
       case R.id.action_delete_all:

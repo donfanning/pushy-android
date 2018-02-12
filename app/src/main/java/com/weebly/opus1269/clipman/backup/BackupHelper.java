@@ -19,7 +19,6 @@ import com.google.android.gms.drive.DriveId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.LabelTables;
 import com.weebly.opus1269.clipman.db.entity.Backup;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.ClipItem;
@@ -259,11 +258,11 @@ public class BackupHelper {
     App.getDbHelper().replaceDB(labels, clipItems);
 
     // reset label filter if it was deleted
-    final String labelfilter = Prefs.INST(mContext).getLabelFilter();
-    if (!TextUtils.isEmpty(labelfilter) &&
-      !LabelTables.INST(mContext).exists(labelfilter)) {
-      Prefs.INST(mContext).setLabelFilter("");
-    }
+    //final String labelfilter = Prefs.INST(mContext).getLabelFilter();
+    //if (!TextUtils.isEmpty(labelfilter) &&
+    //  !LabelTables.INST(mContext).exists(labelfilter)) {
+    //  Prefs.INST(mContext).setLabelFilter("");
+    //}
   }
 
   /**

@@ -34,24 +34,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Singleton - Extend the App for global stuff
- */
+/** Singleton - Extend the App for global stuff */
 public class App extends Application implements
   Application.ActivityLifecycleCallbacks,
   SharedPreferences.OnSharedPreferenceChangeListener {
-
   /** Our instance */
   private static App sInstance;
+
   /** Global {@link java.util.concurrent.Executor} objects */
   private static AppExecutors sAppExecutors;
+
   /** Main database */
   @SuppressLint("StaticFieldLeak")
   private static ClipsDatabaseHelper sClipsDB = null;
+
   private static boolean sIsMainActivityVisible = false;
+
   private static boolean sIsDevicesActivityVisible = false;
+
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
+
   /**
    * Maps between an activity class name and the list of currently running
    * AsyncTasks that were spawned while it was active.
@@ -101,6 +104,7 @@ public class App extends Application implements
     sAppExecutors = new AppExecutors();
 
     // initialize database
+    // TODO remove
     sClipsDB = new ClipsDatabaseHelper(this);
     sClipsDB.getWritableDatabase();
 
@@ -109,9 +113,6 @@ public class App extends Application implements
 
     // reset fav filter
     Prefs.INST(this).setFavFilter(false);
-
-    // reset label filter
-    Prefs.INST(this).setLabelFilter("");
 
     // save version info. to the preferences database
     final PackageInfo pInfo;
@@ -297,11 +298,15 @@ public class App extends Application implements
       User.INST(this).convertPrefs();
     }
 
-    if (oldVersionCode <= 222009) {
-      // remove old Device storage
+    if (oldVersionCode <= 222020) {
       final SharedPreferences preferences =
         PreferenceManager.getDefaultSharedPreferences(this);
+
+      // remove old Device storage
       preferences.edit().remove("prefDevices").apply();
+
+      // remove labelFilter
+      preferences.edit().remove("prefLabelFilter").apply();
     }
   }
 }

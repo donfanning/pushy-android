@@ -144,9 +144,9 @@ public class Notifications {
    * @param clip the {@link Clip} to display notification for
    */
   public void show(Clip clip) {
-    final String labelFilter = Prefs.INST(mContext).getLabelFilter();
-    if (Clip.isWhitespace(clip) ||
-      (App.isMainActivityVisible() && TextUtils.isEmpty(labelFilter)) ||
+    // TODO we could display notification if we are filtering the
+    // mainactivity by Label here
+    if (Clip.isWhitespace(clip) || App.isMainActivityVisible() ||
       (clip.getRemote() && !Prefs.INST(mContext).isNotifyRemote()) ||
       (!clip.getRemote() && !Prefs.INST(mContext).isNotifyLocal())) {
       return;

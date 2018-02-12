@@ -78,23 +78,23 @@ public class LabelOld implements Serializable {
    */
   public long getId() {return _id;}
 
-  /**
-   * Change name and update database
-   * @param context A Context
-   * @param name    The new name
-   */
-  public void setName(Context context, @NonNull String name) {
-    // update db
-    LabelTables.INST(context).updateLabel(name, this.name);
-
-    // change labelFilter Pref if it is us
-    final String labelFilter = Prefs.INST(context).getLabelFilter();
-    if (labelFilter.equals(this.name)) {
-      Prefs.INST(context).setLabelFilter(name);
-    }
-
-    this.name = name;
-  }
+  ///**
+  // * Change name and update database
+  // * @param context A Context
+  // * @param name    The new name
+  // */
+  //public void setName(Context context, @NonNull String name) {
+  //  // update db
+  //  LabelTables.INST(context).updateLabel(name, this.name);
+  //
+  //  // change labelFilter Pref if it is us
+  //  //final String labelFilter = Prefs.INST(context).getLabelFilter();
+  //  //if (labelFilter.equals(this.name)) {
+  //  //  Prefs.INST(context).setLabelFilter(name);
+  //  //}
+  //
+  //  this.name = name;
+  //}
 
   /**
    * Get the LabelOld as a {@link ContentValues object}
@@ -123,10 +123,10 @@ public class LabelOld implements Serializable {
 
     if (deleted) {
       // reset labelFilter Pref if we deleted it
-      final String labelFilter = Prefs.INST(context).getLabelFilter();
-      if (labelFilter.equals(name)) {
-        Prefs.INST(context).setLabelFilter("");
-      }
+      //final String labelFilter = Prefs.INST(context).getLabelFilter();
+      //if (labelFilter.equals(name)) {
+      //  Prefs.INST(context).setLabelFilter("");
+      //}
     }
 
     return deleted;

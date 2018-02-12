@@ -52,7 +52,6 @@ public class Prefs {
   private final String PREF_VERSION_CODE = "prefVersionCode";
   public final String PREF_PIN_FAV = "prefPinFav";
   public final String PREF_FAV_FILTER = "prefFavFilter";
-  public final String PREF_LABEL_FILTER = "preflabelFilter";
   public final String PREF_SORT_TYPE = "prefSortType";
   private final String PREF_DEVICE_REGISTERED = "prefDeviceRegistered";
   private final String PREF_NO_DEVICES_CT = "prefNoDeviceCt";
@@ -273,14 +272,6 @@ public class Prefs {
 
   public void setFavFilter(Boolean value) {
     set(PREF_FAV_FILTER, value);
-  }
-
-  public String getLabelFilter() {
-    return get(PREF_LABEL_FILTER, "");
-  }
-
-  public void setLabelFilter(String value) {
-    set(PREF_LABEL_FILTER, value);
   }
 
   public boolean isDeviceRegistered() {
