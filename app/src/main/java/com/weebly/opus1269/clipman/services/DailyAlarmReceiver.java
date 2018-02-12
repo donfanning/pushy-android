@@ -13,11 +13,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.backup.BackupHelper;
-import com.weebly.opus1269.clipman.db.ClipTable;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /** {@link BroadcastReceiver} that runs once a day */
 public class DailyAlarmReceiver extends BroadcastReceiver {
@@ -48,7 +49,7 @@ public class DailyAlarmReceiver extends BroadcastReceiver {
     Log.logD(TAG, "Initialized");
 
     // run now
-    ClipTable.INST(context).deleteOldItems();
+    MainRepo.INST(App.INST()).deleteOldClips();
   }
 
   @Override
@@ -59,6 +60,6 @@ public class DailyAlarmReceiver extends BroadcastReceiver {
       BackupHelper.INST(context).createBackupAsync();
     }
 
-    ClipTable.INST(context).deleteOldItems();
+    MainRepo.INST(App.INST()).deleteOldClips();
   }
 }

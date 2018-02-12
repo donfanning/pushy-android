@@ -74,4 +74,7 @@ public abstract class ClipDao implements BaseDao<Clip> {
 
   @Query("DELETE FROM clips WHERE fav = 0")
   public abstract int deleteAllNonFavs();
+
+  @Query("DELETE FROM clips WHERE fav = 0 AND date < :date")
+  public abstract int deleteNonFavsOlderThan(final long date);
 }

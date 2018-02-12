@@ -30,6 +30,10 @@ import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.model.Notifications;
 import com.weebly.opus1269.clipman.model.Prefs;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+
 import java.util.List;
 
 /** Singleton - Repository for the {@link MainDB} */
@@ -386,6 +390,41 @@ public class MainRepo extends BaseRepo implements
       mDB.clipDao().deleteAllNonFavs();
     }
     return clips;
+  }
+
+  /** Delete rows older than the storage duration */
+  public void deleteOldClips() {
+    final Context context = mApp.getApplicationContext();
+    final String value = Prefs.INST(context).getDuration();
+    if (value.equals(context.getString(R.string.ar_duration_forever))) {
+      return;
+    }
+
+    LocalDateTime deleteDate = LocalDate.now().atStartOfDay();
+    switch (value) {
+      case "day":
+        deleteDate = deleteDate.minusDays(1);
+        break;
+      case "week":
+        deleteDate = deleteDate.minusWeeks(1);
+        break;
+      case "month":
+        deleteDate = deleteDate.minusMonths(1);
+        break;
+      case "year":
+        deleteDate = deleteDate.minusYears(1);
+        break;
+      default:
+        return;
+    }
+
+    final long deleteTime =
+      deleteDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+    App.getExecutors().diskIO().execute(() -> {
+      final int nRows = mDB.clipDao().deleteNonFavsOlderThan(deleteTime);
+      Log.logD(TAG, "Deleted " + nRows + " rows");
+    });
   }
 
   public void addLabelIfNew(@NonNull Label label) {
