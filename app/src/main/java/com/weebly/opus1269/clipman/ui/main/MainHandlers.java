@@ -14,6 +14,7 @@ import android.widget.CheckBox;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -70,7 +71,7 @@ public class MainHandlers extends BaseHandlers {
     final Context context = view.getContext();
     Analytics.INST(context).imageClick(TAG, "clipCopy");
     clip.setRemote(false);
-    clip.copyToClipboard(context);
+    ClipboardHelper.copyToClipboard(context, clip);
     if (!Prefs.INST(context).isMonitorClipboard()) {
       AppUtils.showMessage(context, mActivity.getFab(),
         context.getString(R.string.clipboard_copy));

@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.db.entity.Clip;
-import com.weebly.opus1269.clipman.model.LabelOld;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -35,9 +35,28 @@ public class ClipboardHelper {
   private static final String TAG = "ClipboardHelper";
 
   private static final String DESC_LABEL = "opus1269 was here";
+
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
+
   private static final String LABELS_LABEL = "ClipItem Labels";
+
   private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
+
+  /** Copy to the clipboard */
+  public static void copyToClipboard(@NonNull Context context,
+                                     @NonNull Clip clip) {
+    final ClipboardManager clipboard =
+      (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+    if (clipboard != null) {
+      App.getExecutors().diskIO().execute(() -> {
+        clip.setLabels(MainRepo.INST(App.INST()).getLabelsForClipSync(clip));
+        final ClipData clipData =
+          ClipData.newPlainText(buildClipDesc(clip), clip.getText());
+        clipboard.setPrimaryClip(clipData);
+        Log.logD(TAG, "copied to clipboard");
+      });
+    }
+  }
 
   /**
    * Get the text on the Clipboard as a Clip
@@ -87,7 +106,7 @@ public class ClipboardHelper {
     }
 
     // get any Labels
-    final List<LabelOld> labels = parseLabels(desc);
+    final List<Label> labels = parseLabels(desc);
 
     Clip clip = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
@@ -96,7 +115,7 @@ public class ClipboardHelper {
       clip.setFav(fav);
       clip.setRemote(remote);
       clip.setDevice(sourceDevice);
-      // TODO clip.setLabels(labels);
+      clip.setLabels(labels);
     }
 
     return clip;
@@ -133,6 +152,31 @@ public class ClipboardHelper {
     // display status message
     final String msg = context.getString(id);
     AppUtils.showMessage(context, view, msg);
+  }
+
+  /**
+   * Create a description with a Clip's state so we can restore it
+   * @return a parsable label with our state
+   */
+  private static CharSequence buildClipDesc(@NonNull Clip clip) {
+    final long fav = clip.getFav() ? 1L : 0L;
+
+    // add prefix and fav value
+    CharSequence label = DESC_LABEL + "[" + Long.toString(fav) + "]\n";
+
+    if (clip.getRemote()) {
+      // add label indicating this is from a remote device
+      label = label + REMOTE_DESC_LABEL + "(" + clip.getDevice() + ")\n";
+    }
+
+    if (!AppUtils.isEmpty(clip.getLabels())) {
+      // add our labels
+      final Gson gson = new Gson();
+      final String labelsString = gson.toJson(clip.getLabels());
+      label = label + LABELS_LABEL + labelsString + "\n";
+    }
+
+    return label;
   }
 
   /**
@@ -195,8 +239,8 @@ public class ClipboardHelper {
    * @param desc The item's {@link ClipDescription}
    * @return The List of labels
    */
-  private static List<LabelOld> parseLabels(ClipDescription desc) {
-    ArrayList<LabelOld> list = new ArrayList<>(0);
+  private static List<Label> parseLabels(ClipDescription desc) {
+    ArrayList<Label> list = new ArrayList<>(0);
 
     final String label = ClipboardHelper.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(LABELS_LABEL)) {
@@ -205,11 +249,10 @@ public class ClipboardHelper {
       final int idxStop = label.indexOf('\n', idxStart);
       final String labelString = label.substring(idxStart + 1, idxStop);
       final Gson gson = new Gson();
-      final Type type = new TypeToken<ArrayList<LabelOld>>() {
+      final Type type = new TypeToken<ArrayList<Label>>() {
       }.getType();
       list = gson.fromJson(labelString, type);
     }
     return list;
   }
-
 }

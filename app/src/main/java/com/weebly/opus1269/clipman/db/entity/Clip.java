@@ -11,24 +11,18 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.google.gson.Gson;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.MyDevice;
@@ -46,21 +40,26 @@ import java.util.List;
 @Entity(tableName = "clips", indices = {@Index(value = "text", unique = true)})
 public class Clip implements AdapterItem, Serializable {
   public static final String TEXT_PLAIN = "text/plain";
-  private static final String TAG = "Clip";
+
   private static final String DESC_LABEL = "opus1269 was here";
-  private static final String REMOTE_DESC_LABEL = "From Remote Copy";
-  private static final String LABELS_LABEL = "ClipItem Labels";
+
+  private static final String TAG = "Clip";
 
   @PrimaryKey(autoGenerate = true)
   private long id;
 
   private String text;
+
   private long date;
+
   private boolean fav;
+
   private boolean remote;
+
   private String device;
 
-  @Ignore @NonNull
+  @Ignore
+  @NonNull
   private List<Label> labels = new ArrayList<>(0);
 
   /** PK's of the labels - only used for backup/restore */
@@ -158,6 +157,7 @@ public class Clip implements AdapterItem, Serializable {
   //  return labelsId;
   //}
   //
+
   /**
    * Send to our devices
    * @param cntxt A Context
@@ -168,20 +168,31 @@ public class Clip implements AdapterItem, Serializable {
     }
   }
 
-  /** Copy to the clipboard */
-  public void copyToClipboard(@NonNull Context context) {
-    final Handler handler = new Handler(Looper.getMainLooper());
-    handler.post(() -> {
-      final ClipboardManager clipboard =
-        (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-      if (clipboard != null) {
-        final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
-        clipboard.setPrimaryClip(clip);
-        Log.logD(TAG, "copied to clipboard");
-      }
-    });
+  @Override
+  public int hashCode() {
+    int result = text.hashCode();
+    result = 31 * result + (int) (date ^ (date >>> 32));
+    result = 31 * result + (fav ? 1 : 0);
+    result = 31 * result + (remote ? 1 : 0);
+    result = 31 * result + device.hashCode();
+    return result;
   }
 
+  ///** Copy to the clipboard */
+  //public void copyToClipboard(@NonNull Context context) {
+  //  final Handler handler = new Handler(Looper.getMainLooper());
+  //  handler.post(() -> {
+  //    final ClipboardManager clipboard =
+  //      (ClipboardManager) context.getSystemService(Context
+  // .CLIPBOARD_SERVICE);
+  //    if (clipboard != null) {
+  //      final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
+  //      clipboard.setPrimaryClip(clip);
+  //      Log.logD(TAG, "copied to clipboard");
+  //    }
+  //  });
+  //}
+  //
   @SuppressWarnings("SimplifiableIfStatement")
   @Override
   public boolean equals(Object o) {
@@ -195,16 +206,6 @@ public class Clip implements AdapterItem, Serializable {
     if (remote != that.remote) return false;
     if (!text.equals(that.text)) return false;
     return device.equals(that.device);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = text.hashCode();
-    result = 31 * result + (int) (date ^ (date >>> 32));
-    result = 31 * result + (fav ? 1 : 0);
-    result = 31 * result + (remote ? 1 : 0);
-    result = 31 * result + device.hashCode();
-    return result;
   }
 
   @Override
@@ -322,30 +323,30 @@ public class Clip implements AdapterItem, Serializable {
   //  }
   //}
 
-  /**
-   * Create a label with our state so we can restore it
-   * @return a parsable label with our state
-   */
-  private CharSequence buildClipLabel() {
-    final long fav = this.fav ? 1L : 0L;
-
-    // add prefix and fav value
-    CharSequence label = DESC_LABEL + "[" + Long.toString(fav) + "]\n";
-
-    if (remote) {
-      // add label indicating this is from a remote device
-      label = label + REMOTE_DESC_LABEL + "(" + device + ")\n";
-    }
-
-    if (!AppUtils.isEmpty(this.labels)) {
-      // add our labels
-      final Gson gson = new Gson();
-      final String labelsString = gson.toJson(this.labels);
-      label = label + LABELS_LABEL + labelsString + "\n";
-    }
-
-    return label;
-  }
+  ///**
+  // * Create a label with our state so we can restore it
+  // * @return a parsable label with our state
+  // */
+  //private CharSequence buildClipLabel() {
+  //  final long fav = this.fav ? 1L : 0L;
+  //
+  //  // add prefix and fav value
+  //  CharSequence label = DESC_LABEL + "[" + Long.toString(fav) + "]\n";
+  //
+  //  if (remote) {
+  //    // add label indicating this is from a remote device
+  //    label = label + REMOTE_DESC_LABEL + "(" + device + ")\n";
+  //  }
+  //
+  //  if (!AppUtils.isEmpty(this.labels)) {
+  //    // add our labels
+  //    final Gson gson = new Gson();
+  //    final String labelsString = gson.toJson(this.labels);
+  //    label = label + LABELS_LABEL + labelsString + "\n";
+  //  }
+  //
+  //  return label;
+  //}
 
   /**
    * Share the Clip with other apps

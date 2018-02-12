@@ -239,6 +239,11 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
+  public List<Label> getLabelsForClipSync(@NonNull Clip clip) {
+    return mDB.clipLabelJoinDao().getLabelsForClipSync(clip.getId());
+  }
+
+  @NonNull
   public LiveData<Label> getFilterLabel() {
     return filterLabel;
   }
@@ -302,7 +307,11 @@ public class MainRepo extends BaseRepo implements
   public void addClipIfNew(@NonNull Clip clip, boolean silent) {
     App.getExecutors().diskIO().execute(() -> {
       if (!exists(clip)) {
-        mDB.clipDao().insert(clip);
+        final long id = mDB.clipDao().insert(clip);
+        if (id != -1L) {
+          clip.setId(id);
+          addLabelsForClipSync(clip);
+        }
         if (!silent) {
           postInfoMessage(mApp.getString(R.string.repo_clip_added));
           errorMsg.postValue(null);
@@ -325,6 +334,10 @@ public class MainRepo extends BaseRepo implements
       int nRows = 0;
       if (onNewOnly) {
         id = mDB.clipDao().insertIfNew(clip);
+        if (id != -1L) {
+          clip.setId(id);
+          addLabelsForClipSync(clip);
+        }
       } else {
         final Clip existingClip = mDB.clipDao().getSync(clip.getText());
         if (existingClip != null) {
@@ -557,9 +570,12 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
-  @NonNull
-  private List<Label> getLabelsForClipSync(@NonNull Clip clip) {
-    return mDB.clipLabelJoinDao().getLabelsForClipSync(clip.getId());
+  private void addLabelsForClipSync(@NonNull Clip clip) {
+    final List<Label> labels = clip.getLabels();
+    for (Label label : labels) {
+      ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
+      mDB.clipLabelJoinDao().insert(join);
+    }
   }
 
   private void setLabelsForClipsSync(@NonNull List<Clip> clips) {

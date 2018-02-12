@@ -19,12 +19,15 @@
 package com.weebly.opus1269.clipman.services;
 
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.Device;
@@ -46,10 +49,13 @@ public class MyFcmListenerService extends FirebaseMessagingService {
   private static final String TAG = "MyFcmListenerService";
 
   private static final String RECEIVED = "FCM message received: ";
+
   private static final String ERR_DELETED =
     "Messages from remote devices were deleted before they could be delivered";
+
   private static final String ERR_UNKNOWN =
     "Unknown FCM message received: ";
+
   private static final String ERR_SAVE =
     "Failed to save clip from remote device";
 
@@ -155,7 +161,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     Log.logE(this, TAG, msg, ERR_DELETED);
   }
 
-
   /**
    * Save {@link Clip} to the database and copy to clipboard
    * @param data   {@link Map} of key value pairs
@@ -171,7 +176,8 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     long id = MainRepo.INST(App.INST()).addClipSync(clip);
     if (id != -1L) {
       clip.setId(id);
-      clip.copyToClipboard(this);
+      final Handler handler = new Handler(Looper.getMainLooper());
+      handler.post(() -> ClipboardHelper.copyToClipboard(this, clip));
       Notifications.INST(this).show(clip);
     } else {
       Log.logE(this, TAG, ERR_SAVE);

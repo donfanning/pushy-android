@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
@@ -240,7 +241,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     if (!Clip.isWhitespace(clip)) {
       clip.setRemote(false);
       clip.setDate(Instant.now().toEpochMilli());
-      clip.copyToClipboard(getApplication());
+      ClipboardHelper.copyToClipboard(getApplication(), clip);
       setInfoMessage(getApplication().getString(R.string.clipboard_copy));
     }
   }

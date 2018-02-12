@@ -18,7 +18,6 @@ import android.support.annotation.Nullable;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.db.ClipsContentProvider;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -27,8 +26,7 @@ import com.weebly.opus1269.clipman.repos.MainRepo;
 
 /**
  * An app private {@link Service} to listen for changes to the clipboard,
- * persist them to storage using {@link ClipsContentProvider} and push them to
- * registered FCM devices
+ * persist them to storage and push them to registered FCM devices
  */
 public class ClipboardWatcherService extends Service implements
   ClipboardManager.OnPrimaryClipChangedListener {
@@ -163,7 +161,7 @@ public class ClipboardWatcherService extends Service implements
 
   /**
    * Optionally save to database and send to remote devices
-   * @param clip  item
+   * @param clip      item
    * @param onNewOnly if true, only save if the text doesn't exist
    */
   private void saveAndSend(Clip clip, boolean onNewOnly) {

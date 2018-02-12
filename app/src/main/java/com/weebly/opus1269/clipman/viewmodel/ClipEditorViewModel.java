@@ -14,6 +14,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
+import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
@@ -25,13 +26,13 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
   /** True if creating new {@link Clip} */
   public final boolean addMode;
 
-  /** Our Clip */
-  @NonNull
-  public final Clip clip;
-
   /** Our editable Clip text */
   @NonNull
   public final MutableLiveData<String> text;
+
+  /** Our Clip */
+  @NonNull
+  private final Clip clip;
 
   public ClipEditorViewModel(@NonNull Application app, @NonNull Clip clip,
                              boolean addMode) {
@@ -78,7 +79,7 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Copy clip to clipboard */
   public void copyToClipboard() {
-    clip.copyToClipboard(getApplication());
+    ClipboardHelper.copyToClipboard(getApplication(), clip);
   }
 
   /** Is clip in a savable state */
