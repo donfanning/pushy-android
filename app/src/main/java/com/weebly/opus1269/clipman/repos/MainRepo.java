@@ -21,7 +21,6 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.Clip;
@@ -58,10 +57,6 @@ public class MainRepo extends BaseRepo implements
   @NonNull
   private final MediatorLiveData<Clip> selClip;
 
-  /** Selected clip's labels */
-  @NonNull
-  private final MediatorLiveData<List<Label>> selLabels;
-
   /** Show only Clips with the given label */
   @NonNull
   private final MutableLiveData<Label> filterLabel;
@@ -77,10 +72,6 @@ public class MainRepo extends BaseRepo implements
   /** Selected clip Source */
   @Nullable
   private LiveData<Clip> selClipSource;
-
-  /** Selected clip labels Source */
-  @Nullable
-  private LiveData<List<Label>> selLabelsSource;
 
   /** Sort with favorites first if true */
   private boolean pinFavs;
@@ -109,10 +100,6 @@ public class MainRepo extends BaseRepo implements
     selClip = new MediatorLiveData<>();
     selClip.postValue(null);
     selClipSource = null;
-
-    selLabels = new MediatorLiveData<>();
-    selLabels.postValue(null);
-    selLabelsSource = null;
 
     labels = new MediatorLiveData<>();
     labels.postValue(null);
@@ -194,32 +181,16 @@ public class MainRepo extends BaseRepo implements
       // no clip
       selClipSource = null;
       selClip.setValue(null);
-      setSelLabels(null);
     } else {
       selClipSource = getClip(clip.getId());
       selClip.addSource(selClipSource, selClip -> {
-        setSelLabels(selClip);
-        this.selClip.setValue(selClip);
+        if (selClip != null) {
+          App.getExecutors().diskIO().execute(() -> {
+            setLabelsForClipSync(selClip);
+            this.selClip.postValue(selClip);
+          });
+        }
       });
-    }
-  }
-
-  @NonNull
-  public LiveData<List<Label>> getSelLabels() {
-    return selLabels;
-  }
-
-  private void setSelLabels(@Nullable Clip clip) {
-    if (selLabelsSource != null) {
-      selLabels.removeSource(selLabelsSource);
-    }
-    if (Clip.isWhitespace(clip)) {
-      // no clip
-      selLabelsSource = null;
-      selLabels.setValue(null);
-    } else {
-      selLabelsSource = mDB.clipLabelJoinDao().getLabelsForClip(clip.getId());
-      selLabels.addSource(selLabelsSource, this.selLabels::setValue);
     }
   }
 
@@ -231,11 +202,6 @@ public class MainRepo extends BaseRepo implements
   @NonNull
   public LiveData<Label> getLabel(final long id) {
     return mDB.labelDao().get(id);
-  }
-
-  @NonNull
-  public LiveData<List<Label>> getLabelsForClip(@NonNull Clip clip) {
-    return mDB.clipLabelJoinDao().getLabelsForClip(clip.getId());
   }
 
   @NonNull
@@ -380,6 +346,13 @@ public class MainRepo extends BaseRepo implements
     });
   }
 
+  public void updateClipSync(@NonNull Clip clip) {
+    final int nRows = mDB.clipDao().update(clip);
+    if (nRows == 0) {
+      postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
+    }
+  }
+
   public void updateClipFav(@NonNull Clip clip) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
@@ -463,14 +436,14 @@ public class MainRepo extends BaseRepo implements
     App.getExecutors().diskIO().execute(() -> mDB.labelDao().delete(label));
   }
 
-  public void addLabelForClip(@NonNull Clip clip, @NonNull Label label) {
-    App.getExecutors().diskIO().execute(() -> mDB.clipLabelJoinDao()
-      .insert(new ClipLabelJoin(clip.getId(), label.getId())));
+  public void addLabelForClipSync(@NonNull Clip clip, @NonNull Label label) {
+    final ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
+    mDB.clipLabelJoinDao().insert(join);
   }
 
-  public void removeLabelForClip(@NonNull Clip clip, @NonNull Label label) {
-    App.getExecutors().diskIO().execute(() -> mDB.clipLabelJoinDao()
-      .delete(new ClipLabelJoin(clip.getId(), label.getId())));
+  public void removeLabelForClipSync(@NonNull Clip clip, @NonNull Label label) {
+    final ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
+    mDB.clipLabelJoinDao().delete(join);
   }
 
   public void addClipsAndLabels(@NonNull List<Clip> clips) {
@@ -578,13 +551,18 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
+  private void setLabelsForClipSync(@NonNull Clip clip) {
+    clip.setLabels(getLabelsForClipSync(clip));
+    Log.logD(TAG, clip.getLabels().toString());
+  }
+
   private void setLabelsForClipsSync(@NonNull List<Clip> clips) {
     mDB.runInTransaction(() -> {
       for (final Clip clip : clips) {
-      final List<Label> labels = getLabelsForClipSync(clip);
-      clip.setLabels(labels);
-      Log.logD(TAG, clip.getLabels().toString());
-    }
+        final List<Label> labels = getLabelsForClipSync(clip);
+        clip.setLabels(labels);
+        Log.logD(TAG, clip.getLabels().toString());
+      }
     });
   }
 
@@ -594,19 +572,12 @@ public class MainRepo extends BaseRepo implements
     }
     clipsSource = getClipsSource(filterLabel.getValue());
     clips.addSource(clipsSource, clips -> {
-      this.clips.postValue(clips);
-      if (!AppUtils.isEmpty(clips)) {
+      if (clips != null) {
         App.getExecutors().diskIO().execute(() -> {
           setLabelsForClipsSync(clips);
+          this.clips.postValue(clips);
         });
       }
     });
-    //clips.observeForever(clips -> {
-    //  if (!AppUtils.isEmpty(clips)) {
-    //    App.getExecutors().diskIO().execute(() -> {
-    //        setLabelsForClipsSync(clips);
-    //    });
-    //  }
-    //});
   }
 }

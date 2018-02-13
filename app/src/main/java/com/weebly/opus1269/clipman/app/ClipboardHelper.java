@@ -111,7 +111,7 @@ public class ClipboardHelper {
     Clip clip = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
       clip = new Clip();
-      clip.setText(context, String.valueOf(clipText));
+      clip.setText(String.valueOf(clipText));
       clip.setFav(fav);
       clip.setRemote(remote);
       clip.setDevice(sourceDevice);

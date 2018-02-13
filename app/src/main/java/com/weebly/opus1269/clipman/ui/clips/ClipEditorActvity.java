@@ -73,7 +73,7 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     mBinding.executePendingBindings();
 
     // observe text
-    mVm.text.observe(this, text -> updateOptionMenus());
+    mVm.getText().observe(this, text -> updateOptionMenus());
 
     // observe info message
     mVm.getInfoMessage().observe(this, infoMsg -> {

@@ -108,11 +108,6 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @NonNull
-  public LiveData<List<Label>> getSelLabels() {
-    return mRepo.getSelLabels();
-  }
-
-  @NonNull
   public LiveData<List<Clip>> getUndoClips() {
     return undoClips;
   }

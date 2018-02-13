@@ -115,7 +115,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     subscribeToViewModel();
 
     // TODO
-    clipChanged(mVm.getSelClipSync());
+    //clipChanged(mVm.getSelClipSync());
   }
 
   @Override
@@ -196,10 +196,11 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
   /** Observe changes to ViewModel */
   private void subscribeToViewModel() {
     // observe clip
-    mVm.getSelClip().observe(this, this::clipChanged);
-
-    // observe labels
-    mVm.getSelLabels().observe(this, this::labelsChanged);
+    mVm.getSelClip().observe(this, clip -> {
+      if (clip != null) {
+        clipChanged(clip);
+      }
+    });
 
     // observe clip text filter
     mVm.getClipTextFilter().observe(this, this::highlightTextChanged);
@@ -221,6 +222,7 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
         mBinding.clipViewerText.setVisibility(View.VISIBLE);
         setText(clip.getText());
       }
+      labelsChanged(clip.getLabels());
     }
 
     updateOptionsMenu();

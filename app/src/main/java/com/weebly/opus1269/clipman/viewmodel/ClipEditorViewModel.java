@@ -24,11 +24,11 @@ import org.threeten.bp.Instant;
 /** ViewModel for an editable {@link Clip} */
 public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
   /** True if creating new {@link Clip} */
-  public final boolean addMode;
+  private final boolean addMode;
 
   /** Our editable Clip text */
   @NonNull
-  public final MutableLiveData<String> text;
+  private final MutableLiveData<String> text;
 
   /** Our Clip */
   @NonNull
@@ -53,6 +53,15 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setErrorMsg(null);
   }
 
+  public boolean getAddMode() {
+    return addMode;
+  }
+
+  @NonNull
+  public MutableLiveData<String> getText() {
+    return text;
+  }
+
   /** Save clip to database */
   public void saveClip() {
     final String newText = text.getValue();
@@ -67,7 +76,7 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
     }
 
     // update clip
-    clip.setText(getApplication(), newText);
+    clip.setText(newText);
     clip.setRemote(false);
     clip.setDate(Instant.now().toEpochMilli());
     if (addMode) {

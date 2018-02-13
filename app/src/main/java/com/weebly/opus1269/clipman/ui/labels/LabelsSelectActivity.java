@@ -59,7 +59,6 @@ public class LabelsSelectActivity extends BaseActivity {
   public boolean onSupportNavigateUp() {
     // close as opposed to navigating up
     finish();
-
     return false;
   }
 
@@ -76,9 +75,9 @@ public class LabelsSelectActivity extends BaseActivity {
       }
     });
 
-    // Observe clip labels
-    mVm.getClipLabels().observe(this, clipLabels -> {
-      if (clipLabels != null) {
+    // Observe clip
+    mVm.getClip().observe(this, clip -> {
+      if (clip != null) {
         mAdapter.notifyDataSetChanged();
       }
     });

@@ -13,10 +13,8 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -24,7 +22,6 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.AdapterItem;
-import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
@@ -102,7 +99,9 @@ public class Clip implements AdapterItem, Serializable {
     this.id = id;
   }
 
-  public String getText() {return text;}
+  public String getText() {
+    return text;
+  }
 
   public void setText(String text) {
     this.text = text;
@@ -178,21 +177,6 @@ public class Clip implements AdapterItem, Serializable {
     return result;
   }
 
-  ///** Copy to the clipboard */
-  //public void copyToClipboard(@NonNull Context context) {
-  //  final Handler handler = new Handler(Looper.getMainLooper());
-  //  handler.post(() -> {
-  //    final ClipboardManager clipboard =
-  //      (ClipboardManager) context.getSystemService(Context
-  // .CLIPBOARD_SERVICE);
-  //    if (clipboard != null) {
-  //      final ClipData clip = ClipData.newPlainText(buildClipLabel(), text);
-  //      clipboard.setPrimaryClip(clip);
-  //      Log.logD(TAG, "copied to clipboard");
-  //    }
-  //  });
-  //}
-  //
   @SuppressWarnings("SimplifiableIfStatement")
   @Override
   public boolean equals(Object o) {
@@ -222,131 +206,25 @@ public class Clip implements AdapterItem, Serializable {
       '}';
   }
 
-  public void setText(@NonNull Context context, @NonNull String text) {
-    if (!text.equals(this.text)) {
-      final String oldText = this.text;
-      this.text = text;
-
-      // TODO Figue out - should not need
-      if (!TextUtils.isEmpty(oldText)) {
-        // broadcast change to listeners
-        final Intent intent = new Intent(Intents.FILTER_CLIP);
-        final Bundle bundle = new Bundle();
-        bundle.putString(Intents.ACTION_TYPE_CLIP,
-          Intents.TYPE_TEXT_CHANGED_CLIP);
-        bundle.putSerializable(Intents.EXTRA_CLIP, this);
-        bundle.putString(Intents.EXTRA_TEXT, oldText);
-        intent.putExtra(Intents.BUNDLE_CLIP, bundle);
-        LocalBroadcastManager
-          .getInstance(context)
-          .sendBroadcast(intent);
-      }
+  /**
+   * Add a Label
+   * @param label Label
+   */
+  public void addLabel(@NonNull Label label) {
+    if (!hasLabel(label)) {
+      this.labels.add(label);
     }
   }
 
-  ///**
-  // * Do we have the given label
-  // * @param label a label
-  // * @return true if we have label
-  // */
-  //public boolean hasLabel(Label label) {
-  //  return this.labels.contains(label);
-  //}
-
-  //public void addLabel(Context context, LabelOld label) {
-  //  if (!hasLabel(label)) {
-  //    this.labels.add(label);
-  //    LabelTables.INST(context).insert(this, label);
-  //  }
-  //}
-  //
-  //public void removeLabel(Context context, LabelOld label) {
-  //  if (hasLabel(label)) {
-  //    this.labels.remove(label);
-  //    LabelTables.INST(context).delete(this, label);
-  //  }
-  //}
-  //
-  ///**
-  // * Get our database PK
-  // * @return table row, -1L if not found
-  // */
-  //public long getId(Context context) {
-  //  return ClipTable.INST(context).getId(this);
-  //}
-  //
-  ///**
-  // * Get as a {@link ContentValues object}
-  // * @return value
-  // */
-  //public ContentValues getContentValues() {
-  //  final long fav = this.fav ? 1L : 0L;
-  //  final long remote = this.remote ? 1L : 0L;
-  //  final ContentValues cv = new ContentValues();
-  //  cv.put(ClipsContract.Clip.COL_TEXT, text);
-  //  cv.put(ClipsContract.Clip.COL_DATE, date);
-  //  cv.put(ClipsContract.Clip.COL_FAV, fav);
-  //  cv.put(ClipsContract.Clip.COL_REMOTE, remote);
-  //  cv.put(ClipsContract.Clip.COL_DEVICE, device);
-  //
-  //  return cv;
-  //}
-
-  ///**
-  // * Update the label id with the id of the given label - don't save
-  // * @param theLabel label with new id
-  // */
-  //public void updateLabelIdNoSave(@NonNull Label theLabel) {
-  //  long newId = theLabel.getId();
-  //
-  //  int pos = this.labels.indexOf(theLabel);
-  //  if (pos != -1) {
-  //    final long oldId = this.labels.get(pos).getId();
-  //    this.labels.set(pos, theLabel);
-  //    final int idPos = this.labelsId.indexOf(oldId);
-  //    if (idPos != -1) {
-  //      this.labelsId.set(idPos, newId);
-  //    }
-  //  }
-  //}
-
-  ///**
-  // * Add the given labels if they don't exit - don't save
-  // * @param labels label list to add from
-  // */
-  //public void addLabelsNoSave(@NonNull List<Label> labels) {
-  //  for (Label label : labels) {
-  //    if (!hasLabel(label)) {
-  //      this.labels.add(label);
-  //      this.labelsId.add(label.getId());
-  //    }
-  //  }
-  //}
-
-  ///**
-  // * Create a label with our state so we can restore it
-  // * @return a parsable label with our state
-  // */
-  //private CharSequence buildClipLabel() {
-  //  final long fav = this.fav ? 1L : 0L;
-  //
-  //  // add prefix and fav value
-  //  CharSequence label = DESC_LABEL + "[" + Long.toString(fav) + "]\n";
-  //
-  //  if (remote) {
-  //    // add label indicating this is from a remote device
-  //    label = label + REMOTE_DESC_LABEL + "(" + device + ")\n";
-  //  }
-  //
-  //  if (!AppUtils.isEmpty(this.labels)) {
-  //    // add our labels
-  //    final Gson gson = new Gson();
-  //    final String labelsString = gson.toJson(this.labels);
-  //    label = label + LABELS_LABEL + labelsString + "\n";
-  //  }
-  //
-  //  return label;
-  //}
+  /**
+   * Remove a Label
+   * @param label Label
+   */
+  public void removeLabel(@NonNull Label label) {
+    if (hasLabel(label)) {
+      this.labels.remove(label);
+    }
+  }
 
   /**
    * Share the Clip with other apps
@@ -373,25 +251,13 @@ public class Clip implements AdapterItem, Serializable {
     AppUtils.startNewTaskActivity(ctxt, sendIntent);
   }
 
-  ///**
-  // * Delete from database
-  // */
-  //public void delete(Context context) {
-  //  //return ClipTable.INST(context).delete(this);
-  //}
-
-  ///** Get our {@link LabelOld} names from the database */
-  //public void loadLabels(Context context) {
-  //  this.labels.clear();
-  //  this.labelsId.clear();
-  //
-  //  final List<LabelOld> labels = LabelTables.INST(context).getLabels(this);
-  //
-  //  this.labels = labels;
-  //  for (LabelOld label : labels) {
-  //    this.labelsId.add(label.getId());
-  //  }
-  //}
-  //
+  /**
+   * Do we have the given label
+   * @param label a label
+   * @return true if we have label
+   */
+  private boolean hasLabel(@NonNull Label label) {
+    return this.labels.contains(label);
+  }
 }
 

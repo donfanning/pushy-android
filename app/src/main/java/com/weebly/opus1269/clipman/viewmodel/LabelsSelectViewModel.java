@@ -10,10 +10,10 @@ package com.weebly.opus1269.clipman.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.Label;
@@ -25,29 +25,17 @@ import java.util.List;
 public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   /** Our Clip */
   @NonNull
-  private final MutableLiveData<Clip> clip;
+  private final MediatorLiveData<Clip> clip;
 
   /** Full Labels list */
   @NonNull
   private final MediatorLiveData<List<Label>> labels;
 
-  /** Our Clip's labels */
-  @NonNull
-  private final MediatorLiveData<List<Label>> clipLabels;
-
-  /** Clip labels source */
-  @Nullable
-  private LiveData<List<Label>> clipLabelsSource;
-
   public LabelsSelectViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
-    clip = new MutableLiveData<>();
+    clip = new MediatorLiveData<>();
     clip.setValue(null);
-
-    clipLabels = new MediatorLiveData<>();
-    clipLabels.setValue(null);
-    clipLabelsSource = null;
 
     labels = new MediatorLiveData<>();
     labels.setValue(mRepo.getLabels().getValue());
@@ -55,23 +43,23 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @NonNull
-  public LiveData<List<Label>> getLabels() {
-    return labels;
+  public LiveData<Clip> getClip() {
+    return clip;
   }
 
-  public void setClip(@NonNull Clip clip) {
-    this.clip.setValue(clip);
-    // update Labels source too
-    if (clipLabelsSource != null) {
-      clipLabels.removeSource(clipLabelsSource);
-    }
-    clipLabelsSource = mRepo.getLabelsForClip(clip);
-    clipLabels.addSource(clipLabelsSource, clipLabels::setValue);
+  public void setClip(@NonNull Clip aClip) {
+    this.clip.addSource(mRepo.getClip(aClip.getId()),
+      clip -> App.getExecutors().diskIO().execute(() -> {
+        if (clip != null) {
+          clip.setLabels(mRepo.getLabelsForClipSync(clip));
+          this.clip.postValue(clip);
+        }
+      }));
   }
 
   @NonNull
-  public LiveData<List<Label>> getClipLabels() {
-    return clipLabels;
+  public LiveData<List<Label>> getLabels() {
+    return labels;
   }
 
   /**
@@ -81,12 +69,15 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
    */
   public boolean hasLabel(@Nullable String labelName) {
     boolean ret = false;
-    final List<Label> labels = getClipLabels().getValue();
-    if (!AppUtils.isEmpty(labels)) {
-      for (Label label : labels) {
-        if (label.getName().equals(labelName)) {
-          ret = true;
-          break;
+    final Clip clip = this.clip.getValue();
+    if (clip != null) {
+      final List<Label> labels = clip.getLabels();
+      if (!AppUtils.isEmpty(labels)) {
+        for (Label label : labels) {
+          if (label.getName().equals(labelName)) {
+            ret = true;
+            break;
+          }
         }
       }
     }
@@ -101,11 +92,17 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   public void addOrRemoveLabel(@NonNull Label label, boolean add) {
     final Clip clip = this.clip.getValue();
     if (clip != null) {
-      if (add) {
-        mRepo.addLabelForClip(clip, label);
-      } else {
-        mRepo.removeLabelForClip(clip, label);
-      }
+      App.getExecutors().diskIO().execute(() -> {
+        if (add) {
+          mRepo.addLabelForClipSync(clip, label);
+          clip.addLabel(label);
+        } else {
+          mRepo.removeLabelForClipSync(clip, label);
+          clip.removeLabel(label);
+        }
+        // force update so labels get processed
+        mRepo.updateClipSync(clip);
+      });
     }
   }
 }

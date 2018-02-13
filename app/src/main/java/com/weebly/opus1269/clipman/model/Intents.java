@@ -13,13 +13,7 @@ import com.weebly.opus1269.clipman.BuildConfig;
 public class Intents {
   private static final String PATH = BuildConfig.APPLICATION_ID + '.';
 
-  // related to Clips
-  public static final String FILTER_CLIP = PATH + "filterClip";
-  public static final String BUNDLE_CLIP = PATH + "bundleClip";
-  public static final String ACTION_TYPE_CLIP = PATH + "actionTypeClip";
-  public static final String TYPE_TEXT_CHANGED_CLIP = PATH + "textChangedClip";
-
-  // TODO replace all with above related to ClipItems
+  // TODO remove all
   public static final String FILTER_CLIP_ITEM = PATH + "filterClipItem";
   public static final String BUNDLE_CLIP_ITEM = PATH + "bundleClipItem";
   public static final String ACTION_TYPE_CLIP_ITEM  =
@@ -46,6 +40,7 @@ public class Intents {
   static final String ACTION_EMAIL = PATH + "email";
   static final String ACTION_SHARE = PATH + "share";
   static final String ACTION_SEARCH = PATH + "search";
+  static final String ACTION_EDIT = PATH + "edit";
 
   // Extras
   public static final String EXTRA_TEXT = PATH + "text";

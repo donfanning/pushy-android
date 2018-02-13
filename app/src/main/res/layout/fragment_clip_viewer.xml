@@ -43,7 +43,7 @@
       android:id="@+id/labelLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:visibleGone="@{vm.selLabels.size > 0}"
+      app:visibleGone="@{vm.selClip.labels.size > 0}"
       android:orientation="vertical">
 
       <LinearLayout
