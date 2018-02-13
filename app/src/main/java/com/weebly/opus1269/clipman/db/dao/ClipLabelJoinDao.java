@@ -20,6 +20,9 @@ import java.util.List;
 /** Database access for clips_labels_join table */
 @Dao
 public interface ClipLabelJoinDao extends BaseDao<ClipLabelJoin> {
+  @Query("SELECT * FROM clips_labels_join ORDER BY clipId ASC, labelId ASC")
+  LiveData<List<ClipLabelJoin>> getAll();
+
   @Query("SELECT id, text, date, fav, remote, device FROM clips INNER JOIN clips_labels_join ON clips.id=clips_labels_join.clipId WHERE clips_labels_join.labelId=:labelId ORDER BY date DESC")
   LiveData<List<Clip>> getClipsForLabel(final long labelId);
 

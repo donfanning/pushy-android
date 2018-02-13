@@ -21,6 +21,7 @@ import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.Clip;
@@ -34,6 +35,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Singleton - Repository for the {@link MainDB} */
@@ -49,9 +51,17 @@ public class MainRepo extends BaseRepo implements
   @NonNull
   private final MediatorLiveData<List<Clip>> clips;
 
+  /** Clips list List of Label lists */
+  @NonNull
+  private final List<MediatorLiveData<List<Label>>> clipsLabels;
+
   /** Label list */
   @NonNull
   private final MediatorLiveData<List<Label>> labels;
+
+  /** ClipLabelsJoin list */
+  @NonNull
+  private final MediatorLiveData<List<ClipLabelJoin>> clipLabelJoin;
 
   /** Selected clip */
   @NonNull
@@ -69,6 +79,10 @@ public class MainRepo extends BaseRepo implements
   @NonNull
   private final MutableLiveData<String> clipTextFilter;
 
+  /** list of Clips labels Sources */
+  @NonNull
+  private final List<LiveData<List<Label>>> clipsLabelsSources;
+
   /** Clips Source */
   @Nullable
   private LiveData<List<Clip>> clipsSource;
@@ -77,7 +91,7 @@ public class MainRepo extends BaseRepo implements
   @Nullable
   private LiveData<Clip> selClipSource;
 
-  /** Selected clips Lables Source */
+  /** Selected clip labels Source */
   @Nullable
   private LiveData<List<Label>> selLabelsSource;
 
@@ -124,6 +138,28 @@ public class MainRepo extends BaseRepo implements
         }
       }
     });
+
+    clipLabelJoin = new MediatorLiveData<>();
+    clipLabelJoin.postValue(null);
+    clipLabelJoin.addSource(mDB.clipLabelJoinDao().getAll(),
+      clipLabelJoin::setValue);
+    clipLabelJoin.observeForever(clipLabelJoins -> {
+      App.getExecutors().diskIO().execute(() -> {
+        if (!AppUtils.isEmpty(clipLabelJoins)) {
+          final List<Clip> clips = mDB.clipDao().getAllSync();
+          setLabelsForClipsSync(clips);
+          for (int i = 0; i < clipLabelJoins.size(); i++) {
+            final ClipLabelJoin clipLabelJoin = clipLabelJoins.get(i);
+            final long clipId = clipLabelJoin.clipId;
+            final long labelId = clipLabelJoin.labelId;
+            Log.logD(TAG, "clipid: " + clipId + " labelid: " + labelId);
+          }
+        }
+      });
+    });
+
+    clipsLabels = new ArrayList<>();
+    clipsLabelsSources = new ArrayList<>();
 
     clips = new MediatorLiveData<>();
     clips.postValue(null);
@@ -220,6 +256,36 @@ public class MainRepo extends BaseRepo implements
     } else {
       selLabelsSource = mDB.clipLabelJoinDao().getLabelsForClip(clip.getId());
       selLabels.addSource(selLabelsSource, this.selLabels::setValue);
+    }
+  }
+
+  private void setClipsLabels(@Nullable List<Clip> clips) {
+    for (int i = 0; i < clipsLabels.size(); i++) {
+      final MediatorLiveData clipLabel = clipsLabels.get(i);
+      clipLabel.removeSource(clipsLabelsSources.get(i));
+    }
+
+    if (AppUtils.isEmpty(clips)) {
+      // no clips
+      clipsLabelsSources.clear();
+      clipsLabels.clear();
+    } else {
+      for (int i = 0; i < clips.size(); i++) {
+        final Clip clip = clips.get(i);
+        final long id = clip.getId();
+        final LiveData<List<Label>> clipsLabelSource = mDB.clipLabelJoinDao()
+          .getLabelsForClip(id);
+        clipsLabelsSources.add(clipsLabelSource);
+        final MediatorLiveData<List<Label>> clipLabels = new
+          MediatorLiveData<>();
+        clipLabels.addSource(clipsLabelSource, clipLabels::setValue);
+        clipsLabels.add(clipLabels);
+        clipLabels.observeForever(labels -> {
+          if (!AppUtils.isEmpty(labels)) {
+            clip.setLabels(labels);
+          }
+        });
+      }
     }
   }
 
@@ -590,6 +656,19 @@ public class MainRepo extends BaseRepo implements
       clips.removeSource(clipsSource);
     }
     clipsSource = getClipsSource(filterLabel.getValue());
-    clips.addSource(clipsSource, clips::setValue);
+    clips.addSource(clipsSource, this.clips::setValue);
+    // observe here to set labels
+    clips.observeForever(clips -> {
+      if (!AppUtils.isEmpty(clips)) {
+        App.getExecutors().diskIO().execute(() -> {
+          mDB.runInTransaction(() -> {
+            for (Clip clip : clips) {
+              clip.setLabels(getLabelsForClipSync(clip));
+              Log.logD(TAG, clip.getLabels().toString());
+            }
+          });
+        });
+      }
+    });
   }
 }
