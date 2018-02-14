@@ -19,11 +19,12 @@ import com.google.android.gms.drive.DriveId;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
+import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.Backup;
+import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.BackupContents;
-import com.weebly.opus1269.clipman.model.ClipItem;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
-import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.BackupRepo;
@@ -200,7 +201,7 @@ public class BackupHelper {
       throw new IOException(mContext.getString(R.string.err_no_contents));
     }
 
-    final BackupContents dbContents = BackupContents.getDB(mContext);
+    final BackupContents dbContents = BackupContents.getDB();
     dbContents.merge(mContext, contents);
 
     // replace database
@@ -215,7 +216,7 @@ public class BackupHelper {
    * @throws IOException on processing data
    */
   private byte[] createZipContentsFromDB() throws IOException {
-    final byte[] data = BackupContents.getDBAsJSON(mContext).getBytes();
+    final byte[] data = BackupContents.getDBAsJSON().getBytes();
     return createZipContents(data);
   }
 
@@ -242,7 +243,7 @@ public class BackupHelper {
     if (data != null) {
       final BackupContents zipContents = BackupContents.get(data);
       contents.setLabels(zipContents.getLabels());
-      contents.setClipItems(zipContents.getClipItems());
+      contents.setClips(zipContents.getClips());
     }
   }
 
@@ -253,16 +254,9 @@ public class BackupHelper {
    */
   private void replaceDB(@NonNull BackupContents contents) throws SQLException {
     // replace database contents
-    final List<LabelOld> labels = contents.getLabels();
-    final List<ClipItem> clipItems = contents.getClipItems();
-    App.getDbHelper().replaceDB(labels, clipItems);
-
-    // reset label filter if it was deleted
-    //final String labelfilter = Prefs.INST(mContext).getLabelFilter();
-    //if (!TextUtils.isEmpty(labelfilter) &&
-    //  !LabelTables.INST(mContext).exists(labelfilter)) {
-    //  Prefs.INST(mContext).setLabelFilter("");
-    //}
+    final List<Label> labels = contents.getLabels();
+    final List<Clip> clips = contents.getClips();
+    MainDB.INST(App.INST()).replaceDB(labels, clips);
   }
 
   /**

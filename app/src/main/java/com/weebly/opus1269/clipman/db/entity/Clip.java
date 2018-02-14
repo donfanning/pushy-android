@@ -18,6 +18,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.google.gson.annotations.SerializedName;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -61,7 +62,8 @@ public class Clip implements AdapterItem, Serializable {
 
   /** PK's of the labels - only used for backup/restore */
   @Ignore
-  private List<Long> labelsId = null;
+  @NonNull
+  private List<Long> labelsId = new ArrayList<>(0);
 
   public Clip() {
     text = "";
@@ -81,6 +83,16 @@ public class Clip implements AdapterItem, Serializable {
     this.device = device;
   }
 
+  public Clip(Clip clip, List<Label> labels, List<Long> labelsId) {
+    this.text = clip.getText();
+    this.date = clip.getDate();
+    this.fav = clip.getFav();
+    this.remote = clip.getRemote();
+    this.device = clip.getDevice();
+    this.labels = new ArrayList<>(labels);
+    this.labelsId = new ArrayList<>(labelsId);
+  }
+
   /**
    * Is a {@link Clip} all whitespace
    * @param clip item
@@ -88,6 +100,45 @@ public class Clip implements AdapterItem, Serializable {
    */
   public static boolean isWhitespace(@Nullable Clip clip) {
     return clip == null || AppUtils.isWhitespace(clip.getText());
+  }
+
+  @Override
+  public int hashCode() {
+    int result = text.hashCode();
+    result = 31 * result + (int) (date ^ (date >>> 32));
+    result = 31 * result + (fav ? 1 : 0);
+    result = 31 * result + (remote ? 1 : 0);
+    result = 31 * result + device.hashCode();
+    return result;
+  }
+
+  @SuppressWarnings("SimplifiableIfStatement")
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Clip that = (Clip) o;
+
+    if (date != that.date) return false;
+    if (fav != that.fav) return false;
+    if (remote != that.remote) return false;
+    if (!text.equals(that.text)) return false;
+    return device.equals(that.device);
+  }
+
+  @Override
+  public String toString() {
+    return "Clip{" +
+      "id=" + id +
+      ", text='" + text + '\'' +
+      ", date=" + date +
+      ", fav=" + fav +
+      ", remote=" + remote +
+      ", device='" + device + '\'' +
+      ", labels=" + labels +
+      ", labelsId=" + labelsId +
+      '}';
   }
 
   @Override
@@ -151,11 +202,10 @@ public class Clip implements AdapterItem, Serializable {
     this.labels = (labels == null) ? new ArrayList<>(0) : labels;
   }
 
-  //
-  //public List<Long> getLabelsId() {
-  //  return labelsId;
-  //}
-  //
+  @NonNull
+  public List<Long> getLabelsId() {
+    return labelsId;
+  }
 
   /**
    * Send to our devices
@@ -165,45 +215,6 @@ public class Clip implements AdapterItem, Serializable {
     if (User.INST(cntxt).isLoggedIn() && Prefs.INST(cntxt).isPushClipboard()) {
       MessagingClient.INST(cntxt).send(this);
     }
-  }
-
-  @Override
-  public int hashCode() {
-    int result = text.hashCode();
-    result = 31 * result + (int) (date ^ (date >>> 32));
-    result = 31 * result + (fav ? 1 : 0);
-    result = 31 * result + (remote ? 1 : 0);
-    result = 31 * result + device.hashCode();
-    return result;
-  }
-
-  @SuppressWarnings("SimplifiableIfStatement")
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    Clip that = (Clip) o;
-
-    if (date != that.date) return false;
-    if (fav != that.fav) return false;
-    if (remote != that.remote) return false;
-    if (!text.equals(that.text)) return false;
-    return device.equals(that.device);
-  }
-
-  @Override
-  public String toString() {
-    return "Clip{" +
-      "id=" + id +
-      ", text='" + text + '\'' +
-      ", date=" + date +
-      ", fav=" + fav +
-      ", remote=" + remote +
-      ", device='" + device + '\'' +
-      ", labels=" + labels +
-      ", labelsId=" + labelsId +
-      '}';
   }
 
   /**
@@ -223,6 +234,37 @@ public class Clip implements AdapterItem, Serializable {
   public void removeLabel(@NonNull Label label) {
     if (hasLabel(label)) {
       this.labels.remove(label);
+    }
+  }
+
+  /**
+   * Add labels if they don't exist
+   * @param labels Labels
+   */
+  public void addLabels(@NonNull List<Label> labels) {
+    for (Label label : labels) {
+      if (!hasLabel(label)) {
+        this.labels.add(label);
+        this.labelsId.add(label.getId());
+      }
+    }
+  }
+
+  /**
+   * Update the label id with the id of the given label
+   * @param label label with new id
+   */
+  public void updateLabelId(@NonNull Label label) {
+    long newId = label.getId();
+
+    int pos = this.labels.indexOf(label);
+    if (pos != -1) {
+      final long oldId = this.labels.get(pos).getId();
+      this.labels.set(pos, label);
+      final int idPos = this.labelsId.indexOf(oldId);
+      if (idPos != -1) {
+        this.labelsId.set(idPos, newId);
+      }
     }
   }
 

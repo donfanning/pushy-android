@@ -164,8 +164,18 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
+  public List<Clip> getClipsSync() {
+    return mDB.clipDao().getAllSync();
+  }
+
+  @NonNull
   public LiveData<List<Label>> getLabels() {
     return labels;
+  }
+
+  @NonNull
+  public List<Label> getLabelsSync() {
+    return mDB.labelDao().getAllSync();
   }
 
   @NonNull

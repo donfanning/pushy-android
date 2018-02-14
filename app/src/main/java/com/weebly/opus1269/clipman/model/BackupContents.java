@@ -14,8 +14,10 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.weebly.opus1269.clipman.db.ClipTable;
-import com.weebly.opus1269.clipman.db.LabelTables;
+import com.weebly.opus1269.clipman.app.App;
+import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.Label;
+import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
@@ -25,40 +27,38 @@ import java.util.List;
 
 /** Class for the contents of a backup */
 public class BackupContents {
-  private List<LabelOld> labels;
-  private List<ClipItem> clipItems;
+  private List<Label> labels;
+  private List<Clip> clips;
 
   public BackupContents() {
     this.labels = new ArrayList<>(0);
-    this.clipItems = new ArrayList<>(0);
+    this.clips = new ArrayList<>(0);
   }
 
-  private BackupContents(@NonNull List<LabelOld> labels,
-                         @NonNull List<ClipItem> clipItems) {
+  private BackupContents(@NonNull List<Label> labels,
+                         @NonNull List<Clip> clips) {
     this.labels = labels;
-    this.clipItems = clipItems;
+    this.clips = clips;
   }
 
   /**
    * Get the database data
-   * @param context A context
    * @return database contents
    */
   @NonNull
-  public static BackupContents getDB(Context context) {
-    List<ClipItem> clipItems = ClipTable.INST(context).getAll();
-    List<LabelOld> labels = LabelTables.INST(context).getAllLabels();
-    return new BackupContents(labels, clipItems);
+  public static BackupContents getDB() {
+    List<Clip> clips = MainRepo.INST(App.INST()).getClipsSync();
+    List<Label> labels = MainRepo.INST(App.INST()).getLabelsSync();
+    return new BackupContents(labels, clips);
   }
 
   /**
    * Get the database data as a JSON string
-   * @param context A context
    * @return Stringified data
    */
-  public static String getDBAsJSON(Context context) {
+  public static String getDBAsJSON() {
     String ret;
-    BackupContents contents = getDB(context);
+    BackupContents contents = getDB();
     // stringify it
     final Gson gson = new Gson();
     ret = gson.toJson(contents);
@@ -79,13 +79,13 @@ public class BackupContents {
   }
 
   /**
-   * Get the largest {@link LabelOld} PK in the list
+   * Get the largest {@link Label} PK in the list
    * @param labels label list
    * @return largest id, 0 if empty
    */
-  private static long getLargestId(@NonNull List<LabelOld> labels) {
+  private static long getLargestId(@NonNull List<Label> labels) {
     long ret = 0;
-    for (LabelOld label : labels) {
+    for (Label label : labels) {
       long id = label.getId();
       ret = (id > ret) ? id : ret;
     }
@@ -93,33 +93,33 @@ public class BackupContents {
   }
 
   /**
-   * Update the id for the {@link LabelOld} in all the {@link ClipItem} objects
-   * @param clipItems clipItems list
+   * Update the id for the {@link Label} in all the {@link Clip} objects
+   * @param clips clips list
    * @param label     label to chage
    */
-  private static void updateLabelId(@NonNull List<ClipItem> clipItems,
-                                    @NonNull LabelOld label) {
-    for (ClipItem clipItem : clipItems) {
-      clipItem.updateLabelIdNoSave(label);
+  private static void updateLabelId(@NonNull List<Clip> clips,
+                                    @NonNull Label label) {
+    for (Clip clipItem : clips) {
+      clipItem.updateLabelId(label);
     }
   }
 
   @NonNull
-  public List<LabelOld> getLabels() {
+  public List<Label> getLabels() {
     return labels;
   }
 
-  public void setLabels(@NonNull List<LabelOld> labels) {
+  public void setLabels(@NonNull List<Label> labels) {
     this.labels = labels;
   }
 
   @NonNull
-  public List<ClipItem> getClipItems() {
-    return clipItems;
+  public List<Clip> getClips() {
+    return clips;
   }
 
-  public void setClipItems(@NonNull List<ClipItem> clipItems) {
-    this.clipItems = clipItems;
+  public void setClips(@NonNull List<Clip> clips) {
+    this.clips = clips;
   }
 
   /**
@@ -142,70 +142,70 @@ public class BackupContents {
   public void merge(@NonNull Context context,
                     @NonNull final BackupContents contents) {
     // Merged items
-    final List<LabelOld> outLabels = this.labels;
-    final List<ClipItem> outClipItems = this.clipItems;
+    final List<Label> outLabels = this.labels;
+    final List<Clip> outClips = this.clips;
 
     // Items to be merged
-    final List<LabelOld> inLabels = contents.getLabels();
-    final List<ClipItem> inClipItems = contents.getClipItems();
+    final List<Label> inLabels = contents.getLabels();
+    final List<Clip> inClips = contents.getClips();
 
     // Largest label PK being used by us
     long newLabelId = getLargestId(outLabels);
     newLabelId++;
 
     // merge labels
-    for (LabelOld inLabel : inLabels) {
+    for (Label inLabel : inLabels) {
       final int pos = outLabels.indexOf(inLabel);
       if (pos == -1) {
         // new label - add one with unique id to outgoing and
         // update incoming clip references to it
-        final LabelOld addLabel = new LabelOld(inLabel.getName(), newLabelId);
+        final Label addLabel = new Label(inLabel.getName(), newLabelId);
         outLabels.add(addLabel);
         newLabelId++;
-        updateLabelId(inClipItems, addLabel);
+        updateLabelId(inClips, addLabel);
       } else {
         // shared label - update incoming clip references if id's don't match
-        final LabelOld sharedLabel = outLabels.get(pos);
+        final Label sharedLabel = outLabels.get(pos);
         if (inLabel.getId() != sharedLabel.getId()) {
-          updateLabelId(inClipItems, sharedLabel);
+          updateLabelId(inClips, sharedLabel);
         }
       }
     }
 
     // merge clips
-    for (ClipItem inClipItem : inClipItems) {
-      final int pos = outClipItems.indexOf(inClipItem);
+    for (Clip inClip : inClips) {
+      final int pos = outClips.indexOf(inClip);
       if (pos == -1) {
         // new clip - add to outgoing
-        if (inClipItem.getDevice()
+        if (inClip.getDevice()
           .equals(MyDevice.INST(context).getDisplayName())) {
-          inClipItem.setRemote(false);
+          inClip.setRemote(false);
         } else {
-          inClipItem.setRemote(true);
+          inClip.setRemote(true);
         }
-        final ClipItem outClipItem = new ClipItem(context, inClipItem,
-          inClipItem.getLabels(), inClipItem.getLabelsId());
-        outClipItems.add(outClipItem);
+        final Clip outClip =
+          new Clip(inClip, inClip.getLabels(), inClip.getLabelsId());
+        outClips.add(outClip);
       } else {
         // shared clip - merge into outgoing clip
-        final ClipItem outClipItem = outClipItems.get(pos);
-        if (inClipItem.isFav()) {
+        final Clip outClip = outClips.get(pos);
+        if (inClip.getFav()) {
           // true fav has priority
-          outClipItem.setFav(true);
+          outClip.setFav(true);
         }
-        if (inClipItem.getTime() > outClipItem.getTime()) {
+        if (inClip.getDate() > outClip.getDate()) {
           // newest has priority
-          outClipItem.setDate(inClipItem.getTime());
-          if (inClipItem.getDevice()
+          outClip.setDate(inClip.getDate());
+          if (inClip.getDevice()
             .equals(MyDevice.INST(context).getDisplayName())) {
-            outClipItem.setRemote(false);
+            outClip.setRemote(false);
           } else {
-            outClipItem.setRemote(true);
+            outClip.setRemote(true);
           }
-          outClipItem.setDevice(inClipItem.getDevice());
+          outClip.setDevice(inClip.getDevice());
         }
         // merge labels and labelsId
-        outClipItem.addLabelsNoSave(inClipItem.getLabels());
+        outClip.addLabels(inClip.getLabels());
       }
     }
   }

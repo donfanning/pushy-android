@@ -19,6 +19,7 @@
 package com.weebly.opus1269.clipman.db.entity;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
@@ -36,8 +37,18 @@ public class Label implements AdapterItem, Serializable {
 
   private String name;
 
+  @Ignore
+  public Label() {
+  }
+
   public Label(String name) {
     this.name = name;
+  }
+
+  @Ignore
+  public Label(String name, long id) {
+    this.name = name;
+    this.id = id;
   }
 
   /**

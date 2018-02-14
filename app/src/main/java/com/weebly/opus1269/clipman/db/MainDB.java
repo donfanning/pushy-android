@@ -57,6 +57,23 @@ public abstract class MainDB extends RoomDatabase {
   }
 
   /**
+   * Replace the contents of the database
+   * @param labels new labels
+   * @param clips new clips
+   */
+  public void replaceDB(@NonNull List<Label> labels,
+                        @NonNull List<Clip> clips) {
+    App.getExecutors().diskIO().execute(() -> {
+      runInTransaction(() -> {
+        clipDao().deleteAll();
+        labelDao().deleteAll();
+        labelDao().insertAll(labels);
+        clipDao().insertAll(clips);
+      });
+    });
+  }
+
+  /**
    * Build the database. {@link Builder#build()} only sets up the database
    * configuration and creates a new instance of the database.
    * The SQLite database is only created when it's accessed for the first time.
