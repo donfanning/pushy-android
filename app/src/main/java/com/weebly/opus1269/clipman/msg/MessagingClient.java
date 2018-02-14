@@ -33,7 +33,7 @@ import com.weebly.opus1269.clipman.backend.messaging.Messaging;
 import com.weebly.opus1269.clipman.backend.messaging.model.EndpointRet;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.ClipItemOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.DeviceRepo;
@@ -83,10 +83,10 @@ public class MessagingClient extends Endpoint {
   }
 
   /**
-   * Send contents of {@link ClipItem}
-   * @param clipItem - contents to send
+   * Send contents of {@link ClipItemOld}
+   * @param clipItemOld - contents to send
    */
-  public void send(ClipItem clipItem) {
+  public void send(ClipItemOld clipItemOld) {
     // Max length of fcm data message
     final int MAX_LEN = 4096;
 
@@ -94,12 +94,12 @@ public class MessagingClient extends Endpoint {
       return;
     }
 
-    String message = clipItem.getText();
+    String message = clipItemOld.getText();
     if (message.length() > MAX_LEN) {
       // 4KB limit with FCM - server will do final limiting
       message = message.substring(0, MAX_LEN - 1);
     }
-    final String favString = clipItem.isFav() ? "1" : "0";
+    final String favString = clipItemOld.isFav() ? "1" : "0";
 
     JSONObject data = getJSONData(Msg.ACTION_MESSAGE, message);
     try {

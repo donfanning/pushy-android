@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
 
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.ClipItemOld;
 import com.weebly.opus1269.clipman.model.Prefs;
 
 /** The contract between the {@link ClipsContentProvider} and applications. */
@@ -86,7 +86,7 @@ public class ClipsContract {
   }
 
   /**
-   Inner class that defines mapping between {@link ClipItem} and {@link Label}
+   Inner class that defines mapping between {@link ClipItemOld} and {@link Label}
    */
   public static class LabelMap implements BaseColumns {
     public static final Uri CONTENT_URI =

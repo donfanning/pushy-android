@@ -42,12 +42,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** This class represents the data for a single clipboard entry */
-public class ClipItem implements Serializable {
+public class ClipItemOld implements Serializable {
   public static final String TEXT_PLAIN = "text/plain";
-  private static final String TAG = "ClipItem";
+  private static final String TAG = "ClipItemOld";
   private static final String DESC_LABEL = "opus1269 was here";
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
-  private static final String LABELS_LABEL = "ClipItem Labels";
+  private static final String LABELS_LABEL = "ClipItemOld Labels";
   private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
 
   private String text;
@@ -60,20 +60,20 @@ public class ClipItem implements Serializable {
   /** PK's of the labels - only used for backup/restore */
   private List<Long> labelsId;
 
-  public ClipItem(Context context) {
+  public ClipItemOld(Context context) {
     init(context);
   }
 
-  public ClipItem(Context context, String text) {
+  public ClipItemOld(Context context, String text) {
     init(context);
     this.text = text;
     loadLabels(context);
   }
 
-  public ClipItem(Context context, String text, Instant instant,
-                  Boolean fav,
-                  @SuppressWarnings("SameParameterValue") Boolean remote,
-                  String device) {
+  public ClipItemOld(Context context, String text, Instant instant,
+                     Boolean fav,
+                     @SuppressWarnings("SameParameterValue") Boolean remote,
+                     String device) {
     init(context);
     this.text = text;
     this.date = instant.toEpochMilli();
@@ -83,7 +83,7 @@ public class ClipItem implements Serializable {
     loadLabels(context);
   }
 
-  public ClipItem(Context context, Cursor cursor) {
+  public ClipItemOld(Context context, Cursor cursor) {
     init(context);
     int idx = cursor.getColumnIndex(ClipsContract.Clip.COL_TEXT);
     this.text = cursor.getString(idx);
@@ -100,36 +100,36 @@ public class ClipItem implements Serializable {
     loadLabels(context);
   }
 
-  public ClipItem(Context context, ClipItem clipItem) {
+  public ClipItemOld(Context context, ClipItemOld clipItemOld) {
     init(context);
-    this.text = clipItem.getText();
-    this.date = clipItem.getDate();
-    this.fav = clipItem.isFav();
-    this.remote = clipItem.isRemote();
-    this.device = clipItem.getDevice();
+    this.text = clipItemOld.getText();
+    this.date = clipItemOld.getDate();
+    this.fav = clipItemOld.isFav();
+    this.remote = clipItemOld.isRemote();
+    this.device = clipItemOld.getDevice();
     loadLabels(context);
   }
 
-  public ClipItem(Context context, ClipItem clipItem,
-                  List<LabelOld> labels, List<Long> labelsId) {
+  public ClipItemOld(Context context, ClipItemOld clipItemOld,
+                     List<LabelOld> labels, List<Long> labelsId) {
     init(context);
-    this.text = clipItem.getText();
-    this.date = clipItem.getDate();
-    this.fav = clipItem.isFav();
-    this.remote = clipItem.isRemote();
-    this.device = clipItem.getDevice();
+    this.text = clipItemOld.getText();
+    this.date = clipItemOld.getDate();
+    this.fav = clipItemOld.isFav();
+    this.remote = clipItemOld.isRemote();
+    this.device = clipItemOld.getDevice();
     this.labels = new ArrayList<>(labels);
     this.labelsId = new ArrayList<>(labelsId);
   }
 
   /**
-   * Get the text on the Clipboard as a ClipItem
+   * Get the text on the Clipboard as a ClipItemOld
    * @param clipboard The manager
    * @return A new clip from the clipboard contents
    */
   @Nullable
-  public static ClipItem getFromClipboard(Context context,
-                                          @Nullable
+  public static ClipItemOld getFromClipboard(Context context,
+                                             @Nullable
                                             ClipboardManager clipboard) {
     if (clipboard == null) {
       return null;
@@ -173,17 +173,17 @@ public class ClipItem implements Serializable {
     // get any Labels
     final List<LabelOld> labels = parseLabels(desc);
 
-    ClipItem clipItem = null;
+    ClipItemOld clipItemOld = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
-      clipItem = new ClipItem(context);
-      clipItem.setText(context, String.valueOf(clipText));
-      clipItem.setFav(fav);
-      clipItem.setRemote(remote);
-      clipItem.setDevice(sourceDevice);
-      clipItem.setLabels(labels);
+      clipItemOld = new ClipItemOld(context);
+      clipItemOld.setText(context, String.valueOf(clipText));
+      clipItemOld.setFav(fav);
+      clipItemOld.setRemote(remote);
+      clipItemOld.setDevice(sourceDevice);
+      clipItemOld.setLabels(labels);
     }
 
-    return clipItem;
+    return clipItemOld;
   }
 
   /**
@@ -194,12 +194,12 @@ public class ClipItem implements Serializable {
                                            @Nullable View view) {
     ClipboardManager clipboardManager =
       (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-    final ClipItem clipItem = getFromClipboard(context, clipboardManager);
+    final ClipItemOld clipItemOld = getFromClipboard(context, clipboardManager);
     int id = R.string.clipboard_no_text;
 
-    if (!ClipItem.isWhitespace(clipItem)) {
+    if (!ClipItemOld.isWhitespace(clipItemOld)) {
       // save to database
-      clipItem.saveIfNew(context);
+      clipItemOld.saveIfNew(context);
 
       // send to registered devices , if possible
       if (!User.INST(context).isLoggedIn()) {
@@ -208,7 +208,7 @@ public class ClipItem implements Serializable {
         id = R.string.err_not_registered;
       } else if (!Prefs.INST(context).isPushClipboard()) {
         id = R.string.err_no_push;
-      } else if (clipItem.send(context)) {
+      } else if (clipItemOld.send(context)) {
         id = R.string.clipboard_sent;
       }
     }
@@ -219,16 +219,16 @@ public class ClipItem implements Serializable {
   }
 
   /**
-   * Is a {@link ClipItem} all whitespace
-   * @param clipItem item
+   * Is a {@link ClipItemOld} all whitespace
+   * @param clipItemOld item
    * @return true if null of whitespace
    */
-  public static boolean isWhitespace(ClipItem clipItem) {
-    return (clipItem == null) || AppUtils.isWhitespace(clipItem.getText());
+  public static boolean isWhitespace(ClipItemOld clipItemOld) {
+    return (clipItemOld == null) || AppUtils.isWhitespace(clipItemOld.getText());
   }
 
   /**
-   * Determine if a {@link ClipItem} exists with given text and is a favorite
+   * Determine if a {@link ClipItemOld} exists with given text and is a favorite
    * @param clipText text to query
    * @return true if exists and fav is true
    */
@@ -262,7 +262,7 @@ public class ClipItem implements Serializable {
   private static boolean parseFav(ClipDescription desc) {
     boolean fav = false;
 
-    String label = ClipItem.getClipDescriptionLabel(desc);
+    String label = ClipItemOld.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(DESC_LABEL)) {
       final int index = label.indexOf('[');
       if (index != -1) {
@@ -282,7 +282,7 @@ public class ClipItem implements Serializable {
   private static String parseRemote(ClipDescription desc) {
     String device = "";
 
-    final String label = ClipItem.getClipDescriptionLabel(desc);
+    final String label = ClipItemOld.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(REMOTE_DESC_LABEL)) {
       final int idxStart = label.indexOf('(');
       final int idxStop = label.indexOf(')');
@@ -299,7 +299,7 @@ public class ClipItem implements Serializable {
   private static List<LabelOld> parseLabels(ClipDescription desc) {
     ArrayList<LabelOld> list = new ArrayList<>(0);
 
-    final String label = ClipItem.getClipDescriptionLabel(desc);
+    final String label = ClipItemOld.getClipDescriptionLabel(desc);
     if (!TextUtils.isEmpty(label) && label.contains(LABELS_LABEL)) {
       final int idxStart = label.indexOf('\n' + LABELS_LABEL) +
         LABELS_LABEL.length();
@@ -323,9 +323,9 @@ public class ClipItem implements Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ClipItem clipItem = (ClipItem) o;
+    ClipItemOld clipItemOld = (ClipItemOld) o;
 
-    return text.equals(clipItem.text);
+    return text.equals(clipItemOld.text);
   }
 
   public String getText() {return text;}
@@ -499,7 +499,7 @@ public class ClipItem implements Serializable {
   }
 
   /**
-   * Share the ClipItem with other apps
+   * Share the ClipItemOld with other apps
    * @param ctxt A context
    * @param view The {@link View} that is requesting the share
    */

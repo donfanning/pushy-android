@@ -505,7 +505,7 @@ public class Notifications {
     @Override
     public void onReceive(Context ctxt, Intent intent) {
       final String action = intent.getAction();
-      final ClipItem clipItem;
+      final ClipItemOld clipItemOld;
       final int noteId = intent.getIntExtra(Intents.EXTRA_NOTIFICATION_ID, -1);
 
       if (Intents.ACTION_DELETE_NOTIFICATION.equals(action)) {
@@ -513,19 +513,19 @@ public class Notifications {
           Notifications.INST(ctxt).resetCount();
         }
       } else if (Intents.ACTION_SEARCH.equals(action)) {
-        clipItem = (ClipItem) intent.getSerializableExtra(
+        clipItemOld = (ClipItemOld) intent.getSerializableExtra(
           Intents.EXTRA_CLIP_ITEM);
 
         // search the web for the clip text
-        AppUtils.performWebSearch(ctxt, clipItem.getText());
+        AppUtils.performWebSearch(ctxt, clipItemOld.getText());
 
         cancelNotification(ctxt, noteId);
       } else if (Intents.ACTION_SHARE.equals(action)) {
-        clipItem = (ClipItem) intent.getSerializableExtra(
+        clipItemOld = (ClipItemOld) intent.getSerializableExtra(
           Intents.EXTRA_CLIP_ITEM);
 
         // share the clip text with other apps
-        clipItem.doShare(ctxt, null);
+        clipItemOld.doShare(ctxt, null);
 
         cancelNotification(ctxt, noteId);
       } else if (Intents.ACTION_EMAIL.equals(action)) {

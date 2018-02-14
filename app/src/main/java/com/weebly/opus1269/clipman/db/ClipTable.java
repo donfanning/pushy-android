@@ -20,7 +20,7 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
-import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.ClipItemOld;
 import com.weebly.opus1269.clipman.model.LabelOld;
 import com.weebly.opus1269.clipman.model.Prefs;
 
@@ -63,7 +63,7 @@ public class ClipTable {
   }
 
   /**
-   * Doea a {@link ClipItem} with the given text exist
+   * Doea a {@link ClipItemOld} with the given text exist
    * @param clipText text to query
    * @return true if in db
    */
@@ -86,7 +86,7 @@ public class ClipTable {
   }
 
   /**
-   * Doea a {@link ClipItem} with the given text and fav state exist
+   * Doea a {@link ClipItemOld} with the given text and fav state exist
    * @param clipText text to query
    * @param fav      state of favorite
    * @return true if in db
@@ -117,17 +117,17 @@ public class ClipTable {
   }
 
   /**
-   * Get the PK of a {@link ClipItem}
-   * @param clipItem clip
+   * Get the PK of a {@link ClipItemOld}
+   * @param clipItemOld clip
    * @return PK, -1L if not found
    */
-  public long getId(@NonNull ClipItem clipItem) {
+  public long getId(@NonNull ClipItemOld clipItemOld) {
     long ret = -1L;
     final ContentResolver resolver = mContext.getContentResolver();
 
     final String[] projection = {ClipsContract.Clip._ID};
     final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
-    final String[] selectionArgs = {clipItem.getText()};
+    final String[] selectionArgs = {clipItemOld.getText()};
 
     final Cursor cursor = resolver.query(ClipsContract.Clip.CONTENT_URI,
       projection, selection, selectionArgs, null);
@@ -142,11 +142,11 @@ public class ClipTable {
   }
 
   /**
-   * Get all {@link ClipItem} objects
-   * @return The {@link ClipItem} objects
+   * Get all {@link ClipItemOld} objects
+   * @return The {@link ClipItemOld} objects
    */
-  public ArrayList<ClipItem> getAll() {
-    final ArrayList<ClipItem> ret = new ArrayList<>(100);
+  public ArrayList<ClipItemOld> getAll() {
+    final ArrayList<ClipItemOld> ret = new ArrayList<>(100);
     final ContentResolver resolver = mContext.getContentResolver();
 
     Uri uri = ClipsContract.Clip.CONTENT_URI;
@@ -159,7 +159,7 @@ public class ClipTable {
 
     try {
       while (cursor.moveToNext()) {
-        ret.add(new ClipItem(mContext, cursor));
+        ret.add(new ClipItemOld(mContext, cursor));
       }
     } finally {
       cursor.close();
@@ -172,15 +172,15 @@ public class ClipTable {
    * Get all non-favorite and optionally favorite rows for a given {@link LabelOld}
    * @param includeFavs flag to indicate if favorites should be retrieved too
    * @param labelFilter label to filter on
-   * @return The {@link ClipItem} objects
+   * @return The {@link ClipItemOld} objects
    */
-  public ArrayList<ClipItem> getAll(Boolean includeFavs, String labelFilter) {
+  public ArrayList<ClipItemOld> getAll(Boolean includeFavs, String labelFilter) {
     if (includeFavs && AppUtils.isWhitespace(labelFilter)) {
       // get all
       return getAll();
     }
 
-    final ArrayList<ClipItem> ret = new ArrayList<>(100);
+    final ArrayList<ClipItemOld> ret = new ArrayList<>(100);
     final ContentResolver resolver = mContext.getContentResolver();
 
     Uri uri = ClipsContract.Clip.CONTENT_URI;
@@ -215,7 +215,7 @@ public class ClipTable {
 
     try {
       while (cursor.moveToNext()) {
-        ret.add(new ClipItem(mContext, cursor));
+        ret.add(new ClipItemOld(mContext, cursor));
       }
     } finally {
       cursor.close();
@@ -225,17 +225,17 @@ public class ClipTable {
   }
 
   /**
-   * Save a {@link ClipItem} to the databse
-   * @param clipItem  the item to save
+   * Save a {@link ClipItemOld} to the databse
+   * @param clipItemOld  the item to save
    * @param onNewOnly if true, only save if it doesn't exist in db
    * @return true if added
    */
-  public boolean save(@NonNull ClipItem clipItem, Boolean onNewOnly) {
-    if (ClipItem.isWhitespace(clipItem)) {
+  public boolean save(@NonNull ClipItemOld clipItemOld, Boolean onNewOnly) {
+    if (ClipItemOld.isWhitespace(clipItemOld)) {
       return false;
     }
 
-    final long id = getId(clipItem);
+    final long id = getId(clipItemOld);
     final boolean exists = (id != -1L);
 
     if (onNewOnly && exists) {
@@ -244,7 +244,7 @@ public class ClipTable {
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
-    final ContentValues cvs = clipItem.getContentValues();
+    final ContentValues cvs = clipItemOld.getContentValues();
 
     if (exists) {
       // update
@@ -257,48 +257,48 @@ public class ClipTable {
 
       // add the LabelMap
       LabelTables.INST(mContext)
-        .insertLabelsMap(new ArrayList<>(Collections.singleton(clipItem)));
+        .insertLabelsMap(new ArrayList<>(Collections.singleton(clipItemOld)));
     }
 
     return true;
   }
 
   /**
-   * Add a group of {@link ClipItem} objects to the databse
-   * @param clipItems the items to add
+   * Add a group of {@link ClipItemOld} objects to the databse
+   * @param clipItemOlds the items to add
    */
-  public void insert(@NonNull List<ClipItem> clipItems) {
-    if (clipItems.isEmpty()) {
+  public void insert(@NonNull List<ClipItemOld> clipItemOlds) {
+    if (clipItemOlds.isEmpty()) {
       return;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
 
     // add the clips
-    final ContentValues[] clipCVs = new ContentValues[clipItems.size()];
-    for (int i = 0, size = clipItems.size(); i < size; i++) {
-      clipCVs[i] = clipItems.get(i).getContentValues();
+    final ContentValues[] clipCVs = new ContentValues[clipItemOlds.size()];
+    for (int i = 0, size = clipItemOlds.size(); i < size; i++) {
+      clipCVs[i] = clipItemOlds.get(i).getContentValues();
     }
     resolver.bulkInsert(ClipsContract.Clip.CONTENT_URI, clipCVs);
 
     // add the LabelMap
-    LabelTables.INST(mContext).insertLabelsMap(clipItems);
+    LabelTables.INST(mContext).insertLabelsMap(clipItemOlds);
   }
 
   /**
-   * Delete the {@link ClipItem}
-   * @param clipItem item to delete
+   * Delete the {@link ClipItemOld}
+   * @param clipItemOld item to delete
    * @return true if deleted
    */
-  public boolean delete(@NonNull ClipItem clipItem) {
-    if (ClipItem.isWhitespace(clipItem)) {
+  public boolean delete(@NonNull ClipItemOld clipItemOld) {
+    if (ClipItemOld.isWhitespace(clipItemOld)) {
       return false;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
 
     final String selection = ClipsContract.Clip.COL_TEXT + " = ? ";
-    final String[] selectionArgs = {clipItem.getText()};
+    final String[] selectionArgs = {clipItemOld.getText()};
 
     final long nRows = resolver.delete(ClipsContract.Clip.CONTENT_URI,
       selection, selectionArgs);
@@ -307,7 +307,7 @@ public class ClipTable {
   }
 
   /**
-   * Delete all the {@link ClipItem} objects from the db
+   * Delete all the {@link ClipItemOld} objects from the db
    * @return Number of rows deleted
    */
   public int deleteAll() {

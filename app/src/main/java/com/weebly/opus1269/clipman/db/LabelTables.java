@@ -16,7 +16,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.ClipItemOld;
 import com.weebly.opus1269.clipman.model.LabelOld;
 
 import java.util.ArrayList;
@@ -109,20 +109,20 @@ public class LabelTables {
   }
 
   /**
-   * Get the {@link LabelOld} objects for the given {@link ClipItem}
-   * @param clipItem the clip
+   * Get the {@link LabelOld} objects for the given {@link ClipItemOld}
+   * @param clipItemOld the clip
    * @return List of labels
    */
-  public List<LabelOld> getLabels(@NonNull ClipItem clipItem) {
+  public List<LabelOld> getLabels(@NonNull ClipItemOld clipItemOld) {
     List<LabelOld> ret = new ArrayList<>(0);
-    if (ClipItem.isWhitespace(clipItem)) {
+    if (ClipItemOld.isWhitespace(clipItemOld)) {
       return ret;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
 
     final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final long id = clipItem.getId(mContext);
+    final long id = clipItemOld.getId(mContext);
     final String selection = ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
 
     Cursor cursor = resolver.query(ClipsContract.LabelMap.CONTENT_URI,
@@ -243,29 +243,29 @@ public class LabelTables {
   }
 
   /**
-   * Add the {@link LabelOld} map for a group of {@link ClipItem} objects to the
+   * Add the {@link LabelOld} map for a group of {@link ClipItemOld} objects to the
    * database
-   * @param clipItems The clips to add labels for
+   * @param clipItemOlds The clips to add labels for
    */
-  void insertLabelsMap(@NonNull List<ClipItem> clipItems) {
-    if (clipItems.isEmpty()) {
+  void insertLabelsMap(@NonNull List<ClipItemOld> clipItemOlds) {
+    if (clipItemOlds.isEmpty()) {
       return;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
 
-    // get total number of ClipItem/LabelOld entries
+    // get total number of ClipItemOld/LabelOld entries
     int size = 0;
-    for (ClipItem clipItem : clipItems) {
-      size += clipItem.getLabels().size();
+    for (ClipItemOld clipItemOld : clipItemOlds) {
+      size += clipItemOld.getLabels().size();
     }
 
     final ContentValues[] mapCVs = new ContentValues[size];
     int count = 0;
-    for (ClipItem clipItem : clipItems) {
-      for (LabelOld label : clipItem.getLabels()) {
+    for (ClipItemOld clipItemOld : clipItemOlds) {
+      for (LabelOld label : clipItemOld.getLabels()) {
         ContentValues cv = new ContentValues();
-        cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId(mContext));
+        cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItemOld.getId(mContext));
         cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
         mapCVs[count] = cv;
         count++;
@@ -276,19 +276,19 @@ public class LabelTables {
   }
 
   /**
-   * Add a {@link ClipItem} and {@link LabelOld} to the LabelMap table
-   * @param clipItem the clip
+   * Add a {@link ClipItemOld} and {@link LabelOld} to the LabelMap table
+   * @param clipItemOld the clip
    * @param label    the label
    */
-  public void insert(ClipItem clipItem, LabelOld label) {
-    if (AppUtils.isWhitespace(clipItem.getText()) ||
+  public void insert(ClipItemOld clipItemOld, LabelOld label) {
+    if (AppUtils.isWhitespace(clipItemOld.getText()) ||
       AppUtils.isWhitespace(label.getName())) {
       return;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
 
-    if (exists(resolver, clipItem, label)) {
+    if (exists(resolver, clipItemOld, label)) {
       // already in db
       return;
     }
@@ -298,26 +298,26 @@ public class LabelTables {
 
     // insert into LabelMap table
     final ContentValues cv = new ContentValues();
-    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItem.getId(mContext));
+    cv.put(ClipsContract.LabelMap.COL_CLIP_ID, clipItemOld.getId(mContext));
     cv.put(ClipsContract.LabelMap.COL_LABEL_NAME, label.getName());
 
     resolver.insert(ClipsContract.LabelMap.CONTENT_URI, cv);
   }
 
   /**
-   * Delete a {@link ClipItem} and {@link LabelOld} from the LabelMap table
-   * @param clipItem the clip
+   * Delete a {@link ClipItemOld} and {@link LabelOld} from the LabelMap table
+   * @param clipItemOld the clip
    * @param label    the label
    */
-  public void delete(ClipItem clipItem, LabelOld label) {
-    if (ClipItem.isWhitespace(clipItem) ||
+  public void delete(ClipItemOld clipItemOld, LabelOld label) {
+    if (ClipItemOld.isWhitespace(clipItemOld) ||
       AppUtils.isWhitespace(label.getName())) {
       return;
     }
 
     final ContentResolver resolver = mContext.getContentResolver();
 
-    final long id = clipItem.getId(mContext);
+    final long id = clipItemOld.getId(mContext);
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
         ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;
@@ -350,15 +350,15 @@ public class LabelTables {
   }
 
   /**
-   * Does the ClipItem and LabelOld exist in the LabelMap table
+   * Does the ClipItemOld and LabelOld exist in the LabelMap table
    * @param resolver to db
    * @param label    LabelOld to check
    * @return if true, already in db
    */
-  private boolean exists(ContentResolver resolver, ClipItem clipItem,
+  private boolean exists(ContentResolver resolver, ClipItemOld clipItemOld,
                          LabelOld label) {
     final String[] projection = {ClipsContract.LabelMap.COL_LABEL_NAME};
-    final long id = clipItem.getId(mContext);
+    final long id = clipItemOld.getId(mContext);
     final String selection =
       ClipsContract.LabelMap.COL_LABEL_NAME + " = ? AND " +
         ClipsContract.LabelMap.COL_CLIP_ID + " = " + id;

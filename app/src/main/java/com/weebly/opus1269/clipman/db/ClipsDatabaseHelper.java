@@ -15,7 +15,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.model.ClipItem;
+import com.weebly.opus1269.clipman.model.ClipItemOld;
 import com.weebly.opus1269.clipman.model.LabelOld;
 
 import org.threeten.bp.Instant;
@@ -107,11 +107,11 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   /**
    * Replace the contents of the database
    * @param labels new labels
-   * @param clipItems new clips
+   * @param clipItemOlds new clips
    * @throws SQLException - if database update failed
    */
   public void replaceDB(@NonNull List<LabelOld> labels,
-                        @NonNull List<ClipItem> clipItems) throws SQLException {
+                        @NonNull List<ClipItemOld> clipItemOlds) throws SQLException {
     final SQLiteDatabase db = getWritableDatabase();
 
     db.beginTransaction();
@@ -122,7 +122,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
 
       // add contents
       LabelTables.INST(mContext).insertLabels(labels);
-      ClipTable.INST(mContext).insert(clipItems);
+      ClipTable.INST(mContext).insert(clipItemOlds);
 
       db.setTransactionSuccessful();
     } finally {
@@ -138,7 +138,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
 
     // create some informative entries
 
-    ClipItem item = new ClipItem(mContext);
+    ClipItemOld item = new ClipItemOld(mContext);
     item.setText(mContext, mContext.getString(R.string.default_clip_3));
     item.setFav(true);
     long time = item.getTime();
@@ -146,7 +146,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     item.setDate(time);
     db.replace(ClipsContract.Clip.TABLE_NAME, null, item.getContentValues());
 
-    item = new ClipItem(mContext);
+    item = new ClipItemOld(mContext);
     item.setText(mContext, mContext.getString(R.string.default_clip_2));
     item.setFav(false);
     time = time + 1;
@@ -157,7 +157,7 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
     time = time + 1;
     createExampleLabel(db, time);
 
-    item = new ClipItem(mContext);
+    item = new ClipItemOld(mContext);
     item.setText(mContext, mContext.getString(R.string.default_clip_1));
     item.setFav(true);
     time = time + 1;
@@ -166,20 +166,20 @@ public class ClipsDatabaseHelper extends SQLiteOpenHelper {
   }
 
   /**
-   * Create a {@link LabelOld} and attach to a new {@link ClipItem}
+   * Create a {@link LabelOld} and attach to a new {@link ClipItemOld}
    * @param db   Clips.db
    * @param time creation time
    */
   private void createExampleLabel(SQLiteDatabase db, long time) {
-    // add new ClipItem
-    ClipItem clipItem = new ClipItem(mContext);
-    clipItem.setText(mContext, mContext.getString(R.string.default_clip_4));
-    clipItem.setFav(true);
-    clipItem.setDate(time);
+    // add new ClipItemOld
+    ClipItemOld clipItemOld = new ClipItemOld(mContext);
+    clipItemOld.setText(mContext, mContext.getString(R.string.default_clip_4));
+    clipItemOld.setFav(true);
+    clipItemOld.setDate(time);
     final long clipId = db.replace(ClipsContract.Clip.TABLE_NAME, null,
-      clipItem.getContentValues());
+      clipItemOld.getContentValues());
 
-    // add new LabelOld - has to come after ClipItem here
+    // add new LabelOld - has to come after ClipItemOld here
     final LabelOld label = new LabelOld("Example");
     db.replace(ClipsContract.Label.TABLE_NAME, null, label.getContentValues());
 
