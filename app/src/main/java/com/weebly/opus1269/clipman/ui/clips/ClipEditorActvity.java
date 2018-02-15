@@ -18,14 +18,14 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipEditorBinding;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.ui.helpers.MenuTintHelper;
 import com.weebly.opus1269.clipman.viewmodel.ClipEditorViewModel;
 
-/** Activity to edit the text of a {@link Clip} */
+/** Activity to edit the text of a {@link ClipItem} */
 public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
   /** Our ViewModel */
   private ClipEditorViewModel mVm;
@@ -45,12 +45,12 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     final Intent intent = getIntent();
 
     boolean addMode = false;
-    Clip clip =
-      (Clip) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+    ClipItem clip =
+      (ClipItem) intent.getSerializableExtra(Intents.EXTRA_CLIP);
     if (clip == null) {
       Log.logD(TAG, "add mode");
       addMode = true;
-      clip = new Clip();
+      clip = new ClipItem();
 
       // TODO
       //final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);

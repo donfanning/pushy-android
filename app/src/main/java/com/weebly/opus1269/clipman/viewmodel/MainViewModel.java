@@ -18,7 +18,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
@@ -33,7 +33,7 @@ import java.util.Map;
 public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   /** Clips list */
   @NonNull
-  private final MediatorLiveData<List<Clip>> clips;
+  private final MediatorLiveData<List<ClipItem>> clips;
 
   /** Labels list */
   @NonNull
@@ -41,15 +41,15 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Clips that were deleted */
   @NonNull
-  private final MutableLiveData<List<Clip>> undoClips;
+  private final MutableLiveData<List<ClipItem>> undoClips;
 
   /** Map Label name to Label */
   @NonNull
   private final Map<String, Label> labelsMap;
 
-  /** Last selected Clip */
+  /** Last selected ClipItem */
   @Nullable
-  private Clip lastSelClip;
+  private ClipItem lastSelClip;
 
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
@@ -84,7 +84,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @NonNull
-  public LiveData<List<Clip>> getClips() {
+  public LiveData<List<ClipItem>> getClips() {
     return clips;
   }
 
@@ -94,34 +94,34 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @NonNull
-  public LiveData<Clip> getSelClip() {
+  public LiveData<ClipItem> getSelClip() {
     return mRepo.getSelClip();
   }
 
-  public void setSelClip(@Nullable Clip clip) {
+  public void setSelClip(@Nullable ClipItem clip) {
     mRepo.setSelClip(clip);
   }
 
   @Nullable
-  public Clip getSelClipSync() {
+  public ClipItem getSelClipSync() {
     return mRepo.getSelClip().getValue();
   }
 
   @NonNull
-  public LiveData<List<Clip>> getUndoClips() {
+  public LiveData<List<ClipItem>> getUndoClips() {
     return undoClips;
   }
 
-  public void setUndoClips(@Nullable List<Clip> clips) {
+  public void setUndoClips(@Nullable List<ClipItem> clips) {
     undoClips.setValue(clips);
   }
 
   @Nullable
-  public Clip getLastSelClip() {
+  public ClipItem getLastSelClip() {
     return lastSelClip;
   }
 
-  public void setLastSelClip(@Nullable Clip lastSelClip) {
+  public void setLastSelClip(@Nullable ClipItem lastSelClip) {
     this.lastSelClip = lastSelClip;
   }
 
@@ -154,9 +154,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setFilterLabel(label);
   }
 
-  public boolean isVisible(@NonNull Clip clip) {
+  public boolean isVisible(@NonNull ClipItem clip) {
     boolean ret = false;
-    final List<Clip> clips = this.clips.getValue();
+    final List<ClipItem> clips = this.clips.getValue();
     if (!AppUtils.isEmpty(clips)) {
       if (clips.contains(clip)) {
         ret = true;
@@ -167,9 +167,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /**
    * Add a clip
-   * @param clip Clip
+   * @param clip ClipItem
    */
-  public void addClip(@Nullable Clip clip) {
+  public void addClip(@Nullable ClipItem clip) {
     if (clip != null) {
       mRepo.addClip(clip);
     }
@@ -177,9 +177,9 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /**
    * Remove a clip, save for undo
-   * @param clip Clip
+   * @param clip ClipItem
    */
-  public void removeClip(@Nullable Clip clip) {
+  public void removeClip(@Nullable ClipItem clip) {
     if (clip != null) {
       Runnable transaction = () -> {
         mRepo.removeClipSync(clip);
@@ -192,7 +192,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Remove selected clip save for undo */
   public void removeSelClip() {
-    final Clip clip = getSelClipSync();
+    final ClipItem clip = getSelClipSync();
     if (clip != null) {
       removeClip(clip);
       setSelClip(null);
@@ -213,7 +213,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Undo the last delete */
   public void undoDeleteClips() {
-    final List<Clip> clips = undoClips.getValue();
+    final List<ClipItem> clips = undoClips.getValue();
     if (!AppUtils.isEmpty(clips)) {
       mRepo.addClipsAndLabels(clips);
     }
@@ -223,7 +223,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   public void undoDeleteAndSelect() {
     App.getExecutors().diskIO().execute(() -> {
       undoDeleteClips();
-      final List<Clip> clips = undoClips.getValue();
+      final List<ClipItem> clips = undoClips.getValue();
       if (!AppUtils.isEmpty(clips)) {
         setSelClip(clips.get(0));
       }
@@ -232,8 +232,8 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Copy selected clip to the Clipboard */
   public void copySelClip() {
-    final Clip clip = getSelClipSync();
-    if (!Clip.isWhitespace(clip)) {
+    final ClipItem clip = getSelClipSync();
+    if (!ClipItem.isWhitespace(clip)) {
       clip.setRemote(false);
       clip.setDate(Instant.now().toEpochMilli());
       ClipboardHelper.copyToClipboard(getApplication(), clip);
@@ -243,7 +243,7 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
 
   /** Toggle the favorite state of selected clip */
   public void toggleSelFavorite() {
-    final Clip clip = getSelClipSync();
+    final ClipItem clip = getSelClipSync();
     if (clip != null) {
       clip.setFav(!clip.getFav());
       mRepo.updateClipFav(clip);

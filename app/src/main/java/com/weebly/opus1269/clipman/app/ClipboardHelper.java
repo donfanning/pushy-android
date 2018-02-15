@@ -19,7 +19,7 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -44,7 +44,7 @@ public class ClipboardHelper {
 
   /** Copy to the clipboard */
   public static void copyToClipboard(@NonNull Context context,
-                                     @NonNull Clip clip) {
+                                     @NonNull ClipItem clip) {
     final ClipboardManager clipboard =
       (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     if (clipboard != null) {
@@ -59,13 +59,13 @@ public class ClipboardHelper {
   }
 
   /**
-   * Get the text on the Clipboard as a Clip
+   * Get the text on the Clipboard as a ClipItem
    * @param clipboard The manager
    * @return A new clip from the clipboard contents
    */
   @Nullable
-  public static Clip getFromClipboard(Context context,
-                                      ClipboardManager clipboard) {
+  public static ClipItem getFromClipboard(Context context,
+                                          ClipboardManager clipboard) {
     if (clipboard == null) {
       return null;
     }
@@ -108,9 +108,9 @@ public class ClipboardHelper {
     // get any Labels
     final List<Label> labels = parseLabels(desc);
 
-    Clip clip = null;
+    ClipItem clip = null;
     if ((clipText != null) && (TextUtils.getTrimmedLength(clipText) > 0)) {
-      clip = new Clip();
+      clip = new ClipItem();
       clip.setText(String.valueOf(clipText));
       clip.setFav(fav);
       clip.setRemote(remote);
@@ -129,10 +129,10 @@ public class ClipboardHelper {
                                            @Nullable View view) {
     ClipboardManager clipboardManager =
       (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-    final Clip clip = getFromClipboard(context, clipboardManager);
+    final ClipItem clip = getFromClipboard(context, clipboardManager);
     int id = R.string.clipboard_no_text;
 
-    if (!Clip.isWhitespace(clip)) {
+    if (!ClipItem.isWhitespace(clip)) {
       MainRepo.INST(App.INST()).addClipIfNew(clip, true);
 
       // send to registered devices , if possible
@@ -155,10 +155,10 @@ public class ClipboardHelper {
   }
 
   /**
-   * Create a description with a Clip's state so we can restore it
+   * Create a description with a ClipItem's state so we can restore it
    * @return a parsable label with our state
    */
-  private static CharSequence buildClipDesc(@NonNull Clip clip) {
+  private static CharSequence buildClipDesc(@NonNull ClipItem clip) {
     final long fav = clip.getFav() ? 1L : 0L;
 
     // add prefix and fav value

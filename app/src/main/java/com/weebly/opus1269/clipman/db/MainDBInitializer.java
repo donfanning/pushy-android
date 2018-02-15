@@ -9,7 +9,7 @@ package com.weebly.opus1269.clipman.db;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.ArrayList;
@@ -25,10 +25,10 @@ public class MainDBInitializer {
 
   private static final Boolean[] FAV = new Boolean[]{true, false, true};
 
-  public static List<Clip> getClips() {
-    List<Clip> clips = new ArrayList<>(TEXT.length);
+  public static List<ClipItem> getClips() {
+    List<ClipItem> clips = new ArrayList<>(TEXT.length);
     for (int i = 0; i < TEXT.length; i++) {
-      final Clip clip = new Clip();
+      final ClipItem clip = new ClipItem();
       clip.setText(TEXT[i]);
       clip.setFav(FAV[i]);
       // so dates aren't all the same
@@ -38,8 +38,8 @@ public class MainDBInitializer {
     return clips;
   }
 
-  public static Clip getLabeledClip() {
-      final Clip clip = new Clip();
+  public static ClipItem getLabeledClip() {
+      final ClipItem clip = new ClipItem();
       clip.setText(App.INST().getString(R.string.default_clip_4));
       clip.setFav(true);
       clip.setDate(clip.getDate());

@@ -13,10 +13,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.support.annotation.NonNull;
 
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
-/** ViewModel for a {@link Clip} */
+/** ViewModel for a {@link ClipItem} */
 public class ClipViewModel extends AndroidViewModel {
   /** Class identifier */
   private final String TAG = this.getClass().getSimpleName();
@@ -24,11 +24,11 @@ public class ClipViewModel extends AndroidViewModel {
   /** Our Repo */
   private final MainRepo mRepo;
 
-  /** Our Clip */
+  /** Our ClipItem */
   @NonNull
-  private final MediatorLiveData<Clip> clip;
+  private final MediatorLiveData<ClipItem> clip;
 
-  public ClipViewModel(@NonNull Application app, Clip clip) {
+  public ClipViewModel(@NonNull Application app, ClipItem clip) {
     super(app);
 
     mRepo = MainRepo.INST(app);
@@ -38,16 +38,16 @@ public class ClipViewModel extends AndroidViewModel {
     this.clip.addSource(mRepo.getClip(clip.getId()), this.clip::setValue);
   }
 
-  public LiveData<Clip> getClip() {
+  public LiveData<ClipItem> getClip() {
     return clip;
   }
 
-  public Clip getClipSync() {
+  public ClipItem getClipSync() {
     return clip.getValue();
   }
 
   public void changeFav(boolean state) {
-    Clip clip = getClipSync();
+    ClipItem clip = getClipSync();
     if (clip != null) {
       clip.setFav(state);
       mRepo.updateClipFav(clip);

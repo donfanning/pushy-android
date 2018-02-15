@@ -21,7 +21,7 @@ import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
 import com.weebly.opus1269.clipman.db.entity.Backup;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.BackupContents;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -243,7 +243,7 @@ public class BackupHelper {
     if (data != null) {
       final BackupContents zipContents = BackupContents.get(data);
       contents.setLabels(zipContents.getLabels());
-      contents.setClips(zipContents.getClips());
+      contents.setClipItems(zipContents.getClipItems());
     }
   }
 
@@ -254,9 +254,7 @@ public class BackupHelper {
    */
   private void replaceDB(@NonNull BackupContents contents) throws SQLException {
     // replace database contents
-    final List<Label> labels = contents.getLabels();
-    final List<Clip> clips = contents.getClips();
-    MainDB.INST(App.INST()).replaceDB(labels, clips);
+    contents.replaceDB();
   }
 
   /**

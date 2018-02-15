@@ -22,14 +22,14 @@ import com.weebly.opus1269.clipman.app.AppExecutors;
 import com.weebly.opus1269.clipman.db.dao.ClipDao;
 import com.weebly.opus1269.clipman.db.dao.ClipLabelJoinDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.db.entity.ClipLabelJoin;
 import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.List;
 
 /** Main database */
-@Database(entities = {Clip.class, Label.class, ClipLabelJoin.class},
+@Database(entities = {ClipItem.class, Label.class, ClipLabelJoin.class},
   version = 1, exportSchema = false)
 public abstract class MainDB extends RoomDatabase {
   private static MainDB sInstance;
@@ -57,23 +57,6 @@ public abstract class MainDB extends RoomDatabase {
   }
 
   /**
-   * Replace the contents of the database
-   * @param labels new labels
-   * @param clips new clips
-   */
-  public void replaceDB(@NonNull List<Label> labels,
-                        @NonNull List<Clip> clips) {
-    App.getExecutors().diskIO().execute(() -> {
-      runInTransaction(() -> {
-        clipDao().deleteAll();
-        labelDao().deleteAll();
-        labelDao().insertAll(labels);
-        clipDao().insertAll(clips);
-      });
-    });
-  }
-
-  /**
    * Build the database. {@link Builder#build()} only sets up the database
    * configuration and creates a new instance of the database.
    * The SQLite database is only created when it's accessed for the first time.
@@ -90,9 +73,9 @@ public abstract class MainDB extends RoomDatabase {
             // Generate the data for pre-population
             MainDB database = MainDB.INST(app);
             // TODO convert Clips.db database here
-            Clip labeldClip = MainDBInitializer.getLabeledClip();
+            ClipItem labeldClip = MainDBInitializer.getLabeledClip();
             Label label = MainDBInitializer.getLabel();
-            List<Clip> clips = MainDBInitializer.getClips();
+            List<ClipItem> clips = MainDBInitializer.getClips();
 
             insertData(database, clips, labeldClip, label);
              //notify that the database was created and it's ready to be used
@@ -121,8 +104,8 @@ public abstract class MainDB extends RoomDatabase {
   }
 
   private static void insertData(final MainDB database,
-                                 final List<Clip> clips,
-                                 final Clip labeledClip,
+                                 final List<ClipItem> clips,
+                                 final ClipItem labeledClip,
                                  final Label label) {
     database.runInTransaction(() -> {
       database.clipDao().insertAll(clips);

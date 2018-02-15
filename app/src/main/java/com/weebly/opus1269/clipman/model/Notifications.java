@@ -30,7 +30,7 @@ import android.text.TextUtils;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.db.entity.Device;
 import com.weebly.opus1269.clipman.msg.Msg;
 import com.weebly.opus1269.clipman.services.ClipboardWatcherService;
@@ -141,12 +141,12 @@ public class Notifications {
 
   /**
    * Display notification on a clipboard change
-   * @param clip the {@link Clip} to display notification for
+   * @param clip the {@link ClipItem} to display notification for
    */
-  public void show(Clip clip) {
+  public void show(ClipItem clip) {
     // TODO we could display notification if we are filtering the
     // mainactivity by Label here
-    if (Clip.isWhitespace(clip) || App.isMainActivityVisible() ||
+    if (ClipItem.isWhitespace(clip) || App.isMainActivityVisible() ||
       (clip.getRemote() && !Prefs.INST(mContext).isNotifyRemote()) ||
       (!clip.getRemote() && !Prefs.INST(mContext).isNotifyLocal())) {
       return;
@@ -306,7 +306,7 @@ public class Notifications {
     getManager().notify(id, builder.build());
   }
 
-  /** Remove {@link Clip} notifications */
+  /** Remove {@link ClipItem} notifications */
   public void removeClips() {
     getManager().cancel(ID_COPY);
     resetCount();
@@ -449,11 +449,11 @@ public class Notifications {
      * @param ctxt   A Context
      * @param action An action we know about
      * @param noteId The id of the source notification
-     * @param clip   The {@link Clip}
+     * @param clip   The {@link ClipItem}
      * @return a {@link PendingIntent}
      */
     public static PendingIntent getPIntent(Context ctxt, String action,
-                                           int noteId, Clip clip) {
+                                           int noteId, ClipItem clip) {
       final Intent intent = new Intent(ctxt, NotificationReceiver.class);
       intent.setAction(action);
       intent.putExtra(Intents.EXTRA_NOTIFICATION_ID, noteId);

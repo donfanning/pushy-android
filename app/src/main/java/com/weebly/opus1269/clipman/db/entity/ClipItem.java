@@ -18,7 +18,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Expose;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
@@ -36,36 +36,42 @@ import java.util.List;
 
 /** This class represents the data for a single clipboard entry */
 @Entity(tableName = "clips", indices = {@Index(value = "text", unique = true)})
-public class Clip implements AdapterItem, Serializable {
+public class ClipItem implements AdapterItem, Serializable {
   public static final String TEXT_PLAIN = "text/plain";
 
   private static final String DESC_LABEL = "opus1269 was here";
 
-  private static final String TAG = "Clip";
-
   @PrimaryKey(autoGenerate = true)
   private long id;
 
+  @Expose
   private String text;
 
+  @Expose
   private long date;
 
+  @Expose
   private boolean fav;
 
+  @Expose
   private boolean remote;
 
+  @Expose
   private String device;
 
+  /** The Labels - TODO this should be done with Relation or something */
+  @Expose
   @Ignore
   @NonNull
   private List<Label> labels = new ArrayList<>(0);
 
   /** PK's of the labels - only used for backup/restore */
+  @Expose
   @Ignore
   @NonNull
   private List<Long> labelsId = new ArrayList<>(0);
 
-  public Clip() {
+  public ClipItem() {
     text = "";
     date = Instant.now().toEpochMilli();
     fav = false;
@@ -74,8 +80,8 @@ public class Clip implements AdapterItem, Serializable {
   }
 
   @Ignore
-  public Clip(String text, long date, boolean fav, boolean remote,
-              String device) {
+  public ClipItem(String text, long date, boolean fav, boolean remote,
+                  String device) {
     this.text = text;
     this.date = date;
     this.fav = fav;
@@ -83,7 +89,7 @@ public class Clip implements AdapterItem, Serializable {
     this.device = device;
   }
 
-  public Clip(Clip clip, List<Label> labels, List<Long> labelsId) {
+  public ClipItem(ClipItem clip, List<Label> labels, List<Long> labelsId) {
     this.text = clip.getText();
     this.date = clip.getDate();
     this.fav = clip.getFav();
@@ -94,11 +100,11 @@ public class Clip implements AdapterItem, Serializable {
   }
 
   /**
-   * Is a {@link Clip} all whitespace
+   * Is a {@link ClipItem} all whitespace
    * @param clip item
    * @return true if null of whitespace
    */
-  public static boolean isWhitespace(@Nullable Clip clip) {
+  public static boolean isWhitespace(@Nullable ClipItem clip) {
     return clip == null || AppUtils.isWhitespace(clip.getText());
   }
 
@@ -118,7 +124,7 @@ public class Clip implements AdapterItem, Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    Clip that = (Clip) o;
+    ClipItem that = (ClipItem) o;
 
     if (date != that.date) return false;
     if (fav != that.fav) return false;
@@ -129,7 +135,7 @@ public class Clip implements AdapterItem, Serializable {
 
   @Override
   public String toString() {
-    return "Clip{" +
+    return "ClipItem{" +
       "id=" + id +
       ", text='" + text + '\'' +
       ", date=" + date +
@@ -199,7 +205,14 @@ public class Clip implements AdapterItem, Serializable {
   }
 
   public void setLabels(@Nullable List<Label> labels) {
-    this.labels = (labels == null) ? new ArrayList<>(0) : labels;
+    this.labels = new ArrayList<>(0);
+    labelsId = new ArrayList<>();
+    if (!AppUtils.isEmpty(labels)) {
+      this.labels.addAll(labels);
+      for (final Label label : this.labels) {
+        labelsId.add(label.getId());
+      }
+    }
   }
 
   @NonNull
@@ -269,7 +282,7 @@ public class Clip implements AdapterItem, Serializable {
   }
 
   /**
-   * Share the Clip with other apps
+   * Share the ClipItem with other apps
    * @param ctxt A context
    * @param view The {@link View} that is requesting the share
    */

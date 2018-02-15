@@ -15,17 +15,17 @@ import android.support.annotation.Nullable;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
 import java.util.List;
 
-/** ViewModel for selecting Labels for a Clip */
+/** ViewModel for selecting Labels for a ClipItem */
 public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
-  /** Our Clip */
+  /** Our ClipItem */
   @NonNull
-  private final MediatorLiveData<Clip> clip;
+  private final MediatorLiveData<ClipItem> clip;
 
   /** Full Labels list */
   @NonNull
@@ -43,11 +43,11 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   @NonNull
-  public LiveData<Clip> getClip() {
+  public LiveData<ClipItem> getClip() {
     return clip;
   }
 
-  public void setClip(@NonNull Clip aClip) {
+  public void setClip(@NonNull ClipItem aClip) {
     this.clip.addSource(mRepo.getClip(aClip.getId()),
       clip -> App.getExecutors().diskIO().execute(() -> {
         if (clip != null) {
@@ -63,13 +63,13 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   /**
-   * Is the Label with the given name a member of our Clip
+   * Is the Label with the given name a member of our ClipItem
    * @param labelName Label name
-   * @return true if member of Clip
+   * @return true if member of ClipItem
    */
   public boolean hasLabel(@Nullable String labelName) {
     boolean ret = false;
-    final Clip clip = this.clip.getValue();
+    final ClipItem clip = this.clip.getValue();
     if (clip != null) {
       final List<Label> labels = clip.getLabels();
       if (!AppUtils.isEmpty(labels)) {
@@ -85,12 +85,12 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   /**
-   * Add or remove a Label from our Clip
+   * Add or remove a Label from our ClipItem
    * @param label Label
    * @param add   if true add, otherwise remove
    */
   public void addOrRemoveLabel(@NonNull Label label, boolean add) {
-    final Clip clip = this.clip.getValue();
+    final ClipItem clip = this.clip.getValue();
     if (clip != null) {
       App.getExecutors().diskIO().execute(() -> {
         if (add) {

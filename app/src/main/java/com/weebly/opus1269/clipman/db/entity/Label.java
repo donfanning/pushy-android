@@ -24,6 +24,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
+import com.google.gson.annotations.Expose;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.model.AdapterItem;
 
@@ -32,9 +33,17 @@ import java.io.Serializable;
 /** A Label for categorizing clips */
 @Entity(tableName = "labels", indices = {@Index(value = "name", unique = true)})
 public class Label implements AdapterItem, Serializable {
+  /** Unique PK */
   @PrimaryKey(autoGenerate = true)
   private long id;
 
+  /** Only used for backup/restore, mirrors id */
+  @Expose
+  @Ignore
+  private long _id;
+
+  /** Unique name */
+  @Expose
   private String name;
 
   @Ignore
@@ -49,6 +58,7 @@ public class Label implements AdapterItem, Serializable {
   public Label(String name, long id) {
     this.name = name;
     this.id = id;
+    _id = id;
   }
 
   /**
@@ -90,6 +100,11 @@ public class Label implements AdapterItem, Serializable {
 
   public void setId(long id) {
     this.id = id;
+    _id = id;
+  }
+
+  public long get_Id() {
+    return _id;
   }
 
   public String getName() {

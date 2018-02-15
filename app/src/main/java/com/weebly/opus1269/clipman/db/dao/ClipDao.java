@@ -11,60 +11,60 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Query;
 
-import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.ClipItem;
 
 import java.util.List;
 
 /** Database access for clips table */
 @Dao
-public abstract class ClipDao implements BaseDao<Clip> {
+public abstract class ClipDao implements BaseDao<ClipItem> {
   @Query("SELECT * FROM clips ORDER BY date DESC")
-  public abstract LiveData<List<Clip>> getAll();
+  public abstract LiveData<List<ClipItem>> getAll();
 
   @Query("SELECT * FROM clips WHERE text LIKE :query ORDER BY date DESC")
-  public abstract LiveData<List<Clip>> getAll(String query);
+  public abstract LiveData<List<ClipItem>> getAll(String query);
 
   @Query("SELECT * FROM clips ORDER BY date DESC")
-  public abstract List<Clip> getAllSync();
+  public abstract List<ClipItem> getAllSync();
 
   @Query("SELECT * FROM clips ORDER BY LOWER(text) ASC")
-  public abstract LiveData<List<Clip>> getAllByText();
+  public abstract LiveData<List<ClipItem>> getAllByText();
 
   @Query("SELECT * FROM clips WHERE text LIKE :query ORDER BY LOWER(text) ASC")
-  public abstract LiveData<List<Clip>> getAllByText(String query);
+  public abstract LiveData<List<ClipItem>> getAllByText(String query);
 
   @Query("SELECT * FROM clips ORDER BY fav DESC, date DESC")
-  public abstract LiveData<List<Clip>> getAllPinFavs();
+  public abstract LiveData<List<ClipItem>> getAllPinFavs();
 
   @Query("SELECT * FROM clips WHERE text LIKE :query ORDER BY fav DESC, date DESC")
-  public abstract LiveData<List<Clip>> getAllPinFavs(String query);
+  public abstract LiveData<List<ClipItem>> getAllPinFavs(String query);
 
   @Query("SELECT * FROM clips ORDER BY fav DESC, LOWER(text) ASC")
-  public abstract LiveData<List<Clip>> getAllPinFavsByText();
+  public abstract LiveData<List<ClipItem>> getAllPinFavsByText();
 
   @Query("SELECT * FROM clips WHERE text LIKE :query ORDER BY fav DESC, LOWER(text) ASC")
-  public abstract LiveData<List<Clip>> getAllPinFavsByText(String query);
+  public abstract LiveData<List<ClipItem>> getAllPinFavsByText(String query);
 
   @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY date DESC")
-  public abstract LiveData<List<Clip>> getFavs();
+  public abstract LiveData<List<ClipItem>> getFavs();
 
   @Query("SELECT * FROM clips WHERE fav = '1' AND text LIKE :query ORDER BY date DESC")
-  public abstract LiveData<List<Clip>> getFavs(String query);
+  public abstract LiveData<List<ClipItem>> getFavs(String query);
 
   @Query("SELECT * FROM clips WHERE fav = '0' ORDER BY date DESC")
-  public abstract List<Clip> getNonFavsSync();
+  public abstract List<ClipItem> getNonFavsSync();
 
   @Query("SELECT * FROM clips WHERE fav = '1' ORDER BY LOWER(text) ASC")
-  public abstract LiveData<List<Clip>> getFavsByText();
+  public abstract LiveData<List<ClipItem>> getFavsByText();
 
   @Query("SELECT * FROM clips WHERE fav = '1' AND text LIKE :query ORDER BY LOWER(text) ASC")
-  public abstract LiveData<List<Clip>> getFavsByText(String query);
+  public abstract LiveData<List<ClipItem>> getFavsByText(String query);
 
   @Query("SELECT * FROM clips WHERE id = :id")
-  public abstract LiveData<Clip> get(long id);
+  public abstract LiveData<ClipItem> get(long id);
 
   @Query("SELECT * FROM clips WHERE text = :text LIMIT 1")
-  public abstract Clip getSync(String text);
+  public abstract ClipItem getSync(String text);
 
   @Query("UPDATE clips SET fav = :fav WHERE text = :text")
   public abstract long updateFav(String text, Boolean fav);
