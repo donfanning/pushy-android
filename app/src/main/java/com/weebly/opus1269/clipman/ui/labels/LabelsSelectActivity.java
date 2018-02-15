@@ -13,12 +13,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.ui.base.BaseActivity;
 import com.weebly.opus1269.clipman.viewmodel.LabelsSelectViewModel;
 
-/** Handle Label selections for a ClipItem */
+/** Handle Label selections for a Clip */
 public class LabelsSelectActivity extends BaseActivity {
   /** ViewModel */
   private LabelsSelectViewModel mVm = null;
@@ -41,7 +41,7 @@ public class LabelsSelectActivity extends BaseActivity {
     mVm = ViewModelProviders.of(this).get(LabelsSelectViewModel.class);
 
     if (savedInstanceState == null) {
-      ClipItem clip = (ClipItem) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
+      Clip clip = (Clip) getIntent().getSerializableExtra(Intents.EXTRA_CLIP);
       mVm.setClip(clip);
     }
 

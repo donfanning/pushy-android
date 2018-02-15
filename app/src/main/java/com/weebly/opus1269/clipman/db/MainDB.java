@@ -22,14 +22,14 @@ import com.weebly.opus1269.clipman.app.AppExecutors;
 import com.weebly.opus1269.clipman.db.dao.ClipDao;
 import com.weebly.opus1269.clipman.db.dao.ClipLabelJoinDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.ClipLabelJoin;
 import com.weebly.opus1269.clipman.db.entity.Label;
 
 import java.util.List;
 
 /** Main database */
-@Database(entities = {ClipItem.class, Label.class, ClipLabelJoin.class},
+@Database(entities = {Clip.class, Label.class, ClipLabelJoin.class},
   version = 1, exportSchema = false)
 public abstract class MainDB extends RoomDatabase {
   private static MainDB sInstance;
@@ -73,9 +73,9 @@ public abstract class MainDB extends RoomDatabase {
             // Generate the data for pre-population
             MainDB database = MainDB.INST(app);
             // TODO convert Clips.db database here
-            ClipItem labeldClip = MainDBInitializer.getLabeledClip();
+            Clip labeldClip = MainDBInitializer.getLabeledClip();
             Label label = MainDBInitializer.getLabel();
-            List<ClipItem> clips = MainDBInitializer.getClips();
+            List<Clip> clips = MainDBInitializer.getClips();
 
             insertData(database, clips, labeldClip, label);
              //notify that the database was created and it's ready to be used
@@ -104,8 +104,8 @@ public abstract class MainDB extends RoomDatabase {
   }
 
   private static void insertData(final MainDB database,
-                                 final List<ClipItem> clips,
-                                 final ClipItem labeledClip,
+                                 final List<Clip> clips,
+                                 final Clip labeledClip,
                                  final Label label) {
     database.runInTransaction(() -> {
       database.clipDao().insertAll(clips);

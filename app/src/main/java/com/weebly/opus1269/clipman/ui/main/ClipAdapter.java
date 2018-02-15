@@ -26,7 +26,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.databinding.ClipRowBinding;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.ui.base.BaseBindingAdapter;
 import com.weebly.opus1269.clipman.ui.base.BaseViewHolder;
 import com.weebly.opus1269.clipman.ui.base.VHAdapterFactory;
@@ -35,8 +35,8 @@ import com.weebly.opus1269.clipman.viewmodel.ClipViewModel;
 
 import java.util.List;
 
-/** Bridge between the ClipItem RecyclerView and the ClipItem class */
-class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
+/** Bridge between the Clip RecyclerView and the Clip class */
+class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
   MainHandlers, ClipViewModel, ClipAdapter.ClipViewHolder> {
   /** Our Activity */
   @NonNull
@@ -44,7 +44,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
 
   /** Our List */
   @Nullable
-  private List<ClipItem> mList;
+  private List<Clip> mList;
 
   ClipAdapter(@NonNull MainActivity activity, MainHandlers handlers) {
     super(new ClipViewHolderFactory(), new ClipViewModelFactory(),
@@ -76,10 +76,10 @@ class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
   }
 
   @Override
-  public void setList(List<ClipItem> list) {
+  public void setList(List<Clip> list) {
     if (AppUtils.isDualPane(App.INST())) {
       // move selection in current list to new list
-      final ClipItem selClip = mActivity.getSelectedClipSync();
+      final Clip selClip = mActivity.getSelectedClipSync();
       final int pos = getSelectedPos(mList, selClip);
       final int newPos = getSelectedPos(list, selClip);
 
@@ -96,7 +96,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
     mList = list;
   }
 
-  public boolean select(@Nullable ClipItem newSel, @Nullable ClipItem oldSel) {
+  public boolean select(@Nullable Clip newSel, @Nullable Clip oldSel) {
     boolean ret = false;
     if (AppUtils.isDualPane(App.INST()) && idChanged(newSel, oldSel)) {
       setSelected(oldSel, false);
@@ -106,20 +106,20 @@ class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
     return ret;
   }
 
-  private boolean idChanged(@Nullable ClipItem clip1,
-                            @Nullable ClipItem clip2) {
+  private boolean idChanged(@Nullable Clip clip1,
+                            @Nullable Clip clip2) {
     return !(clip1 != null && clip2 != null && clip1.getId() == clip2.getId());
   }
 
-  private void setSelected(@Nullable ClipItem clip, boolean isSelected) {
+  private void setSelected(@Nullable Clip clip, boolean isSelected) {
     final ClipViewHolder holder = getHolder(clip);
     if (holder != null && holder.itemView.isSelected() != isSelected) {
       holder.itemView.setSelected(isSelected);
     }
   }
 
-  private int getSelectedPos(@Nullable List<ClipItem> clips,
-                             @Nullable ClipItem selClip) {
+  private int getSelectedPos(@Nullable List<Clip> clips,
+                             @Nullable Clip selClip) {
     int pos = -1;
     if ((selClip != null) && !AppUtils.isEmpty(clips)) {
       pos = clips.indexOf(selClip);
@@ -128,7 +128,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
   }
 
   @Nullable
-  private ClipViewHolder getHolder(@Nullable ClipItem clip) {
+  private ClipViewHolder getHolder(@Nullable Clip clip) {
     ClipViewHolder ret = null;
     if (clip != null) {
       ret = (ClipViewHolder) mActivity.getRecyclerView()
@@ -150,10 +150,10 @@ class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
 
   /** Factory to create an instance of our ViewModel */
   static class ClipViewModelFactory implements
-    VMAdapterFactory<ClipViewModel, ClipItem> {
+    VMAdapterFactory<ClipViewModel, Clip> {
 
     @Override
-    public ClipViewModel create(ClipItem item) {
+    public ClipViewModel create(Clip item) {
       return new ClipViewModel(App.INST(), item);
     }
   }
@@ -166,7 +166,7 @@ class ClipAdapter extends BaseBindingAdapter<ClipItem, ClipRowBinding,
       super(binding);
     }
 
-    /** Bind the ClipItem */
+    /** Bind the Clip */
     public void bind(LifecycleOwner owner, ClipViewModel vm,
                      MainHandlers handlers) {
       super.bind(owner, vm, handlers);

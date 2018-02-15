@@ -17,7 +17,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
   indices = {@Index(value = "labelId")},
   primaryKeys = {"clipId", "labelId"},
   foreignKeys = {
-    @ForeignKey(entity = ClipItem.class,
+    @ForeignKey(entity = Clip.class,
       parentColumns = "id",
       childColumns = "clipId",
       onDelete = CASCADE,

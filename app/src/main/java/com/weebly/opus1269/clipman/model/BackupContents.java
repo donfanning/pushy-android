@@ -17,7 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.db.MainDB;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.ClipLabelJoin;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.repos.MainRepo;
@@ -37,7 +37,7 @@ public class BackupContents {
   private List<Label> labels;
 
   @Expose
-  private List<ClipItem> clipItems;
+  private List<Clip> clipItems;
 
   public BackupContents() {
     this.labels = new ArrayList<>(0);
@@ -45,7 +45,7 @@ public class BackupContents {
   }
 
   private BackupContents(@NonNull List<Label> labels,
-                         @NonNull List<ClipItem> clipItems) {
+                         @NonNull List<Clip> clipItems) {
     this.labels = labels;
     this.clipItems = clipItems;
   }
@@ -56,7 +56,7 @@ public class BackupContents {
    */
   @NonNull
   public static BackupContents getDB() {
-    List<ClipItem> clips = MainRepo.INST(App.INST()).getClipsSync();
+    List<Clip> clips = MainRepo.INST(App.INST()).getClipsSync();
     List<Label> labels = MainRepo.INST(App.INST()).getLabelsSync();
     return new BackupContents(labels, clips);
   }
@@ -104,13 +104,13 @@ public class BackupContents {
   }
 
   /**
-   * Update the id for the {@link Label} in all the {@link ClipItem} objects
+   * Update the id for the {@link Label} in all the {@link Clip} objects
    * @param clips clipItems list
    * @param label label to chage
    */
-  private static void updateLabelId(@NonNull List<ClipItem> clips,
+  private static void updateLabelId(@NonNull List<Clip> clips,
                                     @NonNull Label label) {
-    for (ClipItem clip : clips) {
+    for (Clip clip : clips) {
       clip.updateLabelId(label);
     }
   }
@@ -125,11 +125,11 @@ public class BackupContents {
   }
 
   @NonNull
-  public List<ClipItem> getClipItems() {
+  public List<Clip> getClipItems() {
     return clipItems;
   }
 
-  public void setClipItems(@NonNull List<ClipItem> clipItems) {
+  public void setClipItems(@NonNull List<Clip> clipItems) {
     this.clipItems = clipItems;
   }
 
@@ -156,11 +156,11 @@ public class BackupContents {
                     @NonNull final BackupContents contents) {
     // Merged items
     final List<Label> outLabels = this.labels;
-    final List<ClipItem> outClips = this.clipItems;
+    final List<Clip> outClips = this.clipItems;
 
     // Items to be merged
     final List<Label> inLabels = contents.getLabels();
-    final List<ClipItem> inClips = contents.getClipItems();
+    final List<Clip> inClips = contents.getClipItems();
 
     // Largest label PK being used by us
     long newLabelId = getLargestId(outLabels);
@@ -186,7 +186,7 @@ public class BackupContents {
     }
 
     // merge clipItems
-    for (ClipItem inClip : inClips) {
+    for (Clip inClip : inClips) {
       final int pos = outClips.indexOf(inClip);
       if (pos == -1) {
         // new clip - add to outgoing
@@ -196,12 +196,12 @@ public class BackupContents {
         } else {
           inClip.setRemote(true);
         }
-        final ClipItem outClip =
-          new ClipItem(inClip, inClip.getLabels(), inClip.getLabelsId());
+        final Clip outClip =
+          new Clip(inClip, inClip.getLabels(), inClip.getLabelsId());
         outClips.add(outClip);
       } else {
         // shared clip - merge into outgoing clip
-        final ClipItem outClip = outClips.get(pos);
+        final Clip outClip = outClips.get(pos);
         if (inClip.getFav()) {
           // true fav has priority
           outClip.setFav(true);
@@ -241,7 +241,7 @@ public class BackupContents {
           labelsMap.put(label.getName(), label.getId());
         }
 
-        for (ClipItem clip : clipItems) {
+        for (Clip clip : clipItems) {
           final long clipId = MainDB.INST(App.INST()).clipDao().insert(clip);
           final List<Label> clipLabels = clip.getLabels();
           for (Label label : clipLabels) {

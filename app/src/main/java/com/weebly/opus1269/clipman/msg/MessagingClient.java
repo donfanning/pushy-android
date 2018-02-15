@@ -31,7 +31,7 @@ import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.app.ThreadedAsyncTask;
 import com.weebly.opus1269.clipman.backend.messaging.Messaging;
 import com.weebly.opus1269.clipman.backend.messaging.model.EndpointRet;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.ClipItemOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
@@ -117,10 +117,10 @@ public class MessagingClient extends Endpoint {
   }
 
   /**
-   * Send contents of {@link ClipItem}
+   * Send contents of {@link Clip}
    * @param clip - contents to send
    */
-  public void send(ClipItem clip) {
+  public void send(Clip clip) {
     // Max length of fcm data message
     final int MAX_LEN = 4096;
 

@@ -36,7 +36,7 @@ import java.util.List;
 
 /** This class represents the data for a single clipboard entry */
 @Entity(tableName = "clips", indices = {@Index(value = "text", unique = true)})
-public class ClipItem implements AdapterItem, Serializable {
+public class Clip implements AdapterItem, Serializable {
   public static final String TEXT_PLAIN = "text/plain";
 
   private static final String DESC_LABEL = "opus1269 was here";
@@ -71,7 +71,7 @@ public class ClipItem implements AdapterItem, Serializable {
   @NonNull
   private List<Long> labelsId = new ArrayList<>(0);
 
-  public ClipItem() {
+  public Clip() {
     text = "";
     date = Instant.now().toEpochMilli();
     fav = false;
@@ -80,8 +80,8 @@ public class ClipItem implements AdapterItem, Serializable {
   }
 
   @Ignore
-  public ClipItem(String text, long date, boolean fav, boolean remote,
-                  String device) {
+  public Clip(String text, long date, boolean fav, boolean remote,
+              String device) {
     this.text = text;
     this.date = date;
     this.fav = fav;
@@ -89,7 +89,7 @@ public class ClipItem implements AdapterItem, Serializable {
     this.device = device;
   }
 
-  public ClipItem(ClipItem clip, List<Label> labels, List<Long> labelsId) {
+  public Clip(Clip clip, List<Label> labels, List<Long> labelsId) {
     this.text = clip.getText();
     this.date = clip.getDate();
     this.fav = clip.getFav();
@@ -100,11 +100,11 @@ public class ClipItem implements AdapterItem, Serializable {
   }
 
   /**
-   * Is a {@link ClipItem} all whitespace
+   * Is a {@link Clip} all whitespace
    * @param clip item
    * @return true if null of whitespace
    */
-  public static boolean isWhitespace(@Nullable ClipItem clip) {
+  public static boolean isWhitespace(@Nullable Clip clip) {
     return clip == null || AppUtils.isWhitespace(clip.getText());
   }
 
@@ -124,7 +124,7 @@ public class ClipItem implements AdapterItem, Serializable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ClipItem that = (ClipItem) o;
+    Clip that = (Clip) o;
 
     if (date != that.date) return false;
     if (fav != that.fav) return false;
@@ -135,7 +135,7 @@ public class ClipItem implements AdapterItem, Serializable {
 
   @Override
   public String toString() {
-    return "ClipItem{" +
+    return "Clip{" +
       "id=" + id +
       ", text='" + text + '\'' +
       ", date=" + date +
@@ -282,7 +282,7 @@ public class ClipItem implements AdapterItem, Serializable {
   }
 
   /**
-   * Share the ClipItem with other apps
+   * Share the Clip with other apps
    * @param ctxt A context
    * @param view The {@link View} that is requesting the share
    */

@@ -15,7 +15,7 @@ import android.widget.CheckBox;
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
 import com.weebly.opus1269.clipman.model.Prefs;
@@ -39,11 +39,11 @@ public class MainHandlers extends BaseHandlers {
   /**
    * Click on fab button
    * @param view The View
-   * @param clip A ClipItem
+   * @param clip A Clip
    */
-  public void onFabClick(View view, ClipItem clip) {
+  public void onFabClick(View view, Clip clip) {
     final Context context = view.getContext();
-    if (!ClipItem.isWhitespace(clip)) {
+    if (!Clip.isWhitespace(clip)) {
       clip.doShare(context, view);
       Analytics.INST(context).imageClick(TAG, "clipShare");
     } else {
@@ -53,11 +53,11 @@ public class MainHandlers extends BaseHandlers {
   }
 
   /**
-   * Click on ClipItem item
+   * Click on Clip item
    * @param view The View
-   * @param clip The ClipItem
+   * @param clip The Clip
    */
-  public void onItemClick(View view, ClipItem clip) {
+  public void onItemClick(View view, Clip clip) {
     Analytics.INST(view.getContext()).click(TAG, "clipRow");
     ((MainActivity) mActivity).selectClip(clip);
   }
@@ -65,9 +65,9 @@ public class MainHandlers extends BaseHandlers {
   /**
    * Click on copy button
    * @param view The View
-   * @param clip The ClipItem
+   * @param clip The Clip
    */
-  public void onCopyClick(View view, ClipItem clip) {
+  public void onCopyClick(View view, Clip clip) {
     final Context context = view.getContext();
     Analytics.INST(context).imageClick(TAG, "clipCopy");
     clip.setRemote(false);
@@ -81,9 +81,9 @@ public class MainHandlers extends BaseHandlers {
   /**
    * Click on labels button
    * @param view The View
-   * @param clip The ClipItem
+   * @param clip The Clip
    */
-  public void onLabelsClick(View view, ClipItem clip) {
+  public void onLabelsClick(View view, Clip clip) {
     final Context context = view.getContext();
     Analytics.INST(context).imageClick(TAG, "clipLabels");
     final Intent intent = new Intent(context, LabelsSelectActivity.class);

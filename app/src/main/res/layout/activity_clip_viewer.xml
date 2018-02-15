@@ -15,7 +15,7 @@
 
   <data>
 
-    <import type="com.weebly.opus1269.clipman.db.entity.ClipItem" />
+    <import type="com.weebly.opus1269.clipman.db.entity.Clip" />
 
     <variable
       name="vm"
@@ -45,7 +45,7 @@
       android:onClick="@{(theView) -> handlers.onFabClick(theView, vm.selClip)}"
       app:srcCompat="@drawable/ic_share_black_24dp"
       app:tintPrimary="@{false}"
-      app:visibleGone="@{!ClipItem.isWhitespace(vm.selClip)}" />
+      app:visibleGone="@{!Clip.isWhitespace(vm.selClip)}" />
 
   </android.support.design.widget.CoordinatorLayout>
 

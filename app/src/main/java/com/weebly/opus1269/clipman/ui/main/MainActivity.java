@@ -36,7 +36,7 @@ import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.MainBinding;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.Analytics;
 import com.weebly.opus1269.clipman.model.Intents;
@@ -299,12 +299,12 @@ public class MainActivity extends BaseActivity<MainBinding> implements
   }
 
   @Nullable
-  public ClipItem getSelectedClipSync() {
+  public Clip getSelectedClipSync() {
     return mVm == null ? null : mVm.getSelClipSync();
   }
 
   public long getSelectedClipId() {
-    final ClipItem clip = getSelectedClipSync();
+    final Clip clip = getSelectedClipSync();
     return (clip == null) ? -1L : clip.getId();
   }
 
@@ -317,8 +317,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         if (AppUtils.isEmpty(clips)) {
           mVm.setSelClip(null);
         } else if (AppUtils.isDualPane(this)) {
-          final ClipItem clip = mVm.getSelClipSync();
-          if (ClipItem.isWhitespace(clip) || !mVm.isVisible(clip)) {
+          final Clip clip = mVm.getSelClipSync();
+          if (Clip.isWhitespace(clip) || !mVm.isVisible(clip)) {
             mVm.setSelClip(clips.get(0));
           }
         }
@@ -392,9 +392,9 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   /**
    * Set and view the selected clip
-   * @param clip The ClipItem to view
+   * @param clip The Clip to view
    */
-  public void selectClip(@Nullable ClipItem clip) {
+  public void selectClip(@Nullable Clip clip) {
     mVm.setSelClip(clip);
     if (!AppUtils.isDualPane(this)) {
       startActivity(ClipViewerActivity.class);
@@ -411,10 +411,10 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
     if (Intent.ACTION_SEND.equals(action) && (type != null)) {
       // Shared from other app
-      if (ClipItem.TEXT_PLAIN.equals(type)) {
+      if (Clip.TEXT_PLAIN.equals(type)) {
         final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
-          final ClipItem clip = new ClipItem();
+          final Clip clip = new Clip();
           clip.setText(sharedText);
           mVm.addClip(clip);
           // TODO setselected properly
@@ -433,8 +433,8 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       final int msgCt = intent.getIntExtra(Intents.EXTRA_CLIP_COUNT, 0);
       if (msgCt == 1) {
         // if 1 message open Clipviewer, otherwise show in us
-        final ClipItem clip =
-          (ClipItem) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+        final Clip clip =
+          (Clip) intent.getSerializableExtra(Intents.EXTRA_CLIP);
         selectClip(clip);
       }
       intent.removeExtra(Intents.EXTRA_CLIP);
@@ -450,7 +450,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     AppUtils.startActivity(this, intent);
   }
 
-  /** Set title based on selected {@link ClipItem} and filter label */
+  /** Set title based on selected {@link Clip} and filter label */
   private void setTitle() {
     Log.logD(TAG, "setTitle");
     final String filterLabelName = mVm.getFilterLabelNameSync();
@@ -459,7 +459,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
       prefix = filterLabelName;
     }
     if (AppUtils.isDualPane(this)) {
-      final ClipItem clip = getSelectedClipSync();
+      final Clip clip = getSelectedClipSync();
       if ((clip != null) && clip.getRemote()) {
         setTitle(getString(R.string.title_activity_main_remote_fmt, prefix,
           clip.getDevice()));

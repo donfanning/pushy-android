@@ -23,7 +23,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.MainDB;
-import com.weebly.opus1269.clipman.db.entity.ClipItem;
+import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.ClipLabelJoin;
 import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
@@ -47,7 +47,7 @@ public class MainRepo extends BaseRepo implements
 
   /** Clips list */
   @NonNull
-  private final MediatorLiveData<List<ClipItem>> clips;
+  private final MediatorLiveData<List<Clip>> clips;
 
   /** Label list */
   @NonNull
@@ -55,7 +55,7 @@ public class MainRepo extends BaseRepo implements
 
   /** Selected clip */
   @NonNull
-  private final MediatorLiveData<ClipItem> selClip;
+  private final MediatorLiveData<Clip> selClip;
 
   /** Show only Clips with the given label */
   @NonNull
@@ -67,11 +67,11 @@ public class MainRepo extends BaseRepo implements
 
   /** Clips Source */
   @Nullable
-  private LiveData<List<ClipItem>> clipsSource;
+  private LiveData<List<Clip>> clipsSource;
 
   /** Selected clip Source */
   @Nullable
-  private LiveData<ClipItem> selClipSource;
+  private LiveData<Clip> selClipSource;
 
   /** Sort with favorites first if true */
   private boolean pinFavs;
@@ -141,7 +141,7 @@ public class MainRepo extends BaseRepo implements
     //noinspection IfCanBeSwitch
     if (Prefs.INST(context).PREF_FAV_FILTER.equals(key)) {
       filterByFavs = Prefs.INST(context).isFavFilter();
-      final ClipItem clip = getSelClip().getValue();
+      final Clip clip = getSelClip().getValue();
       if (filterByFavs && (clip != null) && !clip.getFav()) {
         // unselect if we will be filtered out
         setSelClip(null);
@@ -159,14 +159,14 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
-  public LiveData<List<ClipItem>> getClips() {
+  public LiveData<List<Clip>> getClips() {
     return clips;
   }
 
   @NonNull
-  public List<ClipItem> getClipsSync() {
-    final List<ClipItem> clips = mDB.clipDao().getAllSync();
-    for (final ClipItem clip : clips) {
+  public List<Clip> getClipsSync() {
+    final List<Clip> clips = mDB.clipDao().getAllSync();
+    for (final Clip clip : clips) {
       final List<Label> labels = getLabelsForClipSync(clip);
       clip.setLabels(labels);
     }
@@ -184,15 +184,15 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
-  public LiveData<ClipItem> getSelClip() {
+  public LiveData<Clip> getSelClip() {
     return selClip;
   }
 
-  public void setSelClip(@Nullable ClipItem clip) {
+  public void setSelClip(@Nullable Clip clip) {
     if (selClipSource != null) {
       selClip.removeSource(selClipSource);
     }
-    if (ClipItem.isWhitespace(clip)) {
+    if (Clip.isWhitespace(clip)) {
       // no clip
       selClipSource = null;
       selClip.setValue(null);
@@ -210,7 +210,7 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
-  public LiveData<ClipItem> getClip(final long id) {
+  public LiveData<Clip> getClip(final long id) {
     return mDB.clipDao().get(id);
   }
 
@@ -220,7 +220,7 @@ public class MainRepo extends BaseRepo implements
   }
 
   @NonNull
-  public List<Label> getLabelsForClipSync(@NonNull ClipItem clip) {
+  public List<Label> getLabelsForClipSync(@NonNull Clip clip) {
     return mDB.clipLabelJoinDao().getLabelsForClipSync(clip.getId());
   }
 
@@ -253,18 +253,18 @@ public class MainRepo extends BaseRepo implements
 
   /**
    * Insert or replace clip but preserve fav state if it is true
-   * @param clip ClipItem
+   * @param clip Clip
    */
-  public void addClip(@NonNull ClipItem clip) {
+  public void addClip(@NonNull Clip clip) {
     App.getExecutors().diskIO().execute(() -> addClipSync(clip));
   }
 
   /**
    * Insert or replace clip but preserve fav state if it is true
-   * @param clip ClipItem
+   * @param clip Clip
    */
-  public long addClipSync(@NonNull ClipItem clip) {
-    final ClipItem oldClip = mDB.clipDao().getSync(clip.getText());
+  public long addClipSync(@NonNull Clip clip) {
+    final Clip oldClip = mDB.clipDao().getSync(clip.getText());
     final long id = (oldClip != null) ? oldClip.getId() : clip.getId();
     final boolean fav = (oldClip != null && oldClip.getFav()) || clip.getFav();
     clip.setId(id);
@@ -274,18 +274,18 @@ public class MainRepo extends BaseRepo implements
 
   /**
    * Insert a clip only if the text does not exist
-   * @param clip ClipItem
+   * @param clip Clip
    */
-  public void addClipIfNew(@NonNull ClipItem clip) {
+  public void addClipIfNew(@NonNull Clip clip) {
     addClipIfNew(clip, false);
   }
 
   /**
    * Insert a clip only if the text does not exist
-   * @param clip   ClipItem
+   * @param clip   Clip
    * @param silent if true, no messages
    */
-  public void addClipIfNew(@NonNull ClipItem clip, boolean silent) {
+  public void addClipIfNew(@NonNull Clip clip, boolean silent) {
     App.getExecutors().diskIO().execute(() -> {
       if (!exists(clip)) {
         final long id = mDB.clipDao().insert(clip);
@@ -305,10 +305,10 @@ public class MainRepo extends BaseRepo implements
 
   /**
    * Insert or update clip and optionally send to remote devices
-   * @param clip      ClipItem
+   * @param clip      Clip
    * @param onNewOnly if true, only add if text doesn't exist
    */
-  public void addClipAndSend(ClipItem clip, boolean onNewOnly) {
+  public void addClipAndSend(Clip clip, boolean onNewOnly) {
     App.getExecutors().diskIO().execute(() -> {
       final Context context = mApp;
       long id = -1L;
@@ -320,7 +320,7 @@ public class MainRepo extends BaseRepo implements
           addLabelsForClipSync(clip);
         }
       } else {
-        final ClipItem existingClip = mDB.clipDao().getSync(clip.getText());
+        final Clip existingClip = mDB.clipDao().getSync(clip.getText());
         if (existingClip != null) {
           // clip exists, update it
           clip.setId(existingClip.getId());
@@ -350,7 +350,7 @@ public class MainRepo extends BaseRepo implements
     });
   }
 
-  public void updateClip(@NonNull ClipItem clip) {
+  public void updateClip(@NonNull Clip clip) {
     App.getExecutors().diskIO().execute(() -> {
       final int nRows = mDB.clipDao().update(clip);
       if (nRows == 0) {
@@ -361,26 +361,26 @@ public class MainRepo extends BaseRepo implements
     });
   }
 
-  public void updateClipSync(@NonNull ClipItem clip) {
+  public void updateClipSync(@NonNull Clip clip) {
     final int nRows = mDB.clipDao().update(clip);
     if (nRows == 0) {
       postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
     }
   }
 
-  public void updateClipFav(@NonNull ClipItem clip) {
+  public void updateClipFav(@NonNull Clip clip) {
     App.getExecutors().diskIO()
       .execute(() -> mDB.clipDao().updateFav(clip.getText(), clip.getFav()));
   }
 
-  public void removeClipSync(@NonNull ClipItem clip) {
+  public void removeClipSync(@NonNull Clip clip) {
     final List<Label> labels = getLabelsForClipSync(clip);
     clip.setLabels(labels);
     mDB.clipDao().delete(clip);
   }
 
-  public List<ClipItem> removeAllClipsSync(boolean includeFavs) {
-    final List<ClipItem> clips;
+  public List<Clip> removeAllClipsSync(boolean includeFavs) {
+    final List<Clip> clips;
     if (includeFavs) {
       clips = mDB.clipDao().getAllSync();
       setLabelsForClipsSync(clips);
@@ -451,21 +451,21 @@ public class MainRepo extends BaseRepo implements
     App.getExecutors().diskIO().execute(() -> mDB.labelDao().delete(label));
   }
 
-  public void addLabelForClipSync(@NonNull ClipItem clip, @NonNull Label
+  public void addLabelForClipSync(@NonNull Clip clip, @NonNull Label
     label) {
     final ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
     mDB.clipLabelJoinDao().insert(join);
   }
 
-  public void removeLabelForClipSync(@NonNull ClipItem clip, @NonNull Label
+  public void removeLabelForClipSync(@NonNull Clip clip, @NonNull Label
     label) {
     final ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
     mDB.clipLabelJoinDao().delete(join);
   }
 
-  public void addClipsAndLabels(@NonNull List<ClipItem> clips) {
+  public void addClipsAndLabels(@NonNull List<Clip> clips) {
     final Runnable transaction = () -> mDB.runInTransaction(() -> {
-      for (ClipItem clip : clips) {
+      for (Clip clip : clips) {
         mDB.clipDao().insert(clip);
         final List<Label> labels = clip.getLabels();
         for (Label label : labels) {
@@ -480,9 +480,9 @@ public class MainRepo extends BaseRepo implements
 
   /**
    * Does a clip with the given text exist
-   * @param clip ClipItem
+   * @param clip Clip
    */
-  private boolean exists(@NonNull ClipItem clip) {
+  private boolean exists(@NonNull Clip clip) {
     return mDB.clipDao().getSync(clip.getText()) != null;
   }
 
@@ -491,7 +491,7 @@ public class MainRepo extends BaseRepo implements
    * @param filterLabel Label to filter on
    * @return List of Clips
    */
-  private LiveData<List<ClipItem>> getClipsSource(@Nullable Label filterLabel) {
+  private LiveData<List<Clip>> getClipsSource(@Nullable Label filterLabel) {
     long id = (filterLabel == null) ? -1L : filterLabel.getId();
     final boolean haslabelId = (id != -1L);
     final String textFilter = getClipTextFilterSync();
@@ -560,7 +560,7 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
-  private void addLabelsForClipSync(@NonNull ClipItem clip) {
+  private void addLabelsForClipSync(@NonNull Clip clip) {
     final List<Label> labels = clip.getLabels();
     for (Label label : labels) {
       ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
@@ -568,14 +568,14 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
-  private void setLabelsForClipSync(@NonNull ClipItem clip) {
+  private void setLabelsForClipSync(@NonNull Clip clip) {
     clip.setLabels(getLabelsForClipSync(clip));
     Log.logD(TAG, clip.getLabels().toString());
   }
 
-  private void setLabelsForClipsSync(@NonNull List<ClipItem> clips) {
+  private void setLabelsForClipsSync(@NonNull List<Clip> clips) {
     mDB.runInTransaction(() -> {
-      for (final ClipItem clip : clips) {
+      for (final Clip clip : clips) {
         final List<Label> labels = getLabelsForClipSync(clip);
         clip.setLabels(labels);
       }
