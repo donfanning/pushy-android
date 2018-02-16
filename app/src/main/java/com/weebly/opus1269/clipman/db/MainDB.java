@@ -10,15 +10,13 @@ package com.weebly.opus1269.clipman.db;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
-import com.weebly.opus1269.clipman.app.AppExecutors;
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.dao.ClipDao;
 import com.weebly.opus1269.clipman.db.dao.ClipLabelJoinDao;
 import com.weebly.opus1269.clipman.db.dao.LabelDao;
@@ -32,15 +30,11 @@ import java.util.List;
 @Database(entities = {Clip.class, Label.class, ClipLabelJoin.class},
   version = 1, exportSchema = false)
 public abstract class MainDB extends RoomDatabase {
-  private static MainDB sInstance;
+  private static final String TAG = "MainDB";
 
   private static final String DATABASE_NAME = "main.db";
 
-  public abstract ClipDao clipDao();
-
-  public abstract LabelDao labelDao();
-
-  public abstract ClipLabelJoinDao clipLabelJoinDao();
+  private static MainDB sInstance;
 
   private final MutableLiveData<Boolean> mIsDBCreated = new MutableLiveData<>();
 
@@ -62,27 +56,41 @@ public abstract class MainDB extends RoomDatabase {
    * The SQLite database is only created when it's accessed for the first time.
    */
   private static MainDB buildDatabase(final Application app) {
-    final Context appContext = app.getApplicationContext();
-    final AppExecutors executors = App.getExecutors();
-    return Room.databaseBuilder(appContext, MainDB.class, DATABASE_NAME)
-      .addCallback(new Callback() {
-        @Override
-        public void onCreate(@NonNull SupportSQLiteDatabase db) {
-          super.onCreate(db);
-          executors.diskIO().execute(() -> {
-            // Generate the data for pre-population
-            MainDB database = MainDB.INST(app);
-            // TODO convert Clips.db database here
-            Clip labeldClip = MainDBInitializer.getLabeledClip();
-            Label label = MainDBInitializer.getLabel();
-            List<Clip> clips = MainDBInitializer.getClips();
+    return Room.databaseBuilder(app, MainDB.class, DATABASE_NAME).build();
+  }
 
-            insertData(database, clips, labeldClip, label);
-             //notify that the database was created and it's ready to be used
-            database.setDatabaseCreated();
-          });
-        }
-      }).build();
+  public abstract ClipDao clipDao();
+
+  public abstract LabelDao labelDao();
+
+  public abstract ClipLabelJoinDao clipLabelJoinDao();
+
+  private void initializeDB() {
+    Log.logD(TAG, "initializeDB");
+    if (OldClipsDB.exists()) {
+      // populate with old database
+      Log.logD(TAG, "converting Clip.db");
+      final OldClipsDB oldClipsDB = new OldClipsDB();
+      oldClipsDB.loadTables();
+      oldClipsDB.addToMainDB();
+      postDatabaseCreated();
+    } else {
+      // populate with introductory items
+      Log.logD(TAG, "adding introductory items");
+      final Clip labeledClip = MainDBInitializer.getLabeledClip();
+      final Label label = MainDBInitializer.getLabel();
+      final List<Clip> clips = MainDBInitializer.getClips();
+      App.getExecutors().diskIO().execute(() -> {
+        sInstance.runInTransaction(() -> {
+          sInstance.clipDao().insertAll(clips);
+          final long clipId = sInstance.clipDao().insert(labeledClip);
+          final long labelId = sInstance.labelDao().insert(label);
+          sInstance.clipLabelJoinDao().insert(new ClipLabelJoin(clipId,
+            labelId));
+          postDatabaseCreated();
+        });
+      });
+    }
   }
 
   /**
@@ -91,7 +99,9 @@ public abstract class MainDB extends RoomDatabase {
    */
   private void updateDatabaseCreated(final Context context) {
     if (context.getDatabasePath(DATABASE_NAME).exists()) {
-      setDatabaseCreated();
+      postDatabaseCreated();
+    } else {
+      initializeDB();
     }
   }
 
@@ -99,19 +109,7 @@ public abstract class MainDB extends RoomDatabase {
     return mIsDBCreated;
   }
 
-  private void setDatabaseCreated(){
+  private void postDatabaseCreated() {
     mIsDBCreated.postValue(true);
-  }
-
-  private static void insertData(final MainDB database,
-                                 final List<Clip> clips,
-                                 final Clip labeledClip,
-                                 final Label label) {
-    database.runInTransaction(() -> {
-      database.clipDao().insertAll(clips);
-      final long clipId = database.clipDao().insert(labeledClip);
-      final long labelId = database.labelDao().insert(label);
-      database.clipLabelJoinDao().insert(new ClipLabelJoin(clipId, labelId));
-    });
   }
 }

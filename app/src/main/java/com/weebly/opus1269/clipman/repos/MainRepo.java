@@ -588,11 +588,13 @@ public class MainRepo extends BaseRepo implements
     }
     clipsSource = getClipsSource(filterLabel.getValue());
     clips.addSource(clipsSource, clips -> {
-      if (clips != null) {
-        App.getExecutors().diskIO().execute(() -> {
-          setLabelsForClipsSync(clips);
-          this.clips.postValue(clips);
-        });
+      if (mDB.getDatabaseCreated().getValue() != null) {
+        if (clips != null) {
+          App.getExecutors().diskIO().execute(() -> {
+            setLabelsForClipsSync(clips);
+            this.clips.postValue(clips);
+          });
+        }
       }
     });
   }

@@ -89,6 +89,17 @@ public class Clip implements AdapterItem, Serializable {
     this.device = device;
   }
 
+  @Ignore
+  public Clip(long id, String text, long date, boolean fav, boolean remote,
+              String device) {
+    this.id = id;
+    this.text = text;
+    this.date = date;
+    this.fav = fav;
+    this.remote = remote;
+    this.device = device;
+  }
+
   public Clip(Clip clip, List<Label> labels, List<Long> labelsId) {
     this.text = clip.getText();
     this.date = clip.getDate();

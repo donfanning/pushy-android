@@ -7,7 +7,6 @@
 
 package com.weebly.opus1269.clipman.app;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -20,7 +19,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.weebly.opus1269.clipman.BuildConfig;
 import com.weebly.opus1269.clipman.R;
-import com.weebly.opus1269.clipman.db.ClipsDatabaseHelper;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.model.User;
 import com.weebly.opus1269.clipman.services.HeartbeatAlarmReceiver;
@@ -44,10 +42,6 @@ public class App extends Application implements
   /** Global {@link java.util.concurrent.Executor} objects */
   private static AppExecutors sAppExecutors;
 
-  /** Main database */
-  @SuppressLint("StaticFieldLeak")
-  private static ClipsDatabaseHelper sClipsDB = null;
-
   private static boolean sIsMainActivityVisible = false;
 
   private static boolean sIsDevicesActivityVisible = false;
@@ -66,10 +60,6 @@ public class App extends Application implements
 
   public static App INST() {
     return sInstance;
-  }
-
-  public static ClipsDatabaseHelper getDbHelper() {
-    return sClipsDB;
   }
 
   public static AppExecutors getExecutors() {
@@ -102,11 +92,6 @@ public class App extends Application implements
 
     // initialize global executor pools
     sAppExecutors = new AppExecutors();
-
-    // initialize database
-    // TODO remove
-    sClipsDB = new ClipsDatabaseHelper(this);
-    sClipsDB.getWritableDatabase();
 
     // make sure Shared preferences are initialized
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);

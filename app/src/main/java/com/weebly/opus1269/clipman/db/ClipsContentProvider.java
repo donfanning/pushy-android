@@ -21,7 +21,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.model.Analytics;
 
@@ -137,7 +136,7 @@ public class ClipsContentProvider extends ContentProvider {
     }
 
     // Do the query
-    final SQLiteDatabase db = App.getDbHelper().getReadableDatabase();
+    final SQLiteDatabase db = null;
     final Cursor cursor = queryBuilder.query(
       db,
       projection,
@@ -192,7 +191,7 @@ public class ClipsContentProvider extends ContentProvider {
 
     // this will insert or update as needed.
     // If it updates, it will be a new PRIMARY_KEY
-    final SQLiteDatabase db = App.getDbHelper().getWritableDatabase();
+    final SQLiteDatabase db = null;
     final long row = db.replaceOrThrow(table, null, values);
 
     if (row != -1) {
@@ -215,7 +214,7 @@ public class ClipsContentProvider extends ContentProvider {
   public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
     int insertCount = 0;
     final int uriType = URI_MATCHER.match(uri);
-    final SQLiteDatabase db = App.getDbHelper().getWritableDatabase();
+    final SQLiteDatabase db = null;
     final String table;
 
     final String actionGA = Analytics.INST(mContext).DB_CREATE;
@@ -323,7 +322,7 @@ public class ClipsContentProvider extends ContentProvider {
     }
 
     // do the delete
-    final SQLiteDatabase db = App.getDbHelper().getWritableDatabase();
+    final SQLiteDatabase db = null;
     final int rowsDeleted = db.delete(
       table,
       newSelection,
@@ -409,7 +408,7 @@ public class ClipsContentProvider extends ContentProvider {
     }
 
     // do the update
-    final SQLiteDatabase db = App.getDbHelper().getWritableDatabase();
+    final SQLiteDatabase db = null;
     final int rowsUpdated = db.update(
       table,
       values,
