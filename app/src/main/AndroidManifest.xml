@@ -100,13 +100,6 @@
       android:parentActivityName=".ui.main.MainActivity"
       android:theme="@style/AppThemeLight" />
 
-    <!-- private to app -->
-    <provider
-      android:name=".db.ClipsContentProvider"
-      android:authorities="com.weebly.opus1269.clipman"
-      android:enabled="true"
-      android:exported="false" />
-
     <service
       android:name="com.google.android.gms.analytics.AnalyticsService"
       android:enabled="true"

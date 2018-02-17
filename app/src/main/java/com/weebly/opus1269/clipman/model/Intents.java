@@ -13,14 +13,6 @@ import com.weebly.opus1269.clipman.BuildConfig;
 public class Intents {
   private static final String PATH = BuildConfig.APPLICATION_ID + '.';
 
-  // TODO remove all
-  public static final String FILTER_CLIP_ITEM = PATH + "filterClipItem";
-  public static final String BUNDLE_CLIP_ITEM = PATH + "bundleClipItem";
-  public static final String ACTION_TYPE_CLIP_ITEM  =
-    PATH + "actionTypeClipItem";
-  public static final String TYPE_TEXT_CHANGED_CLIP_ITEM =
-    PATH + "textChangedClipItem";
-
   // related to MyDevice
   public static final String FILTER_MY_DEVICE = PATH + "filterDevices";
   public static final String BUNDLE_MY_DEVICE = PATH + "bundleDevices";
@@ -48,8 +40,6 @@ public class Intents {
   static final String EXTRA_NOTIFICATION_ID = PATH + "notificationId";
   static final String EXTRA_EMAIL_BODY = PATH + "emailBody";
   static final String EXTRA_EMAIL_SUBJECT = PATH + "emailSubject";
-  // TODO replace with EXTRA_CLIP
-  public static final String EXTRA_CLIP_ITEM = PATH + "clipItem";
   public static final String EXTRA_CLIP = PATH + "clip";
   public static final String EXTRA_LAST_ERROR = PATH + "lastError";
 

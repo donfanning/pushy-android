@@ -38,7 +38,7 @@ public class ClipboardHelper {
 
   private static final String REMOTE_DESC_LABEL = "From Remote Copy";
 
-  private static final String LABELS_LABEL = "ClipItemOld Labels";
+  private static final String LABELS_LABEL = "ClipItem Labels";
 
   private static final String ERROR_CLIPBOARD_READ = "Failed to read clipboard";
 

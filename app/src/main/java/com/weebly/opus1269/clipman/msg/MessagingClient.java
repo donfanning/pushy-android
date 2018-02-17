@@ -33,7 +33,6 @@ import com.weebly.opus1269.clipman.backend.messaging.Messaging;
 import com.weebly.opus1269.clipman.backend.messaging.model.EndpointRet;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
-import com.weebly.opus1269.clipman.model.ClipItemOld;
 import com.weebly.opus1269.clipman.model.MyDevice;
 import com.weebly.opus1269.clipman.model.Prefs;
 import com.weebly.opus1269.clipman.repos.DeviceRepo;
@@ -79,40 +78,6 @@ public class MessagingClient extends Endpoint {
         sInstance = new MessagingClient(context);
       }
       return sInstance;
-    }
-  }
-
-  /**
-   * Send contents of {@link ClipItemOld}
-   * @param clipItemOld - contents to send
-   */
-  public void send(ClipItemOld clipItemOld) {
-    // Max length of fcm data message
-    final int MAX_LEN = 4096;
-
-    if (notSignedIn() || !Prefs.INST(mContext).isPushClipboard()) {
-      return;
-    }
-
-    String message = clipItemOld.getText();
-    if (message.length() > MAX_LEN) {
-      // 4KB limit with FCM - server will do final limiting
-      message = message.substring(0, MAX_LEN - 1);
-    }
-    final String favString = clipItemOld.isFav() ? "1" : "0";
-
-    JSONObject data = getJSONData(Msg.ACTION_MESSAGE, message);
-    try {
-      if (data != null) {
-        data.put(Msg.FAV, favString);
-      }
-    } catch (JSONException ex) {
-      Log.logEx(mContext, TAG, ex.getLocalizedMessage(), ex, ERROR_SEND);
-      data = null;
-    }
-
-    if (data != null) {
-      new MessagingAsyncTask(mContext, true).executeMe(data);
     }
   }
 
