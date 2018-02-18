@@ -17,17 +17,18 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.db.dao.BackupDao;
 import com.weebly.opus1269.clipman.db.entity.Backup;
 
 /** Backup database */
 @Database(entities = {Backup.class}, version = 1, exportSchema = false)
 public abstract class BackupDB extends RoomDatabase {
-  private static BackupDB sInstance;
+  private static final String TAG = "BackupDB";
 
   private static final String DATABASE_NAME = "backup.db";
 
-  public abstract BackupDao backupDao();
+  private static BackupDB sInstance;
 
   private final MutableLiveData<Boolean> mIsDBCreated = new MutableLiveData<>();
 
@@ -35,8 +36,7 @@ public abstract class BackupDB extends RoomDatabase {
     if (sInstance == null) {
       synchronized (BackupDB.class) {
         if (sInstance == null) {
-          sInstance =
-            buildDatabase(app);
+          sInstance = buildDatabase(app);
           sInstance.updateDatabaseCreated(app.getApplicationContext());
         }
       }
@@ -56,10 +56,13 @@ public abstract class BackupDB extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
           super.onCreate(db);
-          BackupDB.INST(app).setDatabaseCreated();
+          Log.logD(TAG, "Creating database");
+          sInstance.postDatabaseCreated();
         }
       }).build();
   }
+
+  public abstract BackupDao backupDao();
 
   /**
    * Check whether the database already exists and expose it via
@@ -67,7 +70,7 @@ public abstract class BackupDB extends RoomDatabase {
    */
   private void updateDatabaseCreated(final Context context) {
     if (context.getDatabasePath(DATABASE_NAME).exists()) {
-      setDatabaseCreated();
+      postDatabaseCreated();
     }
   }
 
@@ -75,7 +78,7 @@ public abstract class BackupDB extends RoomDatabase {
     return mIsDBCreated;
   }
 
-  private void setDatabaseCreated(){
+  private void postDatabaseCreated() {
     mIsDBCreated.postValue(true);
   }
 }

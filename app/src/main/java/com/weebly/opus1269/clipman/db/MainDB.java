@@ -10,10 +10,12 @@ package com.weebly.opus1269.clipman.db;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
 import com.weebly.opus1269.clipman.app.Log;
@@ -56,7 +58,15 @@ public abstract class MainDB extends RoomDatabase {
    * The SQLite database is only created when it's accessed for the first time.
    */
   private static MainDB buildDatabase(final Application app) {
-    return Room.databaseBuilder(app, MainDB.class, DATABASE_NAME).build();
+    return Room.databaseBuilder(app, MainDB.class, DATABASE_NAME)
+      .addCallback(new Callback() {
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+          super.onCreate(db);
+          Log.logD(TAG, "Creating database");
+          sInstance.initializeDB();
+        }
+      }).build();
   }
 
   public abstract ClipDao clipDao();
@@ -66,10 +76,9 @@ public abstract class MainDB extends RoomDatabase {
   public abstract ClipLabelJoinDao clipLabelJoinDao();
 
   private void initializeDB() {
-    Log.logD(TAG, "initializeDB");
     if (OldClipsDB.exists()) {
       // populate with old database
-      Log.logD(TAG, "converting Clip.db");
+      Log.logD(TAG, "converting Clips.db");
       final OldClipsDB oldClipsDB = new OldClipsDB();
       oldClipsDB.loadTables();
       oldClipsDB.addToMainDB();
@@ -100,8 +109,6 @@ public abstract class MainDB extends RoomDatabase {
   private void updateDatabaseCreated(final Context context) {
     if (context.getDatabasePath(DATABASE_NAME).exists()) {
       postDatabaseCreated();
-    } else {
-      initializeDB();
     }
   }
 
