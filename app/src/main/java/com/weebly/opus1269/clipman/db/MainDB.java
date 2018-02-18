@@ -15,6 +15,7 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import android.database.SQLException;
 import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.app.App;
@@ -25,8 +26,6 @@ import com.weebly.opus1269.clipman.db.dao.LabelDao;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.db.entity.ClipLabelJoin;
 import com.weebly.opus1269.clipman.db.entity.Label;
-
-import java.util.List;
 
 /** Main database */
 @Database(entities = {Clip.class, Label.class, ClipLabelJoin.class},
@@ -75,29 +74,48 @@ public abstract class MainDB extends RoomDatabase {
 
   public abstract ClipLabelJoinDao clipLabelJoinDao();
 
+  public LiveData<Boolean> getDatabaseCreated() {
+    return mIsDBCreated;
+  }
+
+  private void postDatabaseCreated() {
+    mIsDBCreated.postValue(true);
+  }
+
+  /** Populate the database */
   private void initializeDB() {
     if (OldClipsDB.exists()) {
       // populate with old database
       Log.logD(TAG, "converting Clips.db");
       final OldClipsDB oldClipsDB = new OldClipsDB();
-      oldClipsDB.loadTables();
-      oldClipsDB.addToMainDB();
-      postDatabaseCreated();
+      App.getExecutors().diskIO().execute(() -> {
+        try {
+          if (MainDB.INST(App.INST()).runInTransaction(oldClipsDB)) {
+            if (!oldClipsDB.delete()) {
+              Log.logE(App.INST(), TAG, "Failed to delete Clips.db", false);
+            }
+          }
+        } catch (SQLException ex) {
+          // bad news for exiting users
+          Log.logEx(App.INST(), TAG, "Failed to convert Clips.db", ex, true);
+          // populate with introductory items instead
+          Log.logD(TAG, "adding introductory items instead");
+          final MainDBInitializer mainDBInitializer = new MainDBInitializer();
+          sInstance.runInTransaction(mainDBInitializer);
+        } finally {
+          postDatabaseCreated();
+        }
+      });
     } else {
       // populate with introductory items
       Log.logD(TAG, "adding introductory items");
-      final Clip labeledClip = MainDBInitializer.getLabeledClip();
-      final Label label = MainDBInitializer.getLabel();
-      final List<Clip> clips = MainDBInitializer.getClips();
+      final MainDBInitializer mainDBInitializer = new MainDBInitializer();
       App.getExecutors().diskIO().execute(() -> {
-        sInstance.runInTransaction(() -> {
-          sInstance.clipDao().insertAll(clips);
-          final long clipId = sInstance.clipDao().insert(labeledClip);
-          final long labelId = sInstance.labelDao().insert(label);
-          sInstance.clipLabelJoinDao().insert(new ClipLabelJoin(clipId,
-            labelId));
+        try {
+          sInstance.runInTransaction(mainDBInitializer);
+        } finally {
           postDatabaseCreated();
-        });
+        }
       });
     }
   }
@@ -110,13 +128,5 @@ public abstract class MainDB extends RoomDatabase {
     if (context.getDatabasePath(DATABASE_NAME).exists()) {
       postDatabaseCreated();
     }
-  }
-
-  public LiveData<Boolean> getDatabaseCreated() {
-    return mIsDBCreated;
-  }
-
-  private void postDatabaseCreated() {
-    mIsDBCreated.postValue(true);
   }
 }

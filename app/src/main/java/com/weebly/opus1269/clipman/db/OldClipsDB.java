@@ -28,7 +28,7 @@ import java.util.concurrent.Callable;
 
 /** Class for moving data from old database to Room database */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-class OldClipsDB {
+class OldClipsDB implements Callable<Boolean>{
   private static final String TAG = "OldClipsDB";
 
   private static final String DB_NAME = "Clips.db";
@@ -50,7 +50,54 @@ class OldClipsDB {
     return dbFile.exists();
   }
 
-  public void loadTables() {
+  @Override
+  public Boolean call() throws SQLException {
+    // load all data from old database
+    loadTables();
+
+    // add to new database
+    MainDB.INST(App.INST()).labelDao().insertAll(labels);
+    // get mapping between label name and id
+    final List<Label> newLabels =
+      MainDB.INST(App.INST()).labelDao().getAllSync();
+    final Map<String, Long> labelsMap = new HashMap<>(newLabels.size());
+    for (final Label label : newLabels) {
+      labelsMap.put(label.getName(), label.getId());
+    }
+
+    for (Clip clip : clips) {
+      final long clipId = MainDB.INST(App.INST()).clipDao().insert(clip);
+      final List<String> labelNames = clipIdLabelNamesMap.get(clipId);
+      if (labelNames != null) {
+        for (String labelName : labelNames) {
+          ClipLabelJoin join =
+            new ClipLabelJoin(clipId, labelsMap.get(labelName));
+          MainDB.INST(App.INST()).clipLabelJoinDao().insert(join);
+        }
+      }
+    }
+    return true;
+  }
+
+  /** Delete the old database
+   * @return true if deleted or doesn't exist
+   */
+  public boolean delete() {
+    final File dbFile = App.INST().getDatabasePath(DB_NAME);
+    if (dbFile == null) {
+      // already deleted
+      Log.logD(TAG, "Already deleted");
+      return true;
+    }
+    final boolean deleted = SQLiteDatabase.deleteDatabase(dbFile);
+    if (deleted) {
+      Log.logD(TAG, "deleted: " + dbFile.getName());
+    }
+    return deleted;
+  }
+
+  /** Load all the data from the old database */
+  private void loadTables() {
     File dbFile = App.INST().getDatabasePath(DB_NAME);
     db = SQLiteDatabase.
       openDatabase(dbFile.getPath(), null, SQLiteDatabase.OPEN_READONLY);
@@ -61,42 +108,6 @@ class OldClipsDB {
     } finally {
       db.close();
     }
-  }
-
-  /** Add the Clips.db data to the main.db */
-  public void addToMainDB() {
-    Callable<Boolean> callable = () -> {
-        MainDB.INST(App.INST()).labelDao().insertAll(labels);
-        // get mapping between label name and id
-        final List<Label> newLabels =
-          MainDB.INST(App.INST()).labelDao().getAllSync();
-        final Map<String, Long> labelsMap = new HashMap<>(newLabels.size());
-        for (final Label label : newLabels) {
-          labelsMap.put(label.getName(), label.getId());
-        }
-
-        for (Clip clip : clips) {
-          final long clipId = MainDB.INST(App.INST()).clipDao().insert(clip);
-          final List<String> labelNames = clipIdLabelNamesMap.get(clipId);
-          if (labelNames != null) {
-            for (String labelName : labelNames) {
-              ClipLabelJoin join =
-                new ClipLabelJoin(clipId, labelsMap.get(labelName));
-              MainDB.INST(App.INST()).clipLabelJoinDao().insert(join);
-            }
-          }
-        }
-      return true;
-    };
-
-    App.getExecutors().diskIO().execute(() -> {
-      if (MainDB.INST(App.INST()).runInTransaction(callable)) {
-        final File dbFile = App.INST().getDatabasePath(DB_NAME);
-        if (SQLiteDatabase.deleteDatabase(dbFile)) {
-          Log.logD(TAG, "deleted: " + dbFile.getName());
-        }
-      }
-    });
   }
 
   private void loadClips() {
@@ -168,23 +179,6 @@ class OldClipsDB {
     }
   }
 
-  //private void loadLabelMaps() {
-  //  labelMaps = new ArrayList<>(0);
-  //  final Cursor cursor =
-  //    db.query(LabelMapTable.NAME, null, null, null, null, null, null);
-  //  try {
-  //    while (cursor.moveToNext()) {
-  //      int idx = cursor.getColumnIndex(LabelMapTable.COL_CLIP_ID);
-  //      final long clipId = cursor.getLong(idx);
-  //      idx = cursor.getColumnIndex(LabelMapTable.COL_LABEL_NAME);
-  //      final String labelName = cursor.getString(idx);
-  //      labelMaps.add(new LabelMap(clipId, labelName));
-  //    }
-  //  } finally {
-  //    cursor.close();
-  //  }
-  //}
-  //
   /** Inner class that defines the Clip table */
   static class ClipTable {
     static final String NAME = "clip";
