@@ -48,8 +48,8 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   }
 
   public void setClip(@NonNull Clip aClip) {
-    this.clip.addSource(mRepo.getClip(aClip.getId()),
-      clip -> App.getExecutors().diskIO().execute(() -> {
+    this.clip.addSource(mRepo.getClip(aClip.getId()), clip ->
+      App.getExecutors().diskIO().execute(() -> {
         if (clip != null) {
           clip.setLabels(mRepo.getLabelsForClipSync(clip));
           this.clip.postValue(clip);
@@ -92,17 +92,12 @@ public class LabelsSelectViewModel extends BaseRepoViewModel<MainRepo> {
   public void addOrRemoveLabel(@NonNull Label label, boolean add) {
     final Clip clip = this.clip.getValue();
     if (clip != null) {
-      App.getExecutors().diskIO().execute(() -> {
-        if (add) {
-          mRepo.addLabelForClipSync(clip, label);
-          clip.addLabel(label);
-        } else {
-          mRepo.removeLabelForClipSync(clip, label);
-          clip.removeLabel(label);
-        }
-        // force update so labels get processed
-        mRepo.updateClipSync(clip);
-      });
+      if (add) {
+        clip.addLabel(label);
+      } else {
+        clip.removeLabel(label);
+      }
+      mRepo.updateClip(clip, true);
     }
   }
 }

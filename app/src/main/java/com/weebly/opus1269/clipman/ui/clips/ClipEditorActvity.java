@@ -7,6 +7,7 @@
 
 package com.weebly.opus1269.clipman.ui.clips;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -16,7 +17,6 @@ import android.view.MenuItem;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
-import com.weebly.opus1269.clipman.app.Log;
 import com.weebly.opus1269.clipman.databinding.ClipEditorBinding;
 import com.weebly.opus1269.clipman.db.entity.Clip;
 import com.weebly.opus1269.clipman.model.Analytics;
@@ -42,54 +42,25 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
       actionBar.setHomeAsUpIndicator(R.drawable.ic_clear);
     }
 
-    final Intent intent = getIntent();
-
-    boolean addMode = false;
-    Clip clip =
-      (Clip) intent.getSerializableExtra(Intents.EXTRA_CLIP);
-    if (clip == null) {
-      Log.logD(TAG, "add mode");
-      addMode = true;
-      clip = new Clip();
-
-      // TODO
-      //final String labelName = intent.getStringExtra(Intents.EXTRA_TEXT);
-      //if (!TextUtils.isEmpty(labelName)) {
-      //   added from a list filtered by labelName
-      //  mClip.addLabel(this, new LabelOld(labelName));
-      //}
-    }
-
-    if (addMode) {
-      setTitle(R.string.title_activity_clip_editor_add_mode);
-    } else {
-      setTitle(R.string.title_activity_clip_editor);
-    }
-
     // setup ViewModel and data binding
-    mVm = new ClipEditorViewModel(getApplication(), clip, addMode);
+    mVm = ViewModelProviders.of(this).get(ClipEditorViewModel.class);
     mBinding.setLifecycleOwner(this);
     mBinding.setVm(mVm);
     mBinding.executePendingBindings();
 
-    // observe text
-    mVm.getText().observe(this, text -> updateOptionMenus());
-
-    // observe info message
-    mVm.getInfoMessage().observe(this, infoMsg -> {
-      if (!TextUtils.isEmpty(infoMsg)) {
-        // our save operation succeeded.
-        mVm.copyToClipboard();
-        finish();
+    if (savedInstanceState == null) {
+      final Intent intent = getIntent();
+      final Clip clip = (Clip) intent.getSerializableExtra(Intents.EXTRA_CLIP);
+      if (clip != null) {
+        mVm.setClip(clip);
+        mVm.setAddMode(false);
       }
-    });
+      intent.removeExtra(Intents.EXTRA_CLIP);
+    }
 
-    // observe error message
-    mVm.getErrorMsg().observe(this, errorMsg -> {
-      if (errorMsg != null) {
-        AppUtils.showMessage(this, mBinding.getRoot(), errorMsg.msg);
-      }
-    });
+    setTitle();
+
+    subscribeToViewModel();
   }
 
   @Override
@@ -107,8 +78,7 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
   public boolean onSupportNavigateUp() {
     // close this activity as opposed to navigating up
     finish();
-
-    return false;
+    return true;
   }
 
   @Override
@@ -133,6 +103,38 @@ public class ClipEditorActvity extends BaseActivity<ClipEditorBinding> {
     }
 
     return processed || super.onOptionsItemSelected(item);
+  }
+
+  /** Observe changes to ViewModel */
+  private void subscribeToViewModel() {
+    // observe text
+    mVm.getText().observe(this, text -> updateOptionMenus());
+
+    // observe info message
+    mVm.getInfoMessage().observe(this, infoMsg -> {
+      if (!TextUtils.isEmpty(infoMsg)) {
+        // our save operation succeeded.
+        mVm.copyToClipboard();
+        mVm.setInfoMessage("");
+        finish();
+      }
+    });
+
+    // observe error message
+    mVm.getErrorMsg().observe(this, errorMsg -> {
+      if (errorMsg != null) {
+        AppUtils.showMessage(this, mBinding.getRoot(), errorMsg.msg);
+      }
+    });
+  }
+
+  /** Set Activity title */
+  private void setTitle() {
+    if (mVm.getAddMode()) {
+      setTitle(R.string.title_activity_clip_editor_add_mode);
+    } else {
+      setTitle(R.string.title_activity_clip_editor);
+    }
   }
 
   /** Set menu states */

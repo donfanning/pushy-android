@@ -58,4 +58,7 @@ public interface ClipLabelJoinDao extends BaseDao<ClipLabelJoin> {
 
   @Query("SELECT id, name FROM labels INNER JOIN clips_labels_join ON labels.id=clips_labels_join.labelId WHERE clips_labels_join.clipId=:clipId")
   List<Label> getLabelsForClipSync(final long clipId);
+
+  @Query("DELETE FROM clips_labels_join WHERE clipId=:clipId")
+  int deleteByClipId(final long clipId);
 }

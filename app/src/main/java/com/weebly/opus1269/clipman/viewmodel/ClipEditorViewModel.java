@@ -16,6 +16,7 @@ import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.AppUtils;
 import com.weebly.opus1269.clipman.app.ClipboardHelper;
 import com.weebly.opus1269.clipman.db.entity.Clip;
+import com.weebly.opus1269.clipman.db.entity.Label;
 import com.weebly.opus1269.clipman.model.ErrorMsg;
 import com.weebly.opus1269.clipman.repos.MainRepo;
 
@@ -23,27 +24,26 @@ import org.threeten.bp.Instant;
 
 /** ViewModel for an editable {@link Clip} */
 public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
-  /** True if creating new {@link Clip} */
-  private final boolean addMode;
-
   /** Our editable Clip text */
   @NonNull
   private final MutableLiveData<String> text;
 
+  /** True if creating new {@link Clip} */
+  private boolean addMode;
+
   /** Our Clip */
   @NonNull
-  private final Clip clip;
+  private Clip clip;
 
-  public ClipEditorViewModel(@NonNull Application app, @NonNull Clip clip,
-                             boolean addMode) {
+  public ClipEditorViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
+
+    addMode = true;
+
+    clip = new Clip();
 
     text = new MutableLiveData<>();
     text.setValue(clip.getText());
-
-    this.addMode = addMode;
-
-    this.clip = clip;
   }
 
   @Override
@@ -55,6 +55,15 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
 
   public boolean getAddMode() {
     return addMode;
+  }
+
+  public void setAddMode(boolean addMode) {
+    this.addMode = addMode;
+  }
+
+  public void setClip(@NonNull Clip clip) {
+    this.clip = clip;
+    text.setValue(clip.getText());
   }
 
   @NonNull
@@ -75,14 +84,21 @@ public class ClipEditorViewModel extends BaseRepoViewModel<MainRepo> {
       return;
     }
 
-    // update clip
+    // update clip values
     clip.setText(newText);
     clip.setRemote(false);
     clip.setDate(Instant.now().toEpochMilli());
+    // add filter label if it is set
+    final Label label = mRepo.getFilterLabel().getValue();
+    if (!Label.isWhitespace(label)) {
+      clip.addLabel(label);
+    }
+
+    // persist clip
     if (addMode) {
-      mRepo.addClipIfNew(this.clip);
+      mRepo.addClipIfNew(this.clip, false);
     } else {
-      mRepo.updateClip(this.clip);
+      mRepo.updateClip(this.clip, false);
     }
   }
 

@@ -242,7 +242,7 @@ public class Clip implements AdapterItem, Serializable {
   }
 
   /**
-   * Add a Label
+   * Add a Label if it doesn't exist
    * @param label Label
    */
   public void addLabel(@NonNull Label label) {
@@ -252,7 +252,7 @@ public class Clip implements AdapterItem, Serializable {
   }
 
   /**
-   * Remove a Label
+   * Remove a Label if it exists
    * @param label Label
    */
   public void removeLabel(@NonNull Label label) {

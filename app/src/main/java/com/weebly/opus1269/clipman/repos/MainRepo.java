@@ -274,33 +274,36 @@ public class MainRepo extends BaseRepo implements
 
   /**
    * Insert a clip only if the text does not exist
-   * @param clip Clip
+   * @param clip   Clip
+   * @param silent if true, no messages
    */
-  public void addClipIfNew(@NonNull Clip clip) {
-    addClipIfNew(clip, false);
+  public void addClipIfNew(@NonNull Clip clip, boolean silent) {
+    App.getExecutors().diskIO().execute(() -> addClipIfNewSync(clip, silent));
   }
 
   /**
    * Insert a clip only if the text does not exist
    * @param clip   Clip
    * @param silent if true, no messages
+   * @return true if added
    */
-  public void addClipIfNew(@NonNull Clip clip, boolean silent) {
-    App.getExecutors().diskIO().execute(() -> {
-      if (!exists(clip)) {
-        final long id = mDB.clipDao().insert(clip);
-        if (id != -1L) {
-          clip.setId(id);
-          addLabelsForClipSync(clip);
-        }
-        if (!silent) {
-          postInfoMessage(mApp.getString(R.string.repo_clip_added));
-          errorMsg.postValue(null);
-        }
-      } else if (!silent) {
-        postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
+  private boolean addClipIfNewSync(@NonNull Clip clip, boolean silent) {
+    boolean added = false;
+    if (!exists(clip)) {
+      final long id = mDB.clipDao().insert(clip);
+      if (id != -1L) {
+        added = true;
+        clip.setId(id);
+        addLabelsForClipSync(clip);
       }
-    });
+      if (!silent) {
+        postInfoMessage(mApp.getString(R.string.repo_clip_added));
+        errorMsg.postValue(null);
+      }
+    } else if (!silent) {
+      postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
+    }
+    return added;
   }
 
   /**
@@ -350,21 +353,21 @@ public class MainRepo extends BaseRepo implements
     });
   }
 
-  public void updateClip(@NonNull Clip clip) {
-    App.getExecutors().diskIO().execute(() -> {
-      final int nRows = mDB.clipDao().update(clip);
-      if (nRows == 0) {
-        postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
-      } else {
-        postInfoMessage(mApp.getString(R.string.repo_clip_updated));
-      }
-    });
+  public void updateClip(@NonNull Clip clip, boolean silent) {
+    App.getExecutors().diskIO().execute(() -> updateClipSync(clip, silent));
   }
 
-  public void updateClipSync(@NonNull Clip clip) {
+  private void updateClipSync(@NonNull Clip clip, boolean silent) {
     final int nRows = mDB.clipDao().update(clip);
     if (nRows == 0) {
-      postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
+      if(!silent) {
+        postErrorMsg(new ErrorMsg(mApp.getString(R.string.repo_clip_exists)));
+      }
+    } else {
+      updateLabelsForClipSync(clip);
+      if(!silent) {
+        postInfoMessage(mApp.getString(R.string.repo_clip_updated));
+      }
     }
   }
 
@@ -449,18 +452,6 @@ public class MainRepo extends BaseRepo implements
 
   public void removeLabel(@NonNull Label label) {
     App.getExecutors().diskIO().execute(() -> mDB.labelDao().delete(label));
-  }
-
-  public void addLabelForClipSync(@NonNull Clip clip, @NonNull Label
-    label) {
-    final ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
-    mDB.clipLabelJoinDao().insert(join);
-  }
-
-  public void removeLabelForClipSync(@NonNull Clip clip, @NonNull Label
-    label) {
-    final ClipLabelJoin join = new ClipLabelJoin(clip.getId(), label.getId());
-    mDB.clipLabelJoinDao().delete(join);
   }
 
   public void addClipsAndLabels(@NonNull List<Clip> clips) {
@@ -568,18 +559,25 @@ public class MainRepo extends BaseRepo implements
     }
   }
 
+  private void updateLabelsForClipSync(@NonNull Clip clip) {
+    final long clipId = clip.getId();
+    mDB.clipLabelJoinDao().deleteByClipId(clipId);
+    final List<Label> labels = clip.getLabels();
+    for (Label label : labels) {
+      final long labelId = label.getId();
+      final ClipLabelJoin join = new ClipLabelJoin(clipId, labelId);
+      mDB.clipLabelJoinDao().insert(join);
+    }
+  }
+
   private void setLabelsForClipSync(@NonNull Clip clip) {
     clip.setLabels(getLabelsForClipSync(clip));
-    Log.logD(TAG, clip.getLabels().toString());
   }
 
   private void setLabelsForClipsSync(@NonNull List<Clip> clips) {
-    mDB.runInTransaction(() -> {
-      for (final Clip clip : clips) {
-        final List<Label> labels = getLabelsForClipSync(clip);
-        clip.setLabels(labels);
-      }
-    });
+    for (final Clip clip : clips) {
+      setLabelsForClipSync(clip);
+    }
   }
 
   private void changeClipsSource() {
