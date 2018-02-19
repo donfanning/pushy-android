@@ -332,14 +332,16 @@ public class MainRepo extends BaseRepo implements
           }
           nRows = mDB.clipDao().update(clip);
         } else {
+          // new clip
           id = mDB.clipDao().insert(clip);
+          clip.setId(id);
         }
       }
 
       if (id != -1L || nRows != 0) {
         // success
         if (id != -1L) {
-          Log.logD(TAG, "addClipAndSend added id: " + id);
+          Log.logD(TAG, "addClipAndSend added id: " + clip.getId());
         } else {
           Log.logD(TAG, "addClipAndSend updated id: " + clip.getId());
         }
