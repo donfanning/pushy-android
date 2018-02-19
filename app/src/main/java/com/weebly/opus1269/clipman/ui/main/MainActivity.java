@@ -73,6 +73,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    Log.logD(TAG, "onCreate");
     mLayoutID = R.layout.activity_main;
     mIsBound = true;
 
@@ -316,10 +317,20 @@ public class MainActivity extends BaseActivity<MainBinding> implements
         mAdapter.setList(clips);
         if (AppUtils.isEmpty(clips)) {
           mVm.setSelClip(null);
-        } else if (AppUtils.isDualPane(this)) {
-          final Clip clip = mVm.getSelClipSync();
-          if (Clip.isWhitespace(clip) || !mVm.isVisible(clip)) {
-            mVm.setSelClip(clips.get(0));
+        } else {
+          final String clipText = mVm.getClipTextToSelect();
+          if (!TextUtils.isEmpty(clipText)) {
+            // we have added a clip we should select
+            final Clip clip = mVm.findClipByText(clipText);
+            if (clip != null) {
+              mVm.setClipTextToSelect(null);
+              selectClip(clip);
+            }
+          } else {
+            final Clip clip = mVm.getSelClipSync();
+            if (Clip.isWhitespace(clip) || !mVm.hasClip(clip)) {
+              mVm.setSelClip(clips.get(0));
+            }
           }
         }
       }
@@ -407,24 +418,18 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     final String action = intent.getAction();
     final String type = intent.getType();
 
-    Log.logD(TAG, "handleIntent: " + action);
+    Log.logD(TAG, "handleIntent action: " + action);
 
     if (Intent.ACTION_SEND.equals(action) && (type != null)) {
       // Shared from other app
       if (Clip.TEXT_PLAIN.equals(type)) {
-        final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-        if (!TextUtils.isEmpty(sharedText)) {
+        final String clipText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        mVm.setClipTextToSelect(clipText);
+        if (!TextUtils.isEmpty(clipText)) {
           final Clip clip = new Clip();
-          clip.setText(sharedText);
+          clip.setText(clipText);
           mVm.addClip(clip);
-          // TODO setselected properly
-          //mVm.addClipAndSelect(clip);
           intent.removeExtra(Intents.EXTRA_TEXT);
-          //App.getExecutors().diskIO().execute(() -> {
-          //  if (mVm.addClipSync(clip)) {
-          //    //selectClip(clip);
-          //  }
-          //});
         }
       }
     } else if (intent.hasExtra(Intents.EXTRA_CLIP)) {

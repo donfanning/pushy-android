@@ -51,10 +51,16 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
   @Nullable
   private Clip lastSelClip;
 
+  /** Text of a Clip to select */
+  @Nullable
+  private String clipTextToSelect;
+
   public MainViewModel(@NonNull Application app) {
     super(app, MainRepo.INST(app));
 
     lastSelClip = null;
+
+    clipTextToSelect = null;
 
     undoClips = new MutableLiveData<>();
     undoClips.setValue(null);
@@ -154,7 +160,31 @@ public class MainViewModel extends BaseRepoViewModel<MainRepo> {
     mRepo.setFilterLabel(label);
   }
 
-  public boolean isVisible(@NonNull Clip clip) {
+  @Nullable
+  public String getClipTextToSelect() {
+    return clipTextToSelect;
+  }
+
+  public void setClipTextToSelect(@Nullable String clipTextToSelect) {
+    this.clipTextToSelect = clipTextToSelect;
+  }
+
+  @Nullable
+  public Clip findClipByText(@NonNull String clipText) {
+    Clip ret = null;
+    final List<Clip> clips = this.clips.getValue();
+    if (!AppUtils.isEmpty(clips)) {
+      for (final Clip clip : clips) {
+        if (clipText.equals(clip.getText())) {
+          ret = clip;
+          break;
+        }
+      }
+    }
+    return ret;
+  }
+
+  public boolean hasClip(@NonNull Clip clip) {
     boolean ret = false;
     final List<Clip> clips = this.clips.getValue();
     if (!AppUtils.isEmpty(clips)) {
