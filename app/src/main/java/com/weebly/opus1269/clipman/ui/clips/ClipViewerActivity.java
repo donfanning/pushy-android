@@ -83,14 +83,6 @@ public class ClipViewerActivity extends
     return ret;
   }
 
-  @Override
-  protected void onPause() {
-    // TODO
-    //mVm.setUndoClip(null);
-
-    super.onPause();
-  }
-
   @Nullable
   private ClipViewerFragment getClipViewerFragment() {
     return (ClipViewerFragment)

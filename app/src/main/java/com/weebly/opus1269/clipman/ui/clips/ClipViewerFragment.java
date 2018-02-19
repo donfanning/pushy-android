@@ -113,9 +113,6 @@ public class ClipViewerFragment extends BaseFragment<ClipViewerBinding> {
     mBinding.executePendingBindings();
 
     subscribeToViewModel();
-
-    // TODO
-    //clipChanged(mVm.getSelClipSync());
   }
 
   @Override
