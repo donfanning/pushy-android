@@ -46,24 +46,5 @@ public class LabelCreateFragement extends BaseFragment<LabelCreateBinding> {
 
     return mBinding.getRoot();
   }
-//@Override
-  //public View onCreateView(@NonNull LayoutInflater inflater,
-  //                         ViewGroup container, Bundle savedInstanceState) {
-  //  mLayoutID= R.layout.fragment_label_create;
-  //  mIsBound = true;
-  //  
-  //  final LabelCreateBinding binding = DataBindingUtil.inflate(inflater,
-  //    R.layout.fragment_label_create, container, false);
-  //
-  //  // setup ViewModel and data binding
-  //  final LabelCreateViewModel vm = new LabelCreateViewModel(App.INST());
-  //  final LabelCreateHandlers handlers = new LabelCreateHandlers();
-  //  binding.setLifecycleOwner(this);
-  //  binding.setVm(vm);
-  //  binding.setHandlers(handlers);
-  //  binding.executePendingBindings();
-  //
-  //  return binding.getRoot();
-  //}
 }
 
