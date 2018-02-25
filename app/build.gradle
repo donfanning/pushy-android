@@ -73,25 +73,22 @@ dependencies {
   implementation "com.takisoft.fix:preference-v7:${rootProject.ext.supportLibraryVersion}.0"
 
   // android support libraries
-  implementation "com.android.support:support-v4:${rootProject.ext.supportLibraryVersion}"
   implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibraryVersion}"
   implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibraryVersion}"
   implementation "com.android.support:design:${rootProject.ext.supportLibraryVersion}"
   implementation "com.android.support:support-vector-drawable:${rootProject.ext.supportLibraryVersion}"
 
   // ViewModel and LiveData
-  implementation "android.arch.lifecycle:runtime:${rootProject.ext.lifeCycleVersion}"
   implementation "android.arch.lifecycle:extensions:${rootProject.ext.lifeCycleVersion}"
-  annotationProcessor "android.arch.lifecycle:compiler:${rootProject.ext.archVersion}"
   // Java8 support for Lifecycles
-  implementation "android.arch.lifecycle:common-java8:${rootProject.ext.archVersion}"
+  implementation "android.arch.lifecycle:common-java8:${rootProject.ext.lifeCycleVersion}"
 
   // Room
   implementation "android.arch.persistence.room:runtime:${rootProject.ext.archVersion}"
   annotationProcessor "android.arch.persistence.room:compiler:${rootProject.ext.archVersion}"
 
   // Paging
-  implementation "android.arch.paging:runtime:1.0.0-alpha4-1"
+  implementation "android.arch.paging:runtime:1.0.0-alpha5"
 
   // Google Play service
   implementation "com.google.android.gms:play-services-analytics:${rootProject.ext.gmsVersion}"
