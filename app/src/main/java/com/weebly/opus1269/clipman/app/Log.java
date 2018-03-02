@@ -63,7 +63,7 @@ public final class Log {
    */
   public static String logE(@Nullable Context ctxt, String tag, String message,
                             String title, boolean notify) {
-    if (TextUtils.isEmpty(message)) {
+    if ((ctxt != null) && TextUtils.isEmpty(message)) {
       message = ctxt.getString(R.string.err_unknown);
     }
 
@@ -100,7 +100,10 @@ public final class Log {
    */
   public static String logE(@Nullable Context ctxt, String tag, String message,
                             boolean notify) {
-    final String title = ctxt.getString(R.string.error_not_title);
+    String title = "An error occurred";
+    if (ctxt != null) {
+      title = ctxt.getString(R.string.error_not_title);
+    }
     return logE(ctxt, tag, message, title, notify);
   }
 
