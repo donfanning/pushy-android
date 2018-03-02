@@ -8,6 +8,7 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -33,7 +34,8 @@ class LabelsSelectAdapter extends BaseBindingAdapter<Label,
   }
 
   @Override
-  public void onBindViewHolder(final LabelViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull final LabelViewHolder holder,
+                               int position) {
     super.onBindViewHolder(holder, position);
 
     if (mActivity.getVm().hasLabel(holder.binding.getVm().getNameSync())) {

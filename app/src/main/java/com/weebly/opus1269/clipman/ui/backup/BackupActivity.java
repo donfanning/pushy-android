@@ -69,7 +69,7 @@ public class BackupActivity extends BaseActivity<BackupBinding> {
     // Observe backups
     vm.getBackups().observe(this, backups -> {
       if (backups != null) {
-        mAdapter.setList(backups);
+        mAdapter.submitList(backups);
       }
     });
   }

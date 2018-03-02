@@ -19,6 +19,7 @@
 package com.weebly.opus1269.clipman.ui.labels;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.support.annotation.NonNull;
 
 import com.weebly.opus1269.clipman.R;
 import com.weebly.opus1269.clipman.app.App;
@@ -31,9 +32,8 @@ import com.weebly.opus1269.clipman.viewmodel.LabelViewModel;
 import com.weebly.opus1269.clipman.ui.base.VMAdapterFactory;
 
 /** Bridge between the RecyclerView and the database */
-class LabelsEditAdapter extends BaseBindingAdapter<Label,
-  LabelEditRowBinding, LabelHandlers, LabelViewModel,
-  LabelsEditAdapter.LabelViewHolder> {
+class LabelsEditAdapter extends BaseBindingAdapter<Label, LabelEditRowBinding,
+  LabelHandlers, LabelViewModel, LabelsEditAdapter.LabelViewHolder> {
 
   LabelsEditAdapter(LifecycleOwner owner, LabelHandlers handlers) {
     super(new LabelViewHolderFactory(), new LabelViewModelFactory(),
@@ -41,7 +41,8 @@ class LabelsEditAdapter extends BaseBindingAdapter<Label,
   }
 
   @Override
-  public void onBindViewHolder(final LabelViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull final LabelViewHolder holder,
+                               int position) {
     super.onBindViewHolder(holder, position);
 
     // observe error

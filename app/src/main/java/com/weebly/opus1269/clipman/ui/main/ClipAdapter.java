@@ -53,7 +53,7 @@ class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
   }
 
   @Override
-  public void onBindViewHolder(ClipViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull ClipViewHolder holder, int position) {
     super.onBindViewHolder(holder, position);
 
     if (AppUtils.isDualPane(App.INST())) {
@@ -76,7 +76,7 @@ class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
   }
 
   @Override
-  public void setList(List<Clip> list) {
+  public void submitList(List<Clip> list) {
     if (AppUtils.isDualPane(App.INST())) {
       // move selection in current list to new list
       final Clip selClip = mActivity.getSelectedClipSync();
@@ -84,14 +84,14 @@ class ClipAdapter extends BaseBindingAdapter<Clip, ClipRowBinding,
       final int newPos = getSelectedPos(list, selClip);
 
       if (pos == newPos) {
-        super.setList(list);
+        super.submitList(list);
       } else {
         setSelected(selClip, false);
-        super.setList(list);
+        super.submitList(list);
         setSelected(selClip, true);
       }
     } else {
-      super.setList(list);
+      super.submitList(list);
     }
     mList = list;
   }

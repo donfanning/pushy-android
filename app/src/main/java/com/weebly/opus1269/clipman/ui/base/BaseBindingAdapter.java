@@ -12,10 +12,8 @@ import android.arch.lifecycle.ViewModel;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.support.annotation.NonNull;
-import android.support.v7.recyclerview.extensions.DiffCallback;
-import android.support.v7.recyclerview.extensions.ListAdapterConfig;
-import android.support.v7.recyclerview.extensions.ListAdapterHelper;
-import android.support.v7.util.ListUpdateCallback;
+import android.support.v7.recyclerview.extensions.AsyncListDiffer;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -34,7 +32,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   U extends ViewDataBinding, V extends BaseHandlers, VM extends ViewModel,
   VH extends BaseViewHolder> extends RecyclerView.Adapter<VH> {
   /** Class identifier */
-  protected final String TAG = this.getClass().getSimpleName();
+  private final String TAG = this.getClass().getSimpleName();
 
   /** Our LifecycleOwner */
   protected final LifecycleOwner mLifecycleOwner;
@@ -45,8 +43,8 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   /** Our event handlers */
   private final V mHandlers;
 
-  /** Helper to handle List */
-  private final ListAdapterHelper<T> mHelper;
+  /** Helper to handle List changes */
+  private final AsyncListDiffer<T> mDiffer;
 
   /** Factory to create a typed ViewHolder */
   private final VHAdapterFactory<VH, U> mVHFactory;
@@ -63,16 +61,16 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
     mHandlers = handlers;
     mlayoutId = layoutId;
 
-    // create the ListAdapterHelper
-    final DiffCallback<T> diffCallback = new BaseDiffCallback();
-    mHelper = new ListAdapterHelper<>(new AdapterCallback(this),
-      new ListAdapterConfig.Builder<T>().setDiffCallback(diffCallback).build());
+    // create the AsyncListDiffer
+    final DiffUtil.ItemCallback<T> diffCallback = new BaseDiffCallback();
+    mDiffer = new AsyncListDiffer<>(this, diffCallback);
 
     setHasStableIds(true);
   }
 
   @Override
-  public VH onCreateViewHolder(ViewGroup parent, int viewType) {
+  @NonNull
+  public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     U binding = DataBindingUtil.inflate(inflater, mlayoutId, parent, false);
 
@@ -80,7 +78,7 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
   }
 
   @Override
-  public void onBindViewHolder(VH holder, int position) {
+  public void onBindViewHolder(@NonNull VH holder, int position) {
     final VM vm = mVMFactory.create(getItem(position));
     //noinspection unchecked
     holder.bind(mLifecycleOwner, vm, mHandlers);
@@ -88,62 +86,36 @@ public abstract class BaseBindingAdapter<T extends AdapterItem,
 
   @Override
   public int getItemCount() {
-    return mHelper.getItemCount();
+    return mDiffer.getCurrentList().size();
   }
 
   @Override
   public long getItemId(int position) {
-    return mHelper.getItem(position).getId();
+    return mDiffer.getCurrentList().get(position).getId();
   }
 
   /**
-   * Set the new list to be displayed.
+   * Pass a new List to the AdapterHelper.
+   * Adapter updates will be computed on a background thread.
    * <p>
-   * If a list is already being displayed, a diff will be computed on a
-   * background thread, which
-   * will dispatch Adapter.notifyItem events on the main thread.
-   * @param list The new list to be displayed.
+   * If a List is already present, a diff will be computed asynchronously
+   * on a background thread.
+   * When the diff is computed, it will be applied,
+   * and the new List will be swapped in.
+   *
+   * @param list The new List.
    */
-  public void setList(List<T> list) {
-    Log.logD(TAG, "setting list");
-    mHelper.setList(list);
+  public void submitList(List<T> list) {
+    Log.logD(TAG, "submitting list");
+    mDiffer.submitList(list);
   }
 
   private T getItem(int position) {
-    return mHelper.getItem(position);
-  }
-
-  /** Class to handle updates to our list */
-  static class AdapterCallback implements ListUpdateCallback {
-    private final RecyclerView.Adapter mAdapter;
-
-    AdapterCallback(RecyclerView.Adapter adapter) {
-      mAdapter = adapter;
-    }
-
-    @Override
-    public void onInserted(int position, int count) {
-      mAdapter.notifyItemRangeInserted(position, count);
-    }
-
-    @Override
-    public void onRemoved(int position, int count) {
-      mAdapter.notifyItemRangeRemoved(position, count);
-    }
-
-    @Override
-    public void onMoved(int fromPosition, int toPosition) {
-      mAdapter.notifyItemMoved(fromPosition, toPosition);
-    }
-
-    @Override
-    public void onChanged(int position, int count, Object payload) {
-      mAdapter.notifyItemRangeChanged(position, count, payload);
-    }
+    return mDiffer.getCurrentList().get(position);
   }
 
   /** Class to determine what has changed in our list */
-  class BaseDiffCallback extends DiffCallback<T> {
+  class BaseDiffCallback extends DiffUtil.ItemCallback<T> {
 
     @Override
     public boolean areItemsTheSame(@NonNull T oldItem,

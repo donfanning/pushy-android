@@ -314,7 +314,7 @@ public class MainActivity extends BaseActivity<MainBinding> implements
     // Observe clips
     mVm.getClips().observe(this, clips -> {
       if (clips != null) {
-        mAdapter.setList(clips);
+        mAdapter.submitList(clips);
         if (AppUtils.isEmpty(clips)) {
           mVm.setSelClip(null);
         } else {

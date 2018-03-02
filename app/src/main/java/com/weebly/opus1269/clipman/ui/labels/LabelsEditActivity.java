@@ -58,6 +58,6 @@ public class LabelsEditActivity extends BaseActivity<LabelsEditBinding> {
     });
 
     // Observe labels
-    mVm.getLabels().observe(this, mAdapter::setList);
+    mVm.getLabels().observe(this, mAdapter::submitList);
   }
 }

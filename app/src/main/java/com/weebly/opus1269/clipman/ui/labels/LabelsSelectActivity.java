@@ -71,7 +71,7 @@ public class LabelsSelectActivity extends BaseActivity {
     // Observe labels
     mVm.getLabels().observe(this, labels -> {
       if (labels != null) {
-        mAdapter.setList(labels);
+        mAdapter.submitList(labels);
       }
     });
 
