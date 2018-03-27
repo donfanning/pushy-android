@@ -118,7 +118,6 @@
     <orderEntry type="library" scope="TEST" name="Gradle: com.android.support.test.espresso:espresso-idling-resource-2.2.2" level="project" />
     <orderEntry type="library" name="Gradle: org.threeten:threetenbp:1.3.3:no-tzdb@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-v4-27.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.android.databinding:baseLibrary:3.1.0-rc02@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-media-compat-27.1.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.oauth-client:google-oauth-client:1.23.0@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.android.support.test:rules-0.5" level="project" />
@@ -131,8 +130,10 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-fragment-27.1.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:design-27.1.0" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.core:runtime-1.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.databinding:library-3.1.0" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.persistence.room:runtime-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:appcompat-v7-27.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.databinding:adapters-3.1.0" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:C.\Users\mike\Documents\GitHub\pushy-android\app\libs\registration-v1-1.22.0-SNAPSHOT-sources.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-analytics-impl-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.persistence.room:common:1.0.0@jar" level="project" />
@@ -184,6 +185,7 @@
     <orderEntry type="library" name="Gradle: android.arch.persistence:db-1.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.android.support.test:runner-0.5" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-messaging-11.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.databinding:baseLibrary:3.1.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.takisoft.fix:preference-v7-27.1.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.android.support.test:exposed-instrumentation-api-publish-0.5" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-common-license-11.8.0" level="project" />
@@ -206,11 +208,9 @@
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-tasks-11.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-integration:1.3@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-library:1.3@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.android.databinding:adapters-3.1.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.http-client:google-http-client-android:1.23.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.core:common:1.1.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.android.databinding:library-3.1.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-tagmanager-v4-impl-license-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-auth-license-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: android-android-27" level="project" />
